@@ -1,0 +1,51 @@
+# binaries
+*.exe
+*.o
+*.so
+*.obj
+
+# archives
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# logs
+*.log
+*.tlog
+
+# VS detritus
+*.idb
+*.user
+*.suo
+*.opensdf
+*.sdf
+*.ilk
+*.ipch
+*.lastbuildstate
+*.unsuccessfulbuild
+*.exp
+*.manifest
+*.manifest.res
+*manifest.rc
+*.ncb
+
+# misc
+*.bak
+
+# Intel VTune Amplifier XE Results
+My Amplifier XE Results - SimpleTest/
+
+# igonore CVS folders
+CVS/
+
+# VS temporary paths
+# todo: ignore anything with /Debug/ in the path, etc.
+Debug/
+Release/
+
+Holding/
