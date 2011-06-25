@@ -1,0 +1,321 @@
+<HTML
+><HEAD
+><TITLE
+>Space and Distance</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.44"><LINK
+REL="HOME"
+TITLE="      OpenAL Specification and Reference
+    "
+HREF="index.html"><LINK
+REL="UP"
+TITLE="State and State Requests"
+HREF="state-requests.html"><LINK
+REL="PREVIOUS"
+TITLE="Time and Frequency"
+HREF="time.html"><LINK
+REL="NEXT"
+TITLE="Attenuation By Distance"
+HREF="attenuation-by-distance.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>OpenAL Specification and Reference</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="time.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>State and State Requests</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="attenuation-by-distance.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="SCALING"
+>Space and Distance</A
+></H1
+><P
+>       AL does not define the units of measurement for distances.
+       The application is free to use meters, inches, or parsecs.
+       AL provides means for simulating the natural attenuation 
+       of sound according to distance, and to exagerate or reduce 
+       this effect. However, the resulting effects do not depend on 
+       the distance unit used by the application to express source 
+       and listener coordinates. AL calculations are scale
+       invariant.
+    </P
+><P
+>       The specification assumes Euclidean calculation of
+       distances, and mandates that if two Sources are
+       sorted with respect to the Euclidean metric, the
+       distance calculation used by the implementation has
+       to preserve that order. 
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (No DistanceFactor)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>         AL does not provide a global, per Context DISTANCE_FACTOR,
+         as all calculations are scale invariant.   
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (Distance Calculations)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>         The specification does not enforce that distances
+         are calculated using the euclidean norm, to permit
+         using computationally cheaper approximations. 
+         Implementations that opt to use approximations
+         might cause audible artifacts. The specification does
+         not enforce any upper limits on distance calculation 
+         errors yet. 
+       </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK000915-02"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC: Limiting Errors</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+          Do we limit permissible errors on distance or gain
+          calculations? How much quality
+          and accuracy do we expect from conformant implementations? 
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (DS3D DistanceFactor)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>         The DS3D documentation explicitely states that the default
+         unit is 1 meter. AL does not specify any units.
+         AL calculations are scale invariant. The main purpose
+         of the DS3D DistanceFactor (modifying Doppler Shift 
+         by scaling velocity but not reference velocity) is
+         accomplished using DOPPLER_VELOCITY in AL.  AL
+         does not have an equivalent to A3D's SetUnitsPerMeter
+         either.
+          
+       </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="time.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="attenuation-by-distance.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Time and Frequency</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="state-requests.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Attenuation By Distance</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

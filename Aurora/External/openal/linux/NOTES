@@ -1,0 +1,20 @@
+NOTES:
+	GENERAL:
+	A few functions are either missing or stubbed out.  If 
+	you need a function implemented in a hurry, please email me.
+	99% of the stub/missing functions things need just a little
+	glue.
+
+	FILTERS:
+	Filter functionality is uneven at the moment.  Except for
+	alf_da, they suffer from deviations from their "specified"
+	behaviour.  The frequency based filters deviate the most
+	(if implemented at all).
+
+	API:
+	I've added the header file AL/alkludge.h for stuff that 
+	I know needs to either change or be removed but haven't 
+	got around to it yet.  For example, alcParamater1f.
+	That's a function that's about to go (in favor of alAttenuation*)
+	so I've stuck it there.
+

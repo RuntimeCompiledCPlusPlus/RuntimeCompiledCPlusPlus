@@ -1,0 +1,48 @@
+CC=@CC@
+CFLAGS=@CFLAGS@ -Wno-unused -rdynamic
+DEFS=@DEFINES@
+TEST_PROGS=testtypes testreverb testda testmulti testalut testtime  \
+           testmultialut testalinitexit                 \
+	   testsingle testnothread \
+	   testmath           \
+	   testmultinothread testpitch testdoppler 		 \
+	   testsourcestop 	    testext teststream \
+	   testcallback testorient testrelative testchannel     \
+	   testpause \
+	   testpitchnothread testpitch2 testpitchnothread2 \
+	   testgain testchannel2 testloop testlistener testbufferuniq    \
+	   testsourceuniq testgendelbuffer_error testgendelsource_error        \
+	   testmultichannel testlistener2 testlistener3      \
+	   testlistener4 testmp3 testvorbis testgainlinear \
+	   testmultimp3 testpitch3 testpitch4 testqueue testqueue2       \
+	   testqueue3 testcapture \
+	   testcapture2 testmp32 testleak testmulticontext      \
+	   testleak2 testmulticontext2 teststartstop testdevice \
+	   teststrings
+
+LIBS=testlib.o -L../src -lopenal @LIBS@
+INC=-I../src -I../include -I../../include -I../audioconvert @INCLUDES@
+LIBOPENAL=../src/libopenal.a
+MAKE=@MAKE@
+
+% : %.c ../config.h testlib.o
+	$(CC) $(INC) $(DEFS) $(CFLAGS) $< -o $@ $(LIBS)
+
+all: testlib.o $(LIBOPENAL) $(TEST_PROGS) ../src/libopenal.a
+
+testlib.o : testlib.c testlib.h ../config.h
+	$(CC) $(INC) $(DEFS) $(CFLAGS) -c testlib.c -o testlib.o
+
+clean:
+	rm -f testlib.o
+	rm -f $(TEST_PROGS)
+	rm -f core
+	rm -f gmon.out
+
+distclean: clean
+	rm -Rf Makefile
+
+libopenal: $(LIBOPENAL)
+
+$(LIBOPENAL): 
+	(cd ../src && make all)

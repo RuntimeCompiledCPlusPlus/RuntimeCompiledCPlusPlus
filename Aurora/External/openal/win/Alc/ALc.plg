@@ -1,0 +1,27 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: ALc - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\WINDOWS\TEMP\RSP42C5.TMP" with contents
+[
+/nologo /G6 /Gd /Zp8 /ML /W3 /GX /O2 /I "..\\" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\Development Libraries\openal\win\ALc\ALc.c"
+]
+Creating command line "cl.exe @C:\WINDOWS\TEMP\RSP42C5.TMP" 
+Creating command line "link.exe -lib /nologo /out:"Release\ALc.lib"  ".\Release\ALc.obj" "
+<h3>Output Window</h3>
+Compiling...
+ALc.c
+Creating library...
+
+
+
+<h3>Results</h3>
+ALc.lib - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

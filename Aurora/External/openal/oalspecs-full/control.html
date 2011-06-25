@@ -1,0 +1,262 @@
+<HTML
+><HEAD
+><TITLE
+>Controlling AL Execution</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.44"><LINK
+REL="HOME"
+TITLE="      OpenAL Specification and Reference
+    "
+HREF="index.html"><LINK
+REL="UP"
+TITLE="OpenAL Operation"
+HREF="oal-operation.html"><LINK
+REL="PREVIOUS"
+TITLE="AL Errors"
+HREF="errors.html"><LINK
+REL="NEXT"
+TITLE="Object Paradigm"
+HREF="objects.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>OpenAL Specification and Reference</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="errors.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>OpenAL Operation</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="objects.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="CONTROL"
+>Controlling AL Execution</A
+></H1
+><P
+>     The application can temporarily disable certain AL capabilities 
+     on a per Context basis. This allows the driver implementation 
+     to optimize for certain subsets of operations.
+      Enabling and disabling capabilities is handled using a function
+      pair. 
+      <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+> void  <TT
+CLASS="FUNCTION"
+> Enable </TT
+></CODE
+>( enum  <TT
+CLASS="PARAMETER"
+><I
+> target </I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+>
+     <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+> void  <TT
+CLASS="FUNCTION"
+> Disable </TT
+></CODE
+>( enum  <TT
+CLASS="PARAMETER"
+><I
+> target </I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+>
+     The application can also query whether a given capability is
+     currently enabled or not.
+      <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+> boolean  <TT
+CLASS="FUNCTION"
+> IsEnabled </TT
+></CODE
+>( enum  <TT
+CLASS="PARAMETER"
+><I
+> target </I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+>
+     If the token used to specify target is not legal,
+     an  INVALID_ENUM error will be generated.
+   </P
+><P
+>     At this time, this mechanism is not used. There are no valid
+     targets.
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (Enable/Disable)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>          Currently, AL is controlled exploiting existing
+          commands. For example, to disable sound output but
+          not processing, the Listener can be muted setting
+          GAIN to zero. Selecting NONE as the distance model
+          disables distance attenuation. Setting DOPPLER_FACTOR
+          to zero disables the Doppler Effect. A redundant
+          mechanism to accomplish the same is not needed.
+       </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="errors.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="objects.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>AL Errors</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="oal-operation.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Object Paradigm</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

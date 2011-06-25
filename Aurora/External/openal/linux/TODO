@@ -1,0 +1,30 @@
+TODO:
+	Before 1.0 release:
+	  - check tokens/functions to make sure 100% interface
+	  - remove deprecated functions/tokens
+	  - remove deprecated Loki extensions
+	  - update callback extension
+
+	General:
+	  - check UNUSED (and eventually remove them)
+	  - clean up context create/destroy behaviour
+	  - implement IASIG stuff
+	  - make sure data format is consistent within openal
+	  - merge pool functions?
+	  - comments, examples, documentation, testing
+
+	Filters:
+	  - fix/remove reverb
+
+	Backends:
+	  general:
+	    - implement missing functions
+	  windows native:
+	    - implement dsound backend
+	  emu10k1:
+	    - implement routing on two cards
+
+	Testing:
+	  - callbacks with filters (alf_tpitch in particular) 
+	  - locking
+	  - more in general

@@ -1,0 +1,240 @@
+<HTML
+><HEAD
+><TITLE
+>No Culling By Distance</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.44"><LINK
+REL="HOME"
+TITLE="      OpenAL Specification and Reference
+    "
+HREF="index.html"><LINK
+REL="UP"
+TITLE="State and State Requests"
+HREF="state-requests.html"><LINK
+REL="PREVIOUS"
+TITLE="Evaluation of Gain/Attenuation Related State"
+HREF="order-distance.html"><LINK
+REL="NEXT"
+TITLE="Velocity Dependent Doppler Effect"
+HREF="doppler-scale.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>OpenAL Specification and Reference</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="order-distance.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>State and State Requests</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="doppler-scale.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="CULLING-BY-DISTANCE"
+>No Culling By Distance</A
+></H1
+><P
+>  
+      With the DS3D compatible Inverse Clamped Distance Model,
+      AL provides a per-Source MAX_DISTANCE attribute
+      that can be used to define a distance beyond which the Source will
+      not be further attenuated by distance.  
+       The DS3D distance attenuation model and its clamping of volume
+       is also extended by a mechanism to cull (mute) sources from proccessing,
+       based on distance. However, AL does not
+       support culling a Source from processing based on a distance
+       threshold.
+    </P
+><P
+>       At this time AL is not meant to support culling at all. Culling
+       based on distance, or bounding volumes, or other criteria, is best
+       left to the application. For example, the application might
+       employ sophisticated techniques to determine whether sources
+       are audible that are beyond the scope of AL. In particular,
+       rule based culling inevitably introduces acoustic artifacts.
+       E.g. if the Listener-Source distance is nearly equal to the
+       culling threshold distance, but varies above and below, there
+       will be popping artifacts in teh absence of hysteresis.
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (No MAX_DISTANCE plus MUTE)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>         AL does support the AUDIBLE mode with MAX_DISTANCE (clamping),
+         but does not support culling. Applications that employ this
+         DS3D feature will have to perform their own distance calculation
+         and mute the source (Source GAIN equals zero) as desired.
+       </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK000803-07"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC: DS3D-like Extension</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+         For ease of portability, should we define an Extension that
+         provides MAX_DISTANCE for MUTE mode?
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="order-distance.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="doppler-scale.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Evaluation of Gain/Attenuation Related State</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="state-requests.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Velocity Dependent Doppler Effect</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

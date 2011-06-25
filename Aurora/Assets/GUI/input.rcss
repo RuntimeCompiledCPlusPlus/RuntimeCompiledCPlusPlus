@@ -1,0 +1,37 @@
+body
+{
+	font-family: Delicious;
+	font-weight: normal;
+	font-style: normal;
+	font-size: 20;
+	color: white;
+	z-index: -2;
+}
+
+div#splash
+{	
+	position: absolute;
+}
+
+textarea#info
+{	
+	font-size: 13;
+
+	position: absolute;
+	width: 220px;
+	height: 170px;
+
+	color: black;
+	
+	padding: 12px;
+
+	background-decorator: tiled-box;
+	background-top-left-image: console.tga 281px 272px 292px 284px;
+	background-top-right-image: console.tga 294px 272px 305px 284px;
+	background-top-image: console.tga stretch 292px 272px 293px 284px;
+	background-bottom-left-image: console.tga 281px 285px 292px 296px;
+	background-bottom-right-image: console.tga 294px 285px 305px 296px;
+	background-bottom-image: console.tga stretch 292px 285px 293px 296px;
+	background-left-image: console.tga stretch 281px 283px 292px 284px;
+	background-center-image: console.tga stretch 292px 283px 293px 284px;
+}

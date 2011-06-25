@@ -1,0 +1,53 @@
+To add a new platform:
+	1) Add target mojo to configure.in
+	2) Add target mojo to arch/interface/platform.h
+	3) Create a directory under arch, a la arch/bsd
+
+NOTE:
+	This is not exactly the same as adding a new backend.  When
+	adding a new platform, you are adding a new backend, but a
+	native one (ie, the one specified by the "native" device).  You'll
+	need to make your aquisition/management funcs the following:
+
+	void *grab_write_native(void);
+		For aquiring the device (for writing) and returning a
+		unique identifier
+
+	void *grab_read_native(void);
+		For aquiring the device (for reading) and returning a
+		unique identifier
+
+	ALboolean set_write_native(void *handle,
+			     unsigned int *bufsiz,
+			     unsigned int *fmt,
+			     unsigned int *speed);
+		For setting the format, rate, etc associated with
+		data written to this handle.
+
+	ALboolean set_read_native(void *handle,
+			     unsigned int *bufsiz,
+			     unsigned int *fmt,
+			     unsigned int *speed);
+		For setting the format, rate, etc associated with
+		data read from this handle.
+
+	void native_blitbuffer(void *handle, void *data, int bytes);
+		Write bytes worth of data from data to the device
+		specified by handle.
+
+	void release_native(void *handle);
+		close/free the audio device specified by handle.
+
+	float get_nativechannel(void *handle, ALCenum channel);
+		Return (normalized) mixer level for device specified by handle
+		associated with channel.
+		
+	int set_nativechannel(void *handle, ALCenum channel, float volume);
+		Set mixer level for device specified by handle
+		associated with channel.
+
+	void pause_nativedevice(void *handle);
+		Inform device specified by handle about an upcoming pause.
+
+	void resume_nativedevice(void *handle);
+		Inform device specified by handle about an upcoming resume.

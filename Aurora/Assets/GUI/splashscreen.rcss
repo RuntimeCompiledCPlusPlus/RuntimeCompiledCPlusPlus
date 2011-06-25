@@ -1,0 +1,17 @@
+body
+{
+	font-family: Delicious;
+	font-weight: normal;
+	font-style: normal;
+	font-size: 20;
+	color: white;
+}
+
+img#splash
+{	
+	z-index: -1;
+		
+	position: absolute;
+}
+
+

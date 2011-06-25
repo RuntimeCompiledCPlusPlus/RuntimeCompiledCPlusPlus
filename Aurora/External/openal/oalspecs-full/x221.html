@@ -1,0 +1,253 @@
+<HTML
+><HEAD
+><TITLE
+>Basic AL Operation</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.44"><LINK
+REL="HOME"
+TITLE="      OpenAL Specification and Reference
+    "
+HREF="index.html"><LINK
+REL="UP"
+TITLE="OpenAL Operation"
+HREF="oal-operation.html"><LINK
+REL="PREVIOUS"
+TITLE="AL Command Syntax"
+HREF="x215.html"><LINK
+REL="NEXT"
+TITLE="AL Errors"
+HREF="errors.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>OpenAL Specification and Reference</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="x215.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>OpenAL Operation</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="errors.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="AEN221"
+>Basic AL Operation</A
+></H1
+><P
+>       AL can be used for a variety of audio playback tasks, and is an
+       excellent complement to OpenGL for real-time rendering.  A programmer who is
+       familiar with OpenGL will immediately notice the similarities between the
+       two APIs in that they describe their 3D environments using similar methods.
+     </P
+><P
+>       For an OpenGL/AL program, most of the audio programming will be in two
+       places in the code: initialization of the program, and the rendering loop. 
+       An OpenGL/AL program will typically contain a section where the graphics and 
+       audio systems are initialized, although it may be spread into multiple functions.
+       For OpenAL, initialization normally consists of creating a context, creating
+       the initial set of buffers, loading the buffers with sample data, creating 
+       sources, attaching buffers to sources, setting locations and directions for 
+       the listener and sources, and setting the initial values for state global 
+       to AL.
+    </P
+><DIV
+CLASS="EXAMPLE"
+><P
+><B
+>Example 1. Initialization Example</B
+></P
+><P
+>          
+     </P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>    
+  </PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="EXAMPLE"
+><P
+><B
+>Example 2. Initialization Example</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>      
+       </PRE
+></TD
+></TR
+></TABLE
+></DIV
+><P
+>      The audio update within
+      the rendering loop normally consists of telling AL the current locations
+      of the sources and listener, updating the environment settings, and managing
+      buffers.
+   </P
+><DIV
+CLASS="EXAMPLE"
+><P
+><B
+>Example 3. Processing Loop</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>// PlaceCamera -- places OpenGL camera and updates OpenAL listener position and source state
+void 3DEnvironemnt:PlaceCamera()
+{
+   // update OpenGL camera position
+   glMatrixMode(GL_PROJECTION);
+   glLoadIdentity();
+   glFrustum(-0.1333, 0.1333, -0.1, 0.1, 0.2, 50.0);
+
+   gluLookAt(listenerPos[0], listenerPos[1], listenerPos[2],
+      (listenerPos[0] + sin(listenerAngle)), listenerPos[1], (listenerPos[2] - cos(listenerAngle)),
+      0.0, 1.0, 0.0);
+
+   // OpenAL stuff...
+   // place listener at camera
+   alListener3f(AL_POSITION, listenerPos[0], listenerPos[1], listenerPos[2]);
+   float directionvect[6];
+   directionvect[0] = (float) sin(listenerAngle);
+   directionvect[1] = 0;
+   directionvect[2] = (float) cos(listenerAngle);
+   directionvect[3] = 0;
+   directionvect[4] = 1;
+   directionvect[5] = 0;
+   alListenerfv(AL_ORIENTATION, directionvect);
+
+   // play phasor if in range, else stop playback
+   if (range() &#60; 9)
+   {
+      alSourcePlay(source[1]);
+   } else
+   {
+      alSourceStop(source[1]);
+   }
+}       
+       </PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="x215.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="errors.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>AL Command Syntax</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="oal-operation.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>AL Errors</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

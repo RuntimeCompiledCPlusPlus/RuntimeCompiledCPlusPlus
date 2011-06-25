@@ -1,0 +1,905 @@
+<HTML
+><HEAD
+><TITLE
+>ALC Queries</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.44"><LINK
+REL="HOME"
+TITLE="      OpenAL Specification and Reference
+    "
+HREF="index.html"><LINK
+REL="UP"
+TITLE="AL Contexts and the ALC API"
+HREF="alc.html"><LINK
+REL="PREVIOUS"
+TITLE="Managing Rendering Contexts"
+HREF="x1739.html"><LINK
+REL="NEXT"
+TITLE="Shared Objects"
+HREF="x2034.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>OpenAL Specification and Reference</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="x1739.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>AL Contexts and the ALC API</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="x2034.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="AEN1862"
+>ALC Queries</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1864"
+>Query for Current Context</A
+></H2
+><P
+>      The application can query for, and obtain an handle to, the current
+      context for the application. If there is no current context, NULL is 
+      returned. 
+      <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+> ALCcontext * <TT
+CLASS="FUNCTION"
+>alcGetCurrentContext</TT
+></CODE
+>(void);</CODE
+></P
+><P
+></P
+></DIV
+>
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1872"
+>Query for a Context's Device</A
+></H2
+><P
+>      The application can query for, and obtain an handle to, the device
+      of a given context. 
+      <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+> ALCdevice * <TT
+CLASS="FUNCTION"
+>alcGetContextsDevice</TT
+></CODE
+>( ALCcontext * <TT
+CLASS="PARAMETER"
+><I
+> context </I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+>
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1881"
+>Query For Extensions</A
+></H2
+><P
+>     To verify that a given extension is available for the current
+     context and the device it is associated with, use 
+        <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>boolean <TT
+CLASS="FUNCTION"
+>IsExtensionPresent</TT
+></CODE
+>( const ALCdevice * <TT
+CLASS="PARAMETER"
+><I
+>deviceHandle</I
+></TT
+>, const ubyte  * <TT
+CLASS="PARAMETER"
+><I
+> extName </I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+>
+     A NULL name argument returns FALSE, as do invalid and unsupported string
+     tokens. A NULL deviceHandle will result in an INVALID_DEVICE error.
+    
+      <DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (Exlicit Device Parameter)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>         Certain ALC Extensions might be relevant to context creation
+         (like additional attributes, or support for unusual multi-context
+         combinations), thus the application might have to query these
+         before a context is created. On the other hand, ALC Extensions
+         are specific to the device.
+       </P
+></TD
+></TR
+></TABLE
+></DIV
+>
+    
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1895"
+>Query for Function Entry Addresses</A
+></H2
+><P
+>       The application is expected to verify the applicability of
+       an extension or core function entry point before requesting
+       it by name, by use of alcIsExtensionPresent.
+       <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+> void  * <TT
+CLASS="FUNCTION"
+> alcGetProcAddress</TT
+></CODE
+>( const ALCdevice * <TT
+CLASS="PARAMETER"
+><I
+>deviceHandle</I
+></TT
+>,  const ubyte  * <TT
+CLASS="PARAMETER"
+><I
+> funcName </I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+> 
+       Entry points can be device specific, but are not context specific.
+       Using a NULL device handle does not guarantee that the entry
+       point is returned, even if available for one of the available
+       devices. Specifying a NULL name parameter will cause an
+       ALC_INVALID_VALUE error.
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1906"
+>Retrieving Enumeration Values</A
+></H2
+><P
+>       Enumeration/token values are device independend, but tokens
+       defined for extensions might not be present for a given device.
+       Using a NULL handle is legal, but only the tokens defined by
+       the AL core are guaranteed. Availability of extension tokens
+       dependends on the ALC extension.
+       <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+> uint  <TT
+CLASS="FUNCTION"
+> alcGetEnumValue </TT
+></CODE
+>( const ALCdevice * <TT
+CLASS="PARAMETER"
+><I
+>deviceHandle</I
+></TT
+>,  const ubyte  <TT
+CLASS="PARAMETER"
+><I
+> enumName </I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+> 
+       Specifying a NULL name parameter will cause an
+       ALC_INVALID_VALUE error.
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1917"
+>Query for Error Conditions</A
+></H2
+><P
+>      ALC uses the same conventions and mechanisms as AL for error
+      handling. In particular, ALC does not use conventions
+      derived from X11 (GLX) or Windows (WGL).
+      The alcGetError function can be used to query ALC errors.
+      <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>enum <TT
+CLASS="FUNCTION"
+>alcGetError</TT
+></CODE
+>( ALCdevice * <TT
+CLASS="PARAMETER"
+><I
+>deviceHandle</I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+>
+      Error conditions are specific to the device.
+     </P
+><P
+>    <DIV
+CLASS="TABLE"
+><P
+><B
+>Table 2. Error Conditions</B
+></P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>ALC_NO_ERROR</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>The device handle or specifier does name an accessible driver/server.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>ALC_INVALID_DEVICE</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>The Context argument does not name a valid context.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>ALC_INVALID_CONTEXT</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>The Context argument does not name a valid context.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>ALC_INVALID_ENUM</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>A token used is not valid, or not applicable.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>ALC_INVALID_VALUE</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>An value (e.g. attribute) is not valid, or not applicable.</TD
+></TR
+></TABLE
+></DIV
+>
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (No UNDERFLOW error)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>         Applications using synchronous (and, depending on CPU 
+         load, even an asynchronous implementation itself) might
+         fail to prevent underflow of the rendering output
+         buffer. No ALC error is generated in these cases,
+         as it this error condition can not be applied to a
+         specific command. 
+       </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1955"
+>String Query</A
+></H2
+><P
+>     The application can obtain certain strings from ALC.
+      <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>const ubyte  * <TT
+CLASS="FUNCTION"
+>alcGetString</TT
+></CODE
+>( ALCdevice * <TT
+CLASS="PARAMETER"
+><I
+>deviceHandle</I
+></TT
+>,  enum  <TT
+CLASS="PARAMETER"
+><I
+> token </I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+>
+     For some tokens, NULL is is a legal value for the deviceHandle.
+     In other cases, specifying a NULL device will generate an 
+     ALC_INVALID_DEVICE error.
+  </P
+><P
+>    <DIV
+CLASS="TABLE"
+><P
+><B
+>Table 3. String Query Tokens</B
+></P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>ALC_DEFAULT_DEVICE_SPECIFIER</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>The specifier string for the default device (NULL handle is legal).</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>ALC_DEVICE_SPECIFIER</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>The specifier string for the device (NULL handle is not legal).</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>ALC_EXTENSIONS</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>The extensions string for diagnostics and printing.</TD
+></TR
+></TABLE
+></DIV
+>
+    </P
+><P
+>     In addition, printable error message strings are provided for 
+     all valid error tokens, including ALC_NO_ERROR, ALC_INVALID_DEVICE,
+     ALC_INVALID_CONTEXT, ALC_INVALID_ENUM, ALC_INVALID_VALUE.
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1987"
+>Integer Query</A
+></H2
+><P
+>    The application can query ALC for information using an integer
+    query function.
+      <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>  void  <TT
+CLASS="FUNCTION"
+>alcGetIntegerv</TT
+></CODE
+>( ALCdevice * <TT
+CLASS="PARAMETER"
+><I
+>deviceHandle</I
+></TT
+>,  enum  <TT
+CLASS="PARAMETER"
+><I
+> token </I
+></TT
+>,  sizei  <TT
+CLASS="PARAMETER"
+><I
+> size </I
+></TT
+>,  int  <TT
+CLASS="PARAMETER"
+><I
+> dest </I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+>
+    For some tokens, NULL is a legal deviceHandle. In other
+    cases, specifying a NULL device will generate an ALC_INVALID_DEVICE 
+    error. The application
+    has to specify the size of the destination buffer provided.
+    A NULL destination or a zero size parameter will cause ALC to ignore
+    the query.
+  </P
+><P
+>    <DIV
+CLASS="TABLE"
+><P
+><B
+>Table 4. Integer Query Tokens</B
+></P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>ALC_MAJOR_VERSION</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Major version query.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>ALC_MINOR_VERSION</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Minor version query.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>ALC_ATTRIBUTES_SIZE</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>The size required for the zero-terminated attributes
+               list, for the current context. NULL is an invalid
+               device. NULL (no current context for the
+               specified device) is legal.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>ALC_ALL_ATTRIBUTES</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Expects a destination of ALC_CURRENT_ATTRIBUTES_SIZE,
+               and provides the attribute list for the current
+               context of the specified device. NULL is an invalid
+               device. NULL (no current context for the
+               specified device) will return the default attributes
+               defined by the specified device.</TD
+></TR
+></TABLE
+></DIV
+>
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (Backward Compatibility)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>      Backward compatibility is guaranteed only for minor revisions.
+      Breaking ABI backwards compatibility will require a issuing
+      major revision.
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK001026-02"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC / Version Matching</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+        The ALC version can be different from the AL version. 
+        The ALC major version has to be identical between
+        application and driver (client and server). 
+        The ALC minor version can differ between client and server, 
+        and the minimum of the two minor version numbers is returned.
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK001027-03"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC / Device Enumeration</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+         ALC_NUM_DEVICE_SPECIFIERS could be provided as an extension,
+         but it requires the number of device configurations to be
+         finite and small, as they are to be represented by strings.
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="x1739.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="x2034.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Managing Rendering Contexts</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="alc.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Shared Objects</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

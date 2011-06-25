@@ -1,0 +1,214 @@
+<HTML
+><HEAD
+><TITLE
+>Retrieving Enumeration Values</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.44"><LINK
+REL="HOME"
+TITLE="      OpenAL Specification and Reference
+    "
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Extensions"
+HREF="a2071.html"><LINK
+REL="PREVIOUS"
+TITLE="Retrieving Function Entry Addresses"
+HREF="x2089.html"><LINK
+REL="NEXT"
+TITLE="Naming Conventions"
+HREF="x2114.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>OpenAL Specification and Reference</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="x2089.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Extensions</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="x2114.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="AEN2102"
+>Retrieving Enumeration Values</A
+></H1
+><P
+>       To obtain enumeration values for extensions, the application has 
+       to use GetEnumValue of an extension token. Enumeration values are
+       defined within the AL namespace and allocated according to
+       specification of the core API and the extensions, thus they are
+       context-independent.
+       <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+> uint  <TT
+CLASS="FUNCTION"
+> GetEnumValue </TT
+></CODE
+>( const ubyte <TT
+CLASS="PARAMETER"
+><I
+> enumName </I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+> 
+       Returns 0 if the enumeration can not be found. The presence of an
+       enum value does not guarantee the applicability of an extension
+       to the current context. A non-zero return indicates merely that
+       the implementation is aware of the existence of this extension.
+       Implementations should not attempt to return 0 to indicate that
+       the extensions is not supported for the current context. 
+     </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation/ enums with value zero</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>          The literal value 0 is guaranteed for a number of AL
+          enums, such as  FALSE, NONE, ZERO. As with GL applications
+          might employ sloppy use of this identity. It also means
+          that enums with zero value can not be queried through
+          GetEnumValue, a minor flaw given the constraints of
+          ABI backward compatibility. The recommended value to
+          compare GetEnumValue results with is NONE.
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="x2089.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="x2114.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Retrieving Function Entry Addresses</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="a2071.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Naming Conventions</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

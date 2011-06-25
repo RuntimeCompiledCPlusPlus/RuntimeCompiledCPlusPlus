@@ -1,0 +1,1215 @@
+<HTML
+><HEAD
+><TITLE
+>Manipulating Buffer Attributes</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.44"><LINK
+REL="HOME"
+TITLE="      OpenAL Specification and Reference
+    "
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Buffers"
+HREF="buffers.html"><LINK
+REL="PREVIOUS"
+TITLE="Managing Buffer Names"
+HREF="x1495.html"><LINK
+REL="NEXT"
+TITLE="AL Contexts and the ALC API"
+HREF="alc.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>OpenAL Specification and Reference</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="x1495.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Buffers</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="alc.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="AEN1545"
+>Manipulating Buffer Attributes</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1547"
+>Buffer Attributes</A
+></H2
+><P
+>        This section lists the attributes that can be set, or
+        queried, per Buffer. Note that some of these attributes
+        can not be set using the Buffer commands, but are set
+        using commands like BufferData.
+    </P
+><P
+>      Querying the attributes of a Buffer with a buffer name that
+      is not valid throws an INVALID_OPERATION. Passing in an
+      attribute name that is invalid throws an INVALID_VALUE error.
+   </P
+><P
+>    <DIV
+CLASS="TABLE"
+><P
+><B
+>Table 1. Buffer FREQUENCY Attribute</B
+></P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Signature</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Values</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Default</TH
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+> FREQUENCY </TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+> float </TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+> none </TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+> (0, any]</TD
+></TR
+></TABLE
+></DIV
+>
+       Description: Frequency, specified in samples per second, 
+       i.e. units of Hertz [Hz].
+       Query by GetBuffer. The frequency state of a buffer is set by 
+       BufferData calls. 
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (No Frequency enumeration)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>         As the implementation has to support conversion from
+         one frequency to another to implement pitch, it is
+         feasible to offer support for arbitrary sample
+         frequencies, instead of restricting the application
+         to an enumeration of supported sample frequencies. 
+         Another reason not to limit frequency to an enumerated
+         set is that future hardware might support variable
+         frequencies as well (it might be preferable to choose 
+         the sampling frequency according to the PSD of the 
+         signal then).
+      </P
+><P
+> 
+         However, it is desirable to avoid conversions due
+         to differences between the sample frequency used in
+         the original data, the frequency supported during the
+         mixing, and the frequency expected by the output device.
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (Implied Frequency)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>         To account for the possibility of future AL implementations 
+         supporting encoding formats for the application might 
+         not want, or be able, to retrieve the actual frequency 
+         from the encoded sample, the specification will be
+         amended to guarantee the following behavior: If a nonzero
+         frequency is specified, it will force a conversion from 
+         the actual to the requested frequency. If the application 
+         specifies a 0 frequency, AL will use the actual frequency.
+         If there is no frequency information implied by the format
+         or contained in the encoded data, specifying a 0 frequency
+         will yield INVALID_VALUE. It is recommended that applications
+         use NONE instead of the literal value. 
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK000806-01"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC: BITS not needed</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+      This is not a setter. As a state query it doesn't provide useful
+      information about the internal canonical format (which could be
+      queried independent of the buffer).
+    </P
+></TD
+></TR
+></TABLE
+></DIV
+><P
+>    <DIV
+CLASS="TABLE"
+><P
+><B
+>Table 2. Buffer BITS Attribute</B
+></P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Signature</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Values</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Default</TH
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>BITS</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>ui</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>8,16</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>0</TD
+></TR
+></TABLE
+></DIV
+>
+      Description: 
+       Bits per sample. This is a query-only attribute. The
+       default value for an (empty) buffer is zero.
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (No Format query)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>         As of this time there is no query for FORMAT, or format
+         related state information. Query of the channels or
+         bits of a given buffer make little sense if the query
+         the internal (canonical, not buffer specific) format.
+         Query of the original sample data format makes little
+         sense unless the implementation is obliged to preserve
+         the original data.
+       </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK000806-02"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC: CHANNELS needed?</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+         No setter. Does this indicate the channels in the original data, 
+         or those in the (canonical) format internally used? Redundant to
+         querying the buffer type. Should be enums as speaker configurations
+         might have to be destribed by two integers: 5.1. 
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><P
+>          <DIV
+CLASS="TABLE"
+><P
+><B
+>Table 3. Buffer CHANNELS Attribute</B
+></P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Signature</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Values</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Default</TH
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>CHANNELS</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>ui</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>RFC: enums or N/A?</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>0</TD
+></TR
+></TABLE
+></DIV
+>
+          Description: Channels that buffer stores. Query only
+          attribute. This is almost
+          always 1, as applications using spatialized sound always
+          downsample to mono. This depends on the purpose of the
+          buffer: buffers used for spatialization have to provide
+          single-channel data. The default value for an (empty)
+          buffer is zero.
+	</P
+><P
+>          <DIV
+CLASS="TABLE"
+><P
+><B
+>Table 4. Buffer SIZE Attribute</B
+></P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Signature</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Values</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Default</TH
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>SIZE</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+> sizei  </TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+> [0, MAX_UINT]</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+> 0 </TD
+></TR
+></TABLE
+></DIV
+>
+          Description: Size in bytes of the buffer data. Query through
+          GetBuffer, can be set only using BufferData calls. 
+          Setting a SIZE of 0 is a legal NOP. The number of bytes does 
+          not necessarily equal the number of samples (e.g. for compressed data).
+	</P
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK000724-15"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC: buffer overflow/underflow</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+         If a SIZE is specified for a buffer and an attempt is made to
+         write less or more data to the buffer, is this an error? Do we
+         have SubData updates? Is trying to write data to a zero size buffer
+         an error? Which error? 
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK000619-16"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC: query for samples/duration?</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+         Do we need a query for samples (which does not equal memory size)?
+         Do we prefer a duration query? As integral, for precision? Which, 
+         combined with frequency, has to guarantee accurate sample number?
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK000724-01"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC: memory budgeting</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+        SIZE comment said:  Useful for memory budgeting with compressed data.
+        Sounds bogus: the application can only announce how many bytes
+        of data it intends to provide, it might not be able to estimate 
+        the uncompressed, decoded size in the internal format chosen by
+        the implementation w/o decompressing, decoding, and querying for
+        the internal format. Micromanaging memory is usually a bad idea.
+        Using SIZE to configure a buffer might ge a mistake. Using the
+        same enum to query the actual size internally (which might
+        consists of two or more buffer areas and cached decoding state)
+        will be confusing.
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK000724-02"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC: buffer initial state</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+       MikeV added:
+       "The default attribute values for a Buffer are nonsensical insofar
+       as a Buffer is incomplete without data having been
+       specified."
+      This seems wrong. An AL object will always be complete and valid,
+      albeit useless. A Buffer in its default state might not produce
+      any useful outout, but it can be specified and used. 
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1643"
+>Querying Buffer Attributes</A
+></H2
+><P
+>      Buffer state is maintained inside the AL implementation and can be
+      queried in full. The valid values for paramName are identical to the 
+      ones for Buffer*.
+      <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+> void <TT
+CLASS="FUNCTION"
+> GetBuffer{n}{sifd}{v} </TT
+></CODE
+>( uint  <TT
+CLASS="PARAMETER"
+><I
+>bufferName</I
+></TT
+>,  enum  <TT
+CLASS="PARAMETER"
+><I
+> paramName </I
+></TT
+>,  T * <TT
+CLASS="PARAMETER"
+><I
+> values </I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+>
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1656"
+>Specifying Buffer Content</A
+></H2
+><P
+>      A special case of Buffer state is the actual sound sample data stored
+      in asociation with the Buffer. Applications can specify sample data using 
+      BufferData.
+      <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+> void  <TT
+CLASS="FUNCTION"
+> BufferData{n}{sifd}{v} </TT
+></CODE
+>( uint  <TT
+CLASS="PARAMETER"
+><I
+>bufferName</I
+></TT
+>,  enum  <TT
+CLASS="PARAMETER"
+><I
+>format</I
+></TT
+>,  void *; <TT
+CLASS="PARAMETER"
+><I
+> data </I
+></TT
+>,  sizei  <TT
+CLASS="PARAMETER"
+><I
+> size </I
+></TT
+>,  uint  <TT
+CLASS="PARAMETER"
+><I
+>frequency</I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+>
+      The data specified is copied to an internal software, or if possible, 
+      hardware buffer. The implementation is free to apply decompression,
+      conversion, resampling, and filtering as needed. The internal format
+      of the Buffer is not exposed to the application, and not
+      accessible. Valid formats are FORMAT_MONO8, FORMAT_MONO16,
+      FORMAT_STEREO8, and FORMAT_STEREO16. An implementation may
+      expose other formats, see the chapter on Extensions for
+      information on determining if additional formats are supported.
+    </P
+><P
+>      Applications should always check for an error condition after attempting 
+      to specify buffer data in case an implementation has to generate an
+      OUT_OF_MEMORY or conversion related INVALID_VALUE error. The application
+      is free to reuse the memory specified by the data pointer once the
+      call to BufferData returns. The implementation has to dereference,
+      e.g. copy, the data during BufferData execution.
+    </P
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK000724-04"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC: format enums</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+          With the possible exception of sample frequency, all
+          details of a sample (mono/stero, bit resolution, channels,
+          encoding,compression) should be specified in a format parameter.
+          In other words, I opt for an enumeration of formats. GL has a
+          quite large number of those w/o suffering damage. Allowing
+          parameters the way we do increases error cases and/or
+          conversion load. The space is combinatorial to begin with,
+          but an enumeration of valid formats seems better to impose
+          restrictions. Using enums helps dealing with formats
+          opaque to the application (compressed data with compressed
+          header) where sample size and sampling frequency might not
+          be available. 
+
+          There is the related issue of internal formats. A buffer used
+          for spatialization will have to convert to mono. A buffer used
+          to pass through to the output hardware will have to
+          remap an n-channel format to an m-channel format (or let the
+          hardware do it) including crosstalk handling depending on
+          the output device (headphones vs. speaker). To prevent that
+          every buffer has to do both AL needs to know the purpose of a
+          buffer when dereferencing the data.
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK0000507-17"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC: Frequency woes</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+        Frequency as a uint rises precision issues.
+        Frequency might not be known for compressed data, we might need 
+        a (yuck) wildcard frequency specifier?
+        We have a redundancy: frequency per context (mixing quality
+        desired), frequency internally used by the implementation when
+        storing the buffers, frequency provided in the data. We need
+        to specify the latter in some cases and can't in others. Format
+        enum or frequency enum again.
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK000504-01"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC: data mover mess</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+         API to copy data from output buffer to a buffer?
+         BufferWriteData to supersede BufferData, BufferReadData
+         as later extensions for buffer readback for those who want it?
+         Reading the output stream reverses the problems we have
+         with appendData: the application provides a memory buffer
+         into which AL copies as much data as available/as fits. 
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK000724-11"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC: expose internal format</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+        Implementations are free to use whatever internal data format is best 
+        suited for their hardware/software implementation, leaving the actual 
+        sample format and structure opaque to the application. Should applications
+        be able to influence this? Through context creation? Per Buffer?
+        Do we use Lowest Common Denominator or highest possible quality as a
+        default?
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK000724-12"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC: memory management with compressed data</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+         If we allow for mixing from compressed data (perfectly reasonable
+         for hardware) then it seems even more unlikely the application could
+         estimate memory usage.
+        If a compressed format is supported by AL, do we require support for mixing from
+       compressed data? I daresay not - some formats might not allow for
+        cheap incremental decompression.
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK000724-21"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC: conversion and sample retrieval</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+          To retrieve a sample, the size has to be queried first for allocating a
+          properly sized memory segment as destination. This is dependent on the
+          format. Conversion can be implemented as creating a buffer, and then
+          requesting the data in a different format. Is this desirable? Even if
+          we restrict reading from buffers to the same format they were written
+          to, conversion from the internal format might be inevitable. Querying 
+          and setting the internal format however might be desirable for certain
+          purposes. 
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="x1495.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="alc.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Managing Buffer Names</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="buffers.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>AL Contexts and the ALC API</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

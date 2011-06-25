@@ -1,0 +1,202 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="ILogSystem.h" />
+    <ClInclude Include="ISystem.h" />
+    <ClInclude Include="SystemTable.h" />
+    <ClInclude Include="LogSystem\FileLogSystem\FileLogSystem.h">
+      <Filter>LogSystem\FileLogSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="RocketLibSystem\Input.h">
+      <Filter>RocketLibSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="RocketLibSystem\InputMacOSX.h">
+      <Filter>RocketLibSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="RocketLibSystem\InputWin32.h">
+      <Filter>RocketLibSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="RocketLibSystem\InputX11.h">
+      <Filter>RocketLibSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="RocketLibSystem\RocketLibSystem.h">
+      <Filter>RocketLibSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="RocketLibSystem\RocketLibSystemFileInterface.h">
+      <Filter>RocketLibSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="RocketLibSystem\RocketLibSystemOpenGL.h">
+      <Filter>RocketLibSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="RocketLibSystem\RocketLibSystemRenderInterfaceOpenGL.h">
+      <Filter>RocketLibSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="RocketLibSystem\RocketLibSystemSystemInterface.h">
+      <Filter>RocketLibSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="LogSystem\MultiLogSystem\MultiLogSystem.h">
+      <Filter>LogSystem\MultiLogSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="LogSystem\RocketLogSystem\RocketLogSystem.h">
+      <Filter>LogSystem\RocketLogSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="EntitySystem\EntitySystem.h">
+      <Filter>EntitySystem</Filter>
+    </ClInclude>
+    <ClInclude Include="IEntitySystem.h" />
+    <ClInclude Include="IAssetSystem.h" />
+    <ClInclude Include="AssetSystem\AssetSystem.h">
+      <Filter>AssetSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="IEntity.h" />
+    <ClInclude Include="IUpdateable.h" />
+    <ClInclude Include="SimpleSerializer\SimpleSerializer.h">
+      <Filter>SimpleSerializer</Filter>
+    </ClInclude>
+    <ClInclude Include="ISimpleSerializer.h" />
+    <ClInclude Include="IObjectFactorySystem.h" />
+    <ClInclude Include="ObjectFactorySystem\ObjectFactorySystem.h">
+      <Filter>ObjectFactorySystem</Filter>
+    </ClInclude>
+    <ClInclude Include="ITimeSystem.h" />
+    <ClInclude Include="TimeSystem\TimeSystem.h">
+      <Filter>TimeSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="IGUISystem.h" />
+    <ClInclude Include="IGUIDocument.h" />
+    <ClInclude Include="IGUIElement.h" />
+    <ClInclude Include="GUISystem\GUIDocument.h">
+      <Filter>GUISystem</Filter>
+    </ClInclude>
+    <ClInclude Include="GUISystem\GUIElement.h">
+      <Filter>GUISystem</Filter>
+    </ClInclude>
+    <ClInclude Include="GUISystem\GUISystem.h">
+      <Filter>GUISystem</Filter>
+    </ClInclude>
+    <ClInclude Include="GUISystem\ReferenceCountable.h">
+      <Filter>GUISystem</Filter>
+    </ClInclude>
+    <ClInclude Include="GUISystem\IGUIInstancer.h">
+      <Filter>GUISystem</Filter>
+    </ClInclude>
+    <ClInclude Include="LogSystem\ThreadsafeLogSystem\ThreadsafeLogSystem.h">
+      <Filter>LogSystem\ThreadsafeLogSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="IGame.h" />
+    <ClInclude Include="Systems.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="LogSystem">
+      <UniqueIdentifier>{a2f09342-ca30-415a-a4f4-5f65aed7e7d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LogSystem\FileLogSystem">
+      <UniqueIdentifier>{dbef309f-149a-4d6f-a728-5a138009a0b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RocketLibSystem">
+      <UniqueIdentifier>{b9fee607-93d1-46b6-b21c-077b3e1b9e69}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LogSystem\MultiLogSystem">
+      <UniqueIdentifier>{43a265e0-16a5-461f-a90a-18e85e98c4c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EntitySystem">
+      <UniqueIdentifier>{b1b992aa-ab30-4d74-aeaf-b2f0bb0c1032}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AssetSystem">
+      <UniqueIdentifier>{152394b1-4150-41bf-8641-3787dc746292}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SimpleSerializer">
+      <UniqueIdentifier>{5c18b992-716b-4740-a6be-77447685f692}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ObjectFactorySystem">
+      <UniqueIdentifier>{d1470599-850f-4869-870a-7c041fe1596c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TimeSystem">
+      <UniqueIdentifier>{fd4b086c-b4ba-4507-93e2-840daf3e446f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUISystem">
+      <UniqueIdentifier>{9fb3956b-797a-4260-a03d-4466226ed6ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LogSystem\ThreadsafeLogSystem">
+      <UniqueIdentifier>{29128767-0f84-48de-bfef-d4147561c89f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LogSystem\RocketLogSystem">
+      <UniqueIdentifier>{5a89aea1-71f8-4761-b0e1-f2af68a89708}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="LogSystem\FileLogSystem\FileLogSystem.cpp">
+      <Filter>LogSystem\FileLogSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="RocketLibSystem\Input.cpp">
+      <Filter>RocketLibSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="RocketLibSystem\InputMacOSX.cpp">
+      <Filter>RocketLibSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="RocketLibSystem\InputWin32.cpp">
+      <Filter>RocketLibSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="RocketLibSystem\InputX11.cpp">
+      <Filter>RocketLibSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="RocketLibSystem\RocketLibSystem.cpp">
+      <Filter>RocketLibSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="RocketLibSystem\RocketLibSystemFileInterface.cpp">
+      <Filter>RocketLibSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="RocketLibSystem\RocketLibSystemMacOSX.cpp">
+      <Filter>RocketLibSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="RocketLibSystem\RocketLibSystemRenderInterfaceOpenGL.cpp">
+      <Filter>RocketLibSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="RocketLibSystem\RocketLibSystemSystemInterface.cpp">
+      <Filter>RocketLibSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="RocketLibSystem\RocketLibSystemWin32.cpp">
+      <Filter>RocketLibSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="RocketLibSystem\RocketLibSystemX11.cpp">
+      <Filter>RocketLibSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="LogSystem\MultiLogSystem\MultiLogSystem.cpp">
+      <Filter>LogSystem\MultiLogSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="LogSystem\RocketLogSystem\RocketLogSystem.cpp">
+      <Filter>LogSystem\RocketLogSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="EntitySystem\EntitySystem.cpp">
+      <Filter>EntitySystem</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetSystem\AssetSystem.cpp">
+      <Filter>AssetSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="SimpleSerializer\SimpleSerializer.cpp">
+      <Filter>SimpleSerializer</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectFactorySystem\ObjectFactorySystem.cpp">
+      <Filter>ObjectFactorySystem</Filter>
+    </ClCompile>
+    <ClCompile Include="TimeSystem\TimeSystem.cpp">
+      <Filter>TimeSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="GUISystem\GUISystem.cpp">
+      <Filter>GUISystem</Filter>
+    </ClCompile>
+    <ClCompile Include="GUISystem\GUIDocument.cpp">
+      <Filter>GUISystem</Filter>
+    </ClCompile>
+    <ClCompile Include="GUISystem\GUIElement.cpp">
+      <Filter>GUISystem</Filter>
+    </ClCompile>
+    <ClCompile Include="GUISystem\ReferenceCountable.cpp">
+      <Filter>GUISystem</Filter>
+    </ClCompile>
+    <ClCompile Include="LogSystem\ThreadsafeLogSystem\ThreadsafeLogSystem_PlatformWindows.cpp">
+      <Filter>LogSystem\ThreadsafeLogSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Systems.cpp" />
+  </ItemGroup>
+</Project>

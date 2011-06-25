@@ -1,0 +1,510 @@
+<HTML
+><HEAD
+><TITLE
+>Managing Buffer Names</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.44"><LINK
+REL="HOME"
+TITLE="      OpenAL Specification and Reference
+    "
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Buffers"
+HREF="buffers.html"><LINK
+REL="PREVIOUS"
+TITLE="Buffers"
+HREF="buffers.html"><LINK
+REL="NEXT"
+TITLE="Manipulating Buffer Attributes"
+HREF="x1545.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>OpenAL Specification and Reference</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="buffers.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Buffers</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="x1545.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="AEN1495"
+>Managing Buffer Names</A
+></H1
+><P
+> 
+     AL provides calls to obtain Buffer names, to request 
+     deletion of a Buffer object associated with a valid Buffer name, 
+     and to validate a Buffer name. Calls to control Buffer attributes
+     are also provided.
+    </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1498"
+>Requesting Buffers Names</A
+></H2
+><P
+>     The application requests a number of Buffers using GenBuffers.
+      <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>  void <TT
+CLASS="FUNCTION"
+> GenBuffers </TT
+></CODE
+>( sizei  <TT
+CLASS="PARAMETER"
+><I
+> n </I
+></TT
+>,  uint * <TT
+CLASS="PARAMETER"
+><I
+> bufferNames </I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+>
+    </P
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK000803-02"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC: Buffer Name 0</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+        NONE or 0 is a reserved buffer name. What properties does
+        this buffer have? Does it have content? If there is no content,
+        what is its duration? 0? 1 microsecond? Should we use this buffer
+        to schedule a limited duration "silence"?     
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1512"
+>Releasing Buffer Names</A
+></H2
+><P
+>     The application requests deletion of a number of Buffers
+     by calling DeleteBuffers. 
+   </P
+><P
+>     Once deleted, Names are no longer valid for use with AL
+     function calls. Any such use will cause an INVALID_NAME 
+     error. The implementation is free to defer actual
+     release of resources. 
+      <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+> void  <TT
+CLASS="FUNCTION"
+> DeleteBuffers </TT
+></CODE
+>( sizei  <TT
+CLASS="PARAMETER"
+><I
+> n </I
+></TT
+>,  uint * <TT
+CLASS="PARAMETER"
+><I
+> bufferNames </I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+>
+     IsBuffer(bname) can be used to verify deletion of a buffer.
+     Deleting bufferName 0 is a legal NOP in both scalar and
+     vector forms of the command. The same is true for unused
+     buffer names, e.g. such as not allocated yet, or as 
+     released already.
+   </P
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK000803-01"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC: Force Deletion</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+          If a buffer name is deleted, we could replace all occurences
+          in queues with bname 0. This is the GL behavior for deleting
+          the texture currently bound.
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK000731-07"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC: Relasing used Buffers</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+      If a Buffer is USED or QUEUED, it cannot be deleted, and the operation 
+      should fail. We have three possible responses: throw an error, deferr
+      deletion, or force deletion by replacing every use
+      of the buffer in question with bname zero.
+      Throwing an error requires that we lock, verify that all specified
+      buffers can be deleted, then perform deletion, then unlock. If there
+      is one buffer that can not be deleted we have to throw an error and
+      make the entire operation a NOP.
+      Deferred deletion has its own set of problems (see other RFC).
+      Forcing deletion makes the mistake obvious to the application
+      for current buffers (sound artifacts) but still doesn't expose
+      errors for queued buffers. It also requires complete consumer
+      book-keeping for each buffer. GL uses this approach for textures
+      at little expense because it only has one current texture.
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK000731-06"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC: Deferred Buffer Release</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+     Buffer deletion could be performed as a deferred operation. 
+     In this case actual deletion would be deferred until a Buffer is
+     unused, i.e. not QUEUED or CURRENT anymore. The specification 
+     would not guarantee that they are deleted as soon as possible.
+
+     However, such a deferred execution would be muddying the borders
+     between immediate and deferred execution in general (as we
+     might want to add scheduling and deferred commands at a later time).
+     Introduced as the default it makes impossible for the application
+     to force deletion or errors. Errors caused by improper use of
+     AL will be triggered at some distance from the original mistaken
+     command. Debugging such conditions is usually expensive. This approach
+     also does not take into account sharing of buffers among contexts.
+
+     It might be possible to introduce this behavior as a Hint()
+     in case that it is not desirable to explicitely introduce
+     deferred commands.
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK000927-03"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC: sourceName 0</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+         Is there a useful application for this? Do we mark that this 
+         is reserved?
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1536"
+>Validating a Buffer Name</A
+></H2
+><P
+>     The application can verify whether a buffer Name is valid
+     using the IsBuffer query.
+      <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+> boolean  <TT
+CLASS="FUNCTION"
+> IsBuffer </TT
+></CODE
+>( uint  <TT
+CLASS="PARAMETER"
+><I
+> bufferName</I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+>
+    </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="buffers.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="x1545.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Buffers</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="buffers.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Manipulating Buffer Attributes</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

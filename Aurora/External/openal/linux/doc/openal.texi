@@ -1,0 +1,1567 @@
+\input texinfo @c -*- texinfo -*-
+
+@setfilename openal.info
+
+@ifinfo
+@format
+START-INFO-DIR-ENTRY
+* OpenAL: (openal).         The Programmer's Guide to 3d Positional Audio
+END-INFO-DIR-ENTRY
+@end format
+@end ifinfo
+
+@node Top
+@top OpenAL
+
+This document describes the OpenAL API, design goals and Loki's OpenAL
+implementation.
+
+@menu
+* Introduction::         What is OpenAL and what is it good for?
+* FAQ::                  Frequency Asked Questions, with answers
+* Goals::                Basic design decisions, requirements, scope, etc.
+* API::                  The OpenAL API
+* Loki Implementation::  Loki's own OpenAL implementation: today and tomorrow.
+* Example::              An example of a program using the OpenAL API.
+* Tutorial::             A gentle introduction to Loki's AL
+
+* Function Index::
+* Variable Index::
+* Concept Index::
+@end menu
+
+@node Introduction, FAQ, Top, Top
+@chapter Introduction
+
+The idea behind OpenAL is a 3d positional spatialized sound library analogous
+to OpenGL: instead of micromanaging each aspect of sound playback and effect,
+the application writer may limit themselves to placing the sounds in the 
+scene and letting the native OpenAL implementation determine the correct
+amount of pitch alteration, gain attenuation, phase shift, etc, required to
+render the sounds correctly.
+
+That's the goal, anyway.  
+
+@node FAQ, Goals, Introduction, Top
+
+Here are some of the most Frequently Asked Questions, and their answers.
+
+@menu 
+* How do I enable ESD?::
+* Why doesn't this POS work with my Vortex card?::
+* How can I set the size of my world?::
+@end menu
+
+@node How do I enable ESD?, , , FAQ
+Configure openal with @samp{configure --enable-esd}.  make, then install.
+Then, place the following in your @samp{~/.openalrc} file:
+
+@lisp
+
+	(define devices '(esd))
+
+@end lisp
+
+@node Why doesn't this POS work with my Vortex card?, , , FAQ
+
+Dollars-to-donuts your driver doesn't implemented the select call
+properly.  You can see messages from @code{native_blitbuffer} complaining
+about select timeouts when this is a problem.
+
+If you suffer from an unimplemented select call in your driver, put the
+following in your @samp{~/.openalrc} file:
+
+@lisp
+
+	(define native-use-select #f)
+
+@end lisp
+
+This will tell @code{OpenAL} that it shouldn't rely on select for
+information about when to write to a file descriptor.
+
+@node How can I set the size of my world?, , , FAQ
+
+You don't need to.  Use the source attributes @code{AL_ROLLOFF_FACTOR} and
+@code{AL_REFERENCE_DISTANCE} to correctly model your position data.
+
+@node Goals, API, FAQ, Top
+@chapter Goals
+
+To provide a cross-platform spatialized audio library.
+
+@node API, Loki Implementation, Goals, Top
+@chapter The OpenAL API
+@cindex API
+
+This is the OpenAL API.  Sort of.
+
+@menu
+OpenAL Sections:
+
+* Basic Concepts::                  Stuff defined
+* types::                           Integral types
+* al::                              High level stuff
+* alc::                             Device and Context management
+* alut::                            Utility functions, etc
+* alkludge::                        Kludgey, Deprecated stuff
+* Errors::                          What goes wrong and where
+@end menu
+
+@node Basic Concepts, types, , API
+
+al calls, either implicitly or explicitly, act upon opaque objects
+of the kind @code{Buffers}, @code{Sources}, @code{Contexts}, or
+@code{Listeners}.  Of these types, the generation and deletion of
+@code{Buffers}, @code{Sources}, and @code{Contexts} are explicit
+and must be handled by the application.
+
+To give a brief overview:
+
+@table @code
+@item Buffers
+@cindex Buffers
+
+@code{Buffers} contain PCM audio data, and the parameters associated with
+the data (length, frequency, sample width etc).  @code{Buffers} cannot
+be played, a @code{Source} must be associated with them, and the @code{Source}
+is then played.
+
+@code{Buffers} are created with a call to @code{alGenBuffers}, which creates
+a set of buffer ids and binds them to buffers.  The buffer id is the only
+mechanism by which an application may refer to a buffer.  After its 
+useful lifetime is over, buffer ids should be deleted via the call
+@code{alDeleteBuffers}.
+
+@item Sources
+@cindex Sources
+
+@code{Sources} are independent objects, which, when played, make sound.
+@code{Sources} need to be associated with a @code{Buffer} before they
+can be played.
+
+@code{Sources} are created with a call to @code{alGenSources}, which creates
+a set of source ids and binds them to sources.  The source id is the only
+mechanism by which an application may refer to a source.  After its 
+useful lifetime is over, source ids should be deleted via the call
+@code{alDeleteSources}.
+
+@item Devices
+@cindex Devices
+
+A @code{Device} is a binding to the audio rendered backend used by the
+library.  This may be an actual hardware device, a software mixing
+server, or other abstraction.
+
+At least one device must be created for the generation of contexts.
+
+@item Contexts
+@cindex Contexts
+
+A @code{Context} abstracts the audio device from the rest of the library
+(and the application).  You generally only need one.  Calling most al
+functions before creating a context via @code{alcCreateContext} will result
+in either an error or a segfault.
+
+When you're about to quit, call @code{alcDestroyContext} to destroy the
+context and don't make any other al calls.
+
+@end table
+
+@node types, al, Basic Concepts, API
+@section OpenAL types
+
+@table @code
+
+@item ALboolean
+OpenAL bool type.
+
+@item ALbyte
+OpenAL 8bit signed byte.
+
+@item ALubyte
+OpenAL 8bit unsigned byte.
+
+@item ALshort
+OpenAL 16bit signed short integer type.
+
+@item ALushort
+OpenAL 16bit unsigned short integer type.
+
+@item ALuint
+OpenAL 32bit unsigned integer type.
+
+@item ALint
+OpenAL 32bit signed integer type.
+
+@item ALfloat
+OpenAL 32bit floating point type.
+
+@item ALdouble
+OpenAL 64bit double point type.
+
+@item ALsizei
+OpenAL 32bit type.
+
+@item ALbitfield
+OpenAL bitfield.
+
+@item ALclampf
+Openal clamped float value.
+
+@item ALclampd
+Openal clamped double value.
+
+@end table
+
+@node al, alc, types, API
+@section OpenAL main functions
+
+Here are the al functions, grouped according to object they
+affect.
+
+@table @code
+
+@item Listener functions
+
+Listener is the sample position for a given context.  The multi-channel
+(usually stereo) output stream generated by the mixer is parametrized
+by this Listener object: its position and velocity relative to Sources,
+within occluder and reflector geometry.
+
+@table @code
+
+@item void alListenerf( ALenum pname, ALfloat param )
+@findex alListenerf
+Set the parameter using a float argument for the listener of the current
+context for the token specified by pname.
+
+If pname specifies an attribute not of type @code{ALfloat}, a
+conversion is first performed.  If pname does not specify a valid
+listener attribute, @code{AL_INVALID_VALUE} is set and no further
+operation is commited.
+
+@item void alListenerfv( ALenum pname, ALfloat *param )
+@findex alListenerfv
+Set the parameter using a float vector for the listener of the current
+context for the token specified by pname.
+
+If pname specifies an attribute not of type @code{ALfloat}, a conversion
+is first performed.  If pname does not specify a valid listener attribute,
+@code{AL_INVALID_VALUE} is set and no further operation is commited.
+
+@item void alGetListeneriv( ALenum pname,  ALint *value )
+@findex alGetListeneriv
+Get the parameter using an integer vector for the listener of the current
+context for the token specified by pname.
+
+If pname specifies an attribute not of type @code{ALint}, a conversion
+is first performed.  If pname does not specify a valid listener attribute,
+@code{AL_INVALID_VALUE} is set and no further operation is commited.
+
+@item void alGetListenerfv( ALenum pname, ALfloat *values )
+@findex alGetListenerfv
+Get the parameter using an float vector for the listener of the current
+context for the token specified by pname.
+
+If pname specifies an attribute not of type @code{ALint}, a conversion
+is first performed.  If pname does not specify a valid listener
+attribute, @code{AL_INVALID_VALUE} is set and no further operation is
+commited.
+
+@end table
+
+@item Source functions
+@cindex Sources
+
+Source objects are by default localized. Sources
+take the PCM data provided in the specified Buffer,
+apply Source-specific modifications, and then
+submit them to be mixed according to spatial 
+arrangement etc.
+
+@table @code
+
+@item void alGenSources( ALsizei n, ALuint* sources ) 
+@findex alGenSources
+
+Create n source object names, and populate sources[0..n-1]
+with these names.  If n == 0, a legal NOP occurs.  If n < 0,
+@code{AL_INVALID_VALUE} is set and @code{alGenSources} returns, taking
+no further action.  If resources are not currently available sufficient
+to cover the request, @code{AL_OUT_OF_MEMORY} is set.  No partial
+allocation occurs.
+
+@item void alDeleteSources( ALsizei n, ALuint* sources )
+@findex alDeleteSources
+
+Delete n source object names, named in sources[0..n-1].
+
+If n == 0, a legal NOP occurs.  If n < 0, @code{AL_INVALID_VALUE}
+is set and @code{alGenSources} returns, taking no further action.  If
+any member of sources[0..n-1] is not a currently valid source name,
+@code{AL_INVALID_NAME} is set and no deletion occurs.  If any member of
+sources[0..n-1] names a source that has a state other than
+@code{AL_INITIAL} or @code{AL_STOPPED}, @code{AL_ILLEGAL_COMMAND} is set
+and no deletion occurs.
+
+@item ALboolean alIsSource( ALuint sid )
+@findex alIsSource
+Returns @code{AL_TRUE} if sid is a valid source name, @code{AL_FALSE}
+otherwise.
+
+@item void alSourcei( ALuint sid, ALenum param, ALint value )
+@findex alSourcei
+Set an parameter using an integer argument for a source object.
+
+If pname specifies an attribute not of type @code{ALint}, a conversion
+is first performed.  If pname does not specify a valid source attribute,
+@code{AL_ILLEGAL_ENUM} is set and no operation is commited.  If value
+does not specify a valid value for the attribute,
+@code{AL_INVALID_VALUE} is set an no operation is commited.
+
+@item void alSourcef( ALuint sid, ALenum param, ALfloat value )
+@findex alSourcef
+Set an parameter using a float argument for a source object.
+
+If pname specifies an attribute not of type @code{ALfloat}, a conversion
+is first performed.  If pname does not specify a valid source attribute,
+@code{AL_ILLEGAL_ENUM} is set and no operation is commited.  If
+value does not specify a valid value for the attribute,
+@code{AL_INVALID_VALUE} is set an no operation is commited.
+
+@item void alSourcefv( ALuint sid, ALenum param, ALfloat* values )
+@findex alSourcefv
+Get a parameter using a float vector from a source object.  If values is
+@code{NULL}, a legal NOP occurs.
+
+If pname specifies an attribute not of type @code{ALfloat}, a conversion
+is first performed.  If pname does not specify a valid source attribute,
+@code{AL_ILLEGAL_ENUM} is set and no further operation is commited.  If
+value does not specify a valid value for the attribute,
+@code{AL_INVALID_VALUE} is set an no operation is commited.
+
+@item void alGetSourceiv( ALuint sid,  ALenum pname, ALint* value )
+@findex alGetSourcei
+Get a parameter using an integer vector from a source object.  If values is
+@code{NULL}, a legal NOP occurs.
+
+If pname specifies an attribute not of type @code{ALfloat}, a conversion
+is first performed.  If pname does not specify a valid source attribute,
+@code{AL_ILLEGAL_ENUM} is set and no further operation is commited.
+
+@item void alGetSourcefv( ALuint sid, ALenum pname, ALfloat* values )
+@findex alGetSourcefv
+Get a parameter using a float vector from a source object.  If values is
+@code{NULL}, a legal NOP occurs.
+
+If pname specifies an attribute not of type @code{ALfloat}, a
+conversion is first performed.  If pname does not specify a valid source
+attribute, @code{AL_ILLEGAL_ENUM} is set and no further operation is commited.
+
+@item void alSourcePlay( ALuint sid )
+@findex alSourcePlay
+Activate a source, start replay.  If sid is not a valid source name,
+@code{AL_INVALID_NAME} is set and no action occurs.  If the source
+specified by sid is in the state @code{AL_PLAYING}, this call is a 
+legal NOP.
+
+@item void alSourceStop( ALuint sid )
+@findex alSourceStop
+Change a source's state from @code{AL_PLAYING} to @code{AL_STOPPED}.  If
+sid is not a valid source name, @code{AL_INVALID_NAME} is set and no 
+action occurs.  If the source is not in the state @code{AL_PLAYING},
+this call is a legal NOP.
+
+@item void alSourcePause( ALuint sid )
+@findex alSourcePause
+Change a source's state from @code{AL_PLAYING} to @code{AL_PAUSED}.  If
+sid is not a valid source name, @code{AL_INVALID_NAME} is set and no 
+action occurs.  If the source is not in the state @code{AL_PLAYING},
+this call is a legal NOP.
+
+@item void alSourceRewind( ALuint sid )
+@findex alSourceRewind
+Change a source's state to @code{AL_INITIAL}.  Sources which have the
+state @code{AL_PLAYING} or @code{AL_PAUSED} will be taken to @code{AL_STOPPED}
+first.  The source's position in its associated buffer will be set to 0.
+If sid is not a valid source name, @code{AL_INVALID_NAME} is set
+and no action occurs.
+
+@item void alSourcePlayv( ALuint ns, ALuint *ids )
+@findex alSourcePlayv
+Perform alSourcePlay on ids[0..ns-1].
+
+If any member of ids[0..ns-1] is not a valid source, @code{AL_INVALID_NAME}
+is set and no action takes place.  If ns == 0, a legal NOP occurs.  If ns < 0,
+@code{AL_INVALID_VALUE} is set and @code{alSourcePlayv} returns, taking no action.
+
+@item void alSourceStopv( ALuint ns, ALuint *ids )
+@findex alSourceStopv
+Perform alSourceStop on ids[0..ns-1].
+
+If any member of ids[0..ns-1] is not a valid source, @code{AL_INVALID_NAME}
+is set and no action takes place.  If ns == 0, a legal NOP occurs.  If ns < 0,
+@code{AL_INVALID_VALUE} is set and @code{alSourcePlayv} returns, taking no action.
+
+@item void alSourcePausev( ALuint ns, ALuint *ids )
+@findex alSourcePausev
+Perform alSourcePause on ids[0..ns-1].
+
+If any member of ids[0..ns-1] is not a valid source, @code{AL_INVALID_NAME}
+is set and no action takes place.  If ns == 0, a legal NOP occurs.  If ns < 0,
+@code{AL_INVALID_VALUE} is set and @code{alSourcePlayv} returns, taking no action.
+
+@item void alSourceRewindv( ALuint ns, ALuint *ids )
+@findex alSourceRewindv
+Perform alSourceRewind on ids[0..ns-1].
+
+If any member of ids[0..ns-1] is not a valid source, @code{AL_INVALID_NAME}
+is set and no action takes place.  If ns == 0, a legal NOP occurs.  If ns < 0,
+@code{AL_INVALID_VALUE} is set and @code{alSourcePlayv} returns, taking no action.
+
+@end table
+
+@item Buffers
+Buffer objects are storage space for sample data.  Buffers are referred
+to by Sources. There can be more than one Source using the same Buffer
+data. If Buffers have to be duplicated on a per-Source basis, the driver
+has to take care of allocation, copying, and deallocation as well as
+propagating buffer data changes.
+
+@table @code
+@item void alGenBuffers( ALsizei n, ALuint *samples )
+@findex alGenBuffers
+
+Create n buffer object names, and populate samples with these
+names.  If n == 0, a legal NOP occurs.  If n < 0, @code{AL_INVALID_VALUE}
+is set and @code{alGenBuffers} returns, taking no further action.  If
+resources are not currently available sufficient to cover the request,
+@code{AL_OUT_OF_MEMORY} is set.  No partial allocation occurs.
+
+@item void alDeleteBuffers( ALsizei n, ALuint *samples )
+@findex alDeleteBuffers
+
+Delete n buffer object names, named in samples[0 - n-1].
+If n == 0, a legal NOP occurs.  If n < 0, @code{AL_INVALID_VALUE}
+is set and @code{alGenBuffers} returns, taking no further action.  If
+any member of samples[0..n-1] is not a currently valid buffer name,
+@code{AL_INVALID_NAME} is set and no deletion occurs.
+
+If any member of samples[0..n-1] is associated with a currently playing
+or paused source, the buffer in question is flagged and deletion occurs
+when all sources the buffer is associated with move to
+@code{AL_STOPPED}.  This is a deviation from the canonical spec and this
+feature should not be relied upon to deliver the same results in the
+future.
+
+@item ALboolean alIsBuffer( ALuint buffer )
+@findex alIsBuffer
+Returns @code{AL_TRUE} if bid is a valid buffer name, @code{AL_FALSE}
+otherwise.
+
+@item void alBufferData( ALuint id, ALenum format, ALvoid *data, ALsizei size, ALsizei freq )
+@findex alBufferData
+Specify the data to be filled into the buffer associated with id.  
+
+@item ALsizei alBufferAppendData( ALuint buffer, ALenum format, ALvoid *data, ALsizei size, ALsizei freq )
+@findex alBufferAppendData
+                            
+Specify data to be filled into a looping buffer.  This takes the current
+position at the time of the call, and returns the number of samples
+written.
+
+@item void alGetBufferi( ALuint buffer, ALenum param, ALint *value )
+@findex alGetBufferi
+Query Buffer integer attribute.
+
+@item void alGetBufferf( ALuint buffer, ALenum param, ALfloat* value )
+@findex alGetBufferf
+Query Buffer float attribute.
+
+@end table
+
+@item Extension Support
+
+Extension support.
+
+@table @code
+@item ALboolean alIsExtensionPresent( const ALubyte* fname )
+@findex alIsExtensionPresent
+
+Obtain the address of a function (usually an extension)
+with the name fname. All addresses are context-independent. 
+
+@item void *alGetProcAddress( const ALubyte* fname )
+@findex alGetProcAddress
+
+Obtain the address of a function (usually an extension) with the name
+fname. All addresses are context-independent.
+
+@item ALenum alGetEnumValue( const ALubyte* ename )
+@findex alGetEnumValue
+
+Obtain the integer value of an enumeration (usually an extension) with
+the name ename.
+
+@end table
+
+@item Misc
+
+Misc functions that don't act directly upon an object and don't fit
+well anywhere else.
+
+OpenAL Maintenance Functions
+State Management and Query.
+
+@table @code
+
+@item void alEnable( ALenum capability )
+@findex alEnable
+
+Renderer State management.
+
+@item void alDisable( ALenum capability )
+@findex alDisable
+
+Renderer State management.
+
+@item ALboolean alIsEnabled( ALenum capability )
+@findex alIsEnabled
+
+Returns @code{AL_TRUE} if capability is enabled, @code{AL_FALSE}
+otherwise.
+
+@item void alHint( ALenum target, ALenum mode )
+@findex alHint
+Application preferences for driver performance choices.
+
+@item void alGetBooleanv( ALenum param, ALboolean* data )
+@findex alGetBooleanv
+State retrieval.
+
+@item void alGetIntegerv( ALenum param, ALint* data )
+@findex alGetIntegerv
+State retrieval.
+
+@item void alGetFloatv( ALenum param, ALfloat* data )
+@findex alGetFloatv
+State retrieval.
+
+@item void alGetDoublev( ALenum param, ALdouble* data )
+@findex alGetDoublev
+
+State retrieval.
+
+@item const ALubyte *alGetString( ALenum param )
+@findex alGetString
+Returns a const ALubyte *, NUL terminated string representation of
+param.  If param is not a valid enum, @code{AL_ILLEGAL_ENUM} is set.
+
+@end table
+
+@end table
+
+@node alc,alut,al,API
+@section OpenAL Device and Context management functions
+
+You can't do anything really good in OpenAL without opening at least one
+device and creating at least one context.  One context must be made
+current before any al calls can be made, or else bad mojo will ensue.
+
+@table @code
+
+@item ALCdevice *alcOpenDevice( const ALubyte *deviceSpecifier );
+@findex alcOpenDevice
+
+@code{alcOpenDevice} opens a rendering backend, using
+@code{deviceSpecifier} to determine the type of device and any special
+options.  @code{deviceSpecifier} is an implementation dependant string.
+
+In the Loki implementation, this string is an @code{ALRC} token string,
+in the form:
+
+@lisp
+        '( ( symbol1 value1 ) ( symbol2 value2 ) )
+@end lisp
+
+Each symbol is bound to the associated value, overriding any previously
+set value.  Important symbols include:
+
+@table @code
+
+@item devices
+@vindex devices
+
+@code{devices} is a list of tokens (either strings or unquoted symbols)
+that OpenAL checks for in order to determine the sequence and types of
+devices that should be used to render audio to.
+
+The list of available devices at the time of this writing is:
+@multitable @columnfractions .30 .50
+@item    native @tab operating system native
+@item       sdl @tab Simple DirectMedia Layer backend
+@item      arts @tab aRTs backend
+@item       esd @tab esound daemon backend
+@item      alsa @tab ALSA backend
+@item   waveout @tab WAVE file output
+@item      null @tab no output
+@end multitable
+
+A device string in this context would look like:
+
+@lisp
+        '( ( devices '( native esd null ) ) )
+@end lisp
+
+which would tell @code{alcOpenDevice} to first attempt @code{native} audio,
+failing that try to use the @code{esd} backend, and failing that to fall
+back on the @code{null} backend, in which processing is done as normal
+but no output is provided.
+
+@item sampling-rate
+@vindex sampling-rate
+
+@code{sampling-rate} is an @code{ALRC_INTEGER} that specifier the
+external sampling rate to set the backend to, if possible.  Common
+values include 11025, 22050, and 44100.
+
+A sampling-rate example might look like:
+
+@lisp
+        '( ( sample-rate 22050 ) )
+@end lisp
+
+@cindex internal mixing rate
+
+This does not alter the internal mixing rate ( the frequency which the
+library mixes different streams at ).  To alter the interal mixing rate,
+all contexts created must specify the context creation flag
+@code{ALC_FREQUENCY}.
+
+@end table
+
+@item void *alcCreateContext( ALCdevice *device, ALint* attrlist )
+@findex alcCreateContext
+
+Create a context, returning a unique identifier for the context,
+or NULL on error.  The context is associated with the passed device and
+uses it to do its rendering.
+
+@code{attrlist} is usually @code{NULL}, but you can pass it an integer array
+terminated by @code{ALC_INVALID} in alc enum / integer pairs.
+
+@lisp
+	int attrlist[] = @{ ALC_SYNC, AL_TRUE,
+			   ALC_SOURCES, 100,
+			   ALC_FREQUENCY, 44100,
+			   ALC_INVALID @};
+	ALCdevice *dev = alcOpenDevice( NULL );
+
+	void *context = alcCreateContext( dev, attrlist );
+@end lisp
+
+Valid context creation flags include:
+
+@table @code
+
+@item ALC_FREQUENCY
+@vindex ALC_FREQUENCY
+
+@code{ALC_FREQUENCY} sets the internal mixing rate of the context.  It
+does not alter the mixing rate of the external device.
+
+@vindex ALC_SYNC
+@item ALC_SYNC
+Boolean representing whether the context should depend on the use of
+@code{alcUpdateContext} to perform it's mixing or launch a seperate
+thread.
+
+@vindex ALC_BUFFERSIZE
+@item   ALC_BUFFERSIZE
+
+Size of the mixing buffer, in bytes.
+
+@vindex ALC_SOURCES
+@item   ALC_SOURCES
+
+Number of sources to preallocate.
+
+@vindex ALC_BUFFERS
+@item   ALC_BUFFERS
+
+Number of buffers to preallocate.
+
+@end table
+
+@item ALCenum alcMakeContextCurrent( ALvoid *alcHandle )
+@findex alcMakeContextCurrent
+
+@code{alcMakeContextCurrent} sets the current context, which is what al
+calls (in general) either alter or query.  Several contexts can be mixed
+simultaneously.
+
+@item void *alcProcessContext( ALvoid *alcHandle )
+@findex alcProcessContext
+For synchronous operation (where the context specified by alcHandle 
+was created using the @code{ALC_SYNC} context creation flag), this
+commits all the changes needed and writes the result to the audio
+backend.
+
+In asynchronous operation, this almost always is a NOP.  The single
+exception that @code{alcProcessContext} will unpause a paused
+asynchronous context.
+
+@item void *alcPauseContext( ALvoid *alcHandle )
+@findex alcPauseContext
+
+For currently unpaused asynchronous contexts, this call pauses the
+context and prevents any of its sources from being processed.  Sources
+associated with this context do not have their position updated, and
+no mixing occurs.
+
+For paused asynchronous context, or synchronous contexts, this is a
+legal NOP.
+
+@item ALCenum alcDestroyContext( ALvoid *alcHandle )
+@findex alcDestroyContext
+
+Destroy the context associated with @code{alcHandle}, freeing all
+associated objects and sources.
+
+@item ALCenum alcGetError( ALvoid );
+@findex alcGetError
+
+Get the last @code{alc} error set.
+
+@item const ALubyte *alcGetErrorString(ALenum param);
+@findex alcGetErrorString
+Get the string representation of the last @code{alc} error set.
+
+@end table
+
+@node alut,alkludge,alc,API
+@section OpenAL utility functions
+
+Description of OpenAL utility functions goes here.
+
+@node alkludge, Errors, alut, API
+@section OpenAL kludgey functions
+
+@code{alkludge.h} is a repository for stuff that need to either be
+discarded, rewritten, or thought out.  You should not rely on 
+functions in @code{alkludge.h}, although it is unlikely that functions
+will be removed from it without some form of equivalent functionality
+being introduced in the regular library.
+
+@node Errors, , alkludge, API
+@cindex Errors
+@c AL errors
+@tindex AL_NO_ERROR
+@tindex AL_INVALID_NAME
+@tindex AL_ILLEGAL_ENUM
+@tindex AL_INVALID_VALUE
+@tindex AL_ILLEGAL_COMMAND
+@tindex AL_OUT_OF_MEMORY
+@c ALC errors
+@tindex ALC_NO_ERROR
+@tindex ALC_INVALID_DEVICE
+@tindex ALC_INVALID_CONTEXT
+@findex alGetError
+
+There are two types of errors in OpenAL: @code{alc} errors and @code{al} 
+errors.  @code{al} errors are context specific and one deep.  Only the
+first occurring error will be recorded, subsequent errors will not be
+recorded.  Errors may be retrieved via the @code{alGetError} call, after
+which the error in the current context will be set to
+@code{AL_NO_ERROR}, and subsequent errors will again alter the context's 
+error state.
+
+@code{alc} errors are not context specific, and may be retrieved via the 
+@code{alcGetError} call.  After a call to @code{alcGetError}, the
+context-global error variable is set to @code{ALC_NO_ERROR}.
+
+@node Loki Implementation, Example, API, Top
+@chapter Loki's high-quality implementation of the OpenAL API
+
+While we may be a bit biased, we are partial to the Loki OpenAL
+implementation.  Loki's implementation is currently an all-software
+library with support for multiple filters, configuration, and extension
+support via plugins.
+
+@menu
+
+* Installation::                    How do compile and install.
+* Filters::                         What effects are available?
+* Configuration::                   How can I configure the library?
+* Extensions::                      How can I use extensions?
+
+@end menu
+
+@node Installation, Filters, Loki Implementation, Loki Implementation
+@cindex Installation
+
+If you retrieve the library via cvs, be sure to run the autogen.sh
+script provided.  It will build configure and config.h.in.
+
+After that, run configure with the options you want.  Run 
+configure --help for available options.
+
+@node Filters, Configuration, Installation, Loki Implementation
+@chapter Loki Openal Filters
+
+@node Configuration, Extensions, Filters, Loki Implementation
+@chapter The openal configuration file
+@cindex ALRC
+@cindex configuration file
+@cindex config file
+
+Users can give openal hints as to optimal defaults for various
+parameters via the openal configuration file.  The openal configuration
+file should be placed in either @code{/etc} or in one's home
+directory, being named @code{openalrc} in the first location or
+@code{.openalrc} in the second location.
+
+The configuration language is meant to be lisp-like.  This does not mean
+that it supports lisp constructs, only that it looks something like
+lisp.  This hideous language is referred to within the openal sources as
+@code{ALRC} (for openAL Resource Configuration language).
+
+@menu
+* Primitives::                      ALRC primitive functions.
+* Variables::                       What you can define or set.
+* Types::                           Sort of stuff you define or set.
+* Evaluation::                      Don't try this at home.
+@end menu
+
+@node Primitives, Variables,, Configuration
+@cindex primitive
+@code{ALRC} supports a very small number of primitives required to give
+the user a very small amount of control over OpenAL.  Generally, the
+user can specific default values for things like listener position,
+source parameters, etc.
+
+Primitives are responsible for evaluation their own arguments, unlike
+expressions or functions.  Therefore, an argument passed to a primitive
+may never be evaluated.
+
+The primitives are:
+
+@table @code
+
+@item and
+@cindex and
+
+@example
+( and predicate-1 predicate-2 ... )
+@end example
+
+Performs a logical @code{and} on parameters, using short circuit
+evaluation.  Evaluates to true if none of the parameters 
+evaluate to false.
+
+@item or
+@cindex or
+
+@example
+( or predicate-1 predicate-2 ... )
+@end example
+
+Performs a logical @code{or} on parameters, stopping at the first true
+evaluation.  Evaluates to true if any of the parameters evaluate to
+true.
+
+@item define
+@cindex define
+
+@example
+(define identifier value)
+@end example
+
+@code{define} evaluates @code{value}, and if @code{identifier} is not
+already in the symbol table, creates a new symbol named
+@code{identifier} with the evaluated @code{value}.  If @code{identifier}
+is already defined, define sets it to the the evaluated @code{value}.
+
+@item load-extension
+@cindex load-extension
+
+@example
+( load-extension "/absolute/pathname/plugin.so" )
+@end example
+
+@code{load-extension} informs openal of the presence of a plugin which
+conforms to the extension format described in @xref{Making your own}.
+
+@end table
+
+@node Variables,  Types, Primitives, Configuration
+
+By setting certain @code{variables}, a user can change the behavior of
+OpenAL without resorting to wholesale recompilations.  Loki's OpenAL
+implementation respects on certain variables and checks for them.
+Usually, the values are used to set default values (such as the default
+gain for a source (usually 1.0).
+
+@menu
+* Source variables::                      Variables that affect sources
+* Context variables::                     Variables that affect contexts
+* Listener variables::                    Variables that affect listeners
+@end menu
+
+@node Source variables, Context variables, Variables, Variables
+@cindex Source variables
+
+There are some, but I haven't listed them here.
+
+@node Context variables, Listener variables, Source variables, Variables
+@cindex Context variables
+
+@table @code
+@item devices 
+
+@code{devices} is a list of tokens (either strings or unquoted symbols)
+that OpenAL checks for in order to determine the sequence and types of
+devices that should be used to render audio to.
+
+The list of available devices at the time of this writing is:
+@multitable @columnfractions .30 .50
+@item    native @tab Standard OSS (/dev/dsp) backend on linux.
+@item       sdl @tab Simple DirectMedia Layer backend.
+@item      arts @tab aRTs backend
+@item       esd @tab esound daemon backend.
+@item      alsa @tab ALSA backend.
+@item   waveout @tab WAVE file output.
+@end multitable
+
+...please note that this does not mean that the backends work without
+fail, but that support either is included or is planned.
+
+A typical invocation look like:
+
+@lisp
+( define devices '(sdl native) )
+@end lisp
+
+...which indicates to OpenAL that it should try to render audio to the
+SDL backend (if available), and failing that to try the native audio
+method for the platform in question, which usually means using the OSS
+drivers and @code{/dev/dsp}.  If each device specified in @code{devices} 
+fails, then the default behavior (@code{native}) is tried.  If that 
+fails, OpenAL will return a @code{NULL} context.
+
+@end table
+
+
+@node Listener variables, ,Context variables, Variables
+@cindex Listener variables
+@node Types, Evaluation, Variables, Configuration
+
+Symbol values have associated type information.  Users should be 
+acquainted with the following types in ALRC:
+
+@itemize @bullet 
+
+@item ALRC_INVALID
+
+This is the type of a value that is either false or for some reason
+invalid.  No evaluation or assignment should be attempted with this
+type.
+
+@item ALRC_LIST
+
+This type contains other types.  If not quoted, it is evaluated as
+an expression with the first item specifying the function name, which
+is probably not what you want.
+
+@lisp
+'( 0.0 0.0 0.0 )          ; list which is not an expression
+( define blah 'blah ) 	; list which is an expression
+@end lisp
+
+@item ALRC_SYMBOL
+
+Things which, when evaluated, are not themselves.
+
+@item ALRC_INTEGER
+
+Integer numbers.
+
+@item ALRC_FLOAT
+
+Floating point numbers.
+
+@item ALRC_STRING
+
+A series of characters enclosed by '"'.
+
+@end itemize
+
+@node Evaluation, ,Types, Configuration
+
+@node Extensions, , Configuration, Loki Implementation
+@chapter How to extend Loki's OpenAL
+@cindex Extensions
+@findex alIsExtensionPresent
+@findex alGetProcAddress
+
+Loki's OpenAL implementation include some functions which are specific
+to the implementation.  These functions all have the suffix @code{_LOKI} 
+to distinguish them.
+
+In order to use these extensions, the application will need to query
+their existence via @code{IsExtensionPresent}, and then use
+@code{GetProcAddress} to resolve the address of the extension.  The
+result of @code{GetProcAddress} will need to be cast to the appropriate
+function type.
+
+@menu
+* Loki specific tokens::
+* Built in::
+* Making your own::
+@end menu
+
+@node Loki specific tokens, Built in, , Extensions
+
+@table @code
+
+Some of the Loki specific functionality is expressed in terms of
+Loki specific enumerate tokens passed to otherwise standard 
+calls.
+
+@item AL_FORMAT_WAVE_EXT
+@vindex AL_FORMAT_WAVE_EXT
+
+@code{AL_FORMAT_WAVE_EXT} is used in calls accepting format arguments.
+It specifies that the data parameter used in the call is an entire
+wave file, including header, and that the call should set the frequency,
+bit depth, and channel information using the header in the file itself.
+
+@item AL_BYTE_LOKI
+@vindex AL_BYTE_LOKI
+
+@code{AL_BYTE_LOKI} is used as a getter to @code{alGetSourcei}, and
+reports a source's position, in bytes, into the buffer, or -1 in the
+case of a non playing source.  There are no guarentees about the
+internal representation of data so the value returned using this
+token may not correspond with the equivilant offset in the user
+supplied data.
+
+@item AL_SOURCE_LOOPING_LOKI
+@vindex AL_SOURCE_LOOPING_LOKI
+
+@code{AL_SOURCE_LOOPING_LOKI} is used as a setter/getter to
+@code{al@{Get@}Sourcei}, and sets/gets the infinite loop flag on a source.
+
+@end table
+
+@node Built in, Making your own, Loki specific tokens, Extensions
+@cindex _LOKI
+
+Here's a list of extensions which are built into the Loki OpenAL
+implementation.  The prefix is included in this section for clarify.
+
+@table @code
+
+@item void alAttenuationScale_LOKI(ALfloat param)
+@findex alAttenuationScale_LOKI
+@cindex units
+@cindex world units
+@vindex ALMAXDISTANCE
+
+@code{alAttenuationScale_LOKI} scales the units of the simulation.
+Without a call to this function, it is very likely that your application 
+will not sound correct.
+
+The default scaling factor in Loki's OpenAL is such that a listener
+placed at the origin will hear sounds attenuated until that point that
+the sounds are @code{ALMAXDISTANCE} units away.  @code{ALMAXDISTANCE} is 
+an arbitrary constant defined when including @code{AL/alkludge.h}.
+
+It is almost assured that the default scaling factor will be incorrect
+for most applications.  That is why this call is so important.  Usage
+will generally follow:
+
+        @lisp
+        /* create context, load data, and define some value radius
+         * to be the radius of your world simulation.
+         */
+
+        setScale = (void (*)(ALfloat ))
+                        alGetProcAddress("alAttenuationScale_LOKI");
+        if(setScale != NULL) @{
+                setScale(radius / ALMAXDISTANCE);
+        @}
+
+        @end lisp
+
+It is highly recommended you explicitly use this function, and do not
+assume that the default units will be useful to you.
+
+@item ALfloat alcGetAudioChannel_LOKI(ALuint channel)
+@findex alcGetAudioChannel
+
+@code{alcGetAudioChannel_LOKI} takes in a channel enumeration from the
+set @code{AL_CHAN_MAIN_LOKI}, @code{AL_CHAN_PCM_LOKI}, and
+@code{AL_CHAN_CD_LOKI}, and returns a normalized ALfloat, corresponding
+to the volume associated with the channel on whatever backend the
+library is using.
+
+@item void alcSetAudioChannel_LOKI(ALuint channel, ALfloat volume)
+@findex alcSetAudioChannel
+
+@code{alcSetAudioChannel_LOKI} takes a channel specification from the
+set @code{AL_CHAN_MAIN_LOKI}, @code{AL_CHAN_PCM_LOKI}, and
+@code{AL_CHAN_CD_LOKI} and a normalized volume, and sets the hardware
+channel associated with the channel argument to the volume (the volume
+mapped to the settings appropriate for the backend, that is).
+
+@item void alMute_LOKI(ALvoid)
+@findex alMute_LOKI
+
+@code{alMute_LOKI} returns nothing and takes no argument.  After a call
+to @code{alMute_LOKI}, the implementation ceased all audio output, while
+still updating state (so sources still play, you just can't hear them).
+The audio setting is preserved so that a subsequent call to
+@code{alUnMute_LOKI} will restore the volume to its value prior to the
+@code{alMute_LOKI} call.
+
+This isn't really useful, as you can do the same with by just querying
+and setting the listener gain.
+
+@item void alUnMute_LOKI(ALvoid)
+@findex alUnMute_LOKI
+
+@code{alUnMute_LOKI} performs the inverse operation of
+@code{alMute_LOKI}.  alUnMute_LOKI restores the volume of the simulation 
+to that which is was before calling @code{alMute_LOKI}.
+
+@item void alReverbScale_LOKI(ALuint sid, ALfloat param)
+@findex alReverbScale_LOKI
+
+@code{alReverbScale_LOKI} allows you to set a normalized value param,
+which represents the gain that is used when reverberating.  Don't use
+it.  It will be removed as soon as the IASIG extension is completed.
+
+@item void alReverbDelay_LOKI(ALuint sid, ALfloat param)
+@findex alReverbDelay_LOKI
+
+@code{alReverbScale_LOKI} allows you to set the delay associated with a
+reverberating source.  Don't use this.  It will be removed as soon as
+the IASIG extension is completed.
+
+@item ALboolean alBufferPitchHack_LOKI(ALuint bid, ALfloat pitch)
+@findex alBufferPitchHack_LOKI
+Don't use this.  You don't want it.
+
+@item void alBombOnError_LOKI(void)
+@findex alBombOnError_LOKI
+@cindex error
+
+@code{alBombOnError_LOKI}, when called, will cause the implementation to 
+abort on error, instead of just setting the per-context error and
+continuing.  This is useful only for debugging.  alc errors are not
+handled.
+
+@item void alBufferi_LOKI( ALuint bid, ALenum param, ALint value )
+@findex alBufferi_LOKI
+
+@code{alBufferi_LOKI} can be used to set a buffer's attributes.  Not
+recommended unless you know what you're doing.  Usually, you can use
+this to enable a "multichannel" buffer.
+
+@item void alBufferDataWithCallback_LOKI( ALuint bid, ALint (*callback)(ALuint sid, ALuint bid, ALshort *data, ALenum format, ALuint samples))
+@findex alBufferDataWithCallback
+
+@code{alBufferDataWithCallback_LOKI} can be used to specify that the buffer
+@code{bid} should, instead of using a static chunk of data specified by
+@code{alBufferData}, call the callback @code{callback} to fill a chunk of
+data as needed.
+
+The parameters for @code{callback} are as such:
+
+@lisp
+	@code{ALuint sid}
+	The source id that this request is associated with.  Since many 
+	sources may share the same buffer, this sid allows the application
+	to keep track of offsets and other state associated with each
+	source instance.
+
+	@code{ALuint bid}
+	The buffer id that the callback is associated with.
+
+	@code{ALshort *data}
+	The memory area that the callback should populate
+
+	@code{ALenum format}
+	The format the the output data should be in.
+
+	@code{ALuint samples}
+	The number of @strong{samples} required.
+
+@end lisp
+
+@end table
+
+@node Making your own, , Built in, Extensions
+@cindex plugins
+@cindex extensions
+
+It is possible to extend the functionality of Loki's implementation of
+OpenAL via plugins (combined with some configuration mojo).
+
+"Plugins" are actually just shared libraries which contain, as an
+available symbol, a table which contains function name/address pairs.
+Code necessary for library initialization and exit should be placed in
+_init, _fini as described in dlopen(3).
+
+The table containing the function name/address pairs should correspond
+to the following format:
+
+@lisp
+struct @{
+        ALubyte *name;
+        void *addr;
+@} alExtension_03282000 [] = @{
+    @{ "alutLoadGIF", (void *) alutLoadGIF @},
+    @{ NULL, NULL @}
+@};
+@end lisp
+
+Right now, the end @code{@{ NULL, NULL @}} pair is needed, and the table
+needs to be named @code{alExtension_03282000}.  This format is likely to
+change in the future, in order to avoid a badly written plugin from
+crashing each application linked against openal.
+
+In order to take advantage of the extension, openal will have to be
+informed of its location via the configuration file @xref{Configuration}.
+
+To avoid potential compatibility problems with initialization code, Loki's
+OpenAL implementation checks for the presence of the functions
+@code{alExtInit_03282000} and @code{alExtFini_03282000}.  These functions
+are executed at dlopen and dlclose time, respectively.
+
+@menu
+* Includes and typedefs::       
+* Basics::                      
+* Getting symbol information::  
+* Adding Filters::              
+@end menu
+
+@node Includes and typedefs, Basics,  , Making your own
+@section Includes and typedefs
+
+@node Basics, Getting symbol information, Includes and typedefs, Making your own
+
+@section Basics
+
+@node Getting symbol information, Adding Filters, Basics, Making your own
+@section Getting Symbol Information
+
+@node Adding Filters,,Getting symbol information, Making your own
+@section Adding Filters
+
+@node Example, , Loki Implementation, Top
+@chapter OpenAL examples
+
+Here are some examples.
+
+@menu
+* Trivial::                         A trivial example
+* Error Handling::                  Some basic error handling
+* Context Management::              Context management
+* Panning::                         An example of left/right panning
+* Positional::                      Positional attenuation example
+* Doppler::                         How to use velocity
+* Streaming::                       How to use streaming sound
+* Reverb::                          How to use reverb
+@end menu
+
+@node Trivial
+@section Trivial Example
+
+@lisp
+
+#include <AL/al.h>
+#include <AL/alc.h>
+#include <AL/alext.h>
+#include <AL/alkludge.h>
+#include <AL/alut.h>
+
+#include <time.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/stat.h>
+
+#define FILE "sample.wav"
+
+static void init(void);
+
+static ALuint moving_source = 0;
+
+static time_t start;
+static void *data = (void *) 0xDEADBEEF;
+
+static void *context_id;
+
+static void init( void ) @{
+        FILE *fh;
+        ALfloat zeroes[] = @{ 0.0f, 0.0f,  0.0f @};
+        ALfloat back[]   = @{ 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f @};
+        ALfloat front[]  = @{ 0.0f, 0.0f,  1.0f, 0.0f, 1.0f, 0.0f @};
+        ALuint stereo;
+        ALsizei size;
+        ALsizei bits;
+        ALsizei freq;
+        ALsizei format;
+        int filelen;
+	struct stat buf;
+
+	if( stat( FILE, &buf ) < 0 ) @{
+		/* file does not exist */
+                fprintf( stderr, "Couldn't access %s\n", FILE );
+		exit(1);
+	@}
+
+        fh = fopen("sample.wav", "rb");
+        if(fh == NULL) @{
+                fprintf( stderr, "Couldn't open %s\n", FILE );
+                exit(1);
+        @}
+
+	filelen = buf.st_size;
+
+        data = malloc( filelen );
+
+        alListenerfv( AL_POSITION, zeroes );
+        alListenerfv( AL_ORIENTATION, front );
+
+        alGenBuffers( 1, &stereo);
+
+        if( fread( data, filelen, 1, fh) != 1 ) @{
+		fprintf( stderr, "Couldn't read %s\n", FILE );
+
+		free( data );
+
+		exit(1);
+	@}
+
+        fclose( fh );
+
+        alBufferData( stereo, data, AL_FORMAT_WAVE_EXT, filelen, 0 );
+
+	free( data );
+
+        alGenSources(1, &moving_source);
+
+        alSource3f( moving_source, AL_POSITION, 0.0, 0.0, 4.0 );
+        alSourcefv( moving_source, AL_VELOCITY, zeroes );
+        alSourcei(  moving_source, AL_BUFFER, stereo );
+        alSourcei(  moving_source, AL_LOOPING, AL_FALSE);
+
+        return;
+@}
+
+int main( int argc, char* argv[] ) @{
+	ALCdevice *dev;
+        int attrlist[] = @{ ALC_FREQUENCY, 22050,
+                            ALC_INVALID @};
+        time_t shouldend;
+        ALint state = AL_INITIAL;
+
+	/* open device */
+	dev = alcOpenDevice( NULL );
+	if( dev == NULL ) @{
+		return 1;
+	@}
+
+        /* create context. */
+        context_id = alcCreateContext( dev, attrlist );
+        if( context_id == NULL ) @{
+		alcCloseDevice( dev );
+
+                return 1;
+        @}
+
+	alcMakeContextCurrent( context_id );
+
+        /*
+         * Setup LOKI extensions
+         */
+        fixup_function_pointers();
+
+        init( );
+
+        alSourcePlay( moving_source );
+        do @{
+        	/* sleep for a bit */
+        	micro_sleep( 500000 );
+
+                shouldend = time(NULL);
+                if((shouldend - start) > 10) @{
+                        /* After 10 seconds, we end */
+                        alSourceStop( moving_source );
+                @}
+
+                alSourcei( moving_source, AL_SOURCE_STATE, &state );
+        @} while(state != AL_STOPPED);
+
+        cleanup();
+
+        alcDestroyContext( context_id );
+	alcCloseDevice( dev );
+
+        return 0;
+@}
+
+@end lisp
+
+@node Error Handling
+@section Error Handling
+
+Error Handling goes here.
+
+@node Context Management
+@section Context Management
+
+Context Management goes here.
+
+@node Panning
+@section Panning
+
+Panning example goes here.
+
+@node Positional
+@section Positional
+
+Positional example goes here.
+
+@node Doppler
+@section Doppler
+
+Doppler example goes here.
+
+@node Reverb
+@section Reverb
+
+@lisp
+#include <AL/al.h>
+#include <AL/alc.h>
+#include <AL/alkludge.h>
+#include <AL/alut.h>
+
+#include <time.h>
+#include <stdio.h>
+#include <unistd.h>
+
+static void init( void );
+
+static ALuint reverb_sid = 0;
+
+static void *wave = NULL;
+
+static void init( void ) @{
+	ALfloat zeroes[] = @{ 0.0f, 0.0f,  0.0f @};
+	ALfloat back[]   = @{ 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f @};
+	ALfloat front[]  = @{ 0.0f, 0.0f,  1.0f, 0.0f, 1.0f, 0.0f @};
+	ALuint boom;
+	ALsizei size;
+	ALsizei bits;
+	ALsizei freq;
+	ALsizei format;
+
+	alListenerfv(AL_POSITION, zeroes );
+	alListenerfv(AL_VELOCITY, zeroes );
+	alListenerfv(AL_ORIENTATION, front );
+
+        alGenBuffers( 1, &boom );
+
+	alutLoadWAV( "l2.wav", &wave, &format, &size, &bits, &freq);
+
+	alBufferData( boom, format, wave, size, freq );
+	free(wave); /* openal makes a local copy of wave data */
+
+	alGenSources( 1, &reverb_sid);
+
+	alSource3f(reverb_sid, AL_POSITION, 2.0, 0.0, 4.0);
+	alSourcefv(reverb_sid, AL_VELOCITY, zeroes);
+	alSourcefv(reverb_sid, AL_ORIENTATION, back);
+	alSourcei (reverb_sid, AL_BUFFER, boom);
+
+	alReverbScale(reverb_sid, 0.6);
+	alReverbDelay(reverb_sid, 0.3);
+
+	alAttenuationScale(0.3);
+@}
+
+int main(int argc, char *argv[]) @{
+	alutInit( &argc, argv );
+
+	init( );
+
+	alSourcePlay(reverb_sid);
+	sleep(10);
+
+	alutExit();
+
+	return 0;
+@}
+
+@end lisp
+
+@node Streaming
+@section Streaming
+@cindex Streaming
+@cindex Streaming buffer
+@cindex Streaming source
+@findex alBufferAppendData
+@findex alGenStreamingBuffer
+
+Support for streaming sounds rises from the API specification
+surrounding @code{alBufferAppendData}.  Streaming sources are understood
+to be sources whose @code{AL_BUFFER} parameter is a streaming buffer.  A 
+streaming buffer is a buffer created by a call to
+@code{alGenStreamingBuffer}, and can only be fed data using
+@code{alBufferAppendData}.  
+
+Streaming sources have restrictions associated with them, and for the
+time being require special creation procedures.  Further specifications
+may remove some of these restrictions, but until further notice streaming 
+sources will always be synchronized, and some of the filters may not
+apply to them.
+
+@lisp
+insert code example
+@end lisp
+
+@node Tutorial, , , Top
+@menu
+* Definitions::
+@end menu
+
+@node Definitions, , ,Tutorial
+Foo!
+
+@node Function Index, Variable Index, , Top
+@unnumbered Function Index
+
+@printindex fn
+
+@node Variable Index, Concept Index, Function Index, Top
+@comment    node-name,         next,       previous, up
+@unnumbered Variable Index
+     
+@printindex vr
+
+@node     Concept Index,     , Variable Index, Top
+@comment      node-name, next,       previous, up
+@unnumbered Concept Index
+     
+@printindex cp
+
+@summarycontents
+@contents
+@bye

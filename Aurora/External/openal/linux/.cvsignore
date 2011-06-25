@@ -1,0 +1,8 @@
+ChangeLog~
+configure
+config.h
+config.h.in
+config.log
+config.cache
+config.status
+Makefile

@@ -1,0 +1,533 @@
+<HTML
+><HEAD
+><TITLE
+>AL Contexts and the ALC API</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.44"><LINK
+REL="HOME"
+TITLE="      OpenAL Specification and Reference
+    "
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Manipulating Buffer Attributes"
+HREF="x1545.html"><LINK
+REL="NEXT"
+TITLE="Managing Rendering Contexts"
+HREF="x1739.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>OpenAL Specification and Reference</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="x1545.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="x1739.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="ALC"
+>AL Contexts and the ALC API</A
+></H1
+><P
+>     This section of the AL specification describes ALC, the AL Context API.
+     ALC is a portable API for managing AL contexts, including 
+     resource sharing, locking, and unlocking. Within the core AL API the 
+     existence of a Context is implied, but the Context is not exposed. The 
+     Context encapsulates the state of a given intance of the AL state machine. 
+   </P
+><P
+>     To avoid confusion with the AL related prefixes implied throughout
+     this document, the "alc" and "ALC_" prefixes have been made explicit
+     in the ALC related sections.
+   </P
+><P
+>     ALC defines the following objects: Contexts.
+   </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (ALC entry points)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>         While the actual ALC implemention might be supplied
+         as a separate library, or as part of a server or
+         daemon, the specification requires that the AL library
+         provides the actual ALC entry points.
+       </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (ALC OS independend)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>          ALC is meant to be OS-independent. OS specifics are
+          expected to be adressed by defining proper device
+          specifiers strings, and configuration attributes.
+          In this, ALC differs from GLX/WGL, which (due to the
+          tighter coupling with the window manager and
+          operating system) attempt to abstract OS specifics
+          to a much lesser degree.
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK001024-02"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC/ Issues</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+          Hardware init/deinit, mapping many processes with
+          multiple contexts to many devices, sharing resources
+          among processes.
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="AEN1706"
+>Managing Devices</A
+></H1
+><P
+>      ALC introduces the notion of a Device. A Device can be,
+      depending on the implementation, a hardware device, or
+      a daemon/OS service/actual server. This mechanism also
+      permits different drivers (and hardware) to coexist
+      within the same system, as well as allowing several
+      applications to share system resources for audio, including 
+      a single hardware output device. The details are left
+      to the implementation, which has to map the available
+      backends to uniq7ue device specifiers (represented as
+      strings).
+   </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (Network transparency)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>      AL is meant for interoperability with OpenGL. Some
+      implementations of OpenGL bindings (e.g. GLX) are network 
+      transparent. The Device API theoretically allows for 
+      a network transparent AL implementation. No wire protocol
+      is specified, no specification or implementation is planned.
+       </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (Device Enumeration)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>         At this time, ALC does not provide mechanism to query
+         for available devices, and request device enumerations.
+         This might be added at a later time, depending on demand
+         and the ability to abstract OS and configuration specifics. 
+       </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (X11 Audio)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>        The ALC API intentionally mimicks XOpenDisplay
+        and XCloseDisplay. There is no X Audio standard,
+        although proposals have been made in the past.
+        The ALC API design accounts for this possibility
+        in a minimal way.
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1718"
+>Connecting to a Device</A
+></H2
+><P
+>      The alcOpenDevice function allows the application (i.e. the
+      client program) to connect to a device (i.e. the server).
+       <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+> ALCdevice * <TT
+CLASS="FUNCTION"
+>alcOpenDevice</TT
+></CODE
+>( const ubyte * <TT
+CLASS="PARAMETER"
+><I
+>deviceSpecifier</I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+>
+      If the function returns NULL, then no sound driver/device has
+      been found. The argument is a null terminated string that requests 
+      a certain device or device configuration. If NULL is specified,
+      the implementation will provide an implementation specific default. 
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (Operating system dependencies)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>         At this point, system specific configuration, and operating system 
+         specific details, are handled by leaving the details of the
+         string specifier to the implementation. The application coder
+         has to determine how he wants to obtain this information from the
+         OS or the user. If, at a later point, device enumeration and
+         configuration requests are supported through ALC, the resulting
+         string might still be operating system and implementation specific.
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1730"
+>Disconnecting from a Device</A
+></H2
+><P
+>      The alcCloseDevice function allows the application (i.e. the
+      client program) to disconnect from a device (i.e. the server).
+       <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+> void  <TT
+CLASS="FUNCTION"
+>alcCloseDevice</TT
+></CODE
+>( ALCdevice * <TT
+CLASS="PARAMETER"
+><I
+>deviceHandle</I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+>
+      If deviceHandle is NULL or invalid, an ALC_INVALID_DEVICE error
+      will be generated. Once closed, a deviceHandle is invalid.
+   </P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="x1545.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="x1739.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Manipulating Buffer Attributes</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Managing Rendering Contexts</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,196 @@
+<HTML
+><HEAD
+><TITLE
+>Implementor's View of OpenAL</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.44"><LINK
+REL="HOME"
+TITLE="      OpenAL Specification and Reference
+    "
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Introduction"
+HREF="introduction.html"><LINK
+REL="PREVIOUS"
+TITLE="Programmer's View of OpenAL"
+HREF="x53.html"><LINK
+REL="NEXT"
+TITLE="Our View"
+HREF="x67.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>OpenAL Specification and Reference</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="x53.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Introduction</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="x67.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECTION"
+><H1
+CLASS="SECTION"
+><A
+NAME="AEN60"
+>Implementor's View of OpenAL</A
+></H1
+><P
+>    To the implementor, OpenAL is a set of commands that affect
+    the operation of CPU and sound hardware. If the hardware
+    consists only of an addressable output buffer, then OpenAL must
+    be implemented almost entirely on the host CPU. In some cases
+    audio hardware provides DSP-based and other acceleration in
+    various degress. The OpenAL implementors task is to provide
+    the CPU software interface while dividing the work for each
+    AL command between the CPU and the audio hardware. This 
+    division should be tailored to the available audio hardware
+    to obtain optimum performance in carrying out AL calls.
+    </P
+><P
+>    OpenAL maintains a considerable amount of state information.
+    This state controls how the Sources are rendered into the
+    output buffer. Some of this state is directly available to
+    the user: he or she can make calls to obtain its value.
+    Some of it, however, is visible only by the effect it has
+    on what is rendered. One of the main goals of this
+    specification is to make OpenAL state information explicit,
+    to eludicate how it changes, and to indicate what its
+    effects are.
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (Native audio APIs)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>         Implementors can choose to implement OpenAL on top
+         of an existing native audio API.
+       </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="x53.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="x67.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Programmer's View of OpenAL</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="introduction.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Our View</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

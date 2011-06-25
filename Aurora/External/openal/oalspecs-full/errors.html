@@ -1,0 +1,570 @@
+<HTML
+><HEAD
+><TITLE
+>AL Errors</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.44"><LINK
+REL="HOME"
+TITLE="      OpenAL Specification and Reference
+    "
+HREF="index.html"><LINK
+REL="UP"
+TITLE="OpenAL Operation"
+HREF="oal-operation.html"><LINK
+REL="PREVIOUS"
+TITLE="Basic AL Operation"
+HREF="x221.html"><LINK
+REL="NEXT"
+TITLE="Controlling AL Execution"
+HREF="control.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>OpenAL Specification and Reference</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="x221.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>OpenAL Operation</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="control.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="ERRORS"
+>AL Errors</A
+></H1
+><P
+>       The AL detects only a subset of those conditions that could be
+       considered errors. This is because in many cases error checking
+       would adversely impact the performance of an error-free program.
+       The command
+      <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+> enum  <TT
+CLASS="FUNCTION"
+> GetError </TT
+></CODE
+>(void);</CODE
+></P
+><P
+></P
+></DIV
+>
+      is used to obtain error information. Each detectable error is
+      assigned a numeric code. When an error is detected by AL, 
+      a flag is set and the error code is recorded. Further errors,
+      if they occur, do not affect this recorded code. When GetError
+      is called, the code is returned and the flag is cleared, so that
+      a further error will again record its code. If a call to GetError
+      returns NO_ERROR then there has been no detectable error since
+      the last call to GetError (or since the AL was initialized).
+     </P
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK000926-04"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC: GL distributed error</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+      To allow for distributed implementations there may be several
+      flag/code pairs. In this case, after a call to GetError returns a
+      value other than NO_ERROR each subsequent call returns the 
+      non-NO_ERROR code of another distinct flag-code pair (in 
+      unspecified order), until all NO_ERROR codes have been returned. 
+      When there are no more non-NO_ERROR codes, all flags be reset.
+      The initial state of all flags is cleared and the initial value
+      of all codes is NO_ERROR.
+     </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (Looping GetError)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>       AL applications are advised to loop calls of GetError to
+       make sure that all flags are reset. Only the first error
+       occurence for each flag/code pair is recorded, subsequent
+       errors are ignored. The result of a repeated GetError call
+       is not a stack trace or LIFO sequence. All error handling
+       is context specific.
+
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (Only First Error)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>       Like OpenGL AL will ignore subsequent errors once an
+       error conditation has been encountered.
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><P
+>      Error codes can be mapped to strings. The GetString function
+      returns a pointer to a constant (literal) string that is 
+      identical to the identifier used for the enumeration value,
+      as defined in the specification. 
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation/ Verbose Error String</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>        There is no need to maintain a separate GetErrorString
+        function (inspired by the proposed gluGetErrorStrings) 
+        as the existing GetString entry point can be used.
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><P
+>    <DIV
+CLASS="TABLE"
+><P
+><B
+>Table 2. Error Conditions</B
+></P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>NO_ERROR</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>"No Error" token.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>INVALID_NAME</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Invalid Name parameter.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>INVALID_ENUM</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Invalid parameter.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>INVALID_VALUE</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Invalid enum parameter value.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>INVALID_OPERATION</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Illegal call.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>OUT_OF_MEMORY</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Unable to allocate memory.</TD
+></TR
+></TABLE
+></DIV
+>
+      The table summarizes the AL errors. Currently, when an error flag
+      is set, results of AL operations are undefined only if OUT_OF_MEMORY
+      has occured. In other cases, the command generating the error is
+      ignored so that it has no effect on AL state or output buffer
+      contents. If the error generating command returns a value,
+      it returns zero. If the generating command modifies values
+      through a pointer argument, no change is made to these values.
+      These error semantics apply only to AL errors, not to system errors
+      such as memory access errors.
+    </P
+><P
+>       Several error generation conditions are implicit in the description
+       of the various AL commands. First, if a command that requires
+       an enumerated value is passed a value that is not one of those
+       specified as allowable for that command, the error INVALID_ENUM
+       results. This is the case even if the argument is a pointer to
+       a symbolic constant if that value is not allowable for the given 
+       command.
+       This will occur whether the value is allowable for other functions,
+       or an invalid integer value.
+    </P
+><P
+>       Integer parameters that are used as names for AL objects
+       such as Buffers and Sources are checked for validity. If an invalid
+       name parameter is specified in an AL command, an
+       INVALID_NAME error will be generated, and the command is ignored.
+    </P
+><P
+>       If a negative integer is provided where an argument of type
+       sizei  is specified, the error INVALID_VALUE results. The same
+       error will result from attempts to set integral and floating
+       point values for attributes exceeding the legal range for
+       these. The specification does not guarantee that the implementation 
+       emits INVALID_VALUE if a NaN or Infinity value is 
+       passed in for a float  or double  argument (as the specification 
+       does not enforce possibly expensive testing of floating point
+       values).
+    </P
+><P
+>      Commands can be invalid. For example, certain commands might not be
+      applicable to a given object. There are also illegal combinations
+      of tokens and values as arguments to a command.  AL responds to any 
+      such illegal command with an INVALID_OPERATION error.  
+    </P
+><P
+>       If memory is exhausted as a side effect of the execution of an
+       AL command, either on system level or by exhausting the allocated
+       resources at AL's internal disposal, the error OUT_OF_MEMORY
+       may be generated. This can also happen independent of recent
+       commands if AL has to request memory for an internal task
+       and fails to allocate the required memory from the operating
+       system.
+    </P
+><P
+>       Otherwise errors are generated only for conditions that are 
+       explicitely described in this specification.
+    </P
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK000807-01"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC: INVALID_SIZE?</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+           Specific error case in which the size argument is
+           negative, or mismatches internal conditions for a getter?
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK000802-03"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC: INVALID_POINTER?</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+         GL seemingly does not specify a response to NULL pointer
+         destinations, and does not assign an error case. INVALID_VALUE
+         could be used, also we could introduce a separate INVALID_POINTER.
+         Is there a good reason not to catch these cases? 
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="x221.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="control.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Basic AL Operation</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="oal-operation.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Controlling AL Execution</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,201 @@
+<HTML
+><HEAD
+><TITLE
+>Programmer's View of OpenAL</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.44"><LINK
+REL="HOME"
+TITLE="      OpenAL Specification and Reference
+    "
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Introduction"
+HREF="introduction.html"><LINK
+REL="PREVIOUS"
+TITLE="What is the OpenAL Audio System?"
+HREF="x47.html"><LINK
+REL="NEXT"
+TITLE="Implementor's View of OpenAL"
+HREF="x60.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>OpenAL Specification and Reference</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="x47.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Introduction</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="x60.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECTION"
+><H1
+CLASS="SECTION"
+><A
+NAME="AEN53"
+>Programmer's View of OpenAL</A
+></H1
+><P
+>    To the programmer, OpenAL is a set of commands that allow the
+    specification of sound sources and a listener in three
+    dimensions, combined with commands that control how these
+    sound sources are rendered into the output buffer. The
+    effect of OpenAL commands is not guaranteed to be immediate,
+    as there are latencies depending on the implementation,
+    but ideally such latency should not be noticeable to the
+    user.
+    </P
+><P
+>    A typical program that uses OpenAL begins with calls to 
+    open a sound device which is used to process output and
+    play it on attached hardware (e.g. speakers or headphones).
+    Then, calls are made to allocate an AL context and
+    associate it with the device. Once an AL context is
+    allocated, the programmer is free to issue AL commands.
+    Some calls are used to render Sources (point and directional
+    Sources, looping or not), while others affect the rendering
+    of these Sources including how they are attenuated by
+    distance and relative orientation.
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (OpenAL and OpenGL use)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>       Often, OpenAL will be used to render a 3D audio environment 
+       matched by a 3D visual scenery. For this purpose, OpenAL is 
+       meant to be a seamlessly integrating complement to OpenGL.
+       OpenAL state can be updated in sync with the OpenGL or video
+       updates (synchronized), or in timesteps independent of the 
+       graphics framerate. Audio rendering loops usually update 
+       the current locations of the sources and the listener, updates 
+       global settings, and manages buffers.
+       </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="x47.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="x60.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>What is the OpenAL Audio System?</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="introduction.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Implementor's View of OpenAL</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

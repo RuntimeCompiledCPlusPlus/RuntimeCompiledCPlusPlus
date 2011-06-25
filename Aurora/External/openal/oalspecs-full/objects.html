@@ -1,0 +1,977 @@
+<HTML
+><HEAD
+><TITLE
+>Object Paradigm</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.44"><LINK
+REL="HOME"
+TITLE="      OpenAL Specification and Reference
+    "
+HREF="index.html"><LINK
+REL="UP"
+TITLE="OpenAL Operation"
+HREF="oal-operation.html"><LINK
+REL="PREVIOUS"
+TITLE="Controlling AL Execution"
+HREF="control.html"><LINK
+REL="NEXT"
+TITLE="State and State Requests"
+HREF="state-requests.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>OpenAL Specification and Reference</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="control.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>OpenAL Operation</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="state-requests.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="OBJECTS"
+>Object Paradigm</A
+></H1
+><P
+>     AL is an object-oriented API, but it does not expose classes, structs,
+     or other explicit data structures to the application. 
+    </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="OBJECT-OVERVIEW-CATEGORIES"
+>Object Categories</A
+></H2
+><P
+>     AL has three primary categories of Objects: 
+     <P
+></P
+><UL
+><LI
+><P
+>          one unique Listener per Context
+       </P
+></LI
+><LI
+><P
+>          multiple Buffers shared among Contexts
+       </P
+></LI
+><LI
+><P
+>          multiple Sources, each local to a Context
+       </P
+></LI
+></UL
+>
+     In the following, "{Object}" will stand for either Source, 
+     Listener, or Buffer.    
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="OBJECT-OVERVIEW-DYNAMIC"
+>Static vs. Dynamic Objects</A
+></H2
+><P
+>     The vast majority of AL objects are dynamic, and will be created
+     on application demand. There are also AL objects that do not have 
+     to be created, and can not be created, on application demand. 
+     Currently, the Listener is the only such static object in AL. 
+
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN339"
+>Object Names</A
+></H2
+><P
+>     Dynamic Objects are manipulated using an integer, which in 
+     analogy to OpenGL is referred to as the object's "name". These 
+     are of type unsigned integer (uint). Names can be valid
+     beyond the lifetime of the context they were requested,
+     if the objects in question can be shared among contexts.
+     No guarantees or assumptions are 
+     made in the specification about the precise values or their distribution,
+     over the lifetime of the application. As objects might be shared
+     Names are guaranteed to be 
+     unique within a class of AL objects, but no guarantees are made
+     across different classes of objects. Objects like the Listener that
+     are unique (singletons) do not require, and do not have, an integer "name".
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN342"
+>Requesting Object Names</A
+></H2
+><P
+>     AL provides calls to obtain Object Names. The application requests 
+     a number of Objects of a given category using Gen{Object}s.
+     If the number n of Objects requested is negative,
+     an INVALID_VALUE error will caused. The actual values of the
+     Names returned are implementation dependent. No guarantees on 
+     range or value are made. Unlike OpenGL OpenAL does not offer alternative 
+     means to define (bind) a Name.
+    </P
+><P
+>     Allocation of Object Names does not imply immediate allocation of
+     resources or creation of Objects: the implementation is free to 
+     defer this until a given Object is actually used in mutator calls. 
+     The Names are written at the memory location specified by the caller.
+      <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+> void <TT
+CLASS="FUNCTION"
+> Gen{Object}s </TT
+></CODE
+>( sizei  <TT
+CLASS="PARAMETER"
+><I
+> n </I
+></TT
+>,  uint * <TT
+CLASS="PARAMETER"
+><I
+> objectNames </I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+>
+    </P
+><P
+>      Requesting zero names is a legal NOP. Requesting a negative
+      number of names causes an INVALID_VALUE error. 
+      AL will respond with an OUT_OF_MEMORY if the application 
+      requests too many objects. The specification does not guarantee
+      that the AL implementation will allocate all resources
+      needed for the actual objects at the time the names are
+      reserved. In many cases (Buffers) this could only be
+      implemented by worst case estimation. Allocation of names
+      does not guarantee that all the named objects can actually
+      be used.
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (No application selected Names)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>           Unlike GL, applications are not free to choose Names, all
+           Names have to be requested. Aside from possible benefits for
+           the implementation, and avoidance of errors in projects
+           that have many modules using the AL implementation (a problem
+           encountered in GL, when the two generation mechanisms are
+           mixed), this also leaves open the door to feed different
+           kinds of objects by Name through the same API entry points. 
+       </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotate (Negative/zero sizei)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>         The specification does not guarantee that sizei is an
+         unsigned integer, but legal values have to be non-negative.
+         However, requesting zero names is a legal NOP. 
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK000626-02"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC: Resource Release Hint</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>      Do we need a hint that resource release has to be done on DeleteXXX,
+       instead of leaving this housekeeping to AL?
+     </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK000626-03"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC: Zero Name</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>      Do we reserve the name "0"? OpenGL provides an alternative mechanism
+      which lets the application pick texture names, which we discarded
+      because it is prone to create error conditions when mixing both 
+      approaches. As all our names are generated using GenXXXX, there
+      is no real need to treat "0" special.
+     </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN367"
+>Releasing Object Names</A
+></H2
+><P
+>     AL provides calls to the application to release Object Names
+     using Delete{Object}s, implicitly requesting deletion of the 
+     Objects associated with the Names released. If the number n of Objects named 
+     is negative, an INVALID_VALUE error will be caused.
+     If one or more of the specified Names is not valid, an INVALID_NAME 
+     error will be caused. Implementation behavior following any error 
+     is undefined. 
+   </P
+><P
+>     Once deleted (even if an error occured on deletion), the Names are 
+     no longer valid for use with any AL function calls including
+     calls to Delete{Objects}s. Any such use will cause an INVALID_NAME 
+     error. 
+   </P
+><P
+>     The AL implementation is free to defer actual release of 
+     resources. Ideally, resources should be released as soon as
+     possible, but no guarantees are made.
+      <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>void <TT
+CLASS="FUNCTION"
+>Delete{Object}s</TT
+></CODE
+>(sizei <TT
+CLASS="PARAMETER"
+><I
+>n</I
+></TT
+>, uint *<TT
+CLASS="PARAMETER"
+><I
+>objectNames</I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+>
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>      GenXXX and DeleteXXX can not reasonably be expected to be used 
+      for controlling driver-side resource management from the
+      application. A driver might never release a Source once allocated
+      during the lifetime of the application.   
+    </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK000724-18"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC: Deletion Errors</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+          chasan@acm.org:  
+          What happens if an active source (or its associated buffer) is deleted? 
+          The source should be stopped? Or the delete operation is invalid?
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN386"
+>Validating an Object Name</A
+></H2
+><P
+>     AL provides calls to validate the Name of an Object.
+     The application can verify whether an Object Name is valid
+     using the Is{Object} query. There is no vector (array)
+     version of this function as it defeats the purpose of
+     unambiguous (in)valdiation. Returns TRUE if id is a
+     valid Object Name, and FALSE otherwise. Object Names are 
+     valid between request (Gen{Object}s) and release (Delete{Object}s).
+     Is{Object} does not distinguish between invalid and deleted Names. 
+      <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+>boolean <TT
+CLASS="FUNCTION"
+>Is{Object}</TT
+></CODE
+>(uint <TT
+CLASS="PARAMETER"
+><I
+>objectName</I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+>
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC/bk000504:</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>      If zero is a valid name, this function will have to accept
+      it without an actyual object (or only an internal dummy)
+      being associated with it. I recommend that implementations
+      never return "0" as an object name.
+    </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN398"
+>Setting Object Attributes</A
+></H2
+><P
+>     For AL Objects, calls to control their attributes are provided.
+     These depend on the actual properties of a given Object
+     Category. The precise API is discussed for each category,
+     below. Each AL command affecting the state of
+     a named Object is usually of the form 
+      <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+> void <TT
+CLASS="FUNCTION"
+> {Object}{n}{sifd}{v} </TT
+></CODE
+>( uint  <TT
+CLASS="PARAMETER"
+><I
+> objectName </I
+></TT
+>,  enum  <TT
+CLASS="PARAMETER"
+><I
+> paramName </I
+></TT
+>,  T  <TT
+CLASS="PARAMETER"
+><I
+> values </I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+>
+     In the case of unnamed (unique) Objects, the (integer) objectName 
+     is omitted, as it is implied by the {Object} part of function name:
+      <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+> void <TT
+CLASS="FUNCTION"
+> {Object}{n}{sifd}{v} </TT
+></CODE
+>( enum  <TT
+CLASS="PARAMETER"
+><I
+> paramName </I
+></TT
+>,  T  <TT
+CLASS="PARAMETER"
+><I
+> values </I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+>
+     For example, the Listener3d command would not require an (integer)
+     objectName argument.
+   </P
+><P
+>      The objectName specifies the AL object affected by this call.
+      Use of an invalid Name will cause an INVALID_NAME error. 
+   </P
+><P
+> 
+      The Object's Attribute to be affected has to be named
+      as paramName. AL parameters applicable to one category
+      of Objects are not necessarily legal for another catetgory 
+      of AL Objects. Specification of a parameter illegal for
+      a given object will cause an INVALID_OPERATION error.  
+    </P
+><P
+>      Not all possible values for a type will be legal for a 
+      given objectName and parameterName. Use of an illegal value 
+      or a NULL value pointer will cause an INVALID_VALUE error.
+    </P
+><P
+>      Any command that causes an error is a NOP.
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN423"
+>Querying Object Attributes</A
+></H2
+><P
+>     For named and for unique AL Objects, calls to query their
+     current attributes are provided.
+     These depend on the actual properties of a given Object
+     Category. The performance of such queries is implementation
+     dependent, no performance guarantees are made. The valid values for the 
+     parameter paramName are identical to the ones legal for the complementing
+     attribute setting function.
+      <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+> void <TT
+CLASS="FUNCTION"
+> Get{Object}{n}{sifd}{v} </TT
+></CODE
+>( uint  <TT
+CLASS="PARAMETER"
+><I
+> objectName </I
+></TT
+>,  enum  <TT
+CLASS="PARAMETER"
+><I
+> paramName </I
+></TT
+>,  T * <TT
+CLASS="PARAMETER"
+><I
+> destination </I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+>
+     For unnamed unique Objects, the objectName is omitted as it is 
+     implied by the function name:
+      <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+> void <TT
+CLASS="FUNCTION"
+> Get{Object}{n}{sifd}{v} </TT
+></CODE
+>( enum  <TT
+CLASS="PARAMETER"
+><I
+> paramName </I
+></TT
+>,  T * <TT
+CLASS="PARAMETER"
+><I
+> destination </I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+>
+    </P
+><P
+>     The precise API is discussed for each category separately, below.
+     Unlike their matching mutators, Query functions for non-scalar 
+     properties (vectors etc.) are only available in array form.
+   </P
+><P
+>     Use of an invalid Name will cause an INVALID_NAME error. 
+     Specification of an illegal parameter type (token) will cause 
+     an INVALID_ENUM error.  A call with a destination
+     NULL pointer will be quietly ignored. The AL state will not 
+     be affected by errors. In case of errors, destination memory 
+     will not be changed.
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN446"
+>Object Attributes</A
+></H2
+><P
+>      Attributes affecting the processing of sounds can be set for various
+      AL Object categories, or might change as an effect of AL calls.
+      The vast majority of these Object properties are specific to the
+      AL Object category, in question, but some are applicable to two
+      or more categories, and are listed separately.
+    </P
+><P
+>      The general form in which this document describes parameters is
+    <DIV
+CLASS="TABLE"
+><P
+><B
+>Table 3. {Object} Parameters</B
+></P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Signature</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Values</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Default</TH
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>paramName</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>T</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+> range or set </TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+> scalar or n-tupel </TD
+></TR
+></TABLE
+></DIV
+>
+    Description:
+        The description specifies additional restrictions and details.
+        paramName is given as the AL enum defined as its name.
+        T can be a list of legal signatures, usually the array form
+        as well as the flat (unfolded) form.
+    </P
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK000626-04"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC: Initial (Default) State</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>      The default state of objects will have to be specified here.
+      There will be no commands that allow the application to set
+      other defaults.
+     </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="control.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="state-requests.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Controlling AL Execution</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="oal-operation.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>State and State Requests</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

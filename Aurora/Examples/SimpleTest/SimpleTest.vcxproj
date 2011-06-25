@@ -1,0 +1,204 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{D80E22AA-64AF-4542-A583-DC0AE69CC88B}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>SimpleTest</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\Aurora.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\Aurora.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <UseFullPaths>true</UseFullPaths>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <MinimalRebuild>false</MinimalRebuild>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>Audio_VS2010.lib;Renderer_VS2010.lib;Systems.lib;RuntimeCompiler_VS2010.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration);$(DXSDK_DIR)\Lib\x86</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <UseFullPaths>true</UseFullPaths>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <MinimalRebuild>false</MinimalRebuild>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>Audio_VS2010.lib;Renderer_VS2010.lib;Systems.lib;RuntimeCompiler_VS2010.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration);$(DXSDK_DIR)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="BehaviorCommon.h" />
+    <ClCompile Include="BehaviorTree_Infected.cpp" />
+    <ClCompile Include="BehaviorTree_RBC.cpp" />
+    <ClCompile Include="BehaviorTree_Virus.cpp" />
+    <ClCompile Include="Behavior_Infected_Approach.cpp" />
+    <ClCompile Include="Behavior_Infected_Base.h" />
+    <ClCompile Include="Behavior_Infected_Combat.cpp" />
+    <ClCompile Include="Behavior_Infected_HuntWBC.cpp" />
+    <ClCompile Include="Behavior_Infected_Idle.cpp" />
+    <ClCompile Include="Behavior_Infected_HuntRBC.cpp" />
+    <ClCompile Include="Behavior_RBC_Approach.cpp" />
+    <ClCompile Include="Behavior_RBC_Base.h" />
+    <ClCompile Include="Behavior_RBC_Combat.cpp" />
+    <ClCompile Include="Behavior_RBC_Evade.cpp" />
+    <ClCompile Include="Behavior_RBC_Idle.cpp" />
+    <ClCompile Include="Behavior_Virus_Approach.cpp" />
+    <ClCompile Include="Behavior_Virus_Base.h" />
+    <ClCompile Include="Behavior_Virus_HuntRBC.cpp" />
+    <ClCompile Include="Behavior_Virus_HuntWBC.cpp" />
+    <ClCompile Include="Behavior_Virus_Idle.cpp" />
+    <ClCompile Include="Behavior_Virus_Combat.cpp" />
+    <ClCompile Include="Behavior_WBC_Approach.cpp" />
+    <ClCompile Include="Behavior_WBC_Base.h" />
+    <ClCompile Include="Behavior_WBC_Combat.cpp" />
+    <ClCompile Include="Behavior_WBC_Idle.cpp" />
+    <ClCompile Include="BehaviorTreeManager.cpp" />
+    <ClCompile Include="BehaviorTree_WBC.cpp" />
+    <ClCompile Include="Behavior_WBC_Patrol.cpp" />
+    <ClCompile Include="BlackboardManager.cpp" />
+    <ClCompile Include="CameraControl.cpp" />
+    <ClCompile Include="CompilerLogger.cpp" />
+    <ClCompile Include="Console.cpp" />
+    <ClCompile Include="ConsoleContext.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Environment.cpp" />
+    <ClCompile Include="FPSCounter.cpp" />
+    <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameManager.cpp" />
+    <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="MainMenu.cpp" />
+    <ClCompile Include="InputManager.cpp" />
+    <ClCompile Include="LightingControl.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="MainObject.cpp" />
+    <ClCompile Include="PerceptionManager.cpp" />
+    <ClCompile Include="PhysicsManager.cpp" />
+    <ClCompile Include="SplashScreen.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="IEntityObject.h" />
+    <ClInclude Include="BB_Global.h" />
+    <ClInclude Include="BB_Group_Infected.h" />
+    <ClInclude Include="BB_Group_RBC.h" />
+    <ClInclude Include="BB_Group_Virus.h" />
+    <ClInclude Include="BB_Group_WBC.h" />
+    <ClInclude Include="BB_Individual_Common.h" />
+    <ClInclude Include="BB_Individual_Infected.h" />
+    <ClInclude Include="BB_Individual_RBC.h" />
+    <ClInclude Include="BB_Individual_Virus.h" />
+    <ClInclude Include="BB_Individual_WBC.h" />
+    <ClInclude Include="BB_Team_Immune.h" />
+    <ClInclude Include="BB_Team_Infection.h" />
+    <ClInclude Include="CompilerLogger.h" />
+    <ClInclude Include="Console.h" />
+    <ClInclude Include="Environment.h" />
+    <ClInclude Include="ConsoleContext.h" />
+    <ClInclude Include="Game.h" />
+    <ClInclude Include="GlobalParameters.h" />
+    <ClInclude Include="IBehavior.h" />
+    <ClInclude Include="IBehaviorTree.h" />
+    <ClInclude Include="IBehaviorTreeManager.h" />
+    <ClInclude Include="IBlackboard.h" />
+    <ClInclude Include="IBlackboardManager.h" />
+    <ClInclude Include="ICameraControl.h" />
+    <ClInclude Include="IConsoleContext.h" />
+    <ClInclude Include="IGameManager.h" />
+    <ClInclude Include="IGameObject.h" />
+    <ClInclude Include="IInputManager.h" />
+    <ClInclude Include="ILightingControl.h" />
+    <ClInclude Include="InterfaceIds.h" />
+    <ClInclude Include="IObject.h" />
+    <ClInclude Include="IObjectUtils.h" />
+    <ClInclude Include="IPerceptionManager.h" />
+    <ClInclude Include="IPhysicsManager.h" />
+    <ClInclude Include="ISplashScreen.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Assets\GUI\console.rcss" />
+    <None Include="..\..\Assets\GUI\console.rml" />
+    <None Include="..\..\Assets\GUI\cursor.rml" />
+    <None Include="..\..\Assets\GUI\demo.rcss" />
+    <None Include="..\..\Assets\GUI\demo.rml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="..\..\Assets\GUI\default.rcss" />
+    <None Include="..\..\Assets\GUI\input.rcss" />
+    <None Include="..\..\Assets\GUI\input.rml" />
+    <None Include="..\..\Assets\GUI\menu.rcss" />
+    <None Include="..\..\Assets\GUI\menu.rml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="..\..\Assets\GUI\fps-counter.rcss" />
+    <None Include="..\..\Assets\GUI\fps-counter.rml" />
+    <None Include="..\..\Assets\GUI\splashscreen.rcss" />
+    <None Include="..\..\Assets\GUI\splashscreen.rml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Console.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

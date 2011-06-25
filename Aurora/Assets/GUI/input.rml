@@ -1,0 +1,11 @@
+<rml>
+<head>
+	<link type="text/rcss" href="default.rcss"/>
+	<link type="text/rcss" href="input.rcss"/>
+	<title>Input Manager Window</title>
+</head>
+	<body>
+		<div id="input"></div>
+		<textarea id="info" />
+	</body>
+</rml>

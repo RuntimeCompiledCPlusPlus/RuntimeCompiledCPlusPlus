@@ -1,0 +1,28 @@
+<rml>
+<head>
+	<link type="text/rcss" href="default.rcss"/>
+	<link type="text/rcss" href="console.rcss"/>
+	<title>Title</title>
+</head>
+	<body>
+		<div id="title_bar">
+			<handle move_target="#document">
+				<span id="title">Console</span>
+			</handle>
+		</div>
+		<div id="window">
+			<div id="controls">
+				<button id="ViewButton">Multi</button>
+				<button id="ClearButton">Clear</button>
+				<button id="BackButton">&lt;</button>
+				<button id="ForwardButton">&gt;</button>
+				<button id="CloseButton">Close</button>
+			</div>
+			<div id="content">
+				<input id="SingleLineArea" name="oneline" type="text" maxlength="256"/>
+				<textarea id="MultiLineArea" name="multiline" />
+				<button id="ExecuteButton">Execute</button>
+			</div>
+		</div>
+	</body>
+</rml>

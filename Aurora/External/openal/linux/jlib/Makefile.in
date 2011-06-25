@@ -1,0 +1,22 @@
+CC        = @CC@
+CCFLAGS   = @CFLAGS@
+DEFINES   = @DEFINES@
+INC       = -I.
+SLIB      = libjlib.a
+OBJS      = globals.o  hash.o
+MAKE      = @MAKE@
+
+.SUFFIXES: .c
+.c.o:
+	$(CC) $(CCFLAGS) $(DEFINES) $(INC) -g -c -o $@ $<
+
+all: $(OBJS)
+	ar cru $(SLIB) $(OBJS)
+
+install: all
+
+clean:
+	-rm -f $(SLIB) $(OBJS) core
+
+distclean: clean
+	-rm -f Makefile

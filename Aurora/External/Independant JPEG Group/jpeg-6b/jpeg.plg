@@ -1,0 +1,167 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: jpeg - Win32--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\WINDOWS\TEMP\RSP8392.TMP" with contents
+[
+/nologo /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /Fp".\Release/jpeg.pch" /YX /Fo".\Release/" /Fd".\Release/" /FD /c 
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jcapimin.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jcapistd.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jccoefct.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jccolor.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jcdctmgr.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jchuff.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jcinit.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jcmainct.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jcmarker.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jcmaster.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jcomapi.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jcparam.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jcphuff.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jcprepct.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jcsample.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jctrans.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jdapimin.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jdapistd.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jdatadst.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jdatasrc.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jdcoefct.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jdcolor.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jddctmgr.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jdhuff.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jdinput.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jdmainct.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jdmarker.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jdmaster.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jdmerge.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jdphuff.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jdpostct.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jdsample.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jdtrans.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jerror.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jfdctflt.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jfdctfst.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jfdctint.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jidctflt.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jidctfst.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jidctint.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jidctred.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jquant1.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jquant2.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jutils.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jmemmgr.c"
+"C:\Development Libraries\Independant JPEG Group\jpeg-6b\jmemnobs.c"
+]
+Creating command line "cl.exe @C:\WINDOWS\TEMP\RSP8392.TMP" 
+Creating temporary file "C:\WINDOWS\TEMP\RSP8393.TMP" with contents
+[
+/nologo /out:".\Release\jpeg.lib" 
+".\Release\jcapimin.obj"
+".\Release\jcapistd.obj"
+".\Release\jccoefct.obj"
+".\Release\jccolor.obj"
+".\Release\jcdctmgr.obj"
+".\Release\jchuff.obj"
+".\Release\jcinit.obj"
+".\Release\jcmainct.obj"
+".\Release\jcmarker.obj"
+".\Release\jcmaster.obj"
+".\Release\jcomapi.obj"
+".\Release\jcparam.obj"
+".\Release\jcphuff.obj"
+".\Release\jcprepct.obj"
+".\Release\jcsample.obj"
+".\Release\jctrans.obj"
+".\Release\jdapimin.obj"
+".\Release\jdapistd.obj"
+".\Release\jdatadst.obj"
+".\Release\jdatasrc.obj"
+".\Release\jdcoefct.obj"
+".\Release\jdcolor.obj"
+".\Release\jddctmgr.obj"
+".\Release\jdhuff.obj"
+".\Release\jdinput.obj"
+".\Release\jdmainct.obj"
+".\Release\jdmarker.obj"
+".\Release\jdmaster.obj"
+".\Release\jdmerge.obj"
+".\Release\jdphuff.obj"
+".\Release\jdpostct.obj"
+".\Release\jdsample.obj"
+".\Release\jdtrans.obj"
+".\Release\jerror.obj"
+".\Release\jfdctflt.obj"
+".\Release\jfdctfst.obj"
+".\Release\jfdctint.obj"
+".\Release\jidctflt.obj"
+".\Release\jidctfst.obj"
+".\Release\jidctint.obj"
+".\Release\jidctred.obj"
+".\Release\jquant1.obj"
+".\Release\jquant2.obj"
+".\Release\jutils.obj"
+".\Release\jmemmgr.obj"
+".\Release\jmemnobs.obj"
+]
+Creating command line "link.exe -lib @C:\WINDOWS\TEMP\RSP8393.TMP"
+<h3>Output Window</h3>
+Compiling...
+jcapimin.c
+jcapistd.c
+jccoefct.c
+jccolor.c
+jcdctmgr.c
+jchuff.c
+jcinit.c
+jcmainct.c
+jcmarker.c
+jcmaster.c
+jcomapi.c
+jcparam.c
+jcphuff.c
+jcprepct.c
+jcsample.c
+jctrans.c
+jdapimin.c
+jdapistd.c
+jdatadst.c
+jdatasrc.c
+jdcoefct.c
+jdcolor.c
+jddctmgr.c
+jdhuff.c
+jdinput.c
+jdmainct.c
+jdmarker.c
+jdmaster.c
+jdmerge.c
+jdphuff.c
+jdpostct.c
+jdsample.c
+jdtrans.c
+jerror.c
+jfdctflt.c
+jfdctfst.c
+jfdctint.c
+jidctflt.c
+jidctfst.c
+jidctint.c
+jidctred.c
+jquant1.c
+jquant2.c
+jutils.c
+jmemmgr.c
+jmemnobs.c
+Creating library...
+
+
+
+<h3>Results</h3>
+jpeg.lib - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

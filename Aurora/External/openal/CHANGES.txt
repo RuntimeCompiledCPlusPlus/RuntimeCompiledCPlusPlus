@@ -1,0 +1,15 @@
+
+1999-12-27  Bernd Kreimeier  <bk@lokigames.com>
+
+	* include/AL/al.h: minimal.
+
+1999-12-23  Bernd Kreimeier  <bk@lokigames.com>
+
+	* include/AL/altypes.h: split out types and enums.
+	* include/AL/al.h: reworking prototypes, adding function pointers.
+	
+	* CHANGES: change log created for OpenAL.
+	OpenAL is no added to the public CVS, in the private/openal module.
+
+
+-------- CHANGES for OpenAL -----------------------------------------------

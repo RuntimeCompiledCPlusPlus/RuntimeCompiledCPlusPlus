@@ -1,0 +1,10 @@
+<rml>
+<head>
+	<link type="text/rcss" href="default.rcss"/>
+	<link type="text/rcss" href="splashscreen.rcss"/>
+	<title>SplashScreen</title>
+</head>
+	<body>
+		<img id="splash" src=""/>
+	</body>
+</rml>

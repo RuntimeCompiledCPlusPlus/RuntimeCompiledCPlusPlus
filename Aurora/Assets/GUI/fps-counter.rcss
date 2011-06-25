@@ -1,0 +1,27 @@
+body
+{
+	font-family: Delicious;
+	font-weight: normal;
+	font-style: normal;
+	font-size: 20;
+	color: white;
+}
+
+div#fps
+{
+	font-size: 20;
+	font-weight: bold;
+
+	outline-font-effect: outline;
+	outline-width: 1px;
+	outline-color: black;
+
+	text-align: right;
+	
+	position:absolute;
+  top: 5px;
+  right: 10px;
+  width: 100px;
+}
+
+

@@ -1,0 +1,514 @@
+body
+{
+	font-family: Delicious;
+	font-weight: normal;
+	font-style: normal;
+	font-size: 15pt;
+	color: white;
+	
+	top: 100px;
+	left: 30px;
+}
+
+div#title_bar
+{
+	z-index: 1;
+
+	position: absolute;
+	top: -33px;
+	
+	text-align: left;
+}
+
+div#title_bar span
+{
+	padding-left: 30px;
+	padding-right: 20px;
+	padding-top: 12px;
+	padding-bottom: 35px;
+
+	font-size: 18pt;
+	font-weight: bold;
+
+	outline-font-effect: outline;
+	outline-width: 1px;
+	outline-color: black;
+
+	background-decorator: tiled-horizontal;
+	background-left-image: console.tga 147px 0px 229px 85px;
+	background-center-image: console.tga stretch 229px 0px 230px 85px;
+	background-right-image: console.tga 231px 0px 246px 85px;
+}
+
+div#window
+{
+	width: 600px;
+	height: auto;
+	
+	background-decorator: tiled-box;
+	background-top-left-image: console.tga 0px 0px 133px 15px;
+	background-top-right-image: console.tga 136px 0px 146px 15px;
+	background-top-image: console.tga stretch 134px 0px 135px 15px;
+	background-bottom-left-image: console.tga 0px 16px 11px 31px;
+	background-bottom-right-image: console.tga 136px 16px 146px 31px;
+	background-bottom-image: console.tga stretch 11px 16px 12px 31px;
+	background-left-image: console.tga stretch 0px 15px 10px 16px;
+	background-center-image: console.tga stretch 11px 15px 12px 16px;
+}
+
+div#content
+{
+	z-index: 1;
+
+	overflow: hidden auto;
+	
+	text-align: left;
+	
+	padding-left: 7px;
+	padding-right: 7px;
+	padding-bottom: 3px;
+}
+
+div#controls
+{
+	z-index: 1;
+	
+	margin-top: 8px;
+	margin-right: 10px;
+	text-align: right;
+}
+
+select,
+dataselect
+{
+	margin-left: 20px;
+}
+
+input.text,
+textarea
+{
+	font-family: Anonymous;
+	font-size: 16pt;
+}
+
+input.submit
+{
+	margin-left: 7px;
+	margin-bottom: 4px;
+}
+
+button,
+input.submit
+{
+	display: inline-block;
+
+	width: 80px;
+	height: 28px;
+
+	padding-top: 5px;
+	vertical-align: -18px;
+
+	font-size: 14pt;
+	font-weight: bold;
+	text-align: center;
+	tab-index: auto;
+
+	background-decorator: image;
+	background-image: console.tga 247px 0px 406px 45px;
+}
+
+button:focus,
+input.submit:focus
+{
+    font-weight: bold;
+    
+    shadow-font-effect: shadow;
+    shadow-offset: 1px 1px;
+    shadow-color: black;
+}
+
+button:hover,
+input.submit:hover
+{
+	background-image-t: 45px 90px;
+}
+
+button:active,
+input.submit:active
+{
+	background-image-t: 90px 135px;
+}
+
+button:disabled,
+input.submit:disabled
+{
+	background-image-t: 90px 135px;
+	color: grey;
+	font-weight: normal;
+}
+
+input.text,
+textarea
+{
+	padding: 5px;
+	padding-left: 10px;
+	padding-top: 10px;
+	margin: 5px;
+	margin-bottom: 0px;	
+	
+	background-decorator: tiled-box;
+	background-top-left-image: console.tga 281px 272px 292px 284px;
+	background-top-right-image: console.tga 294px 272px 305px 284px;
+	background-top-image: console.tga stretch 292px 272px 293px 284px;
+	background-bottom-left-image: console.tga 281px 285px 292px 296px;
+	background-bottom-right-image: console.tga 294px 285px 305px 296px;
+	background-bottom-image: console.tga stretch 292px 285px 293px 296px;
+	background-left-image: console.tga stretch 281px 283px 292px 284px;
+	background-center-image: console.tga stretch 292px 283px 293px 284px;
+}
+
+input.text
+{
+	height: 35px;
+	width: 677px;
+}
+
+textarea
+{
+	height: 155px;
+	width: 677px;
+}
+
+input.text,
+select,
+dataselect,
+textarea
+{
+	color: black;
+	font-size: 13pt;
+}
+
+datagrid input.text
+{
+	width: 100%;
+	height: auto;
+	margin: 0px;
+	padding: 0px 2px 0px;
+
+	border-width: 1px;
+	border-color: black;
+	background-color: white;
+
+	font-size: 15pt;
+	
+	background-decorator: none;
+}
+
+
+
+select,
+dataselect
+{
+	width: 175px;
+	height: 37px;
+}
+
+select selectvalue,
+dataselect selectvalue
+{
+	width: auto;
+	margin-right: 30px;
+	
+	height: 28px;
+	padding: 9px 10px 0px 10px;
+
+	background-decorator: image;
+	background-image: console.tga 162px 192px 307px 229px;
+}
+
+select selectvalue:hover,
+dataselect selectvalue:hover
+{
+	background-image-t: 230px 267px;
+}
+
+select selectarrow,
+dataselect selectarrow
+{
+	width: 30px;
+	height: 37px;
+	
+	icon-decorator: image;
+	icon-image: console.tga 307px 192px 337px 229px;
+}
+
+select selectarrow:hover,
+dataselect selectarrow:hover
+{
+	icon-image-t: 230px 267px;
+}
+
+select selectarrow:active,
+select selectarrow:checked,
+dataselect selectarrow:active,
+dataselect selectarrow:checked
+{
+	icon-image-t: 268px 305px;
+}
+
+select selectbox,
+dataselect selectbox
+{
+	margin-left: 1px;
+	margin-top: -7px;
+	width: 162px;
+	padding: 1px 4px 4px 4px;
+}
+
+select selectbox,
+dataselect selectbox,
+datagrid datagridbody
+{
+	background-decorator: tiled-box;
+	background-top-left-image: console.tga 281px 275px 292px 284px;
+	background-top-right-image: console.tga 294px 275px 305px 284px;
+	background-top-image: console.tga stretch 292px 275px 293px 284px;
+	background-bottom-left-image: console.tga 281px 285px 292px 296px;
+	background-bottom-right-image: console.tga 294px 285px 305px 296px;
+	background-bottom-image: console.tga stretch 292px 285px 293px 296px;
+	background-left-image: console.tga stretch 281px 283px 292px 284px;
+	background-center-image: console.tga stretch 292px 283px 293px 284px;
+}
+
+select selectbox option,
+dataselect selectbox option
+{
+	width: auto;
+	padding-left: 3px;
+}
+
+select selectbox option:nth-child(even),
+dataselect selectbox option:nth-child(even),
+datagrid datagridrow:nth-child(even)
+{
+	background: #FFFFFFA0;
+}
+
+select selectbox option:hover,
+dataselect selectbox option:hover
+{
+	background: #FF5D5D;
+}
+
+
+
+input.radio,
+input.checkbox
+{
+	width: 30px;
+	height: 30px;
+
+	vertical-align: -11px;
+}
+
+input.radio
+{
+	icon-decorator: image;
+	icon-image: console.tga 407px 0px 437px 30px;
+}
+
+input.radio:hover
+{
+	icon-image-s: 437px 467px;
+}
+
+input.radio:active
+{
+	icon-image-s: 467px 497px;
+}
+
+input.radio:checked
+{
+	icon-image-t: 30px 60px;
+}
+
+input.radio:checked:hover
+{
+	icon-image-s: 437px 467px;
+	icon-image-t: 30px 60px;
+}
+
+input.radio:checked:active
+{
+	icon-image-s: 467px 497px;
+	icon-image-t: 30px 60px;
+}
+
+input.checkbox
+{
+	icon-decorator: image;
+	icon-image: console.tga 407px 60px 437px 90px;
+}
+
+input.checkbox:hover
+{
+	icon-image-s: 437px 467px;
+}
+
+input.checkbox:active
+{
+	icon-image-s: 467px 497px;
+}
+
+input.checkbox:checked
+{
+	icon-image-t: 90px 120px;
+}
+
+input.checkbox:checked:hover
+{
+	icon-image-s: 437px 467px;
+	icon-image-t: 90px 120px;
+}
+
+input.checkbox:checked:active
+{
+	icon-image-s: 467px 497px;
+	icon-image-t: 90px 120px;
+}
+
+
+
+datagrid datagridheader
+{
+	width: auto;
+	height: 25px;
+	padding: 5px 10px 0px 10px;
+
+	background-decorator: tiled-horizontal;
+	background-left-image: console.tga 127px 192px 143px 223px;
+	background-center-image: console.tga stretch 143px 192px 145px 223px;
+	background-right-image: console.tga 145px 192px 160px 223px;
+}
+
+datagrid datagridbody
+{
+	color: black;
+
+	margin-left: 4px;
+	margin-right: 3px;
+	padding: 0px 4px 4px 4px;
+}
+
+
+
+datagridexpand
+{
+	display: block;
+	
+	margin: 1px 0px 1px 5px;
+	height: 17px;
+	width: 17px;
+	
+	icon-decorator: image;
+	icon-image: console.tga 3px 232px 20px 249px;
+}
+
+datagridexpand:hover
+{
+	icon-image-s: 21px 38px;
+}
+
+datagridexpand:active
+{
+	icon-image-s: 39px 56px;
+}
+
+datagridexpand.collapsed
+{
+	icon-image-t: 250px 267px;
+}
+
+
+
+scrollbarvertical
+{
+	margin-top: 1px;
+	margin-bottom: 3px;
+	margin-right: 3px;
+	width: 27px;
+}
+
+scrollbarvertical slidertrack
+{
+	background-decorator: tiled-vertical;
+	background-top-image: console.tga 70px 199px 97px 201px;
+	background-center-image: console.tga stretch 70px 201px 97px 202px;
+	background-bottom-image: console.tga 70px 203px 97px 204px;
+}
+
+scrollbarvertical sliderbar
+{
+	margin-left: 4px;
+	width: 23px;
+	min-height: 46px;
+
+	background-decorator: tiled-vertical;
+	background-top-image: console.tga 56px 152px 79px 175px;
+	background-center-image: console.tga stretch 56px 175px 79px 175px;
+	background-bottom-image: console.tga 56px 176px 79px 198px;
+}
+
+scrollbarvertical sliderbar:hover
+{
+	background-top-image-s: 80px 103px;
+	background-center-image-s: 80px 103px;
+	background-bottom-image-s: 80px 103px;
+}
+
+scrollbarvertical sliderbar:active
+{
+	background-top-image-s: 104px 127px;
+	background-center-image-s: 104px 127px;
+	background-bottom-image-s: 104px 127px;
+}
+
+scrollbarvertical sliderarrowdec
+{
+	width: 27px;
+	height: 24px;
+	
+	icon-decorator: image;
+	icon-image: console.tga 0px 152px 27px 176px;
+}
+
+scrollbarvertical sliderarrowdec:hover,
+scrollbarvertical sliderarrowinc:hover
+{
+	icon-image-t: 177px 201px;
+}
+
+scrollbarvertical sliderarrowdec:active,
+scrollbarvertical sliderarrowinc:active
+{
+	icon-image-t: 202px 226px;
+}
+
+scrollbarvertical sliderarrowinc
+{
+	width: 27px;
+	height: 24px;
+	
+	icon-decorator: image;
+	icon-image: console.tga 28px 152px 55px 176px;
+}
+
+
+
+scrollbarhorizontal
+{
+	width: 0px;
+	height: 0px;
+}
+
+

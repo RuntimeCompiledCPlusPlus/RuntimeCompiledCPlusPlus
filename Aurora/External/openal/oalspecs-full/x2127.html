@@ -1,0 +1,578 @@
+<HTML
+><HEAD
+><TITLE
+>Compatibility Extensions</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.44"><LINK
+REL="HOME"
+TITLE="      OpenAL Specification and Reference
+    "
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Extensions"
+HREF="a2071.html"><LINK
+REL="PREVIOUS"
+TITLE="Other Extension"
+HREF="x2120.html"><LINK
+REL="NEXT"
+TITLE="Loop Point Extension"
+HREF="x2212.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>OpenAL Specification and Reference</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="x2120.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Extensions</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="x2212.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="AEN2127"
+>Compatibility Extensions</A
+></H1
+><P
+>     The extensions described have at one point been in use for
+     experimental purposes, proof of concept, or short term needs.
+     They are preserved for backwards compatibility. Use is not
+     recommended, avialability not guaranteed. Most of these will
+     be officially dropped by the time API revision 2.0 is released.
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN2130"
+>Loki Buffer InternalFormat Extension</A
+></H2
+><P
+>     AL currently does not provide a separate processing
+     chain for multichannel data. To handle stereo samples,
+     the following alternative entry point to BufferData
+     has been defined.
+      <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+> void  <TT
+CLASS="FUNCTION"
+> BufferWriteData</TT
+></CODE
+>( uint  <TT
+CLASS="PARAMETER"
+><I
+>bufferName</I
+></TT
+>,  enum  <TT
+CLASS="PARAMETER"
+><I
+>format</I
+></TT
+>,  void *; <TT
+CLASS="PARAMETER"
+><I
+> data </I
+></TT
+>,  sizei  <TT
+CLASS="PARAMETER"
+><I
+> size </I
+></TT
+>,  uint  <TT
+CLASS="PARAMETER"
+><I
+>frequency</I
+></TT
+>,  enum  <TT
+CLASS="PARAMETER"
+><I
+>internalFormat</I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+>
+      Valid formats for internalFormat are FORMAT_MONO8, FORMAT_MONO16,
+      FORMAT_STEREO8, and FORMAT_STEREO16.
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN2149"
+>Loki BufferAppendData Extension</A
+></H2
+><P
+>      Experimental implementation to append data to an existing
+      buffer. Obsoleted by Buffer Queueing. TBA.
+   </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (GenStreamingBuffers):</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>        It is possible that a consistent implementation of this
+        extension will require distinguishing streaming from
+        regular buffers at creation time, instead of making
+        this distinction implied by the use of BufferData vs.
+        BufferAppendData.
+       </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK0000507-09"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC: alBufferAppendData</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+        Specify data to be filled into a streaming buffer.
+        This takes the current position at the time of the
+        call, and returns the number of samples written.
+         ALsizei ALAPIENTRY alBufferAppendData( ALuint   buffer,
+                                                ALenum   format,
+                                                ALvoid*  data,
+                                                ALsizei  size,
+                                                ALuint  freq );
+
+
+
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BRIAREAOS0006XX-01"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC: GenStreamingBuffers</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+            Currently there is a function call on the Linux side,
+            alGenStreamingBuffers(), which generates a Buffer intended
+            for streaming. The intent of this function was the provide
+            a clear creation point for streaming buffers, rather than
+            the previous behaviour of a Buffer "magically" becoming
+            streaming Buffer the first time BufferAppendData() was
+            called on it. However, it's hard to believe this anomaly
+            in the API can be any better. What about
+            DelStreamingBuffers()? IsStreamingBuffer()?
+      </P
+><P
+>         The design problem here is that we handle qualitatively different
+         objects using the same API. Streaming and non-streaming buffers
+         are fundamentally different. If we create an API that makes it
+         easy to mistake one for the other, or worse, if we decide to
+         quietly convert one type of object into another in some cases,
+         we create a plethora of error cases for the implementation and
+         the app coder to catch. Separating the Factory methods for the
+         objects allows us to omit an specialization API that will
+         accidentally be called more than once, and saves us handling
+         different stages of "initialization state". AL should not have
+         any notion of "partially initialized" or "incomplete" objects:
+         misery and despair lie down that road. If necessary the entire
+         API should be duplicated (after all, nobody handles 1D, 2D, and
+         3D textures using the same GL API hooks), but as the AL
+         implementation has the ability to distinguish streaming and
+         non-streamin buffers internally there might not be a need. 
+         Unless a concrete alternative is proposed to resolve the "anomaly"
+         it will be the preferred method to avoid an API that is 
+         leaner at the expense of being more error-prone.
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN2162"
+>Loki Decoding Callback Extension</A
+></H2
+><P
+>      Experimental implementation to allow the application to
+      specify a decoding callback for compression formats
+      and codecs not supported by AL. This is supposed to
+      be used if full uncompression by the application is prohibited
+      by memory footprint, but streaming (by queueing) is not
+      desired as the compressed data can be kept in memory
+      in its entirety.
+   </P
+><P
+>      If mixing can be done from the compressed data directly, 
+      several sources can use the sample without having to
+      be synchronized. For compression formats not supported 
+      by AL, however, partial decompression has to be done by 
+      the application. This extension allows for the implementation 
+      to "pull" data, using apllication provided decompression
+      code.
+   </P
+><P
+>      The use of this callback by the AL
+      implementation makes sense only if late decompression
+      (incremerntal, on demand, as needed for mixing) is done, 
+      as full early compression (ahead-of-time) inside the 
+      implementation would exact a similar memory footprint. 
+   </P
+><P
+>      TBA.
+   </P
+><P
+>      This extension forces execution of third party code
+      during (possibly threaded) driver operation, and
+      might also require state management with global
+      variables for decoder state, which raises issues
+      of thread safety and use for multiple buffers. This
+      extension should be obsolete as soon as AL
+      supports a reasonable set of state of the art
+      compression and encoding schemes.
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN2169"
+>Loki Infinite Loop Extension</A
+></H2
+><P
+>      To support infinite looping, a boolean LOOP was introduced. 
+      With the introduction of buffer queueing and the request for
+      support for a limited number of repetitions, this mechanism
+      was redundant. This extension is not supported for 
+      buffer queue operations, attempts to use it will cause
+      an ILLEGAL_OPERATION error. For backwards compatibility 
+      it is supported as the equivalent to 
+       <P
+CLASS="LITERALLAYOUT"
+>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Source(&nbsp;sName,&nbsp;PLAY_COUNT,&nbsp;MAX_INTEGER&nbsp;)&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</P
+>
+      For the query LOOP==TRUE, the comparison 
+      PLAY_COUNT!=MAX_INTEGER has to be executed on
+      the queue, not the current value which is decremented
+      for a PLAYING Source.
+    <DIV
+CLASS="TABLE"
+><P
+><B
+>Table 1. Source LOOP_LOKI Attribute</B
+></P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Signature</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Values</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Default</TH
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>LOOP_LOKI</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>b</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+> TRUE FALSE</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+> FALSE </TD
+></TR
+></TABLE
+></DIV
+>
+     Description:
+        TRUE indicates that the Source will perform an inifinite
+        loop over the content of the current Buffer it refers to. 
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN2193"
+>Loki Byte Offset Extension</A
+></H2
+><P
+>      The following has been obsoleted by explicit Source State query.
+      hack.
+   </P
+><P
+>    <DIV
+CLASS="TABLE"
+><P
+><B
+>Table 2. Buffer BYTE Offset attribute</B
+></P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Signature</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Values</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Default</TH
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>BYTE_LOKI</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>ui</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+> n/a </TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+> n/a </TD
+></TR
+></TABLE
+></DIV
+>
+        Current byte for the buffer bound to the source interpreted
+        as an offset from the beginning of the buffer.
+    </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="x2120.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="x2212.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Other Extension</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="a2071.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Loop Point Extension</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

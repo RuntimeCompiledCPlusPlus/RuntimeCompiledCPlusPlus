@@ -1,0 +1,1139 @@
+<HTML
+><HEAD
+><TITLE
+>Managing Rendering Contexts</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.44"><LINK
+REL="HOME"
+TITLE="      OpenAL Specification and Reference
+    "
+HREF="index.html"><LINK
+REL="UP"
+TITLE="AL Contexts and the ALC API"
+HREF="alc.html"><LINK
+REL="PREVIOUS"
+TITLE="AL Contexts and the ALC API"
+HREF="alc.html"><LINK
+REL="NEXT"
+TITLE="ALC Queries"
+HREF="x1862.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>OpenAL Specification and Reference</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="alc.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>AL Contexts and the ALC API</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="x1862.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="AEN1739"
+>Managing Rendering Contexts</A
+></H1
+><P
+>      All operations of the AL core API affect a current AL context.
+      Within the scope of AL, the ALC is implied - it is not visible as
+      a handle or function parameter. Only one AL Context per INprocess 
+      can be current at a time. Applications maintaining multiple
+      AL Contexts, whether threaded or not, have to set the current
+      context accordingly. Applications can have multiple threads
+      that share one more or contexts. In other words, AL and ALC are
+      threadsafe.
+   </P
+><P
+>      The default AL Context interoperates with a hardware device driver.
+      The application manages hardware and driver resources by
+      communicating through the ALC API, and configures and uses
+      such Contexts by issuing AL API calls. A default AL Context
+      processes AL calls and sound data to generate sound output.
+      Such a Context is called a Rendering Context. There might
+      be non-rendering contexts in the future.
+   </P
+><P
+>      The word "rendering" was chosen intentionally to emphasize the
+      primary objective of the AL API - spatialized sound - and the
+      underlying concept of AL as a sound synthesis pipeline that
+      simulates sound propagation by specifying spatial arrangements
+      of listeners, filters, and sources. If used in describing an
+      application that uses both OpenGL and AL, "sound rendering
+      context" and "graphics rendering context" should be used for
+      clarity. Throughout this document, "rendering" is used
+      to describe spatialized audio synthesis (avoiding ambiguous
+      words like "processing", as well as proprietary and restrictive
+      terms like "wavetracing"). 
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1744"
+>Context Attributes</A
+></H2
+><P
+>       The application can choose to specify certain attributes for
+       a context. Attributes not specified explicitely are set to
+       implementation dependend defaults. 
+    </P
+><P
+>    <DIV
+CLASS="TABLE"
+><P
+><B
+>Table 1. Context Attributes</B
+></P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><TR
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Name</TH
+><TH
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>ALC_FREQUENCY</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Frequency for mixing output buffer, in units of Hz.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>ALC_REFRESH</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Refresh intervalls, in units of Hz.</TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>ALC_SYNC</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+>Flag, indicating a synchronous context.</TD
+></TR
+></TABLE
+></DIV
+>
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (Refresh Control)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>         Applications might have a fixed, or bounded, schedule for
+         state changes (e.g. synchronously with the GL framerate).
+         In this case it is desirable to specify the mixahead
+         interval (milliseconds), or refresh rate (Hz), for the 
+         mixing thread. This is especially important for a synchronous
+         context, where the application has to specify the refresh
+         interval it intends to keep.  
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK001026-05"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC / Mixing Buffer Configuration</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+         ALC_RESOLUTION was originally used to specify the accuracy of the
+         mixing output buffer. For the time being this is not supported, but
+         could be added if mixing path and result accuracy control is desirable
+         to scale resource requirements.
+         A full ALC_FORMAT (including channel and other attributes) does not
+         make sense for rendering contexts, but will be necessary for PBuffers
+         (mix to memory). 
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK001026-01"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC / LOKI extensions</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+      <TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>&#13;       ALC_SOURCES_HINT_LOKI, /* # of sources to pre-allocate */
+       ALC_BUFFERS_HINT_LOKI, /* # of buffers to pre-allocate */
+
+       ALC_CD_LOKI,           /* demand CD/DVD control */
+      
+      </PRE
+></TD
+></TR
+></TABLE
+>
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1777"
+>Creating a Context</A
+></H2
+><P
+>       A context is created using alcCreateContext. The device parameter
+       has to be a valid device. The attribute list can be NULL,
+       or a zero terminated list of integer pairs composed of valid
+       ALC attribute tokens and requested values.
+      <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+> ALCcontext * <TT
+CLASS="FUNCTION"
+> alcCreateContext </TT
+></CODE
+>( const ALCdevice * <TT
+CLASS="PARAMETER"
+><I
+> deviceHandle </I
+></TT
+>,  int  * <TT
+CLASS="PARAMETER"
+><I
+> attrList </I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+>
+       Context creation will fail
+       if the application requests attributes that, by themselves,
+       can not be provided. Context creation will fail if the
+       combination of specified attributes can not be provided.
+       Context creation will fail if a specified attribute, or
+       the combination of attributes, does not match the default
+       values for unspecified attributes.
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1788"
+>Selecting a Context for Operation</A
+></H2
+><P
+>      To make a Context current with respect to AL Operation (state
+      changes by issueing commands), alcMakeContextCurrent is used. 
+      The context parameter can be NULL or a valid context pointer.
+      The operation will apply to the device that the context was
+      created for. 
+      <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+> boolean  <TT
+CLASS="FUNCTION"
+> alcMakeContextCurrent </TT
+></CODE
+>( ALCcontext * <TT
+CLASS="PARAMETER"
+><I
+> context </I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+>
+      For each OS process (usually this means for each application), only
+      one context can be current at any given time. All AL commands apply
+      to the current context. Commands that affect objects shared among
+      contexts (e.g. buffers) have side effects on other contexts.
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (No Explicit Device)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>         An ALC context is bound to the device it was created for.
+         The context carries this information, thus removing the
+         need to specify the device explicitely. Contexts can not
+         be made current for any other device aside from the one
+         they were created for. 
+       </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (No Multiple Current)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>          There is only one current context per process, even
+          in multithreaded applications, even if multiple
+          devices are used.   
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (Current NULL)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>          The implementation is encouraged to exploit optimizations
+          possible if the application sets the current context
+          to NULL, indicating that no state changes are intended
+          for the time being. The application should not set the
+          current context to NULL if more state changes are
+          pending on the most recent, or another context created
+          for the same device.
+       </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (Shared Objects)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>         Buffers are shared among contexts. As mutiple contexts
+         can exist at the same time, the state of shared objects
+         is also shared among contexts.
+       </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK001026-06"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC / Buffer Deletion</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+         Buffers that have not yet been processed in another context
+         can not be deleted from any other context.  
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1812"
+>Initiate Context Processing</A
+></H2
+><P
+>      The current context is the only context accessible to state
+      changes by AL commands (aside from state changes affecting
+      shared objects). However, multiple contexts can be processed
+      at the same time. To indicate that a context should be
+      processed (i.e. that internal execution state like offset
+      increments are supposed to be performed), the application
+      has to use alcProcessContext.
+      <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+> void  <TT
+CLASS="FUNCTION"
+>alcProcessContext</TT
+></CODE
+>( ALCcontext * <TT
+CLASS="PARAMETER"
+><I
+> context </I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+>
+      Repeated calls to alcProcessContext are legal, and do not
+      affect a context that is already marked as processing. The
+      default state of a context created by alcCreateContext is
+      that it is not marked as processing. 
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (Sync and async implementations)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>      Unfortunately, the exact semantics of alcProcessContext is
+      not independend of the implementation. Ideally it should be completely 
+      transparent to the application whether the sound driver is threaded or 
+      synced. Unfortunately a synced context has to have its execution 
+      initiated by the application, which requires calls of 
+      alcProcessContext timed in accordance to the drivers mixahead,
+      or the rendering buffer will underflow. For a threaded driver,
+      the implementation is free to consider alcProcessContext 
+      a NOP once the context has been marked as processing.
+      </P
+><P
+>      One consequence is that an application that was developed
+      using a threaded implementation of AL might not work
+      properly with a synchronous implementation of AL (on
+      the other hand, an AL application that works using a
+      synchronous implementation is guaranteed to work with
+      a threaded implementation.
+      </P
+><P
+>      Enforcing alcProcessContext calls would defeat the purpose
+      of a threaded implementation. Permitting the AL implementation
+      to e.g. schedule optimizations based on alcProcessContext
+      calls would similarly obfuscate the exact semantincs.
+      Consequently, the application coder has to accept this 
+      implementation dependency, and has to rely on the ALC_SYNC
+      attribute to explicitely request a synchronous implementation.
+      The implementation can expect the application to be aware
+      of the additonal constraints imposed on alcProcessContext in
+      this case.   
+       </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (Multiple Contexts and SYNC refresh)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>       The application can request SYNC contexts or threaded contexts,
+       however, the implementation is not obliged to provide both, or provide
+       a mixture of both on the same device.
+       </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><A
+NAME="RFC-BK001024-03"
+></A
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>RFC/ Implications for Networking</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>  
+         What does alcProcessContext imply for networking? 
+         For AL, will we add alFlush/alFinish?
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1832"
+>Suspend Context Processing</A
+></H2
+><P
+>      The application can suspend any context from processing
+      (including the current one). To indicate that a context should be
+      suspended from processing (i.e. that internal execution state like 
+      offset increments is not supposed to be changed), the application
+      has to use alcSuspendContext.
+      <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+> void  <TT
+CLASS="FUNCTION"
+>alcSuspendContext</TT
+></CODE
+>( ALCcontext * <TT
+CLASS="PARAMETER"
+><I
+> context </I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+>
+      Repeated calls to alcSuspendContext are legal, and do not
+      affect a context that is already marked as suspended. The
+      default state of a context created by alcCreateContext is
+      that it is marked as suspended. 
+    </P
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (Sync and async implementations)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>      Unfortunately, the exact semantics of alcSuspendContext is
+      also not independend of the implementation. For a threaded
+      implementation, alcSuspendContext is necessary to ensure a context
+      is not processed. For a synchronous implementation, omitting
+      alcProcessContext calls will ultimately have the same effect,
+      but will also generate rendering buffer underflow errors.
+      Again, the application coder that requests a synchronous
+      context using ALC_SYNC has to make sure that alcSuspendContext
+      is used accordingly.
+      </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (Suspending vs. Muting a context)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>         By setting Listener GAIN to zero, an application can mute a
+         context, and expect the implementation to bypass all rendering.
+         However, the context is still processing, and the internal
+         execution state is still updated accordingly. Suspending a
+         context, whether muted or not, will incidentally suspend rendering
+         as well. However, it is the application's responsibility to
+         prevent artifacts (e.g. by proper GAIN control to fade in and
+         out). It is recommended to mute a context before suspending. 
+       </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (Current Context Suspended)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>          It is possible to make a suspended context current, or
+          suspend the current context. In this case, the implementation
+          is still obliged to immediately verify AL commands as they
+          are issued, and generate errors accordingly. The implementation
+          is permitted to postpone propagating the actual state changes
+          until the context is marked for processing again, with the
+          exception of dereferencing data (e.g. buffer contents).
+          For efficiency reasons (memory usage), most if not all
+          AL commands applied to a suspended context will usually
+          be applied immediately. State changes will have to be applied
+          in the sequence they were requested. It is possible to
+          use suspension of a current context as an explicit locking
+          (to enforce apparent synchronicity), but execution is still
+          guaranteed to be in sequence, and the implementation is not
+          expected to optimize this operation. A typical use would
+          be setting up the initial configuration while loading a
+          scene.  
+       </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><P
+></P
+><TABLE
+CLASS="NOTE"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="./stylesheet-images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TH
+ALIGN="LEFT"
+VALIGN="CENTER"
+><B
+>Annotation (Release of Hardware Resources)</B
+></TH
+></TR
+><TR
+><TD
+>&nbsp;</TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+>         The specification does not guarantee that the implementation
+         will release hardware resources used by a suspended context.
+         This might well depend on the details of the hardware and driver.
+         Neither a muted context nor a suspended context can be expected
+         to free device resources. If all contexts for a given device
+         are suspended, and no context of this device is current, the 
+         implementation is expected to release all hardware resources if possible.
+       </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1853"
+>Destroying a Context</A
+></H2
+><P
+>      <DIV
+CLASS="FUNCSYNOPSIS"
+><P
+></P
+><P
+><CODE
+><CODE
+CLASS="FUNCDEF"
+> void  <TT
+CLASS="FUNCTION"
+> alcDestroyContext </TT
+></CODE
+>( ALCcontext * <TT
+CLASS="PARAMETER"
+><I
+> context </I
+></TT
+>);</CODE
+></P
+><P
+></P
+></DIV
+>
+       The correct way to destroy a context is to first release it using
+       alcMakeCurrent and NULL. Applications should not attempt to destroy 
+       a current context.
+    </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="alc.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="x1862.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>AL Contexts and the ALC API</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="alc.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ALC Queries</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

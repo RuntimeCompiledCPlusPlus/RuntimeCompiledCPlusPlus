@@ -1,0 +1,59 @@
+<rml>
+<head>
+	<link type="text/rcss" href="default.rcss"/>
+	<link type="text/rcss" href="menu.rcss"/>
+	<title>Title</title>
+</head>
+	<body>
+		<div id="toggle-group">
+			<button id="ToggleButton" class="square"></button>
+		</div>
+		<div id="menu-group">
+      <button id="ReCompileButton">Recompile</button>
+      <button id="ConsoleButton">Console</button>
+			<button id="NewButton">New Game</button>
+      <button id="RestartButton">Restart</button>
+      <button id="ToggleOptions">Options</button>
+		</div>
+ 
+    
+    <div id="Options" class="window">
+        <form id="test">
+
+          <div>
+            <h1>Runtime Compiler:</h1>
+          </div>
+          <div class="options">
+            <p>
+              Auto Compile: <input type="checkbox" id="autocompilecheckbox" value="checked" checked="something"/>
+            </p>
+          </div>
+          
+          <div>
+          <h1>Audio:</h1>
+          </div>
+          <div class="options">
+            <p>
+              Volume:  <input type="range" id="volumeslider" name="volume" value="0.5" min="0" max="1" step="0.01" />
+              &nbsp;&nbsp;&nbsp;Mute:&nbsp; <input type="checkbox" id="mutecheckbox" value="checked" checked="something"/>
+            </p>
+          </div>
+
+          
+          <div>
+          <h1>Game:</h1>
+          </div>
+          <div class="options">
+            <p>
+              Speed:&nbsp;&nbsp; <input type="range" id="speedslider" name="speed" value="1" min="0" max="5" step="0.05" />
+              &nbsp;&nbsp;&nbsp;Pause: <input type="checkbox" id="pausecheckbox" value="checked"/>
+            </p>
+          </div>
+          
+        </form>
+    </div>
+
+
+    
+	</body>
+</rml>

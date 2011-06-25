@@ -1,0 +1,46 @@
+If this is your first time retrieving CVS, you will need to build the
+configure script and config.h.in dependency.  Just run
+
+	sh ./autogen.sh
+
+and you should be okay.
+
+Compilation / installation goes something like this:
+
+	./configure --enable-prefix=/usr/local
+	make
+	cd test
+	[run tests]
+	make install
+
+configure options:
+	--enable-debug        Enable debugging info.
+	--enable-optimization Enables optimization.
+
+etc...  Use --help to determine the rest.  Most people will be fine with
+--enable-optimization.  I don't recommend --enable-jlib.  It's only
+useful to me.  Really.
+
+Debugging options are now in the form:
+
+	--enable-debug-blah
+
+in general, this will give you too much information to be useful on a
+particular topic.  Use --enable-debug-maximus to get all debugging
+messages possible.
+
+If this is your first time installing openal, you'll probably need to
+run ldconfig.
+
+ATTENTION:
+
+The following changes have taken place that may alter the manner in 
+which an installation works on your machine.  Please be advised:
+
+	- SDL is no longer required to build --- the conversion code
+	  has been copied into the audioconvert directory.
+
+If you experience any problems building or with the test code, please
+email me: tsaotsao@lokigames.com.  Thanks.
+
+jv.

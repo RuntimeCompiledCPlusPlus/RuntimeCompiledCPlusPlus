@@ -1,0 +1,155 @@
+<HTML
+><HEAD
+><TITLE
+>Evaluation of Gain/Attenuation Related State</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.44"><LINK
+REL="HOME"
+TITLE="      OpenAL Specification and Reference
+    "
+HREF="index.html"><LINK
+REL="UP"
+TITLE="State and State Requests"
+HREF="state-requests.html"><LINK
+REL="PREVIOUS"
+TITLE="Attenuation By Distance"
+HREF="attenuation-by-distance.html"><LINK
+REL="NEXT"
+TITLE="No Culling By Distance"
+HREF="culling-by-distance.html"></HEAD
+><BODY
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>OpenAL Specification and Reference</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="attenuation-by-distance.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>State and State Requests</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="culling-by-distance.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="ORDER-DISTANCE"
+>Evaluation of Gain/Attenuation Related State</A
+></H1
+><P
+>       While amplification/attenuation commute (mulplication of
+       scaling factors), clamping operations do not. The order
+       in which various gain related operations are applied is:
+       Distance attenuation is calculated first, including 
+       minimum (REFERENCE_DISTANCE) and maximum (MAX_DISTANCE)
+       thresholds. If the Source is directional (CONE_INNER_ANGLE 
+       less than CONE_OUTER_ANGLE), an angle-dependent attenuation
+       is calculated depending on CONE_OUTER_GAIN, and multiplied
+       with the distance dependent attenuation.
+       The resulting attenuation factor for the given angle and
+       distance between Listener and Source is multiplied
+       with Source GAIN. The effective GAIN computed this way
+       is compared against MIN_GAIN and MAX_GAIN thresholds.
+       The result is guaranteed to be clamped to [MIN_GAIN, MAX_GAIN],
+       and subsequently multiplied by Listener GAIN which serves
+       as an overall volume control. The implementation is free
+       to clamp Listener GAIN if necessary due to hardware or
+       implementation constraints.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="attenuation-by-distance.html"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="culling-by-distance.html"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Attenuation By Distance</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="state-requests.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>No Culling By Distance</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

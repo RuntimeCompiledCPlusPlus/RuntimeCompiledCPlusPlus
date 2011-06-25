@@ -1,0 +1,87 @@
+
+Name
+
+        LOKI_buffer_data_callback
+
+Name Strings
+
+        AL_LOKI_buffer_data_callback
+
+Version
+
+        1.0
+
+Number
+
+        ??
+
+Dependencies
+
+        None
+
+Overview
+
+	Sometimes an application may be decoding information from a
+	stream on the fly which is too large to be stored in a single
+	buffer (if even possible at all). In this case, it is helpful
+	to have a callback mechanism which OpenAL can use to generate
+	more data for processing of the buffer.
+
+IP Status
+
+	None
+
+Issues
+
+	None
+
+New Procedures and Functions
+
+	void BufferDataWithCallback_LOKI(uint bid,
+		 int (*callback)(uint sid, uint bid, void *data,
+		           enum format, uint samples));
+
+        The parameters for `callback' are as such:
+
+          uint sid
+	  --------
+          The source id that this request is associated with. Since
+	  many sources may share the same buffer, this sid allows the
+	  application to keep track of offsets and other state
+	  associated with each source instance.
+          
+	  uint bid
+	  --------
+	  The buffer id that the callback is associated with.
+          
+          short *data
+	  -----------
+          The memory area that the callback should populate
+
+          enum format
+	  -----------
+          The format the the output data should be in.
+          
+          uint samples
+	  ------------
+          The number of *samples* required.
+
+New Tokens
+
+	None
+
+Additions to Specification
+
+        None
+
+Errors
+
+        None
+
+New State
+
+        None
+
+New Implementation State
+
+        None

@@ -1,0 +1,5 @@
+// This file is monitored for changes, then compiled and executed as console input
+// Allows use of console within the IDE if the integrated console becomes restrictive
+// In Visual Studio, open the Output window for interactive feedback
+// Look in ConsoleContext.h for a list of helper functions that can be called in this file
+Log("Executing contents of Console.txt...\n");
