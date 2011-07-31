@@ -30,9 +30,6 @@
 #include "../../Systems/GUISystem/GUISystem.h"
 #include "../../RuntimeCompiler/FileChangeNotifier.h"
 
-#include "WinBase.h"
-#include "excpt.h"
-
 
 Environment::Environment( IGame* pGame )
 {
@@ -91,74 +88,3 @@ Environment::~Environment()
 	delete sys->pLogSystem;
 }
 
-
-// All of this could move into a DebugSystem API
-
-enum ExceptionState
-{
-	ES_PASS,
-	ES_CATCH,
-	ES_CONTINUE,
-};
-
-static ExceptionState s_exceptionState = ES_PASS;
-
-int RuntimeExceptionFilter()
-{
-	int result;
-	switch (s_exceptionState)
-	{
-	case ES_PASS:
-		// Let pass to debugger once, then catch it
-		result = EXCEPTION_CONTINUE_SEARCH;
-		s_exceptionState = ES_CATCH;
-		break;
-	case ES_CATCH:
-		// Catch it now. Reset to catch in debugger again next time.
-		result = EXCEPTION_EXECUTE_HANDLER;
-		s_exceptionState = ES_PASS;
-		break;
-	case ES_CONTINUE:
-		// Expand this to cope with edit-and-continue case
-		break;
-	}
-
-	return result;
-}
-
-
-int SimpleExceptionFilter( void * nativeExceptionInfo, AuroraExceptionInfo *auroraExceptionInfo )
-{	
-	EXCEPTION_RECORD *pRecord = ((LPEXCEPTION_POINTERS) nativeExceptionInfo)->ExceptionRecord;
-	int nCode = pRecord->ExceptionCode;
-	auroraExceptionInfo->exceptionType = ESE_Unknown;
-	auroraExceptionInfo->xAddress = 0;
-	
-
-	if (nCode == EXCEPTION_ACCESS_VIOLATION)
-	{
-		int flavour = pRecord->ExceptionInformation[0];
-		switch( flavour )
-		{
-		case 0: 
-			auroraExceptionInfo->exceptionType = ESE_AccessViolationRead;
-			auroraExceptionInfo->xAddress = pRecord->ExceptionInformation[1];
-			break;
-		case 1:
-			auroraExceptionInfo->exceptionType = ESE_AccessViolationWrite;
-			auroraExceptionInfo->xAddress = pRecord->ExceptionInformation[1];
-			break;
-		default:
-			break;
-		}
-	}
-
-	if (auroraExceptionInfo->exceptionType != ESE_Unknown)
-	{
-		// We recognised it and so should catch it
-		return EXCEPTION_EXECUTE_HANDLER;
-	}
-
-	// Otherwise fall back
-	return RuntimeExceptionFilter();
-}

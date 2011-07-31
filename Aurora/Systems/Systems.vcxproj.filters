@@ -85,6 +85,7 @@
     </ClInclude>
     <ClInclude Include="IGame.h" />
     <ClInclude Include="Systems.h" />
+    <ClInclude Include="Exceptions.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="LogSystem">
@@ -198,5 +199,6 @@
       <Filter>LogSystem\ThreadsafeLogSystem</Filter>
     </ClCompile>
     <ClCompile Include="Systems.cpp" />
+    <ClCompile Include="Exceptions.cpp" />
   </ItemGroup>
 </Project>

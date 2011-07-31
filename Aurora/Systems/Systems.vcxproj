@@ -94,6 +94,7 @@ xcopy /y $(SolutionDir)\External\libRocket\bin\*.pdb $(SolutionDir)$(Configurati
   <ItemGroup>
     <ClInclude Include="AssetSystem\AssetSystem.h" />
     <ClInclude Include="EntitySystem\EntitySystem.h" />
+    <ClInclude Include="Exceptions.h" />
     <ClInclude Include="GUISystem\GUIDocument.h" />
     <ClInclude Include="GUISystem\GUIElement.h" />
     <ClInclude Include="GUISystem\GUISystem.h" />
@@ -140,6 +141,7 @@ xcopy /y $(SolutionDir)\External\libRocket\bin\*.pdb $(SolutionDir)$(Configurati
   <ItemGroup>
     <ClCompile Include="AssetSystem\AssetSystem.cpp" />
     <ClCompile Include="EntitySystem\EntitySystem.cpp" />
+    <ClCompile Include="Exceptions.cpp" />
     <ClCompile Include="GUISystem\GUIDocument.cpp" />
     <ClCompile Include="GUISystem\GUIElement.cpp" />
     <ClCompile Include="GUISystem\GUISystem.cpp" />

@@ -15,34 +15,31 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
+
 #pragma once
 
-#ifndef ENVIRONMENT_INCLUDED
-#define ENVIRONMENT_INCLUDED
 
-#include "../../Systems/Exceptions.h"
-
-struct SystemTable;
-struct IGame;
-
-class Environment
+// We might handle div by 0, stack overflow, etc
+enum ESimpleExceptions
 {
-public:
-	struct SConfiguration
-	{
-		const char * sLogFilename;
+	ESE_Unknown,
+	ESE_AccessViolationRead,
+	ESE_AccessViolationWrite,
+};
 
-		SConfiguration() :
-			sLogFilename(0)
-			{}
-	};
-
-	SystemTable *sys;
-
-	Environment( IGame* pGame );                                          // Create empty environment
-	~Environment(void);                                     // Clean up and destroy environment
+struct AuroraExceptionInfo
+{
+	ESimpleExceptions exceptionType;
+	unsigned int xAddress;
 };
 
 
+// For handling failures in runtime exceptions
+// Might move into a DebugSystem for more better API with more control
+int RuntimeExceptionFilter(void);
 
-#endif // ENVIRONMENT_INCLUDED
+// For catching simple errors that we understand and falling back to
+// RuntimeExceptionFilter behaviour for others. Intended for situations
+// where we expect simple errors like null pointers in simple code
+// and so try to provide simple feedback rather than going to the debugger
+int SimpleExceptionFilter( void * nativeExceptionInfo, AuroraExceptionInfo *auroraExceptionInfo );
