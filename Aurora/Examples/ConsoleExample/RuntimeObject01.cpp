@@ -7,6 +7,7 @@ class RuntimeObject01 : public IObject
 public:
 	RuntimeObject01()
 	{
+
 	}
 
 	virtual void Serialize(ISimpleSerializer *pSerializer)

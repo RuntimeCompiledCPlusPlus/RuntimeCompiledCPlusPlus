@@ -15,5 +15,11 @@
     <ClCompile Include="RuntimeObject01.cpp">
       <Filter>Runtime Modifiable</Filter>
     </ClCompile>
+    <ClCompile Include="StdioLogSystem.cpp" />
+    <ClCompile Include="ConsoleGame.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="StdioLogSystem.h" />
+    <ClInclude Include="ConsoleGame.h" />
   </ItemGroup>
 </Project>

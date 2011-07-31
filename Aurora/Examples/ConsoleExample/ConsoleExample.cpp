@@ -1,61 +1,34 @@
-// ConsoleExample.cpp : simple example using console command line
 //
-// Runs a 'game loop' every time the user presses a key, and does stuff...
+// Copyright (c) 2010-2011 Matthew Jack and Doug Binks
+//
+// This software is provided 'as-is', without any express or implied
+// warranty.  In no event will the authors be held liable for any damages
+// arising from the use of this software.
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+// 1. The origin of this software must not be misrepresented; you must not
+//    claim that you wrote the original software. If you use this software
+//    in a product, an acknowledgment in the product documentation would be
+//    appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//    misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
+
+// ConsoleExample.cpp : simple example using console command line
 
 
-#include <conio.h>
+#include "ConsoleGame.h"
 #include <iostream>
-#include <Windows.h>
+#include <conio.h>
 
-#include "../../RuntimeCompiler/ObjectInterface.h"
-#include "../../RuntimeCompiler/ICompilerLogger.h"
-#include "../../RunTimeCompiler/BuildTool.h"
-
-#define BOOST_FILESYSTEM_VERSION 3
-#include "boost/filesystem.hpp" 
-
-
-using boost::filesystem::path;
-
-
-class CompilerLogger : public ICompilerLogger
-{
-public:
-	virtual void LogError(const char * format, ...)
-	{
-		va_list args;
-		va_start( args, format );
-		printf( format, args);
-	}
-
-	virtual void LogWarning(const char * format, ...)
-	{
-		va_list args;
-		va_start( args, format );
-		printf( format, args);
-	}
-
-    virtual void LogInfo(const char * format, ...)
-	{
-		va_list args;
-		va_start( args, format );
-		printf( format, args);
-	}
-};
-
-// Global Variables
-CompilerLogger*	g_pCompilerLogger	= 0;
-BuildTool*		g_pBuildTool		= 0;
-
-
-bool MainLoop();
-bool Init();
 
 int main(int argc, char* argv[])
 {
-	if( Init() )
+	ConsoleGame game;
+	if( game.Init() )
 	{
-		while( MainLoop() )
+		while( game.MainLoop() )
 		{
 		}
 	}
@@ -67,62 +40,3 @@ int main(int argc, char* argv[])
 
 	return 0;
 }
-
-
-bool MainLoop()
-{
-	std::cout << "\nHello\n";
-	int ret = _getche();
-	if( 'q' == ret )
-	{
-		return false;
-	}
-
-	return true;
-}
-
-
-
-bool Init()
-{
-	// We need the current directory to be the process dir
-	DWORD size = MAX_PATH;
-	wchar_t filename[MAX_PATH];
-	GetModuleFileName( NULL, filename, size );
-	std::wstring strTempFileName( filename );
-	path launchPath( strTempFileName );
-	launchPath = launchPath.parent_path();
-	SetCurrentDirectory( launchPath.wstring().c_str() );
-
-	g_pCompilerLogger = new CompilerLogger();
-	g_pBuildTool = new BuildTool();
-	g_pBuildTool->Initialise(g_pCompilerLogger);
-
-	// We start by using the code in the current module
-	HMODULE module = GetModuleHandle(NULL);
-
-	GETPerModuleInterface_PROC pPerModuleInterfaceProcAdd = NULL;
-	pPerModuleInterfaceProcAdd = (GETPerModuleInterface_PROC) GetProcAddress(module, "GetPerModuleInterface");
-	if (!pPerModuleInterfaceProcAdd)
-	{
-		std::cout << "Failed GetProcAddress for GetPerModuleInterface in current module\n";
-		return false;
-	}
-
-/*
-
-	// Tell it the system table to pass to objects we construct
-	pPerModuleInterfaceProcAdd()->SetSystemTable(m_pEnv->sys);
-
-	SetupObjectConstructors(pPerModuleInterfaceProcAdd);
-
-	m_pEnv->sys->pObjectFactorySystem->AddListener(this);
-
-	m_pConsole = new Console(this, m_pEnv, m_pRocketContext);
-
-	InitSound();
-*/
-	return true;
-
-}
-
