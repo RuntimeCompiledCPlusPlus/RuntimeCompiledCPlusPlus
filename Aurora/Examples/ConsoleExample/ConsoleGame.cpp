@@ -94,7 +94,9 @@ ConsoleGame::~ConsoleGame()
 {
 	gSys->pFileChangeNotifier->RemoveListener(this);
 
-	delete m_pUpdateable;
+	// delete object via correct interface
+	IObject* pObj = gSys->pObjectFactorySystem->GetObject( m_ObjectId );
+	delete pObj;
 
 	//should clean up loggers.
 	delete gSys->pFileChangeNotifier;
@@ -174,6 +176,7 @@ bool ConsoleGame::Init()
 			gSys->pLogSystem->Log(eLV_ERRORS, "Error - no updateable interface found\n");
 			return false;
 		}
+		m_ObjectId = pObj->GetObjectId();
 
 	}
 
@@ -211,6 +214,17 @@ void ConsoleGame::OnFileChange(const IAUDynArray<const char*>& filelist)
 
 void ConsoleGame::OnConstructorsAdded()
 {
+	// This could have resulted in a change of object pointer, so release old and get new one.
+	if( m_pUpdateable )
+	{
+		IObject* pObj = gSys->pObjectFactorySystem->GetObject( m_ObjectId );
+		pObj->GetInterface( IID_IUPDATEABLE, (void**)&m_pUpdateable );
+		if( 0 == m_pUpdateable )
+		{
+			delete pObj;
+			gSys->pLogSystem->Log(eLV_ERRORS, "Error - no updateable interface found\n");
+		}
+	}
 }
 
 
@@ -246,7 +260,7 @@ void ConsoleGame::RemoveFromRuntimeFileList( const char* filename )
 
 bool ConsoleGame::MainLoop()
 {
-	const float deltaTime = 0.1f;
+	const float deltaTime = 1.0f;
 	gSys->pFileChangeNotifier->Update( deltaTime );
 
 	//check status of any compile

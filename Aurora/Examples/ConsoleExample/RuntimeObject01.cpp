@@ -14,6 +14,9 @@ public:
 	{
 
 	}
+	virtual ~RuntimeObject01()
+	{
+	}
 
 	virtual void Serialize(ISimpleSerializer *pSerializer)
 	{
@@ -21,7 +24,7 @@ public:
 
 	virtual void Update( float deltaTime )
 	{
-		std::cout << "Runtime Object 01 udate called!\n";
+		std::cout << "Runtime Object 01 update called!\n";
 	}
 
 	virtual void GetInterface( InterfaceID _iid, void** pReturn )

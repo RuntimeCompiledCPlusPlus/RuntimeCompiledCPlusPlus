@@ -79,7 +79,10 @@ private:
 	// Private Members
 	CompilerLogger* m_pCompilerLogger;
 	BuildTool* m_pBuildTool;
+
+	// Runtime object
 	IAUUpdateable* m_pUpdateable;
+	ObjectId	   m_ObjectId;
 
 	std::vector<HMODULE> m_Modules;	// Stores runtime created modules, but not the exe module.
 	TFileList m_RuntimeFileList;
