@@ -214,7 +214,8 @@ Compiler::Compiler()
 
 Compiler::~Compiler()
 {
-	CloseHandle( m_pImplData->m_CmdProcessInfo.hProcess );
+	BOOL retval = TerminateProcess( m_pImplData->m_CmdProcessInfo.hProcess, 0 );
+	//CloseHandle( m_pImplData->m_CmdProcessInfo.hProcess );
     CloseHandle( m_pImplData->m_CmdProcessInfo.hThread );
 	CloseHandle( m_pImplData->m_CmdProcessInputWrite );
 	CloseHandle( m_pImplData->m_CmdProcessOutputRead );
