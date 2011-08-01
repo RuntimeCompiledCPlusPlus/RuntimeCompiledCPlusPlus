@@ -24,7 +24,6 @@
 #include "../../RuntimeCompiler/ObjectInterface.h"
 #include "../../Common/AUArray.inl"
 #include "../../Systems/IObjectFactorySystem.h"
-#include "../../Systems/IGame.h"
 #include <Windows.h>
 #include <vector>
 
@@ -34,6 +33,7 @@
 
 class CompilerLogger;
 class BuildTool;
+struct IAUUpdateable;
 
 class ConsoleGame : public IFileChangeListener, public IObjectFactoryListener
 {
@@ -59,13 +59,10 @@ public:
 	// ~IObjectFactoryListener
 
 
-	virtual void CompileAll( bool bForceRecompile );
-	virtual void Reset();
-	virtual void Restart();
-	virtual void Exit();
-	virtual void AddToRuntimeFileList( const char* filename );
-	virtual void RemoveFromRuntimeFileList( const char* filename );
-	virtual void SetAutoCompile( bool autoCompile );
+	void CompileAll( bool bForceRecompile );
+	void AddToRuntimeFileList( const char* filename );
+	void RemoveFromRuntimeFileList( const char* filename );
+	void SetAutoCompile( bool autoCompile );
 
 private:
 	typedef std::vector<boost::filesystem::path> TFileList;
@@ -82,7 +79,7 @@ private:
 	// Private Members
 	CompilerLogger* m_pCompilerLogger;
 	BuildTool* m_pBuildTool;
-	
+	IAUUpdateable* m_pUpdateable;
 
 	std::vector<HMODULE> m_Modules;	// Stores runtime created modules, but not the exe module.
 	TFileList m_RuntimeFileList;

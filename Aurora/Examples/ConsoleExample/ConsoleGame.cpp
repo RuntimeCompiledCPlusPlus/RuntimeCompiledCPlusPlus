@@ -38,6 +38,9 @@
 #include "../../Systems/LogSystem/MultiLogSystem/MultiLogSystem.h"
 #include "../../Systems/LogSystem/ThreadsafeLogSystem/ThreadsafeLogSystem.h"
 
+#include "../SimpleTest/IObject.h"
+#include "../../Systems/IUpdateable.h"
+
 #include <iostream>
 #include <tchar.h>
 #include <conio.h>
@@ -76,14 +79,6 @@ public:
 	}
 };
 
-// Global pointer to ConsoleGame object necessary so we can do callback to ConsoleGame::MainLoop method
-// Could be dangerous if we're instantiating multiple ConsoleGame objects for some reason
-static ConsoleGame* g_pGame = NULL;
-void MainLoop_Wrapper()
-{
-	g_pGame->MainLoop();
-}
-
 
 ConsoleGame::ConsoleGame()
 	: m_pCompilerLogger(0)
@@ -91,13 +86,15 @@ ConsoleGame::ConsoleGame()
 	, m_bHaveProgramError(false)
 	, m_bCompiling( false )
 	, m_bAutoCompile( true )
+	, m_pUpdateable(0)
 {
-	g_pGame = this;
 }
 
 ConsoleGame::~ConsoleGame()
 {
 	gSys->pFileChangeNotifier->RemoveListener(this);
+
+	delete m_pUpdateable;
 
 	//should clean up loggers.
 	delete gSys->pFileChangeNotifier;
@@ -164,7 +161,21 @@ bool ConsoleGame::Init()
 
 	gSys->pObjectFactorySystem->AddListener(this);
 
-	InitObjects();
+
+	// construct first object
+	IObjectConstructor* pCtor = gSys->pObjectFactorySystem->GetConstructor( "RuntimeObject01" );
+	if( pCtor )
+	{
+		IObject* pObj = pCtor->Construct();
+		pObj->GetInterface( IID_IUPDATEABLE, (void**)&m_pUpdateable );
+		if( 0 == m_pUpdateable )
+		{
+			delete pObj;
+			gSys->pLogSystem->Log(eLV_ERRORS, "Error - no updateable interface found\n");
+			return false;
+		}
+
+	}
 
 
 	return true;
@@ -175,7 +186,6 @@ bool ConsoleGame::Init()
 
 void ConsoleGame::Shutdown()
 {
-	DeleteObjects();
 }
 
 
@@ -193,7 +203,6 @@ void ConsoleGame::OnFileChange(const IAUDynArray<const char*>& filelist)
 	pathlist.resize(filelist.Size());
 	for( size_t i = 0; i < filelist.Size(); ++ i )
 	{
-		//m_pEnv->sys->pLogSystem->Log(eLV_COMMENTS, "  %s\n", filelist[i]);
 		pathlist[i] = path(filelist[i]);
 	}
 
@@ -210,23 +219,9 @@ void ConsoleGame::CompileAll( bool bForceRecompile )
 	StartRecompile(m_RuntimeFileList, bForceRecompile);
 }
 
-void ConsoleGame::Reset()
-{
-	ResetGame();
-}
-
 void ConsoleGame::SetAutoCompile( bool autoCompile )
 {
 	m_bAutoCompile = autoCompile;
-}
-
-void ConsoleGame::Restart()
-{
-}
-
-
-void ConsoleGame::Exit()
-{
 }
 
 void ConsoleGame::AddToRuntimeFileList( const char* filename )
@@ -251,8 +246,8 @@ void ConsoleGame::RemoveFromRuntimeFileList( const char* filename )
 
 bool ConsoleGame::MainLoop()
 {
-
-	gSys->pFileChangeNotifier->Update(1.0f);	//hack for time
+	const float deltaTime = 0.1f;
+	gSys->pFileChangeNotifier->Update( deltaTime );
 
 	//check status of any compile
 	if( m_bCompiling && m_pBuildTool->GetIsComplete() )
@@ -263,13 +258,13 @@ bool ConsoleGame::MainLoop()
 
 	}
 
-	std::cout << "\nMain Loop - press q to quit, enter to run object loop\n";
+	std::cout << "\nMain Loop - press q to quit, enter to run object loop and check for changed files\n";
 	int ret = _getche();
 	if( 'q' == ret )
 	{
 		return false;
 	}
-
+	m_pUpdateable->Update( deltaTime );
 
 	return true;
 }
@@ -351,11 +346,6 @@ bool ConsoleGame::LoadCompiledModule()
 	return true;
 }
 
-
-void ConsoleGame::InitObjects()
-{
-}
-
 void ConsoleGame::SetupObjectConstructors(GETPerModuleInterface_PROC pPerModuleInterfaceProcAdd)
 {
 	// get hold of the constructors
@@ -378,12 +368,4 @@ void ConsoleGame::SetupObjectConstructors(GETPerModuleInterface_PROC pPerModuleI
 		}		
 	}
 	gSys->pObjectFactorySystem->AddConstructors( constructors );
-}
-
-void ConsoleGame::DeleteObjects()
-{
-}
-
-void ConsoleGame::ResetGame()
-{
 }
