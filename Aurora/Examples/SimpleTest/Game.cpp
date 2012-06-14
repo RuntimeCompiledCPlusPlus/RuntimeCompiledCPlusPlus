@@ -23,7 +23,7 @@
 #endif
 
 #include "CompilerLogger.h"
-#include "../../Systems/IObject.h"
+#include  "InterfaceIds.h"
 #include "IObjectUtils.h"
 #include "Console.h"
 #include "Environment.h"
@@ -192,16 +192,28 @@ void Game::OnFileChange(const IAUDynArray<const char*>& filelist)
 	}
 
 	m_pEnv->sys->pLogSystem->Log(eLV_COMMENTS, "FileChangeNotifier triggered recompile of files:\n");
-
+	bool bForce = false;
 	TFileList pathlist;
-	pathlist.resize(filelist.Size());
 	for( size_t i = 0; i < filelist.Size(); ++ i )
 	{
 		//m_pEnv->sys->pLogSystem->Log(eLV_COMMENTS, "  %s\n", filelist[i]);
-		pathlist[i] = path(filelist[i]);
+		path filePath = filelist[i];
+		if( filePath.extension() != ".h") //TODO: change to check for .cpp and .c as could have .inc files etc.?
+		{
+			pathlist.push_back( filePath );
+		}
+		else
+		{
+			TFileToFileEqualRange range = m_RuntimeIncludeMap.equal_range( filePath );
+			for(TFileToFileIterator it=range.first; it!=range.second; ++it)
+			{
+				pathlist.push_back( (*it).second );
+				bForce = true;
+			}
+		}
 	}
 
-	StartRecompile(pathlist, false);
+	StartRecompile(pathlist, bForce);
 }
 
 void Game::OnConstructorsAdded()
@@ -225,6 +237,19 @@ void Game::SetAutoCompile( bool autoCompile )
 	m_bAutoCompile = autoCompile;
 }
 
+void Game::AddToRuntimeFileList( const char* filename )
+{
+	path filePath = filename;
+	TFileList::iterator it = std::find( m_RuntimeFileList.begin(), m_RuntimeFileList.end(), filePath );
+	if ( it == m_RuntimeFileList.end() )
+	{
+		m_RuntimeFileList.push_back( filePath );
+		m_pEnv->sys->pFileChangeNotifier->Watch( filename, this );
+	}
+}
+
+
+
 void Game::Restart()
 {
 	delete IObjectUtils::GetUniqueObject( "MainObject" );
@@ -240,15 +265,6 @@ void Game::ToggleConsoleGUI()
 void Game::Exit()
 {
 	RocketLibSystem::RequestExit();
-}
-
-void Game::AddToRuntimeFileList( const char* filename )
-{
-	TFileList::iterator it = std::find( m_RuntimeFileList.begin(), m_RuntimeFileList.end(), filename );
-	if ( it == m_RuntimeFileList.end() )
-	{
-		m_RuntimeFileList.push_back( filename );
-	}
 }
 
 void Game::RemoveFromRuntimeFileList( const char* filename )
@@ -488,23 +504,22 @@ void Game::StartRecompile(const TFileList& filelist, bool bForce)
 	path currModuleFullPath = currModuleFileName.parent_path();
 
 
-	std::vector<path> buildFileList;
-	std::vector<path> includeDirList;
+	std::vector<BuildTool::FileToBuild> buildFileList;
+	std::vector<path> includeDirList; //currently no include paths required
 	m_CurrentlyCompilingModuleName= strTempFileName;
 
 	for( size_t i = 0; i < filelist.size(); ++ i )
 	{
-		buildFileList.push_back( filelist[i] );
+		//don't compile .h files:
+		if( filelist[i].extension() != ".h" ) //TODO: change to check for .cpp and .c as could have .inc files etc.?
+		{
+			buildFileList.push_back( BuildTool::FileToBuild( filelist[i], bForce ) );
+		}
 	}
 	buildFileList.push_back( currModuleFullPath / path(L"/../RunTimeCompiler/ObjectInterfacePerModuleSource.cpp") );
 	buildFileList.push_back( currModuleFullPath / path(L"/../RunTimeCompiler/ObjectInterfacePerModuleSource_PlatformWindows.cpp") );
 
-	includeDirList.push_back( currModuleFullPath / path(L"/../RunTimeCompiler/") );
-	includeDirList.push_back( currModuleFullPath / path(L"/../Systems/") );
-	includeDirList.push_back( currModuleFullPath / path(L"/../Common/") );
-	includeDirList.push_back( currModuleFullPath / path(L"/../Renderer/") );
-
-	m_pBuildTool->BuildModule( buildFileList, includeDirList, m_CurrentlyCompilingModuleName, bForce );
+	m_pBuildTool->BuildModule( buildFileList, includeDirList, m_CurrentlyCompilingModuleName );
 }
 
 bool Game::LoadCompiledModule()
@@ -621,18 +636,19 @@ void Game::SetupObjectConstructors(GETPerModuleInterface_PROC pPerModuleInterfac
 	for (size_t i=0, iMax=objectConstructors.size(); i<iMax; ++i)
 	{
 		constructors[i] = objectConstructors[i];
-		// Add to runtime file list if it's not already there (and not a ".h" file - temp solution until proper dependency system is in place)
-		path filename = objectConstructors[i]->GetFileName();
-		if ( m_RuntimeFileList.end() == std::find(m_RuntimeFileList.begin(), m_RuntimeFileList.end(), filename) )
-		{
-			// Start watching all the files involved, to trigger recompile
-			m_pEnv->sys->pFileChangeNotifier->Watch( objectConstructors[i]->GetFileName(), this );
+		AddToRuntimeFileList( objectConstructors[i]->GetFileName() );
 
-			if (filename.extension() != ".h")
-			{
-				m_RuntimeFileList.push_back( filename );
-			}		
-		}		
+		//add include file mappings
+		unsigned int includeNum = 0;
+		while( objectConstructors[i]->GetIncludeFile( includeNum ) )
+		{
+			TFileToFilePair includePathPair;
+			includePathPair.first = objectConstructors[i]->GetIncludeFile( includeNum );
+			includePathPair.second = objectConstructors[i]->GetFileName();
+			AddToRuntimeFileList( objectConstructors[i]->GetIncludeFile( includeNum ) );
+			m_RuntimeIncludeMap.insert( includePathPair );
+			++includeNum;
+		}
 	}
 	m_pEnv->sys->pObjectFactorySystem->AddConstructors( constructors );
 }

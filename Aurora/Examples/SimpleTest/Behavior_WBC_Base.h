@@ -20,6 +20,9 @@
 #ifndef BEHAVIOR_WBC_BASE_INCLUDED
 #define BEHAVIOR_WBC_BASE_INCLUDED
 
+#include "../../RuntimeCompiler/RuntimeInclude.h"
+RUNTIME_MODIFIABLE_INCLUDE; //adds this include to runtime tracking
+
 #include "BehaviorCommon.h"
 
 #include "BB_Team_Immune.h"

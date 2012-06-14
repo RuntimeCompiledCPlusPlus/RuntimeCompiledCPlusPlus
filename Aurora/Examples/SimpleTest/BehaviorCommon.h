@@ -20,6 +20,9 @@
 #ifndef BEHAVIORCOMMON_INCLUDED
 #define BEHAVIORCOMMON_INCLUDED
 
+#include "../../RuntimeCompiler/RuntimeInclude.h"
+RUNTIME_MODIFIABLE_INCLUDE; //adds this include to runtime tracking
+
 #include "IBehavior.h"
 #include "IObjectUtils.h"
 #include "IGameObject.h"

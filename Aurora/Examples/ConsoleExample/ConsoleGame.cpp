@@ -303,23 +303,19 @@ void ConsoleGame::StartRecompile(const TFileList& filelist, bool bForce)
 	path currModuleFullPath = currModuleFileName.parent_path();
 
 
-	std::vector<path> buildFileList;
-	std::vector<path> includeDirList;
+	std::vector<BuildTool::FileToBuild> buildFileList;
+	std::vector<path> includeDirList; //we don't need any include paths for this example
 	m_CurrentlyCompilingModuleName= strTempFileName;
 
 	for( size_t i = 0; i < filelist.size(); ++ i )
 	{
-		buildFileList.push_back( filelist[i] );
+		buildFileList.push_back( BuildTool::FileToBuild( filelist[i], bForce ) );
 	}
+
 	buildFileList.push_back( currModuleFullPath / path(L"/../RunTimeCompiler/ObjectInterfacePerModuleSource.cpp") );
 	buildFileList.push_back( currModuleFullPath / path(L"/../RunTimeCompiler/ObjectInterfacePerModuleSource_PlatformWindows.cpp") );
 
-	includeDirList.push_back( currModuleFullPath / path(L"/../RunTimeCompiler/") );
-	includeDirList.push_back( currModuleFullPath / path(L"/../Systems/") );
-	includeDirList.push_back( currModuleFullPath / path(L"/../Common/") );
-	includeDirList.push_back( currModuleFullPath / path(L"/../Renderer/") );
-
-	m_pBuildTool->BuildModule( buildFileList, includeDirList, m_CurrentlyCompilingModuleName, bForce );
+	m_pBuildTool->BuildModule( buildFileList, includeDirList, m_CurrentlyCompilingModuleName );
 }
 
 bool ConsoleGame::LoadCompiledModule()

@@ -21,6 +21,7 @@
 #define OBJECTINTERFACEPERMODULE_INCLUDED
 
 #include "ObjectInterface.h"
+#include "RuntimeInclude.h"
 #include <string>
 #include <vector>
 #include <assert.h>
@@ -68,7 +69,9 @@ template<typename T> class TObjectConstructorConcrete: public IObjectConstructor
 {
 public:
 	friend typename T;
-	TObjectConstructorConcrete( const char* Filename ) : m_FileName( Filename )
+	TObjectConstructorConcrete( const char* Filename, IRuntimeIncludeFileList* pIncludeFileList_ )
+		: m_FileName( Filename )
+		, m_pIncludeFileList( pIncludeFileList_ )
 	{
 		PerModuleInterface::GetInstance()->AddConstructor( this );
 		m_Id = InvalidId;
@@ -111,6 +114,15 @@ public:
 	{
 		return m_FileName.c_str();
 	}
+	virtual const char* GetIncludeFile( unsigned int Num_ ) const
+	{
+		if( m_pIncludeFileList )
+		{
+			return m_pIncludeFileList->GetIncludeFile( Num_ );
+		}
+		return 0;
+	}
+
 	virtual IObject* GetConstructedObject( PerTypeObjectId id ) const
 	{
 		if( m_ConstructedObjects.size() > id )
@@ -156,6 +168,7 @@ private:
 	std::vector<T*>			m_ConstructedObjects;
 	std::vector<PerTypeObjectId>	m_FreeIds;
 	ConstructorId			m_Id;
+	IRuntimeIncludeFileList* m_pIncludeFileList;
 };
 
 
@@ -178,7 +191,11 @@ private:
 };
 
 //NOTE: the file macro will only emit the full path if /FC option is used in visual studio or /ZI (Which forces /FC)
-#define REGISTERCLASS( T )	template class TActual<##T##>; TObjectConstructorConcrete<TActual<##T##>> TActual<##T##>::m_Constructor( __FILE__ ); const char* TActual<##T##>::GetTypeNameStatic() { return #T; }
+#define REGISTERCLASS( T )	\
+	template class TActual<##T##>; \
+	static RuntimeIncludeFiles< __COUNTER__ > g_includeFileList_##T; \
+	TObjectConstructorConcrete<TActual<##T##>> TActual<##T##>::m_Constructor( __FILE__, &g_includeFileList_##T ); \
+	const char* TActual<##T##>::GetTypeNameStatic() { return #T; } \
 
 
 #endif OBJECTINTERFACEPERMODULE_INCLUDED
