@@ -32,7 +32,7 @@
 #include "../../RuntimeCompiler/ObjectInterfacePerModule.h"
 #include "../../Systems/SystemTable.h"
 #include "../../Systems/ISimpleSerializer.h"
-#include "IObject.h"
+#include "../../Systems/IObject.h"
 #include <assert.h>
 
 

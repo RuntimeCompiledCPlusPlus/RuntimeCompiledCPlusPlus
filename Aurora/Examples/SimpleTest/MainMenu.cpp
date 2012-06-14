@@ -27,7 +27,7 @@
 #include "../../Systems/IUpdateable.h"
 #include "../../Systems/IEntitySystem.h"
 #include "../../Systems/IGame.h"
-#include "IObject.h"
+#include "../../Systems/IObject.h"
 
 
 class OnClickCompile : public IGUIEventListener

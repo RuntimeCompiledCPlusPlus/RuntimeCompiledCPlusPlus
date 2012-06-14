@@ -21,7 +21,7 @@
 #include "../../Systems/ILogSystem.h"
 #include "../../Systems/ISimpleSerializer.h"
 
-#include "IObject.h"
+#include "../../Systems/IObject.h"
 #include "IObjectUtils.h"
 #include "IGameManager.h"
 

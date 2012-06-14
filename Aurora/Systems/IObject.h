@@ -30,9 +30,9 @@
 #ifndef IOBJECT_INCLUDED
 #define IOBJECT_INCLUDED
 
-#include "../../Systems/IEntitySystem.h"
-#include "../../RuntimeCompiler/ObjectInterface.h"
-#include "InterfaceIds.h"
+#include "IEntitySystem.h"
+#include "../RuntimeCompiler/ObjectInterface.h"
+#include "../Examples/SimpleTest/InterfaceIds.h"
 
 struct ISimpleSerializer;
 class ObjectFactorySystem;

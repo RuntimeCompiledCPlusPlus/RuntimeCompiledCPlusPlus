@@ -38,7 +38,7 @@
 #include "../../Systems/LogSystem/MultiLogSystem/MultiLogSystem.h"
 #include "../../Systems/LogSystem/ThreadsafeLogSystem/ThreadsafeLogSystem.h"
 
-#include "../SimpleTest/IObject.h"
+#include "../../Systems/IObject.h"
 #include "../../Systems/IUpdateable.h"
 
 #include <iostream>

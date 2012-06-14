@@ -24,7 +24,7 @@
 #include "../../Systems/IlogSystem.h"
 #include "../../Systems/ISystem.h"
 #include "../../Examples/SimpleTest/Environment.h"	//TODO: Move exception handling to systems
-#include "../../Examples/SimpleTest/IObject.h"		//TODO: Move to systems
+#include "../../Systems/IObject.h"		//TODO: Move to systems
 
 IObjectConstructor* ObjectFactorySystem::GetConstructor( const char* type ) const
 {

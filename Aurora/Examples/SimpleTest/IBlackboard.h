@@ -20,7 +20,7 @@
 #ifndef IBLACKBOARD_INCLUDED
 #define IBLACKBOARD_INCLUDED
 
-#include "IObject.h"
+#include "../../Systems/IObject.h"
 
 //////////////////////////////////////////////////////////////////////////
 // Blackboards typically must be cast to their correct type to be used

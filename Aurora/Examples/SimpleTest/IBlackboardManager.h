@@ -20,7 +20,7 @@
 #ifndef IBLACKBOARDMANAGER_INCLUDED
 #define IBLACKBOARDMANAGER_INCLUDED
 
-#include "IObject.h"
+#include "../../Systems/IObject.h"
 #include "IGameManager.h"
 
 struct IBlackboard;

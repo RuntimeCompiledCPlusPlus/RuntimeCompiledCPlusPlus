@@ -20,7 +20,7 @@
 #ifndef IPERCEPTIONMANAGER_INCLUDED
 #define IPERCEPTIONMANAGER_INCLUDED
 
-#include "IObject.h"
+#include "../../Systems/IObject.h"
 #include "IGameManager.h"
 #include "../../Common/AUVec3f.inl"
 #include "../../Common/AUArray.inl"

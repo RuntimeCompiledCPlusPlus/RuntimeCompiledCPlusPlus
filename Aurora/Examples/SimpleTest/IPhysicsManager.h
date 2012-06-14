@@ -20,7 +20,7 @@
 #ifndef IPHYSICSMANAGER_INCLUDED
 #define IPHYSICSMANAGER_INCLUDED
 
-#include "IObject.h"
+#include "../../Systems/IObject.h"
 
 struct IGameObject;
 

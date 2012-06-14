@@ -23,7 +23,7 @@
 #endif
 
 #include "CompilerLogger.h"
-#include "IObject.h"
+#include "../../Systems/IObject.h"
 #include "IObjectUtils.h"
 #include "Console.h"
 #include "Environment.h"

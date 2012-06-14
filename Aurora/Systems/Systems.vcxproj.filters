@@ -86,6 +86,7 @@
     <ClInclude Include="IGame.h" />
     <ClInclude Include="Systems.h" />
     <ClInclude Include="Exceptions.h" />
+    <ClInclude Include="IObject.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="LogSystem">
