@@ -29,6 +29,7 @@
 #ifndef IENTITYOBJECT_INCLUDED
 #define IENTITYOBJECT_INCLUDED
 
+#include "InterfaceIds.h"
 #include "../../RuntimeCompiler/ObjectInterfacePerModule.h"
 #include "../../Systems/SystemTable.h"
 #include "../../Systems/ISimpleSerializer.h"

@@ -40,6 +40,7 @@
 
 #include "../../Systems/IObject.h"
 #include "../../Systems/IUpdateable.h"
+#include "InterfaceIds.h"
 
 #include <iostream>
 #include <tchar.h>

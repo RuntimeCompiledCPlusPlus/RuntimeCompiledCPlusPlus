@@ -22,6 +22,7 @@
 
 #include "../../Systems/IObject.h"
 #include "IGameManager.h"
+#include "InterfaceIds.h"
 #include "../../Common/AUVec3f.inl"
 #include "../../Common/AUArray.inl"
 #include "../../Systems/IUpdateable.h" 

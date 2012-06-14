@@ -21,6 +21,8 @@
 #define IBLACKBOARD_INCLUDED
 
 #include "../../Systems/IObject.h"
+#include "InterfaceIds.h"
+
 
 //////////////////////////////////////////////////////////////////////////
 // Blackboards typically must be cast to their correct type to be used

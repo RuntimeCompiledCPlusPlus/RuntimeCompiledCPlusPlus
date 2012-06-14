@@ -21,6 +21,7 @@
 #define IPHYSICSMANAGER_INCLUDED
 
 #include "../../Systems/IObject.h"
+#include "InterfaceIds.h"
 
 struct IGameObject;
 

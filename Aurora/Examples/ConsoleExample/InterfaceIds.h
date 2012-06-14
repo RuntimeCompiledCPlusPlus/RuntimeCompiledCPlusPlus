@@ -15,27 +15,28 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+// 
+// InterfaceId header file.
+//
+// Specifys interface ids for getting hold of interfaces
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
-#ifndef ICAMERACONTROL_INCLUDED
-#define ICAMERACONTROL_INCLUDED
+#ifndef INTERFACEIDS_INCLUDED
+#define INTERFACEIDS_INCLUDED
 
-#include "../../Common/AUVec3f.inl"
-#include "IEntityObject.h"
-#include "InterfaceIds.h"
-#include "../../Systems/IUpdateable.h" 
+#include "../../Systems/IObject.h"
 
-struct ICameraControl : public TInterface<IID_ICAMERACONTROL,IEntityObject>, public IAUUpdateable
+enum InterfaceIDEnumConsoleExample
 {
-	virtual AUVec3f GetCurrentPos() const = 0;
-	virtual AUVec3f GetTargetPos() const = 0;
-	virtual void SetTargetPos(const AUVec3f& pos) = 0;
-	virtual float GetMoveSpeed() const = 0;
-	virtual void SetMoveSpeed(float fSpeed) = 0;
+	IID_IENTITYOBJECT = IID_ENDInterfaceID,
+	IID_IUPDATEABLE,
 
-	virtual AUVec3f Project( const AUVec3f& worldPos ) const = 0;
-	virtual AUVec3f Unproject( const AUVec3f& screenPos ) const = 0;
+	IID_ENDInterfaceIDEnumConsoleExample
 };
 
 
-#endif // ICAMERACONTROL_INCLUDED
+#endif //INTERFACEIDS_INCLUDED

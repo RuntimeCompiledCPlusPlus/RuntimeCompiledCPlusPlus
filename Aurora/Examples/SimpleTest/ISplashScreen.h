@@ -21,6 +21,7 @@
 #define ISPLASHSCREEN_INCLUDED
 
 #include "IEntityObject.h"
+#include "InterfaceIds.h"
 #include "../../Systems/IUpdateable.h" 
 
 struct ISplashScreen : public  TInterface<IID_ISPLASHSCREEN,IEntityObject>, public IAUUpdateable

@@ -21,6 +21,7 @@
 #define IBLACKBOARDMANAGER_INCLUDED
 
 #include "../../Systems/IObject.h"
+#include "InterfaceIds.h"
 #include "IGameManager.h"
 
 struct IBlackboard;

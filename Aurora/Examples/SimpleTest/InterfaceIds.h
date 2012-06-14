@@ -28,10 +28,11 @@
 #ifndef INTERFACEIDS_INCLUDED
 #define INTERFACEIDS_INCLUDED
 
-enum InterfaceID
+#include "../../Systems/IObject.h"
+
+enum InterfaceIDEnumSimpleTest
 {
-	IID_IOBJECT,
-	IID_IENTITYOBJECT,
+	IID_IENTITYOBJECT = IID_ENDInterfaceID,
 	IID_ICONSOLECONTEXT,
 	IID_ICAMERACONTROL,
 	IID_ILIGHTINGCONTROL,
@@ -48,7 +49,7 @@ enum InterfaceID
 	IID_IPHYSICSMANAGER,
 	IID_IUPDATEABLE,
 
-	IID_END			= 0xFFFF
+	IID_ENDInterfaceIDEnumSimpleTest
 };
 
 

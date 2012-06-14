@@ -32,14 +32,21 @@
 
 #include "IEntitySystem.h"
 #include "../RuntimeCompiler/ObjectInterface.h"
-#include "../Examples/SimpleTest/InterfaceIds.h"
 
 struct ISimpleSerializer;
 class ObjectFactorySystem;
 
+// IIDs
+enum InterfaceIDEnum
+{
+	IID_IOBJECT,
+
+	IID_ENDInterfaceID
+};
+
+typedef unsigned int InterfaceID;
 
 // Template to help with IIDs
-
 template< InterfaceID Tiid, typename TSuper> struct TInterface : public TSuper
 {
 	static const InterfaceID s_interfaceID = Tiid;

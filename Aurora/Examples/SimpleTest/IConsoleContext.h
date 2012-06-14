@@ -20,6 +20,7 @@
 #ifndef ICONSOLECONTEXT_INCLUDED
 #define ICONSOLECONTEXT_INCLUDED
 #include "IEntityObject.h"
+#include "InterfaceIds.h"
 
 struct SystemTable;
 
