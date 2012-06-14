@@ -31,10 +31,25 @@ public:
 	~BuildTool();
 	void Initialise( ICompilerLogger * pLogger );
 
-	void BuildModule( const std::vector<boost::filesystem::path>& buildFileList, 
+	struct FileToBuild
+	{
+		FileToBuild( const boost::filesystem::path& filePath_ )
+			: filePath( filePath_ )
+			, forceCompile( false )
+		{
+		}
+		FileToBuild( const boost::filesystem::path& filePath_, bool forceCompile_ )
+			: filePath( filePath_ )
+			, forceCompile( forceCompile_ )
+		{
+		}
+		boost::filesystem::path filePath;
+		bool					forceCompile; //if true the file is compiled even if object file is present
+	};
+
+	void BuildModule( const std::vector<FileToBuild>& buildFileList, 
 					  const std::vector<boost::filesystem::path>& includeDirList, 
-					  const boost::filesystem::path& moduleName,
-					  bool bForce);
+					  const boost::filesystem::path& moduleName );
 	bool GetIsComplete()
 	{
 		return m_Compiler.GetIsComplete();

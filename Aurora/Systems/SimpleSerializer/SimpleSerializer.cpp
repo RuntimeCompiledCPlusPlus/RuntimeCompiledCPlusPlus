@@ -17,7 +17,7 @@
 
 #include "SimpleSerializer.h"
 #include <assert.h>
-#include "../../Examples/SimpleTest/IObject.h"
+#include "../../Systems/IObject.h"
 #include "../../Systems/ILogSystem.h"
 #include "../../Systems/Systems.h"
 

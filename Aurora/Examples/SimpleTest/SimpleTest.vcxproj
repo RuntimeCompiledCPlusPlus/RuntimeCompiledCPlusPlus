@@ -169,7 +169,6 @@
     <ClInclude Include="IInputManager.h" />
     <ClInclude Include="ILightingControl.h" />
     <ClInclude Include="InterfaceIds.h" />
-    <ClInclude Include="IObject.h" />
     <ClInclude Include="IObjectUtils.h" />
     <ClInclude Include="IPerceptionManager.h" />
     <ClInclude Include="IPhysicsManager.h" />

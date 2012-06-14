@@ -96,6 +96,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConsoleGame.h" />
+    <ClInclude Include="InterfaceIds.h" />
     <ClInclude Include="StdioLogSystem.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

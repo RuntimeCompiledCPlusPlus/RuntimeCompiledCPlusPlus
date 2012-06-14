@@ -20,7 +20,8 @@
 #ifndef IBEHAVIOR_INCLUDED
 #define IBEHAVIOR_INCLUDED
 
-#include "IObject.h"
+#include "../../Systems/IObject.h"
+#include "InterfaceIds.h"
 
 struct IGameObject;
 

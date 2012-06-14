@@ -108,6 +108,7 @@ xcopy /y $(SolutionDir)\External\libRocket\bin\*.pdb $(SolutionDir)$(Configurati
     <ClInclude Include="IGUIElement.h" />
     <ClInclude Include="IGUISystem.h" />
     <ClInclude Include="ILogSystem.h" />
+    <ClInclude Include="IObject.h" />
     <ClInclude Include="IObjectFactorySystem.h" />
     <ClInclude Include="ISimpleSerializer.h" />
     <ClInclude Include="ISystem.h" />

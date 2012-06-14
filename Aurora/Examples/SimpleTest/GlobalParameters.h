@@ -29,6 +29,9 @@
 //       Not sure exactly what would happen, but it's probably bad!
 //////////////////////////////////////////////////////////////////////////
 
+#include "../../RuntimeCompiler/RuntimeInclude.h"
+RUNTIME_MODIFIABLE_INCLUDE; //adds this include to runtime tracking
+
 #include "IGameManager.h"
 #include "../../Common/AUColor.inl"
 #include <string>

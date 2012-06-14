@@ -22,6 +22,7 @@
 
 #include "../../Common/AUVec3f.inl"
 #include "IEntityObject.h"
+#include "InterfaceIds.h"
 #include "../../Systems/IUpdateable.h" 
 
 struct ICameraControl : public TInterface<IID_ICAMERACONTROL,IEntityObject>, public IAUUpdateable

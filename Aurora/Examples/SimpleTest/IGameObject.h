@@ -24,6 +24,7 @@
 #include "IGameManager.h"
 #include "../../Common/AUColor.inl"
 #include "../../Systems/IUpdateable.h" 
+#include "InterfaceIds.h"
 
 struct IBehavior;
 struct IBehaviorTree;

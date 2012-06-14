@@ -20,6 +20,9 @@
 #ifndef BB_TEAM_IMMUNE_INCLUDED
 #define BB_TEAM_IMMUNE_INCLUDED
 
+#include "../../RuntimeCompiler/RuntimeInclude.h"
+RUNTIME_MODIFIABLE_INCLUDE; //adds this include to runtime tracking
+
 #include "IBlackboard.h"
 #include "../../Systems/ISimpleSerializer.h"
 #include <assert.h>

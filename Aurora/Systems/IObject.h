@@ -30,16 +30,23 @@
 #ifndef IOBJECT_INCLUDED
 #define IOBJECT_INCLUDED
 
-#include "../../Systems/IEntitySystem.h"
-#include "../../RuntimeCompiler/ObjectInterface.h"
-#include "InterfaceIds.h"
+#include "IEntitySystem.h"
+#include "../RuntimeCompiler/ObjectInterface.h"
 
 struct ISimpleSerializer;
 class ObjectFactorySystem;
 
+// IIDs
+enum InterfaceIDEnum
+{
+	IID_IOBJECT,
+
+	IID_ENDInterfaceID
+};
+
+typedef unsigned int InterfaceID;
 
 // Template to help with IIDs
-
 template< InterfaceID Tiid, typename TSuper> struct TInterface : public TSuper
 {
 	static const InterfaceID s_interfaceID = Tiid;

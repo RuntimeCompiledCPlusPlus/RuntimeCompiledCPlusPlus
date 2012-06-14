@@ -21,6 +21,7 @@
 #define IINPUTMANAGER_INCLUDED
 
 #include "IEntityObject.h"
+#include "InterfaceIds.h"
 #include "../../Systems/IUpdateable.h" 
 
 struct IGameObject;

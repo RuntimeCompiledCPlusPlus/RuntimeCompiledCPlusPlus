@@ -1,8 +1,8 @@
 #include "../../RunTimeCompiler/ObjectInterfacePerModule.h"
 
-#include "../SimpleTest/IObject.h"
+#include "../../Systems/IObject.h"
 #include "../../Systems/IUpdateable.h"
-
+#include "InterfaceIds.h"
 #include <iostream>
 
 
