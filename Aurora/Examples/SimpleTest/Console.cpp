@@ -25,7 +25,7 @@
 #include "../../Systems/IObjectFactorySystem.h"
 #include "../../Systems/IGame.h"
 #include "../../Systems/SystemTable.h"
-#include "IObject.h"
+#include "../../Systems/IObject.h"
 #include "Environment.h"
 #include "IConsoleContext.h"
 #include "IObjectUtils.h"

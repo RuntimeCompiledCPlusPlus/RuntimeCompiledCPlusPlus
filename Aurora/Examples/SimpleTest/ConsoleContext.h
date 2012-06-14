@@ -20,7 +20,7 @@
 #ifndef CONSOLECONTEXT_INCLUDED
 #define CONSOLECONTEXT_INCLUDED
 
-#include "IObject.h"
+#include "../../Systems/IObject.h"
 #include "IObjectUtils.h"
 #include "IConsoleContext.h"
 #include "IGameObject.h"

@@ -69,6 +69,7 @@ struct IObjectConstructor
 	virtual void ConstructNull() = 0;	//for use in object replacement, ensures a deleted object can be replaced
 	virtual const char* GetName() = 0;
 	virtual const char* GetFileName() = 0;
+	virtual const char* GetIncludeFile( unsigned int Num_ ) const = 0;
 	virtual IObject* GetConstructedObject( PerTypeObjectId num ) const = 0;	//should return 0 for last or deleted object
 	virtual size_t	 GetNumberConstructedObjects() const = 0;
 	virtual ConstructorId GetConstructorId() const = 0;

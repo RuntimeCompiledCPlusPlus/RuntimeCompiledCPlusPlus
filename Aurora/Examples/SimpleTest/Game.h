@@ -29,6 +29,7 @@
 #include <Rocket/Core/Context.h>
 #include <Windows.h>
 #include <vector>
+#include <map>
 
 #define BOOST_FILESYSTEM_VERSION 3
 #include "boost/filesystem.hpp" 
@@ -89,6 +90,10 @@ public:
 
 private:
 	typedef std::vector<boost::filesystem::path> TFileList;
+	typedef std::multimap<boost::filesystem::path,boost::filesystem::path> TFileToFileMap;
+	typedef TFileToFileMap::iterator TFileToFileIterator;
+	typedef std::pair<boost::filesystem::path,boost::filesystem::path> TFileToFilePair;
+	typedef std::pair<TFileToFileMap::iterator,TFileToFileMap::iterator> TFileToFileEqualRange;
 
 	void StartRecompile(const TFileList& filelist, bool bForce);
 	bool LoadCompiledModule();
@@ -127,6 +132,7 @@ private:
 
 	std::vector<HMODULE> m_Modules;	// Stores runtime created modules, but not the exe module.
 	TFileList m_RuntimeFileList;
+	TFileToFileMap m_RuntimeIncludeMap;
 	bool m_bHaveProgramError;
 	double m_fLastUpdateSessionTime;
 	bool m_bCompiling;

@@ -28,7 +28,7 @@
 #ifndef IOBJECTUTILS_INCLUDED
 #define IOBJECTUTILS_INCLUDED
 
-#include "IObject.h"
+#include "../../Systems/IObject.h"
 #include "InterfaceIds.h"
 #include "IEntityObject.h"
 #include "../../RunTimeCompiler/ObjectInterfacePerModule.h"

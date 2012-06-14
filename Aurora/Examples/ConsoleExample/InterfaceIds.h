@@ -15,38 +15,28 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+// 
+// InterfaceId header file.
+//
+// Specifys interface ids for getting hold of interfaces
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
-#ifndef BB_GROUP_RBC_INCLUDED
-#define BB_GROUP_RBC_INCLUDED
+#ifndef INTERFACEIDS_INCLUDED
+#define INTERFACEIDS_INCLUDED
 
-#include "../../RuntimeCompiler/RuntimeInclude.h"
-RUNTIME_MODIFIABLE_INCLUDE; //adds this include to runtime tracking
+#include "../../Systems/IObject.h"
 
-#include "IBlackboard.h"
-#include "../../Systems/ISimpleSerializer.h"
-#include <assert.h>
-
-struct BB_Group_RBC : public IBlackboard
+enum InterfaceIDEnumConsoleExample
 {
-	BB_Group_RBC()
-	{
-		group_size = 0;
-	}
+	IID_IENTITYOBJECT = IID_ENDInterfaceID,
+	IID_IUPDATEABLE,
 
-	virtual void Serialize(ISimpleSerializer *pSerializer)
-	{
-		AU_ASSERT(pSerializer);
-		SERIALIZE(group_size);
-	}
-
-	// Members
-
-	int group_size;
+	IID_ENDInterfaceIDEnumConsoleExample
 };
 
-// Registered inside BlackboardManager.cpp
-// REGISTERCLASS(BB_Group_RBC);
 
-
-#endif // BB_GROUP_RBC_INCLUDED
+#endif //INTERFACEIDS_INCLUDED

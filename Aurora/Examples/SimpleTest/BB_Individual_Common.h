@@ -20,6 +20,9 @@
 #ifndef BB_INDIVIDUAL_COMMON_INCLUDED
 #define BB_INDIVIDUAL_COMMON_INCLUDED
 
+#include "../../RuntimeCompiler/RuntimeInclude.h"
+RUNTIME_MODIFIABLE_INCLUDE; //adds this include to runtime tracking
+
 #include "IBlackboard.h"
 #include "../../Common/AUVec3f.inl"
 #include "../../Systems/ISimpleSerializer.h"

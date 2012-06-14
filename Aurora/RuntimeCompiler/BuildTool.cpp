@@ -39,41 +39,32 @@ void BuildTool::Initialise( ICompilerLogger * pLogger )
 	m_Compiler.Initialise(pLogger);
 }
 
-void BuildTool::BuildModule( const std::vector<boost::filesystem::path>& buildFileList,
+void BuildTool::BuildModule( const std::vector<FileToBuild>& buildFileList,
 							 const std::vector<boost::filesystem::path>& includeDirList,
-							 const boost::filesystem::path& moduleName, bool bForce )
+							 const boost::filesystem::path& moduleName )
 {
 	//initial version is very basic, simply compiles them.
 	path objectFileExtension = m_Compiler.GetObjectFileExtension();
 	vector<path> compileFileList;
 
 	path current = boost::filesystem::current_path();
-
-	//m_pLogger->LogInfo("[RuntimeCompiler] Considering source files:\n");
 	
 	for( size_t i = 0; i < buildFileList.size(); ++i )
 	{
 		//TODO: should check if we have a pre-compiled object version of this file, and if so use that.
-		path buildFile = buildFileList[i];
+		path buildFile = buildFileList[i].filePath;
 		path runtimeFolder = L"Runtime";
 		path objectFileName = current/runtimeFolder/buildFile.leaf();
 		objectFileName.replace_extension(objectFileExtension);
 
-		if( !bForce && boost::filesystem::exists( objectFileName ) && boost::filesystem::exists( buildFile )
+		if( !buildFileList[i].forceCompile && boost::filesystem::exists( objectFileName ) && boost::filesystem::exists( buildFile )
 			&& boost::filesystem::last_write_time( objectFileName ) > boost::filesystem::last_write_time( buildFile ) )
 		{
 			buildFile = objectFileName;
 		}
 
 		compileFileList.push_back(buildFile);
-		//m_pLogger->LogInfo("  %ls\n",buildFile.c_str());
 	}
-
-	//m_pLogger->LogInfo("[RuntimeCompiler] Using include paths:\n");
-	//for( size_t i = 0; i < includeDirList.size(); ++i )
-	//{
-	//	m_pLogger->LogInfo("  %ls\n",includeDirList[i].wstring().c_str());
-	//}
 
 	m_Compiler.RunCompile( compileFileList, includeDirList, moduleName );
 }

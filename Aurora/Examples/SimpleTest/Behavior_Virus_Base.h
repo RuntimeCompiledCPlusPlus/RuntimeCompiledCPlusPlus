@@ -20,6 +20,9 @@
 #ifndef BEHAVIOR_VIRUS_BASE_INCLUDED
 #define BEHAVIOR_VIRUS_BASE_INCLUDED
 
+#include "../../RuntimeCompiler/RuntimeInclude.h"
+RUNTIME_MODIFIABLE_INCLUDE; //adds this include to runtime tracking
+
 #include "BehaviorCommon.h"
 
 #include "BB_Team_Infection.h"

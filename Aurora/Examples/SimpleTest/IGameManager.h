@@ -21,6 +21,7 @@
 #define IGAMEMANAGER_INCLUDED
 
 #include "IEntityObject.h"
+#include "InterfaceIds.h"
 #include "../../Systems/IUpdateable.h" 
 #include "../../RuntimeCompiler/ObjectInterface.h"
 #include "../../Common/AUArray.inl"

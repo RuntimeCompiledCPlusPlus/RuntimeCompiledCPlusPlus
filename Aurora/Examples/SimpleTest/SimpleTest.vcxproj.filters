@@ -143,9 +143,6 @@
     <ClInclude Include="InterfaceIds.h">
       <Filter>Object Interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="IObject.h">
-      <Filter>Object Interfaces</Filter>
-    </ClInclude>
     <ClInclude Include="IObjectUtils.h">
       <Filter>Object Interfaces</Filter>
     </ClInclude>
