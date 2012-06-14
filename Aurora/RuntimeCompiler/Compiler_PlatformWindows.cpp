@@ -303,7 +303,7 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
 	// we do a final filtering of input here.
 	// See http://msdn.microsoft.com/en-us/library/bb385193.aspx - "Source Files and Build Order"
 
-	// Create include path search string
+	// Create compile path search string
 	std::string strFilesToCompile;
 	std::set<std::string> filteredPaths;
 	for( size_t i = 0; i < filesToCompile.size(); ++i )
@@ -318,10 +318,6 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
 		{
 			strFilesToCompile += " " + strPath;
 			filteredPaths.insert(strPath);
-		}
-		else
-		{
-			m_pImplData->m_pLogger->LogWarning("[RuntimeCompiler] Ignoring duplicate path: %s\n", strPath.c_str());
 		}
 	}
 
