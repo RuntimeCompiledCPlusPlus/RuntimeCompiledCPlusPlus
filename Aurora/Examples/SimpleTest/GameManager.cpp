@@ -41,7 +41,7 @@
 #include <algorithm>
 
 
-class GameManager: public IGameManager, public IFileChangeListener
+class GameManager: public IGameManager
 {
 	// We have two sets of typedefs here, one for fast access during runtime, and another
 	// that is used for safe storage during serialization
@@ -87,18 +87,6 @@ public:
 	}
 
 
-	// IFileChangeListener
-
-	virtual void OnFileChange(const IAUDynArray<const char*>& filelist) 
-	{
-		// GlobalParameters changed, so recompile all 
-		// (game needs to be reset to take effect, but let user do this to minimize surprise)
-		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
-		pSystemTable->pGame->CompileAll( true );
-	}
-
-	// ~IFileChangeListener
-
 	// IEntityObject
 
 	virtual void Serialize(ISimpleSerializer *pSerializer)
@@ -126,8 +114,6 @@ public:
 		}
 		
 		m_pEntity->SetUpdateable( this );
-		
-		InitWatch();
 	}
 
 	// ~IEntityObject
@@ -462,19 +448,6 @@ private:
 		{
 			DestroySplashScreen();
 		}
-	}
-
-	void InitWatch()
-	{
-		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
-		IFileChangeNotifier* pFileChangeNotifier = pSystemTable->pFileChangeNotifier;
-
-		// Set watch on GlobalParameters.h
-		// Note that the path will get correctly normalized by FileChangeNotifier
-		// An extra level of /.. has been added so that the filename in __FILE__ will get removed on normalizing
-		char path[256]; 
-		_snprintf_s(path, sizeof(path), "%s/../GlobalParameters.h", __FILE__);
-		pFileChangeNotifier->Watch(path, this);
 	}
 
 	void DestroyGameObjects()
