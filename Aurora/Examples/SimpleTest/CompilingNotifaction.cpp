@@ -27,6 +27,7 @@
 #include "../../Systems/IUpdateable.h"
 #include "../../Systems/IEntitySystem.h"
 #include "../../Systems/ITimeSystem.h"
+#include "../../Systems/IGame.h"
 
 #include "IEntityObject.h"
 
@@ -79,15 +80,26 @@ public:
 			if (m_fTimeToNextUpdate <= 0.0f)
 			{
 				m_fTimeToNextUpdate += UPDATE_INTERVAL;
+				
+				SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
+				bool bCompiling = pSystemTable->pGame->GetIsCompiling();
+				if( bCompiling )
+				{
+					m_pCompilingNotification->SetProperty( "display", "block" );
+					static char text[] = "Compiling....  ";
+					static unsigned int length = strlen( text );
+					char lastChar = text[length-1];
+					text[length] = 0;
+					memcpy( text+1, text, length-1 );
+					text[0] = lastChar;
+					text[length] = 0;
+					m_pCompilingNotification->SetInnerRML(text);
+				}
+				else
+				{
+					m_pCompilingNotification->SetProperty( "display", "none" );
 
-				static char text[] = "Compiling....  ";
-				static unsigned int length = strlen( text );
-				char lastChar = text[length-1];
-				text[length] = 0;
-				memcpy( text+1, text, length-1 );
-				text[0] = lastChar;
-				text[length] = 0;
-				m_pCompilingNotification->SetInnerRML(text);
+				}
 			}		
 		}
 	}
