@@ -131,6 +131,9 @@
     <ClCompile Include="Behavior_RBC_Evade.cpp">
       <Filter>Runtime Modifiable\Behaviors</Filter>
     </ClCompile>
+    <ClCompile Include="CompilingNotifaction.cpp">
+      <Filter>Runtime Modifiable</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CompilerLogger.h" />
@@ -279,9 +282,6 @@
     <None Include="..\..\Assets\GUI\default.rcss">
       <Filter>GUI RML</Filter>
     </None>
-    <None Include="..\..\Assets\GUI\cursor.rml" />
-    <None Include="..\..\Assets\GUI\demo.rcss" />
-    <None Include="..\..\Assets\GUI\demo.rml" />
     <None Include="..\..\Assets\GUI\splashscreen.rcss">
       <Filter>GUI RML</Filter>
     </None>
@@ -292,6 +292,12 @@
       <Filter>GUI RML</Filter>
     </None>
     <None Include="..\..\Assets\GUI\input.rml">
+      <Filter>GUI RML</Filter>
+    </None>
+    <None Include="..\..\Assets\GUI\compiling-notification.rcss">
+      <Filter>GUI RML</Filter>
+    </None>
+    <None Include="..\..\Assets\GUI\compiling-notification.rml">
       <Filter>GUI RML</Filter>
     </None>
   </ItemGroup>

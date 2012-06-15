@@ -85,6 +85,10 @@ public:
 	virtual void SetVolume( float volume );
 	virtual void SetSpeed( float speed );
 	virtual void SetAutoCompile( bool autoCompile );
+	virtual bool GetIsCompiling() const
+	{
+		return m_bCompiling;
+	}
 
 	// ~IGame
 
