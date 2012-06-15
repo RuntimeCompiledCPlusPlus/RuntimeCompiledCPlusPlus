@@ -1,0 +1,10 @@
+<rml>
+  <head>
+    <link type="text/rcss" href="default.rcss"/>
+    <link type="text/rcss" href="compiling-notification.rcss"/>
+    <title>CompilingNotification</title>
+  </head>
+  <body>
+    <div id ="compiling"></div>
+  </body>
+</rml>
