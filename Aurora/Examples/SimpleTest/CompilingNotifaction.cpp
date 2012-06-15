@@ -15,7 +15,7 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-// FPSCounter.cpp : Defines an IObject that displays framerate on screen
+// CompilingNotification.cpp : Defines an IObject that displays when we're compiling
 //
 #include "../../RunTimeCompiler/ObjectInterfacePerModule.h"
 #include "../../RuntimeCompiler/IFileChangeNotifier.h"
@@ -31,7 +31,8 @@
 
 #include "IEntityObject.h"
 
-#define UPDATE_INTERVAL 1.0f/10.0f // Update display this often (in seconds)
+const float UPDATE_INTERVAL = 2.0f/10.0f; // Update display this often (in seconds)
+const float SHOW_COMPLETE_INTERVAL = 1.5f; // Update display this often (in seconds)
 
 
 class CompilingNotification: public IEntityObject, public IAUUpdateable, public IFileChangeListener
@@ -41,6 +42,7 @@ public:
 	{
 		m_pCompilingNotification = NULL;
 		m_fTimeToNextUpdate = UPDATE_INTERVAL;
+		m_CompilationStatus = NOT_COMPILING;
 	}
 
 	virtual ~CompilingNotification()
@@ -54,6 +56,13 @@ public:
 		{
 			m_pCompilingNotification->RemoveReference();
 		}
+	}
+
+	virtual void Serialize(ISimpleSerializer *pSerializer) 
+	{
+		IEntityObject::Serialize(pSerializer);
+		SERIALIZE(m_fTimeToNextUpdate);
+		SERIALIZE(m_CompilationStatus);
 	}
 
 	
@@ -79,25 +88,45 @@ public:
 			m_fTimeToNextUpdate -= deltaTime;
 			if (m_fTimeToNextUpdate <= 0.0f)
 			{
-				m_fTimeToNextUpdate += UPDATE_INTERVAL;
 				
 				SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
 				bool bCompiling = pSystemTable->pGame->GetIsCompiling();
 				if( bCompiling )
 				{
+					m_CompilationStatus = COMPILING_INPROGRESS;
+					m_fTimeToNextUpdate = UPDATE_INTERVAL;
 					m_pCompilingNotification->SetProperty( "display", "block" );
-					static char text[] = "Compiling....  ";
-					static unsigned int length = strlen( text );
-					char lastChar = text[length-1];
-					text[length] = 0;
-					memcpy( text+1, text, length-1 );
-					text[0] = lastChar;
-					text[length] = 0;
+					static char text[80];
+					static char phrase[] = "&nbsp;&nbsp;&nbsp;&nbsp;Compiling C++ Code&nbsp;&nbsp;";
+					static char dots[6][20] = {	"",
+												".",
+												"..",
+												"...",
+												"&nbsp;..",
+												"&nbsp;&nbsp;." };
+					static unsigned int count = 0;
+					count = (count+1) % 6;
+					strcpy( text, phrase );
+					strcat( text, dots[count] );
 					m_pCompilingNotification->SetInnerRML(text);
 				}
 				else
 				{
-					m_pCompilingNotification->SetProperty( "display", "none" );
+					switch( m_CompilationStatus )
+					{
+					case NOT_COMPILING:
+						break; //do nothing
+					case COMPILING_INPROGRESS:
+						m_CompilationStatus = COMPILING_COMPLETE;
+						m_pCompilingNotification->SetInnerRML("&nbsp;&nbsp;&nbsp;&nbsp;Compile complete");
+						m_fTimeToNextUpdate = SHOW_COMPLETE_INTERVAL; //use longer interval to show completion
+						break;
+					case COMPILING_COMPLETE:
+						m_CompilationStatus = NOT_COMPILING;
+						m_pCompilingNotification->SetProperty( "display", "none" );
+						m_fTimeToNextUpdate = UPDATE_INTERVAL;
+					default:;
+					};
 
 				}
 			}		
@@ -174,6 +203,13 @@ private:
 
 	IGUIElement* m_pCompilingNotification;
 	float m_fTimeToNextUpdate;
+
+	enum CompilationStatus
+	{
+		NOT_COMPILING,
+		COMPILING_INPROGRESS,
+		COMPILING_COMPLETE
+	} m_CompilationStatus;
 };
 
 REGISTERCLASS(CompilingNotification);
