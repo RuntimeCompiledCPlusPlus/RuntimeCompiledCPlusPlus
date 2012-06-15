@@ -47,6 +47,7 @@ public:
 			delete IObjectUtils::GetUniqueObject( "LightingControl" );
 			delete IObjectUtils::GetUniqueObject( "CameraControl" );
 			delete IObjectUtils::GetUniqueObject( "FPSCounter" );
+			delete IObjectUtils::GetUniqueObject( "CompilingNotification" );
 			delete IObjectUtils::GetUniqueObject( "GameManager" );
 			delete IObjectUtils::GetUniqueObject( "MainMenu" );
 		}
@@ -74,6 +75,7 @@ private:
 
 		// Construct unique objects (managers, util objects, etc)
 		IObjectUtils::CreateUniqueObject( "MainMenu" );
+		IObjectUtils::CreateUniqueObjectAndEntity( "CompilingNotification", "CompilingNotification" );
 
 		
 		IObjectUtils::CreateUniqueObjectAndEntity( "GameManager", "GameManager" );

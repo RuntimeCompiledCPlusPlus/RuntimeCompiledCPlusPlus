@@ -118,6 +118,7 @@
     <ClCompile Include="BlackboardManager.cpp" />
     <ClCompile Include="CameraControl.cpp" />
     <ClCompile Include="CompilerLogger.cpp" />
+    <ClCompile Include="CompilingNotifaction.cpp" />
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="ConsoleContext.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -175,13 +176,10 @@
     <ClInclude Include="ISplashScreen.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\Assets\GUI\compiling-notification.rcss" />
+    <None Include="..\..\Assets\GUI\compiling-notification.rml" />
     <None Include="..\..\Assets\GUI\console.rcss" />
     <None Include="..\..\Assets\GUI\console.rml" />
-    <None Include="..\..\Assets\GUI\cursor.rml" />
-    <None Include="..\..\Assets\GUI\demo.rcss" />
-    <None Include="..\..\Assets\GUI\demo.rml">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="..\..\Assets\GUI\default.rcss" />
     <None Include="..\..\Assets\GUI\input.rcss" />
     <None Include="..\..\Assets\GUI\input.rml" />
