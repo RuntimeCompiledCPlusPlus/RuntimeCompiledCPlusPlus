@@ -22,14 +22,14 @@ div#compiling
 	outline-width: 1px;
 	outline-color: black;
 
-	background-color: blue;
+	background-color: #303030;
 
-	text-align: center;
+	text-align: left;
 	
 	position:absolute;
 	bottom: 10px;
 	right: 10px;
-	width: 120px;
+	width: 230px;
 }
 
 
