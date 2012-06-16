@@ -98,7 +98,9 @@ public:
 					m_CompilationStatus = COMPILING_INPROGRESS;
 					m_fTimeToNextUpdate = UPDATE_INTERVAL;
 					m_pCompilingNotification->SetProperty( "display", "block" );
-					static char text[80];
+					static char text[200];
+					char divtextstart[80] = "<div style='background-color: #00ff00;'>";
+					char divtextend[80] = "</div>";
 					static char phrase[] = "&nbsp;&nbsp;&nbsp;&nbsp;Compiling C++ Code&nbsp;&nbsp;";
 					static char dots[6][20] = {	"",
 												".",
@@ -108,8 +110,10 @@ public:
 												"&nbsp;&nbsp;." };
 					static unsigned int count = 0;
 					count = (count+1) % 6;
-					strcpy( text, phrase );
+					strcpy( text, divtextstart );
+					strcat( text, phrase );
 					strcat( text, dots[count] );
+					strcat( text, divtextend );
 					m_pCompilingNotification->SetInnerRML(text);
 				}
 				else

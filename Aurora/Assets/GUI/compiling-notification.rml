@@ -5,6 +5,6 @@
     <title>CompilingNotification</title>
   </head>
   <body>
-    <div id ="compiling"></div>
+    <div id="compiling"></div>
   </body>
 </rml>
