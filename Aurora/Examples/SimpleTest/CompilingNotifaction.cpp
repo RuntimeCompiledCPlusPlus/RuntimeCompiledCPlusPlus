@@ -31,8 +31,9 @@
 
 #include "IEntityObject.h"
 
-const float UPDATE_INTERVAL = 2.0f/10.0f; // Update display this often (in seconds)
-const float SHOW_COMPLETE_INTERVAL = 1.5f; // Update display this often (in seconds)
+const float UPDATE_INTERVAL = 0.1f; // Update display this often (in seconds)
+const float SHOW_COMPLETE_INTERVAL = 1.0f;
+const float SHOW_FLASH_INTERVAL = 0.2f;
 
 
 class CompilingNotification: public IEntityObject, public IAUUpdateable, public IFileChangeListener
@@ -80,6 +81,44 @@ public:
 
 	// IAUUpdateable
 
+	// copies string which sets a flash with strength denoted by
+	// flashAmount (a 0.0f - 1.0f value);
+	void StrCpyFlashDivStartRML( char* text, float flashAmount )
+	{
+		if( flashAmount < 0.0f )
+		{
+			flashAmount = 0.0f;
+		}
+		char flashdivstart[80];
+		flashdivstart[0] = 0;
+		int red = (int)( 40.0f*flashAmount );
+		int green = (int)( 255.0f*flashAmount );
+		int blue = (int)( 40.0f*flashAmount );
+		sprintf( flashdivstart, "<div style='background-color: rgb(%d,%d,%d);'>", red, green, blue);
+		strcpy( text, flashdivstart );
+	}
+
+	void StrCatCompilingRML( char* text )
+	{
+		static char phrase[] = "&nbsp;&nbsp;&nbsp;&nbsp;Compiling C++ Code&nbsp;&nbsp;";
+		static char dots[6][20] = {	"",
+									".",
+									"..",
+									"...",
+									"&nbsp;..",
+									"&nbsp;&nbsp;." };
+		static unsigned int count = 0;
+		count = (count+1) % 6; //TODO: this will now change every frame, not every 0.2s (grumble)
+
+		double time = PerModuleInterface::GetInstance()->GetSystemTable()->pTimeSystem->GetFrameSessionTime();
+		unsigned int newCount = (int)( time/UPDATE_INTERVAL ) % 6;
+		strcat( text, phrase );
+		strcat( text, dots[newCount] );
+	}
+
+
+
+
 	virtual void Update( float deltaTime )
 	{
 		if (m_pCompilingNotification)
@@ -88,7 +127,82 @@ public:
 			// Since deltaTime is game time, which can be paused or slowed down, we update with frame time
 			double fSmoothFrameTime = PerModuleInterface::GetInstance()->GetSystemTable()->pTimeSystem->GetSmoothFrameDuration();
 			m_fTimeToNextUpdate -= fSmoothFrameTime;
-			if (m_fTimeToNextUpdate <= 0.0f)
+
+			SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
+			bool bCompiling = pSystemTable->pGame->GetIsCompiling();
+			char text[200];
+			
+			switch( m_CompilationStatus )
+			{
+				case NOT_COMPILING:
+					if( bCompiling )
+					{
+						m_CompilationStatus = COMPILING_INPROGRESS_FLASH;
+						m_fTimeToNextUpdate = SHOW_FLASH_INTERVAL;
+					}
+					else
+					{
+						break;
+					}
+				case COMPILING_INPROGRESS_FLASH:
+					m_pCompilingNotification->SetProperty( "display", "block" );
+					StrCpyFlashDivStartRML( text, m_fTimeToNextUpdate/SHOW_FLASH_INTERVAL );
+					StrCatCompilingRML( text );
+					strcat( text, "</div>" );
+					m_pCompilingNotification->SetInnerRML( text );
+					if( m_fTimeToNextUpdate <= 0 )
+					{
+						m_CompilationStatus = COMPILING_INPROGRESS;
+						m_fTimeToNextUpdate = UPDATE_INTERVAL;
+					}
+					else
+					{
+						break;
+					}
+				case COMPILING_INPROGRESS:
+					text[0] = 0;	//sets string to be ""
+					StrCatCompilingRML( text );
+					m_pCompilingNotification->SetInnerRML(text);
+					if( !bCompiling )
+					{
+						m_CompilationStatus = COMPILING_COMPLETE_FLASH;
+						m_fTimeToNextUpdate = SHOW_FLASH_INTERVAL;
+					}
+					else
+					{
+						break;
+					}
+				case COMPILING_COMPLETE_FLASH:
+					StrCpyFlashDivStartRML( text, m_fTimeToNextUpdate/SHOW_FLASH_INTERVAL );
+					strcat( text, "&nbsp;&nbsp;&nbsp;&nbsp;Compile complete" );
+					strcat( text, "</div>" );
+					m_pCompilingNotification->SetInnerRML( text );
+					if( m_fTimeToNextUpdate <= 0 )
+					{
+						m_CompilationStatus = COMPILING_COMPLETE;
+						m_fTimeToNextUpdate = SHOW_COMPLETE_INTERVAL;
+						m_pCompilingNotification->SetInnerRML( "&nbsp;&nbsp;&nbsp;&nbsp;Compile complete" );
+					}
+					else
+					{
+						break;
+					}
+				case COMPILING_COMPLETE:
+
+					if( m_fTimeToNextUpdate <= 0 )
+					{
+						m_CompilationStatus = NOT_COMPILING;
+						m_pCompilingNotification->SetProperty( "display", "none" );
+					}
+					else
+					{
+						break;
+					}
+				default:;
+			}
+
+
+/*			if (m_fTimeToNextUpdate <= 0.0f)
 			{
 				
 				SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
@@ -99,7 +213,7 @@ public:
 					m_fTimeToNextUpdate = UPDATE_INTERVAL;
 					m_pCompilingNotification->SetProperty( "display", "block" );
 					static char text[200];
-					char divtextstart[80] = "<div style='background-color: #00ff00;'>";
+					char divtextstart[80];
 					char divtextend[80] = "</div>";
 					static char phrase[] = "&nbsp;&nbsp;&nbsp;&nbsp;Compiling C++ Code&nbsp;&nbsp;";
 					static char dots[6][20] = {	"",
@@ -109,6 +223,7 @@ public:
 												"&nbsp;..",
 												"&nbsp;&nbsp;." };
 					static unsigned int count = 0;
+					sprintf( divtextstart, "<div style='background-color: rgb(%d,%d,%d);'>", 0+5*count, 255-30*count, 0+5*count);
 					count = (count+1) % 6;
 					strcpy( text, divtextstart );
 					strcat( text, phrase );
@@ -121,7 +236,8 @@ public:
 					switch( m_CompilationStatus )
 					{
 					case NOT_COMPILING:
-						break; //do nothing
+						m_fTimeToNextUpdate = UPDATE_INTERVAL;
+						break;
 					case COMPILING_INPROGRESS:
 						m_CompilationStatus = COMPILING_COMPLETE;
 						m_pCompilingNotification->SetInnerRML("&nbsp;&nbsp;&nbsp;&nbsp;Compile complete");
@@ -135,7 +251,8 @@ public:
 					};
 
 				}
-			}		
+			}
+			*/
 		}
 	}
 
@@ -213,7 +330,9 @@ private:
 	enum CompilationStatus
 	{
 		NOT_COMPILING,
+		COMPILING_INPROGRESS_FLASH,
 		COMPILING_INPROGRESS,
+		COMPILING_COMPLETE_FLASH,
 		COMPILING_COMPLETE
 	} m_CompilationStatus;
 };

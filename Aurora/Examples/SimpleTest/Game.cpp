@@ -341,13 +341,11 @@ void Game::MainLoop()
 	m_pEnv->sys->pFileChangeNotifier->Update(fSessionTimeDelta);
 
 	//check status of any compile
+	bool bLoadModule = false;
 	if( m_bCompiling && m_pBuildTool->GetIsComplete() )
 	{
-		// load module when compile complete, and notify console - TODO replace with event system 
-		bool bSuccess = LoadCompiledModule();
-		m_pConsole->OnCompileDone(bSuccess);
+		bLoadModule = true; //we load module after update/display, to get notification on screen correct
 		m_bCompiling = false;
-
 	}
 
 	pTimeSystem->StartFrame();
@@ -381,6 +379,12 @@ void Game::MainLoop()
 
 	RocketLibUpdate();
 
+	if( bLoadModule )
+	{
+		// load module when compile complete, and notify console - TODO replace with event system 
+		bool bSuccess = LoadCompiledModule();
+		m_pConsole->OnCompileDone(bSuccess);
+	}
 
 	// Limit frame rate
 	double dTimeTaken = pTimeSystem->GetFrameTimeNow();

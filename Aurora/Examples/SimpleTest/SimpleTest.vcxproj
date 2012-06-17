@@ -177,7 +177,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\Assets\GUI\compiling-notification.rcss" />
-    <None Include="..\..\Assets\GUI\compiling-notification.rml" />
+    <None Include="..\..\Assets\GUI\compiling-notification.rml">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="..\..\Assets\GUI\console.rcss" />
     <None Include="..\..\Assets\GUI\console.rml" />
     <None Include="..\..\Assets\GUI\default.rcss" />
