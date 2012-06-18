@@ -83,20 +83,38 @@ public:
 
 	// copies string which sets a flash with strength denoted by
 	// flashAmount (a 0.0f - 1.0f value);
-	void StrCpyFlashDivStartRML( char* text, float flashAmount )
+	// flashcolour (bool false = red, true = green);
+	void StrCpyFlashDivStartRML( char* text, float flashAmount, bool flashColour )
 	{
+		
 		if( flashAmount < 0.0f )
 		{
 			flashAmount = 0.0f;
 		}
+		
+		int red = 0;
+		int green = 0;
+		int blue = 0;
+		if ( !flashColour ) //red
+		{
+			red = 20 + (int)( 235.0f*flashAmount );
+			green = 20 + (int)( 40.0f*flashAmount );
+			blue = 20 + (int)( 40.0f*flashAmount );
+		}
+		else //green
+		{
+			red = 20 + (int)( 40.0f*flashAmount );
+			green = 20 + (int)( 235.0f*flashAmount );
+			blue = 20 + (int)( 40.0f*flashAmount );
+		}
+
 		char flashdivstart[80];
 		flashdivstart[0] = 0;
-		int red = (int)( 40.0f*flashAmount );
-		int green = (int)( 255.0f*flashAmount );
-		int blue = (int)( 40.0f*flashAmount );
 		sprintf( flashdivstart, "<div style='background-color: rgb(%d,%d,%d);'>", red, green, blue);
 		strcpy( text, flashdivstart );
 	}
+
+
 
 	void StrCatCompilingRML( char* text )
 	{
@@ -130,8 +148,9 @@ public:
 
 			SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
 			bool bCompiling = pSystemTable->pGame->GetIsCompiling();
+			bool bLoadedModule = pSystemTable->pGame->GetLastLoadModuleSuccess();
 			char text[200];
-			
+
 			switch( m_CompilationStatus )
 			{
 				case NOT_COMPILING:
@@ -146,7 +165,7 @@ public:
 					}
 				case COMPILING_INPROGRESS_FLASH:
 					m_pCompilingNotification->SetProperty( "display", "block" );
-					StrCpyFlashDivStartRML( text, m_fTimeToNextUpdate/SHOW_FLASH_INTERVAL );
+					StrCpyFlashDivStartRML( text, m_fTimeToNextUpdate/SHOW_FLASH_INTERVAL, true );
 					StrCatCompilingRML( text );
 					strcat( text, "</div>" );
 					m_pCompilingNotification->SetInnerRML( text );
@@ -173,7 +192,7 @@ public:
 						break;
 					}
 				case COMPILING_COMPLETE_FLASH:
-					StrCpyFlashDivStartRML( text, m_fTimeToNextUpdate/SHOW_FLASH_INTERVAL );
+					StrCpyFlashDivStartRML( text, m_fTimeToNextUpdate/SHOW_FLASH_INTERVAL, true );
 					strcat( text, "&nbsp;&nbsp;&nbsp;&nbsp;Compile complete" );
 					strcat( text, "</div>" );
 					m_pCompilingNotification->SetInnerRML( text );
@@ -188,7 +207,39 @@ public:
 						break;
 					}
 				case COMPILING_COMPLETE:
-
+					if( m_fTimeToNextUpdate <= 0 )
+					{
+						m_CompilationStatus = LOAD_MODULE_STATUS_FLASH;
+						m_fTimeToNextUpdate = SHOW_FLASH_INTERVAL;
+					}
+					else
+					{
+						break;
+					}
+				case LOAD_MODULE_STATUS_FLASH:
+					if ( !bLoadedModule )
+					{
+						StrCpyFlashDivStartRML( text, m_fTimeToNextUpdate/SHOW_FLASH_INTERVAL, false );
+						strcat( text, "&nbsp;&nbsp;&nbsp;&nbsp;Module Load Fail" );
+						strcat( text, "</div>" );
+						m_pCompilingNotification->SetInnerRML( text );
+						if( m_fTimeToNextUpdate <= 0 )
+						{
+							m_CompilationStatus = LOAD_MODULE_STATUS;
+							m_fTimeToNextUpdate = SHOW_COMPLETE_INTERVAL;
+							m_pCompilingNotification->SetInnerRML( "&nbsp;&nbsp;&nbsp;&nbsp;Module Load Fail" );
+						}
+						else
+						{
+							break;
+						}
+					}
+					else
+					{
+						m_CompilationStatus = NOT_COMPILING;
+					    m_pCompilingNotification->SetProperty( "display", "none" );
+					}
+				case LOAD_MODULE_STATUS:
 					if( m_fTimeToNextUpdate <= 0 )
 					{
 						m_CompilationStatus = NOT_COMPILING;
@@ -197,62 +248,9 @@ public:
 					else
 					{
 						break;
-					}
+					} 
 				default:;
 			}
-
-
-/*			if (m_fTimeToNextUpdate <= 0.0f)
-			{
-				
-				SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
-				bool bCompiling = pSystemTable->pGame->GetIsCompiling();
-				if( bCompiling )
-				{
-					m_CompilationStatus = COMPILING_INPROGRESS;
-					m_fTimeToNextUpdate = UPDATE_INTERVAL;
-					m_pCompilingNotification->SetProperty( "display", "block" );
-					static char text[200];
-					char divtextstart[80];
-					char divtextend[80] = "</div>";
-					static char phrase[] = "&nbsp;&nbsp;&nbsp;&nbsp;Compiling C++ Code&nbsp;&nbsp;";
-					static char dots[6][20] = {	"",
-												".",
-												"..",
-												"...",
-												"&nbsp;..",
-												"&nbsp;&nbsp;." };
-					static unsigned int count = 0;
-					sprintf( divtextstart, "<div style='background-color: rgb(%d,%d,%d);'>", 0+5*count, 255-30*count, 0+5*count);
-					count = (count+1) % 6;
-					strcpy( text, divtextstart );
-					strcat( text, phrase );
-					strcat( text, dots[count] );
-					strcat( text, divtextend );
-					m_pCompilingNotification->SetInnerRML(text);
-				}
-				else
-				{
-					switch( m_CompilationStatus )
-					{
-					case NOT_COMPILING:
-						m_fTimeToNextUpdate = UPDATE_INTERVAL;
-						break;
-					case COMPILING_INPROGRESS:
-						m_CompilationStatus = COMPILING_COMPLETE;
-						m_pCompilingNotification->SetInnerRML("&nbsp;&nbsp;&nbsp;&nbsp;Compile complete");
-						m_fTimeToNextUpdate = SHOW_COMPLETE_INTERVAL; //use longer interval to show completion
-						break;
-					case COMPILING_COMPLETE:
-						m_CompilationStatus = NOT_COMPILING;
-						m_pCompilingNotification->SetProperty( "display", "none" );
-						m_fTimeToNextUpdate = UPDATE_INTERVAL;
-					default:;
-					};
-
-				}
-			}
-			*/
 		}
 	}
 
@@ -333,7 +331,9 @@ private:
 		COMPILING_INPROGRESS_FLASH,
 		COMPILING_INPROGRESS,
 		COMPILING_COMPLETE_FLASH,
-		COMPILING_COMPLETE
+		COMPILING_COMPLETE,
+		LOAD_MODULE_STATUS_FLASH,
+		LOAD_MODULE_STATUS
 	} m_CompilationStatus;
 };
 
