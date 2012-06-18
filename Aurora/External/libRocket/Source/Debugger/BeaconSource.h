@@ -29,6 +29,33 @@ static const char* beacon_rcss =
 "body\n"
 "{\n"
 "	position: absolute;\n"
+"	bottom: 10px;\n"
+"	right: 10px;\n"
+"	z-index: top;\n"
+"	width: 20px;\n"
+"	font-family: Lacuna;\n"
+"	font-size: 12px;\n"
+"	color: black;\n"
+"	visibility: hidden;\n"
+"}\n"
+"button\n"
+"{\n"
+"	display: block;\n"
+"	width: 18px;\n"
+"	height: 18px;\n"
+"	text-align: center;\n"
+"	border-width: 1px;\n"
+"	font-weight: bold;\n"
+"}\n";
+
+static const char* beacon_rml =
+"<button class=\"error\">!</button>\n";
+
+/*
+static const char* beacon_rcss =
+"body\n"
+"{\n"
+"	position: absolute;\n"
 "	top: 5px;\n"
 "	right: 33px;\n"
 "	z-index: top;\n"
@@ -50,3 +77,4 @@ static const char* beacon_rcss =
 
 static const char* beacon_rml =
 "<button class=\"error\">!</button>\n";
+*/

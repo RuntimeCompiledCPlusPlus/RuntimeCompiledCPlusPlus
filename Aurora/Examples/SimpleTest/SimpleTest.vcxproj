@@ -118,7 +118,7 @@
     <ClCompile Include="BlackboardManager.cpp" />
     <ClCompile Include="CameraControl.cpp" />
     <ClCompile Include="CompilerLogger.cpp" />
-    <ClCompile Include="CompilingNotifaction.cpp" />
+    <ClCompile Include="CompilingNotification.cpp" />
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="ConsoleContext.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -177,7 +177,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\Assets\GUI\compiling-notification.rcss" />
-    <None Include="..\..\Assets\GUI\compiling-notification.rml" />
+    <None Include="..\..\Assets\GUI\compiling-notification.rml">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="..\..\Assets\GUI\console.rcss" />
     <None Include="..\..\Assets\GUI\console.rml" />
     <None Include="..\..\Assets\GUI\default.rcss" />

@@ -89,6 +89,10 @@ public:
 	{
 		return m_bCompiling;
 	}
+	virtual bool GetLastLoadModuleSuccess() const
+	{
+		return m_bLastLoadModuleSuccess;
+	}
 
 	// ~IGame
 
@@ -140,6 +144,7 @@ private:
 	bool m_bHaveProgramError;
 	double m_fLastUpdateSessionTime;
 	bool m_bCompiling;
+	bool m_bLastLoadModuleSuccess;
 	bool m_bAutoCompile;
 	boost::filesystem::path m_CurrentlyCompilingModuleName;
 
