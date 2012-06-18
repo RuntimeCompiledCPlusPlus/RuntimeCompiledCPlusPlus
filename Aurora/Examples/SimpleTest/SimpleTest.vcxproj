@@ -118,7 +118,7 @@
     <ClCompile Include="BlackboardManager.cpp" />
     <ClCompile Include="CameraControl.cpp" />
     <ClCompile Include="CompilerLogger.cpp" />
-    <ClCompile Include="CompilingNotifaction.cpp" />
+    <ClCompile Include="CompilingNotification.cpp" />
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="ConsoleContext.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
