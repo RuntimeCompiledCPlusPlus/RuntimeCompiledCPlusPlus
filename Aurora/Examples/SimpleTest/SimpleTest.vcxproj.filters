@@ -131,8 +131,8 @@
     <ClCompile Include="Behavior_RBC_Evade.cpp">
       <Filter>Runtime Modifiable\Behaviors</Filter>
     </ClCompile>
-    <ClCompile Include="CompilingNotifaction.cpp">
-      <Filter>Runtime Modifiable</Filter>
+    <ClCompile Include="CompilingNotification.cpp">
+      <Filter>Runtime Modifiable\Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

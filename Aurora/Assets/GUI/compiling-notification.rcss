@@ -15,21 +15,17 @@ body
 
 div#compiling
 {
-	font-size: 20;
+	font-size: 16;
 	font-weight: bold;
-
-	outline-font-effect: outline;
-	outline-width: 1px;
-	outline-color: black;
 
 	background-color: #303030;
 
 	text-align: left;
 	
 	position:absolute;
-	bottom: 10px;
-	right: 10px;
-	width: 230px;
+	bottom: 9px;
+	right: 40px;
+	width: 200px;
 }
 
 

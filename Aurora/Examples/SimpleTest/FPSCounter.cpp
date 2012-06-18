@@ -75,12 +75,13 @@ public:
 		if (m_pCounterElement)
 		{
 			// Refreshing the content of the counter is not itself free, so we impose some limit
-			m_fTimeToNextUpdate -= deltaTime;
+			// Since deltaTime is game time, which can be paused or slowed down, we update with frame time
+			double fSmoothFrameTime = PerModuleInterface::GetInstance()->GetSystemTable()->pTimeSystem->GetSmoothFrameDuration();
+			m_fTimeToNextUpdate -= fSmoothFrameTime;
 			if (m_fTimeToNextUpdate <= 0.0f)
 			{
 				m_fTimeToNextUpdate += UPDATE_INTERVAL;
 
-				double fSmoothFrameTime = PerModuleInterface::GetInstance()->GetSystemTable()->pTimeSystem->GetSmoothFrameDuration();
 				if (fSmoothFrameTime < 0.0001)
 					fSmoothFrameTime = 0.0001;
 				int nFPS = (int)(1.0f / fSmoothFrameTime);
