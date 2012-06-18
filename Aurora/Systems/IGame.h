@@ -40,6 +40,8 @@ struct IGame : public ISystem
 	virtual void SetSpeed( float speed ) = 0; 
 	virtual void SetAutoCompile( bool autoCompile ) = 0;
 	virtual bool GetIsCompiling() const = 0;
+	virtual bool GetLastLoadModuleSuccess() const = 0;
+
 };
 
 #endif //IGAME_INCLUDED

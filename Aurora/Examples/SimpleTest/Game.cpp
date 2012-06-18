@@ -92,6 +92,7 @@ Game::Game()
 	, m_bHaveProgramError(false)
 	, m_fLastUpdateSessionTime(-1)
 	, m_bCompiling( false )
+	, m_bLastLoadModuleSuccess( true )
 	, m_pLoopingBackgroundSound(0)
 	, m_pLoopingBackgroundSoundBuffer(0)
 	, m_GameSpeed(1.0f)
@@ -382,8 +383,8 @@ void Game::MainLoop()
 	if( bLoadModule )
 	{
 		// load module when compile complete, and notify console - TODO replace with event system 
-		bool bSuccess = LoadCompiledModule();
-		m_pConsole->OnCompileDone(bSuccess);
+		m_bLastLoadModuleSuccess = LoadCompiledModule();
+		m_pConsole->OnCompileDone(m_bLastLoadModuleSuccess);
 	}
 
 	// Limit frame rate
