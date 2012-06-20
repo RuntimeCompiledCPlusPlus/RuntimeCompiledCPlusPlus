@@ -1,5 +1,0 @@
-# Ignore the built products of RocketLib
-
-bin/*.dll
-bin/*.lib
-bin/*.pdb

@@ -100,7 +100,7 @@ def CopyFiles(source_path, destination_path, file_list = [], exclude_list = [], 
 				if len(file_list) > 0:
 					included = False
 					for include in file_list:
-						if re.search(include, os.path.join(root, file).replace('\\', '/')):
+						if re.search(include, file):
 							included = True
 							break;
 
@@ -115,7 +115,7 @@ def CopyFiles(source_path, destination_path, file_list = [], exclude_list = [], 
 				# Skip paths in the exclude list
 				excluded = False
 				for exclude in exclude_list:
-					if re.search(exclude, os.path.join(root, file).replace('\\', '/')):
+					if re.search(exclude, file):
 						excluded = True
 						break
 						
@@ -154,16 +154,16 @@ def main():
 	CheckVSVars()
 	options = ProcessOptions(sys.argv[1:])
 	
-	#Build('RocketCore', ['Debug', 'Release'], {'ROCKET_VERSION': '\\"' + options['ROCKET_VERSION'] + '\\"'})
-	#Build('RocketControls', ['Debug', 'Release'])
-	#Build('RocketDebugger', ['Debug', 'Release'])
-	#if options['BUILD_PYTHON']:
-	#	Build('RocketCorePython', ['Debug', 'Release'])
-	#	Build('RocketControlsPython', ['Debug', 'Release'])
+	Build('RocketCore', ['Debug', 'Release'], {'ROCKET_VERSION': '\\"' + options['ROCKET_VERSION'] + '\\"'})
+	Build('RocketControls', ['Debug', 'Release'])
+	Build('RocketDebugger', ['Debug', 'Release'])
+	if options['BUILD_PYTHON']:
+		Build('RocketCorePython', ['Debug', 'Release'])
+		Build('RocketControlsPython', ['Debug', 'Release'])
 		
 	DelTree('../dist/libRocket')
 	CopyFiles('../Include', '../dist/libRocket/Include')
-	CopyFiles('../bin', '../dist/libRocket/bin', [], ['\.ilk$', '\.pdb$', '\.exp$', '^_.*lib$'])
+	CopyFiles('../bin', '../dist/libRocket/bin', ['\.dll$', '^[^_].*\.lib$', '\.py$', '\.pyd$'])
 	CopyFiles('../Samples', '../dist/libRocket/Samples', ['\.h$', '\.cpp$', '\.vcproj$', '\.sln$', '\.vcproj\.user$', '\.rml$', '\.rcss$', '\.tga$', '\.py$', '\.otf$', '\.txt$'])
 	if options['FULL_SOURCE']:
 		CopyFiles('../Build', '../dist/libRocket/Build', ['\.vcproj$', '\.sln$', '\.vsprops$', '\.py$'])

@@ -79,12 +79,12 @@ Element::Element(const String& _tag) : absolute_offset(0, 0), relative_offset_ba
 	parent = NULL;
 	focus = NULL;
 	instancer = NULL;
+	owner_document = NULL;
 
 	offset_fixed = false;
 	offset_parent = NULL;
 	offset_dirty = true;
 
-//	client_area = Box::CONTENT;
 	client_area = Box::PADDING;
 
 	num_non_dom_children = 0;
@@ -98,6 +98,10 @@ Element::Element(const String& _tag) : absolute_offset(0, 0), relative_offset_ba
 	stacking_context_dirty = false;
 
 	font_face_handle = NULL;
+	
+	clipping_ignore_depth = 0;
+	clipping_enabled = false;
+	clipping_state_dirty = true;
 
 	event_dispatcher = new EventDispatcher(this);
 	style = new ElementStyle(this);
@@ -460,9 +464,9 @@ bool Element::IsPointWithinElement(const Vector2f& point)
 		Vector2f box_position = position + box.GetOffset();
 		Vector2f box_dimensions = box.GetSize(Box::BORDER);
 		if (point.x >= box_position.x &&
-			point.x < (box_position.x + box_dimensions.x) &&
+			point.x <= (box_position.x + box_dimensions.x) &&
 			point.y >= box_position.y &&
-			point.y < (box_position.y + box_dimensions.y))
+			point.y <= (box_position.y + box_dimensions.y))
 		{
 			return true;
 		}
@@ -504,7 +508,6 @@ void Element::RemoveProperty(const String& name)
 // Sets a local property override on the element to a pre-parsed value.
 bool Element::SetProperty(const String& name, const Property& property)
 {
-	ROCKET_ASSERTMSG(property.unit != Property::KEYWORD || property.definition != NULL, "Keyword properties should not be set pre-parsed on an element.");
 	return style->SetProperty(name, property);
 }
 
@@ -792,8 +795,13 @@ ElementDocument* Element::GetOwnerDocument()
 {
 	if (parent == NULL)
 		return NULL;
+	
+	if (!owner_document)
+	{
+		owner_document = parent->GetOwnerDocument();
+	}
 
-	return parent->GetOwnerDocument();
+	return owner_document;
 }
 
 // Gets this element's parent node.
@@ -870,6 +878,13 @@ void Element::GetInnerRML(String& content) const
 	{
 		children[i]->GetRML(content);
 	}
+}
+
+// Gets the markup and content of the element.
+String Element::GetInnerRML() const {
+	String result;
+	GetInnerRML(result);
+	return result;
 }
 
 // Sets the markup and content of the element. All existing children will be replaced.
@@ -1171,6 +1186,8 @@ Element* Element::GetElementById(const String& id)
 		return this;
 	else if (id == "#document")
 		return GetOwnerDocument();
+	else if (id == "#parent")
+		return this->parent;
 	else
 	{
 		Element* search_root = GetOwnerDocument();
@@ -1184,6 +1201,12 @@ Element* Element::GetElementById(const String& id)
 void Element::GetElementsByTagName(ElementList& elements, const String& tag)
 {
 	return ElementUtilities::GetElementsByTagName(elements, this, tag);
+}
+
+// Get all elements with the given class set on them.
+void Element::GetElementsByClassName(ElementList& elements, const String& class_name)
+{
+	return ElementUtilities::GetElementsByClassName(elements, this, class_name);
 }
 
 // Access the event dispatcher
@@ -1214,6 +1237,38 @@ ElementDecoration* Element::GetElementDecoration() const
 ElementScroll* Element::GetElementScroll() const
 {
 	return scroll;
+}
+	
+int Element::GetClippingIgnoreDepth()
+{
+	if (clipping_state_dirty)
+	{
+		IsClippingEnabled();
+	}
+	
+	return clipping_ignore_depth;
+}
+	
+bool Element::IsClippingEnabled()
+{
+	if (clipping_state_dirty)
+	{
+		// Is clipping enabled for this element, yes unless both overlow properties are set to visible
+		clipping_enabled = style->GetProperty(OVERFLOW_X)->Get< int >() != OVERFLOW_VISIBLE 
+							|| style->GetProperty(OVERFLOW_Y)->Get< int >() != OVERFLOW_VISIBLE;
+		
+		// Get the clipping ignore depth from the clip property
+		clipping_ignore_depth = 0;
+		const Property* clip_property = GetProperty(CLIP);
+		if (clip_property->unit == Property::NUMBER)
+			clipping_ignore_depth = clip_property->Get< int >();
+		else if (clip_property->Get< int >() == CLIP_NONE)
+			clipping_ignore_depth = -1;
+		
+		clipping_state_dirty = false;
+	}
+	
+	return clipping_enabled;
 }
 
 // Gets the render interface owned by this element's context.
@@ -1266,7 +1321,7 @@ void Element::OnAttributeChange(const AttributeNameList& changed_attributes)
 {
 	if (changed_attributes.find("id") != changed_attributes.end())
 	{
-		id = GetAttribute< String >("id", "").ToLower();
+		id = GetAttribute< String >("id", "");
 		style->DirtyDefinition();
 	}
 
@@ -1446,6 +1501,14 @@ void Element::OnPropertyChange(const PropertyNameList& changed_properties)
 		else if (new_font_face_handle != NULL)
 			new_font_face_handle->RemoveReference();
 	}
+	
+	// Check for clipping state changes
+	if (changed_properties.find(CLIP) != changed_properties.end() ||
+		changed_properties.find(OVERFLOW_X) != changed_properties.end() ||
+		changed_properties.find(OVERFLOW_Y) != changed_properties.end())
+	{
+		clipping_state_dirty = true;
+	}
 }
 
 // Called when a child node has been added somewhere in the hierarchy
@@ -1465,7 +1528,7 @@ void Element::OnChildRemove(Element* child)
 // Update the element's layout if required.
 void Element::UpdateLayout()
 {
-	Element* document = GetOwnerDocument();
+	ElementDocument* document = GetOwnerDocument();
 	if (document != NULL)
 		document->UpdateLayout();
 }
@@ -1758,6 +1821,10 @@ void Element::DirtyStackingContext()
 
 void Element::DirtyStructure()
 {
+	// Clear the cached owner document
+	owner_document = NULL;
+	
+	// Inform all children that the structure is drity
 	for (size_t i = 0; i < children.size(); ++i)
 	{
 		const ElementDefinition* element_definition = children[i]->GetStyle()->GetDefinition();

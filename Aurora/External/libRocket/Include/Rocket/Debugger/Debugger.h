@@ -35,16 +35,15 @@ namespace Rocket {
 namespace Core {
 
 class Context;
-class Element;
+
 }
 
 namespace Debugger {
 
 /// Initialises the debug plugin. The debugger will be loaded into the given context.
 /// @param[in] context The Rocket context to load the debugger into. The debugging tools will be displayed on this context. If this context is destroyed, the debugger will be released.
-/// @param[in] maxLogMessages The maximum number of log messages per log type.
 /// @return True if the debugger was successfully initialised
-ROCKETDEBUGGER_API bool Initialise(Core::Context* context, unsigned int maxLogMessages=500);
+ROCKETDEBUGGER_API bool Initialise(Core::Context* context);
 
 /// Sets the context to be debugged.
 /// @param[in] context The context to be debugged.
@@ -57,10 +56,6 @@ ROCKETDEBUGGER_API void SetVisible(bool visibility);
 /// Returns the visibility of the debugger.
 /// @return True if the debugger is visible, false if not.
 ROCKETDEBUGGER_API bool IsVisible();
-
-/// Returns the log element.
-/// @return The element containing the log. The element is returned with a borrowed reference.
-ROCKETDEBUGGER_API Core::Element* GetLogElement();
 
 }
 }

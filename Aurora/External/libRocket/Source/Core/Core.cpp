@@ -34,13 +34,6 @@
 #include "StyleSheetFactory.h"
 #include "TemplateCache.h"
 #include "TextureDatabase.h"
-/*#if defined ROCKET_PLATFORM_WIN32
-#include <windows.h>
-#elif defined ROCKET_PLATFORM_MACOSX
-#include <Carbon/Carbon.h>
-#elif defined ROCKET_PLATFORM_LINUX
-#include <unistd.h>
-#endif*/
 
 namespace Rocket {
 namespace Core {
@@ -51,8 +44,9 @@ static RenderInterface* render_interface = NULL;
 static SystemInterface* system_interface = NULL;
 // Rocket's file I/O interface.
 FileInterface* file_interface =  NULL;
+#ifndef ROCKET_NO_FILE_INTERFACE_DEFAULT
 static FileInterfaceDefault file_interface_default;
-
+#endif
 static bool initialised = false;
 
 typedef std::map< String, Context* > ContextMap;
@@ -91,8 +85,13 @@ bool Initialise()
 
 	if (file_interface == NULL)
 	{		
+#ifndef ROCKET_NO_FILE_INTERFACE_DEFAULT
 		file_interface = &file_interface_default;
 		file_interface->AddReference();
+#else
+		Log::Message(Log::LT_ERROR, "No file interface set!");
+		return false;
+#endif
 	}
 
 	Log::Initialise();
@@ -146,6 +145,10 @@ void Shutdown()
 
 	if (system_interface != NULL)
 		system_interface->RemoveReference();
+	
+	render_interface = NULL;
+	file_interface = NULL;
+	system_interface = NULL;
 }
 
 // Returns the version of this Rocket library.

@@ -2,16 +2,16 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Plugin">
-      <UniqueIdentifier>{84b7eec6-649e-401e-a1a3-baf248ecc3f8}</UniqueIdentifier>
+      <UniqueIdentifier>{6549f60f-d540-47d4-bd8b-7fb517e4da29}</UniqueIdentifier>
     </Filter>
     <Filter Include="Plugin\Elements">
-      <UniqueIdentifier>{0e7a2147-7588-438e-94a3-879293ff9e20}</UniqueIdentifier>
+      <UniqueIdentifier>{77d163b0-8ea6-46b9-8967-829bfc766293}</UniqueIdentifier>
     </Filter>
     <Filter Include="Plugin\Source">
-      <UniqueIdentifier>{b7714e63-f509-4cf4-93b6-7a52b99a8fc2}</UniqueIdentifier>
+      <UniqueIdentifier>{9f26e889-a1be-452f-b83a-c3c6f7a6b4fe}</UniqueIdentifier>
     </Filter>
     <Filter Include="Debugger">
-      <UniqueIdentifier>{b53bcfa5-2df9-4016-9630-3dcc960b7d69}</UniqueIdentifier>
+      <UniqueIdentifier>{5280f0c5-7250-4904-a036-0870f3a70945}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

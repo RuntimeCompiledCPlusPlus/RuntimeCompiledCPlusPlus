@@ -40,7 +40,7 @@ namespace Core {
 
 const float DOUBLE_CLICK_TIME = 0.5f;
 
-Context::Context(const String& name) : name(name), mouse_position(0, 0), dimensions(0, 0)
+Context::Context(const String& name) : name(name), mouse_position(0, 0), dimensions(0, 0), clip_origin(-1, -1), clip_dimensions(-1, -1)
 {
 	instancer = NULL;
 
@@ -56,9 +56,11 @@ Context::Context(const String& name) : name(name), mouse_position(0, 0), dimensi
 	cursor_proxy = dynamic_cast< ElementDocument* >(element);
 	if (cursor_proxy == NULL)
 	{
-		if (element == NULL)
+		if (element != NULL)
 			element->RemoveReference();
 	}
+	else
+		cursor_proxy->context = this;
 
 	document_focus_history.push_back(root);
 	focus = root;
@@ -119,6 +121,8 @@ void Context::SetDimensions(const Vector2i& _dimensions)
 				document->UpdatePosition();
 			}
 		}
+		
+		clip_dimensions = dimensions;
 	}
 }
 
@@ -152,7 +156,7 @@ bool Context::Render()
 		root->GetChild(i)->UpdateLayout();
 
 	render_interface->context = this;
-	ElementUtilities::PushClipCache(render_interface);
+	ElementUtilities::ApplyActiveClipRegion(this, render_interface);
 
 	root->Render();
 
@@ -423,15 +427,13 @@ void Context::ShowMouseCursor(bool show)
 // Returns the first document found in the root with the given id.
 ElementDocument* Context::GetDocument(const String& id)
 {
-	const String lower_id = id.ToLower();
-
 	for (int i = 0; i < root->GetNumChildren(); i++)
 	{
 		ElementDocument* document = root->GetChild(i)->GetOwnerDocument();
 		if (document == NULL)
 			continue;
 
-		if (document->GetId() == lower_id)
+		if (document->GetId() == id)
 			return document;
 	}
 
@@ -623,6 +625,20 @@ void Context::ProcessMouseMove(int x, int y, int key_modifier_state)
 		}
 	}
 }
+	
+static Element* FindFocusElement(Element* element)
+{
+	ElementDocument* owner_document = element->GetOwnerDocument();
+	if (!owner_document || owner_document->GetProperty< int >(FOCUS) == FOCUS_NONE)
+		return NULL;
+	
+	while (element && element->GetProperty< int >(FOCUS) == FOCUS_NONE)
+	{
+		element = element->GetParentNode();
+	}
+	
+	return element;
+}
 
 // Sends a mouse-button down event into Rocket.
 void Context::ProcessMouseButtonDown(int button_index, int key_modifier_state)
@@ -633,58 +649,70 @@ void Context::ProcessMouseButtonDown(int button_index, int key_modifier_state)
 
 	if (button_index == 0)
 	{
+		Element* new_focus = *hover;
+		
 		// Set the currently hovered element to focus if it isn't already the focus.
 		if (hover)
 		{
-			if (hover != focus)
+			new_focus = FindFocusElement(*hover);
+			if (new_focus && new_focus != *focus)
 			{
-				if (!hover->Focus())
+				if (!new_focus->Focus())
 					return;
 			}
 		}
 
 		// Save the just-pressed-on element as the pressed element.
-		active = hover;
+		active = new_focus;
 
+		bool propogate = true;
+		
 		// Call 'onmousedown' on every item in the hover chain, and copy the hover chain to the active chain.
 		if (hover)
-			hover->DispatchEvent(MOUSEDOWN, parameters, true);
+			propogate = hover->DispatchEvent(MOUSEDOWN, parameters, true);
 
-		// Check for a double-click on an element; if one has occured, we send the 'dblclick' event to the hover
-		// element. If not, we'll start a timer to catch the next one.
-		float click_time = GetSystemInterface()->GetElapsedTime();
-		if (active == last_click_element &&
-			click_time - last_click_time < DOUBLE_CLICK_TIME)
+		if (propogate)
 		{
-			if (hover)
-				hover->DispatchEvent(DBLCLICK, parameters, true);
+			// Check for a double-click on an element; if one has occured, we send the 'dblclick' event to the hover
+			// element. If not, we'll start a timer to catch the next one.
+			float click_time = GetSystemInterface()->GetElapsedTime();
+			if (active == last_click_element &&
+				click_time - last_click_time < DOUBLE_CLICK_TIME)
+			{
+				if (hover)
+					propogate = hover->DispatchEvent(DBLCLICK, parameters, true);
 
-			last_click_element = NULL;
-			last_click_time = 0;
-		}
-		else
-		{
-			last_click_element = *active;
-			last_click_time = click_time;
+				last_click_element = NULL;
+				last_click_time = 0;
+			}
+			else
+			{
+				last_click_element = *active;
+				last_click_time = click_time;
+			
+			}
 		}
 
 		for (ElementSet::iterator itr = hover_chain.begin(); itr != hover_chain.end(); ++itr)
 			active_chain.push_back((*itr));
 
-		// Traverse down the hierarchy of the newly focussed element (if any), and see if we can begin dragging it.
-		drag_started = false;
-		drag = hover;
-		while (drag)
+		if (propogate)
 		{
-			int drag_style = drag->GetProperty(DRAG)->value.Get< int >();
-			switch (drag_style)
+			// Traverse down the hierarchy of the newly focussed element (if any), and see if we can begin dragging it.
+			drag_started = false;
+			drag = hover;
+			while (drag)
 			{
-				case DRAG_NONE:		drag = drag->GetParentNode(); continue;
-				case DRAG_BLOCK:	drag = NULL; continue;
-				default:			drag_verbose = (drag_style == DRAG_DRAG_DROP || drag_style == DRAG_CLONE);
-			}
+				int drag_style = drag->GetProperty(DRAG)->value.Get< int >();
+				switch (drag_style)
+				{
+					case DRAG_NONE:		drag = drag->GetParentNode(); continue;
+					case DRAG_BLOCK:	drag = NULL; continue;
+					default:			drag_verbose = (drag_style == DRAG_DRAG_DROP || drag_style == DRAG_CLONE);
+				}
 
-			break;
+				break;
+			}
 		}
 	}
 	else
@@ -702,11 +730,8 @@ void Context::ProcessMouseButtonUp(int button_index, int key_modifier_state)
 	GenerateMouseEventParameters(parameters, button_index);
 	GenerateKeyModifierEventParameters(parameters, key_modifier_state);
 
-	// Adam: Changed to handle both left and right clicks, but will make right mouse button 
-	// behave identically to left mouse button
-
 	// Process primary click.
-	//if (button_index == 0)
+	if (button_index == 0)
 	{
 		// The elements in the new hover chain have the 'onmouseup' event called on them.
 		if (hover)
@@ -714,8 +739,10 @@ void Context::ProcessMouseButtonUp(int button_index, int key_modifier_state)
 
 		// If the active element (the one that was being hovered over when the mouse button was pressed) is still being
 		// hovered over, we click it.
-		if (active == hover && active)
-			hover->DispatchEvent(CLICK, parameters, true);
+		if (hover && active && active == FindFocusElement(*hover))
+		{
+			active->DispatchEvent(CLICK, parameters, true);
+		}
 
 		// Unset the 'active' pseudo-class on all the elements in the active chain; because they may not necessarily
 		// have had 'onmouseup' called on them, we can't guarantee this has happened already.
@@ -750,12 +777,12 @@ void Context::ProcessMouseButtonUp(int button_index, int key_modifier_state)
 			drag_hover_chain.clear();
 		}
 	}
-	/*else
+	else
 	{
 		// Not the left mouse button, so we're not doing any special processing.
 		if (hover)
 			hover->DispatchEvent(MOUSEUP, parameters, true);
-	}*/
+	}
 }
 
 // Sends a mouse-wheel movement event into Rocket.
@@ -777,6 +804,25 @@ bool Context::ProcessMouseWheel(int wheel_delta, int key_modifier_state)
 RenderInterface* Context::GetRenderInterface() const
 {
 	return render_interface;
+}
+	
+// Gets the current clipping region for the render traversal
+bool Context::GetActiveClipRegion(Vector2i& origin, Vector2i& dimensions) const
+{
+	if (clip_dimensions.x < 0 || clip_dimensions.y < 0)
+		return false;
+	
+	origin = clip_origin;
+	dimensions = clip_dimensions;
+	
+	return true;
+}
+	
+// Sets the current clipping region for the render traversal
+void Context::SetActiveClipRegion(const Vector2i& origin, const Vector2i& dimensions)
+{
+	clip_origin = origin;
+	clip_dimensions = dimensions;
 }
 
 // Sets the instancer to use for releasing this object.
@@ -1055,8 +1101,8 @@ Element* Context::GetElementAtPoint(const Vector2f& point, const Element* ignore
 		{
 			within_element = point.x >= clip_origin.x &&
 							 point.y >= clip_origin.y &&
-							 point.x < (clip_origin.x + clip_dimensions.x) &&
-							 point.y < (clip_origin.y + clip_dimensions.y);
+							 point.x <= (clip_origin.x + clip_dimensions.x) &&
+							 point.y <= (clip_origin.y + clip_dimensions.y);
 		}
 	}
 
