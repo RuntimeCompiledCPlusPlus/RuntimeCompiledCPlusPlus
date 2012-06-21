@@ -35,23 +35,31 @@ namespace Controls {
 
 ElementDataGridCell::ElementDataGridCell(const Rocket::Core::String& tag) : Core::Element(tag)
 {
-	SetProperty("white-space", "normal");
 }
 
 ElementDataGridCell::~ElementDataGridCell()
 {
-	if (header)
+	if (header) {
 		header->RemoveEventListener("resize", this);
+		header->RemoveReference();
+	}
 }
 
-void ElementDataGridCell::Initialise(Core::Element* _header)
+void ElementDataGridCell::Initialise(int _column, Core::Element* _header)
 {
+	column = _column;
 	header = _header;
 	if (header)
 	{
+		header->AddReference();
 		header->AddEventListener("resize", this);
 		SetProperty("width", Core::Property(header->GetBox().GetSize(Core::Box::MARGIN).x, Core::Property::PX));
 	}
+}
+
+int ElementDataGridCell::GetColumn()
+{
+	return column;
 }
 
 void ElementDataGridCell::ProcessEvent(Core::Event& event)

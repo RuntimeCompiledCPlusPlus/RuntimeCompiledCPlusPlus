@@ -201,30 +201,15 @@ void ElementImage::GenerateGeometry()
 		texcoords[1] = Vector2f(1, 1);
 	}
 
-	Colourb colour(255, 255,255,255);
-	const Property* property = GetLocalProperty(COLOR);
-	if (property)
-		colour = property->value.Get<Colourb>();
-
 	Rocket::Core::GeometryUtilities::GenerateQuad(&vertices[0],									// vertices to write to
 												  &indices[0],									// indices to write to
 												  Vector2f(0, 0),					// origin of the quad
 												  GetBox().GetSize(Rocket::Core::Box::CONTENT),	// size of the quad
-												  colour,		// colour of the vertices
+												  Colourb(255, 255, 255, 255),		// colour of the vertices
 												  texcoords[0],									// top-left texture coordinate
 												  texcoords[1]);								// top-right texture coordinate
 
 	geometry_dirty = false;
-}
-
-void ElementImage::OnPropertyChange(const PropertyNameList& changed_properties)
-{
-	Element::OnPropertyChange(changed_properties);
-
-	if (changed_properties.find(COLOR) != changed_properties.end())
-	{
-		geometry_dirty = true;
-	}
 }
 
 bool ElementImage::LoadTexture()

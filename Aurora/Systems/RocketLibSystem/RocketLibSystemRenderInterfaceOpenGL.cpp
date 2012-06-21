@@ -89,7 +89,9 @@ void RocketLibSystemRenderInterfaceOpenGL::EnableScissorRegion(bool enable)
 // Called by Rocket when it wants to change the scissor region.		
 void RocketLibSystemRenderInterfaceOpenGL::SetScissorRegion(int x, int y, int width, int height)
 {
-	glScissor(x, 768 - (y + height), width, height);
+	int windowSize[4];
+	glGetIntegerv( GL_VIEWPORT, windowSize);
+	glScissor(x, windowSize[3] - (y + height), width, height);
 }
 
 // Set to byte packing, or the compiler will expand our struct, which means it won't read correctly from file
