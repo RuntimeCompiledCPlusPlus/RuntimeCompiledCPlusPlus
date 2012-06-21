@@ -19,13 +19,13 @@
 
 #include "../../RunTimeCompiler/BuildTool.h"
 #include "../../RuntimeCompiler/ICompilerLogger.h"
-#include "../../RuntimeCompiler/ObjectInterface.h"
+#include "../../RuntimeObjectSystem/ObjectInterface.h"
+#include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
+#include "../../RuntimeObjectSystem/IObject.h"
 #include "../../Systems/ILogSystem.h"
 #include "../../Systems/IEntitySystem.h"
-#include "../../Systems/IObjectFactorySystem.h"
 #include "../../Systems/IGame.h"
 #include "../../Systems/SystemTable.h"
-#include "../../Systems/IObject.h"
 #include "Environment.h"
 #include "IConsoleContext.h"
 #include "IObjectUtils.h"
@@ -50,9 +50,9 @@ using boost::filesystem::path;
 
 static const char* CONTEXT_HEADER = 
 	"// Generated/modified by Console.cpp during runtime - safe to delete \n"
-	"#include \"../../RunTimeCompiler/ObjectInterfacePerModule.h\" \n"
+	"#include \"../../RuntimeObjectSystem/ObjectInterfacePerModule.h\" \n"
 	"#include \"../../Systems/SystemTable.h\" \n"
-	"#include \"../../Systems/IObjectFactorySystem.h\" \n"
+	"#include \"../../RuntimeObjectSystem/IObjectFactorySystem.h\" \n"
 	"#include \"../../Systems/ILogSystem.h\" \n"
 	"#include \"ConsoleContext.h\" \n\n"
 	"REGISTERCLASS(ConsoleContext); \n\n"

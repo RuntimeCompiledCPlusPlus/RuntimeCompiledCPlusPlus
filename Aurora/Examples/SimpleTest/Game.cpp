@@ -43,7 +43,7 @@
 #include "../../Systems/IEntitySystem.h"
 #include "../../Systems/ITimeSystem.h"
 #include "../../Systems/IUpdateable.h"
-#include "../../Systems/IObjectFactorySystem.h"
+#include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
 #include "../../Systems/IGUISystem.h"
 #include "../../Systems/SystemTable.h"
 #include "../../Audio/alManager.h"
@@ -521,8 +521,8 @@ void Game::StartRecompile(const TFileList& filelist, bool bForce)
 			buildFileList.push_back( BuildTool::FileToBuild( filelist[i], bForce ) );
 		}
 	}
-	buildFileList.push_back( currModuleFullPath / path(L"/../RunTimeCompiler/ObjectInterfacePerModuleSource.cpp") );
-	buildFileList.push_back( currModuleFullPath / path(L"/../RunTimeCompiler/ObjectInterfacePerModuleSource_PlatformWindows.cpp") );
+	buildFileList.push_back( currModuleFullPath / path(L"/../RuntimeObjectSystem/ObjectInterfacePerModuleSource.cpp") );
+	buildFileList.push_back( currModuleFullPath / path(L"/../RuntimeObjectSystem/ObjectInterfacePerModuleSource_PlatformWindows.cpp") );
 
 	m_pBuildTool->BuildModule( buildFileList, includeDirList, m_CurrentlyCompilingModuleName );
 }

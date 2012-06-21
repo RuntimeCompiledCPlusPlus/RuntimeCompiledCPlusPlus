@@ -26,47 +26,28 @@
 #pragma warning( disable : 4996 4800 )
 
 
-StdioLogSystem::StdioLogSystem(void)
-{
-	m_eVerbosity = eLV_COMMENTS;
-}
-
-StdioLogSystem::~StdioLogSystem(void)
-{
-}
-
-
-ELogVerbosity StdioLogSystem::GetVerbosity() const
-{
-	return m_eVerbosity;
-}
-
-void StdioLogSystem::SetVerbosity(ELogVerbosity eVerbosity)
-{
-	m_eVerbosity = eVerbosity;
-}
-
-StdioLogSystem::TVerbosityPeeker StdioLogSystem::GetVerbosityPeeker() const
-{
-	return (&m_eVerbosity);
-}
-
-void StdioLogSystem::Log(ELogVerbosity eVerbosity, const char * format, ...)
+void StdioLogSystem::LogError(const char * format, ...)
 {
 	va_list args;
 	va_start(args, format);
-	LogInternal(eVerbosity, format, args);
+	LogInternal(format, args);
 }
 
-void StdioLogSystem::LogVa(va_list args, ELogVerbosity eVerbosity, const char * format)
+void StdioLogSystem::LogWarning(const char * format, ...)
 {
-	LogInternal(eVerbosity, format, args);
+	va_list args;
+	va_start(args, format);
+	LogInternal(format, args);
 }
 
-void StdioLogSystem::LogInternal(ELogVerbosity eVerbosity, const char * format, va_list args)
+void StdioLogSystem::LogInfo(const char * format, ...)
 {
-	if (eVerbosity > m_eVerbosity || eVerbosity == eLV_NEVER) return;
-
+	va_list args;
+	va_start(args, format);
+	LogInternal(format, args);
+}
+void StdioLogSystem::LogInternal(const char * format, va_list args)
+{
 	int result = vsnprintf(m_buff, LOGSYSTEM_MAX_BUFFER, format, args);
 	assert(result != -1);
 	// Make sure there's a limit to the amount of rubbish we can output

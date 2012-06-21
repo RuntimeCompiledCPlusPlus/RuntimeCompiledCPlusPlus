@@ -20,7 +20,7 @@
 #ifndef FILECHANGENOTIFIER_INCLUDED
 #define FILECHANGENOTIFIER_INCLUDED
 
-#include "ObjectInterface.h"
+#include "../RuntimeObjectSystem/ObjectInterface.h"
 #include "IFileChangeNotifier.h"
 #include "IFileMonitor.h"
 #include <windows.h>

@@ -17,39 +17,12 @@
 
 #pragma once
 
-#ifndef SYSTEMTABLE_INCLUDED
-#define SYSTEMTABLE_INCLUDED
+#ifndef IUPDATEABLE_INCLUDED
+#define IUPDATEABLE_INCLUDED
 
-#include "../Common/Definitions.inl"
-
-class RocketLogSystem;
-
-
-struct SystemTable
+struct IUpdateable
 {
-	ITimeSystem *pTimeSystem;
-	ILogSystem *pLogSystem;
-	IEntitySystem *pEntitySystem;
-	IAssetSystem* pAssetSystem;
-	IObjectFactorySystem* pObjectFactorySystem;
-	IGUISystem* pGUISystem;
-	IFileChangeNotifier* pFileChangeNotifier;
-	IGame* pGame;
-	
-	// This would better live within an IRocketLibSystem, when that is written
-	RocketLogSystem* pRocketLogSystem;
-
-	SystemTable()
-		: pTimeSystem(0)
-		, pLogSystem(0)
-		, pEntitySystem(0)
-		, pAssetSystem(0)
-		, pObjectFactorySystem(0)
-		, pGUISystem(0)
-		, pFileChangeNotifier(0)
-		, pRocketLogSystem(0)
-		, pGame(0)
-	{}
+	virtual void Update( float deltaTime ) = 0;
 };
 
-#endif // SYSTEMTABLE_INCLUDED
+#endif // IUPDATEABLE_INCLUDED

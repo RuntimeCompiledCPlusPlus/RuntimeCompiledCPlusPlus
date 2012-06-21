@@ -25,21 +25,13 @@
 #include "../../RunTimeCompiler/BuildTool.h"
 #include "../../RuntimeCompiler/ICompilerLogger.h"
 #include "../../RuntimeCompiler/FileChangeNotifier.h"
-#include "../../Systems/ILogSystem.h"
-#include "../../Systems/IObjectFactorySystem.h"
-#include "../../Systems/ObjectFactorySystem/ObjectFactorySystem.h"
-
-#include "../../Systems/SystemTable.h"
-#include "../../Systems/Systems.h"
-
+#include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
+#include "../../RuntimeObjectSystem/ObjectFactorySystem/ObjectFactorySystem.h"
 
 #include "StdioLogSystem.h"
-#include "../../Systems/LogSystem/FileLogSystem/FileLogSystem.h"
-#include "../../Systems/LogSystem/MultiLogSystem/MultiLogSystem.h"
-#include "../../Systems/LogSystem/ThreadsafeLogSystem/ThreadsafeLogSystem.h"
 
-#include "../../Systems/IObject.h"
-#include "../../Systems/IUpdateable.h"
+#include "../../RuntimeObjectSystem/IObject.h"
+#include "IUpdateable.h"
 #include "InterfaceIds.h"
 
 #include <iostream>
@@ -55,32 +47,6 @@ using boost::filesystem::path;
 
 SystemTable* gSys = 0;
 
-class CompilerLogger : public ICompilerLogger
-{
-public:
-	virtual void LogError(const char * format, ...)
-	{
-		va_list args;
-		va_start(args, format);
-		gSys->pLogSystem->LogVa(args, eLV_ERRORS, format);
-	}
-
-	virtual void LogWarning(const char * format, ...)
-	{
-		va_list args;
-		va_start( args, format );
-		gSys->pLogSystem->LogVa(args, eLV_WARNINGS, format);
-	}
-
-    virtual void LogInfo(const char * format, ...)
-	{
-		va_list args;
-		va_start( args, format );
-		gSys->pLogSystem->LogVa(args, eLV_COMMENTS, format);
-	}
-};
-
-
 ConsoleGame::ConsoleGame()
 	: m_pCompilerLogger(0)
 	, m_pBuildTool(0)
@@ -88,20 +54,22 @@ ConsoleGame::ConsoleGame()
 	, m_bCompiling( false )
 	, m_bAutoCompile( true )
 	, m_pUpdateable(0)
+	, m_pObjectFactorySystem(0)
+	, m_pFileChangeNotifier(0)
 {
 }
 
 ConsoleGame::~ConsoleGame()
 {
-	gSys->pFileChangeNotifier->RemoveListener(this);
+	m_pFileChangeNotifier->RemoveListener(this);
 
 	// delete object via correct interface
-	IObject* pObj = gSys->pObjectFactorySystem->GetObject( m_ObjectId );
+	IObject* pObj = m_pObjectFactorySystem->GetObject( m_ObjectId );
 	delete pObj;
 
 	//should clean up loggers.
-	delete gSys->pFileChangeNotifier;
-	delete gSys->pObjectFactorySystem;
+	delete m_pObjectFactorySystem;
+	delete m_pFileChangeNotifier;
 	delete m_pBuildTool;
 	delete m_pCompilerLogger;
 }
@@ -118,8 +86,8 @@ bool ConsoleGame::Init()
 	launchPath = launchPath.parent_path();
 	SetCurrentDirectory( launchPath.wstring().c_str() );
 
-	m_pCompilerLogger = new CompilerLogger();
 	m_pBuildTool = new BuildTool();
+	m_pCompilerLogger = new StdioLogSystem();
 	m_pBuildTool->Initialise(m_pCompilerLogger);
 
 	// We start by using the code in the current module
@@ -133,40 +101,19 @@ bool ConsoleGame::Init()
 		return false;
 	}
 
+	m_pObjectFactorySystem = new ObjectFactorySystem();
+	m_pObjectFactorySystem->SetLogger( m_pCompilerLogger );
 
-	gSys = new SystemTable;
-	StdioLogSystem* pStdioLog = new StdioLogSystem();
-	FileLogSystem *pFileLog = new FileLogSystem();
-	pFileLog->SetLogPath("Log.txt");
-	pFileLog->SetVerbosity(eLV_COMMENTS);
-	pFileLog->Log(eLV_EVENTS, "Started file logger\n");
-
-
-	MultiLogSystem *pMultiLog = new MultiLogSystem();
-	pMultiLog->AddLogSystem(pFileLog);
-	pMultiLog->AddLogSystem(pStdioLog);
-
-	ThreadsafeLogSystem *pThreadsafeLog = new ThreadsafeLogSystem();
-	pThreadsafeLog->SetProtectedLogSystem(pMultiLog);
-
-	gSys->pLogSystem = pThreadsafeLog;
-
-	gSys->pLogSystem->Log(eLV_EVENTS, "All logs initialised\n");
-
-	pPerModuleInterfaceProcAdd()->SetSystemTable(gSys);
-
-	gSys->pObjectFactorySystem = new ObjectFactorySystem();
-
-	gSys->pFileChangeNotifier = new FileChangeNotifier();
+	m_pFileChangeNotifier = new FileChangeNotifier();
 
 
 	SetupObjectConstructors(pPerModuleInterfaceProcAdd);
 
-	gSys->pObjectFactorySystem->AddListener(this);
+	m_pObjectFactorySystem->AddListener(this);
 
 
 	// construct first object
-	IObjectConstructor* pCtor = gSys->pObjectFactorySystem->GetConstructor( "RuntimeObject01" );
+	IObjectConstructor* pCtor = m_pObjectFactorySystem->GetConstructor( "RuntimeObject01" );
 	if( pCtor )
 	{
 		IObject* pObj = pCtor->Construct();
@@ -174,7 +121,7 @@ bool ConsoleGame::Init()
 		if( 0 == m_pUpdateable )
 		{
 			delete pObj;
-			gSys->pLogSystem->Log(eLV_ERRORS, "Error - no updateable interface found\n");
+			m_pCompilerLogger->LogError("Error - no updateable interface found\n");
 			return false;
 		}
 		m_ObjectId = pObj->GetObjectId();
@@ -201,7 +148,7 @@ void ConsoleGame::OnFileChange(const IAUDynArray<const char*>& filelist)
 		return;
 	}
 
-	gSys->pLogSystem->Log(eLV_COMMENTS, "FileChangeNotifier triggered recompile of files:\n");
+	m_pCompilerLogger->LogInfo("FileChangeNotifier triggered recompile of files:\n");
 
 	TFileList pathlist;
 	pathlist.resize(filelist.Size());
@@ -218,12 +165,12 @@ void ConsoleGame::OnConstructorsAdded()
 	// This could have resulted in a change of object pointer, so release old and get new one.
 	if( m_pUpdateable )
 	{
-		IObject* pObj = gSys->pObjectFactorySystem->GetObject( m_ObjectId );
+		IObject* pObj = m_pObjectFactorySystem->GetObject( m_ObjectId );
 		pObj->GetInterface( IID_IUPDATEABLE, (void**)&m_pUpdateable );
 		if( 0 == m_pUpdateable )
 		{
 			delete pObj;
-			gSys->pLogSystem->Log(eLV_ERRORS, "Error - no updateable interface found\n");
+			m_pCompilerLogger->LogError( "Error - no updateable interface found\n");
 		}
 	}
 }
@@ -261,9 +208,6 @@ void ConsoleGame::RemoveFromRuntimeFileList( const char* filename )
 
 bool ConsoleGame::MainLoop()
 {
-	const float deltaTime = 1.0f;
-	gSys->pFileChangeNotifier->Update( deltaTime );
-
 	//check status of any compile
 	if( m_bCompiling && m_pBuildTool->GetIsComplete() )
 	{
@@ -273,13 +217,23 @@ bool ConsoleGame::MainLoop()
 
 	}
 
-	std::cout << "\nMain Loop - press q to quit, enter to run object loop and check for changed files\n";
-	int ret = _getche();
-	if( 'q' == ret )
+	if( !m_bCompiling )
 	{
-		return false;
+
+		std::cout << "\nMain Loop - press q to quit. Updates every second.\n";
+		if( _kbhit() )
+		{
+			int ret = _getche();
+			if( 'q' == ret )
+			{
+				return false;
+			}
+		}
+		const float deltaTime = 1.0f;
+		m_pFileChangeNotifier->Update( deltaTime );
+		m_pUpdateable->Update( deltaTime );
+		Sleep(1000);
 	}
-	m_pUpdateable->Update( deltaTime );
 
 	return true;
 }
@@ -287,7 +241,7 @@ bool ConsoleGame::MainLoop()
 void ConsoleGame::StartRecompile(const TFileList& filelist, bool bForce)
 {
 	m_bCompiling = true;
-	gSys->pLogSystem->Log(eLV_COMMENTS, "Compiling...\n");
+	m_pCompilerLogger->LogInfo( "Compiling...\n");
 
 	//Use a temporary filename for the dll
 	wchar_t tempPath[MAX_PATH];
@@ -312,8 +266,8 @@ void ConsoleGame::StartRecompile(const TFileList& filelist, bool bForce)
 		buildFileList.push_back( BuildTool::FileToBuild( filelist[i], bForce ) );
 	}
 
-	buildFileList.push_back( currModuleFullPath / path(L"/../RunTimeCompiler/ObjectInterfacePerModuleSource.cpp") );
-	buildFileList.push_back( currModuleFullPath / path(L"/../RunTimeCompiler/ObjectInterfacePerModuleSource_PlatformWindows.cpp") );
+	buildFileList.push_back( currModuleFullPath / path(L"/../RuntimeObjectSystem/ObjectInterfacePerModuleSource.cpp") );
+	buildFileList.push_back( currModuleFullPath / path(L"/../RuntimeObjectSystem/ObjectInterfacePerModuleSource_PlatformWindows.cpp") );
 
 	m_pBuildTool->BuildModule( buildFileList, includeDirList, m_CurrentlyCompilingModuleName );
 }
@@ -334,21 +288,21 @@ bool ConsoleGame::LoadCompiledModule()
 
 	if (!module)
 	{
-		gSys->pLogSystem->Log(eLV_ERRORS,"Failed to load module %ls\n",m_CurrentlyCompilingModuleName.c_str());
+		m_pCompilerLogger->LogError( "Failed to load module %ls\n",m_CurrentlyCompilingModuleName.c_str());
 		return false;
 	}
 
 	GETPerModuleInterface_PROC pPerModuleInterfaceProcAdd = (GETPerModuleInterface_PROC) GetProcAddress(module, "GetPerModuleInterface");
 	if (!pPerModuleInterfaceProcAdd)
 	{
-		gSys->pLogSystem->Log(eLV_ERRORS,"Failed GetProcAddress\n");
+		m_pCompilerLogger->LogError( "Failed GetProcAddress\n");
 		return false;
 	}
 
 	pPerModuleInterfaceProcAdd()->SetSystemTable( gSys );
 	m_Modules.push_back( module );
 
-	gSys->pLogSystem->Log(eLV_COMMENTS, "Compilation Succeeded\n");
+	m_pCompilerLogger->LogInfo( "Compilation Succeeded\n");
 
 	SetupObjectConstructors(pPerModuleInterfaceProcAdd);
 
@@ -370,7 +324,7 @@ void ConsoleGame::SetupObjectConstructors(GETPerModuleInterface_PROC pPerModuleI
 		if ( m_RuntimeFileList.end() == std::find(m_RuntimeFileList.begin(), m_RuntimeFileList.end(), filename) )
 		{
 			// Start watching all the files involved, to trigger recompile
-			gSys->pFileChangeNotifier->Watch( objectConstructors[i]->GetFileName(), this );
+			m_pFileChangeNotifier->Watch( objectConstructors[i]->GetFileName(), this );
 
 			if (filename.extension() != ".h")
 			{
@@ -378,5 +332,5 @@ void ConsoleGame::SetupObjectConstructors(GETPerModuleInterface_PROC pPerModuleI
 			}		
 		}		
 	}
-	gSys->pObjectFactorySystem->AddConstructors( constructors );
+	m_pObjectFactorySystem->AddConstructors( constructors );
 }

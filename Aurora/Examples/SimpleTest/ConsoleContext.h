@@ -20,7 +20,7 @@
 #ifndef CONSOLECONTEXT_INCLUDED
 #define CONSOLECONTEXT_INCLUDED
 
-#include "../../Systems/IObject.h"
+#include "../../RuntimeObjectSystem/IObject.h"
 #include "IObjectUtils.h"
 #include "IConsoleContext.h"
 #include "IGameObject.h"
@@ -29,7 +29,7 @@
 #include "IGameManager.h"
 #include "GlobalParameters.h"
 
-#include "../../RunTimeCompiler/ObjectInterfacePerModule.h"
+#include "../../RuntimeObjectSystem/ObjectInterfacePerModule.h"
 #include "../../Systems/SystemTable.h"
 #include "../../Systems/ILogSystem.h"
 #include "../../Systems/IEntitySystem.h"

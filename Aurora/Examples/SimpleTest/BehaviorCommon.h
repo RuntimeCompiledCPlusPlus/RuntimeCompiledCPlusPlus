@@ -20,7 +20,7 @@
 #ifndef BEHAVIORCOMMON_INCLUDED
 #define BEHAVIORCOMMON_INCLUDED
 
-#include "../../RuntimeCompiler/RuntimeInclude.h"
+#include "../../RuntimeObjectSystem/RuntimeInclude.h"
 RUNTIME_MODIFIABLE_INCLUDE; //adds this include to runtime tracking
 
 #include "IBehavior.h"
@@ -36,12 +36,12 @@ RUNTIME_MODIFIABLE_INCLUDE; //adds this include to runtime tracking
 #include "BB_Global.h"
 #include "BB_Individual_Common.h"
 
-#include "../../RunTimeCompiler/ObjectInterfacePerModule.h"
+#include "../../RuntimeObjectSystem/ObjectInterfacePerModule.h"
 #include "../../Systems/SystemTable.h"
 #include "../../Systems/IEntitySystem.h"
 #include "../../Systems/IAssetSystem.h"
 #include "../../Systems/ILogSystem.h"
-#include "../../Systems/ISimpleSerializer.h"
+#include "../../RuntimeObjectSystem/ISimpleSerializer.h"
 
 #include <assert.h>
 #include <algorithm>
