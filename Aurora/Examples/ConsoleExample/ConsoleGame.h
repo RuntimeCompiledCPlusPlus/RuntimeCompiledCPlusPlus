@@ -24,6 +24,7 @@
 #include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
 #include "../../RuntimeObjectSystem/ObjectInterface.h"
 #include "../../Common/AUArray.inl"
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <vector>
 
@@ -33,7 +34,8 @@
 
 class CompilerLogger;
 class BuildTool;
-struct IAUUpdateable;
+
+struct IUpdateable;
 
 class ConsoleGame : public IFileChangeListener, public IObjectFactoryListener
 {
@@ -77,11 +79,13 @@ private:
 
 
 	// Private Members
-	CompilerLogger* m_pCompilerLogger;
-	BuildTool* m_pBuildTool;
+	ICompilerLogger*		m_pCompilerLogger;
+	IObjectFactorySystem*	m_pObjectFactorySystem;
+	IFileChangeNotifier*	m_pFileChangeNotifier;
+	BuildTool*				m_pBuildTool;
 
 	// Runtime object
-	IAUUpdateable* m_pUpdateable;
+	IUpdateable* m_pUpdateable;
 	ObjectId	   m_ObjectId;
 
 	std::vector<HMODULE> m_Modules;	// Stores runtime created modules, but not the exe module.

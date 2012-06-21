@@ -17,29 +17,12 @@
 
 #pragma once
 
-#ifndef STDIOLOGSYSTEM_INCLUDED
-#define STDIOLOGSYSTEM_INCLUDED
+#ifndef IUPDATEABLE_INCLUDED
+#define IUPDATEABLE_INCLUDED
 
-#include "../../RuntimeCompiler/ICompilerLogger.h"
-
-#include <string>
-#include <stdio.h>
-
-// StdioLogSystem for compiler
-
-const size_t LOGSYSTEM_MAX_BUFFER = 4096;
-
-class StdioLogSystem : public ICompilerLogger
+struct IUpdateable
 {
-public:	
-	virtual void LogError(const char * format, ...);
-	virtual void LogWarning(const char * format, ...);
-    virtual void LogInfo(const char * format, ...);
-
-protected:
-	void LogInternal(const char * format, va_list args);
-	char m_buff[LOGSYSTEM_MAX_BUFFER];
+	virtual void Update( float deltaTime ) = 0;
 };
 
-
-#endif //STDIOLOGSYSTEM_INCLUDED
+#endif // IUPDATEABLE_INCLUDED
