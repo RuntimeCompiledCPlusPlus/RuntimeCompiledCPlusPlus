@@ -137,7 +137,7 @@ bool RocketLibSystem::OpenWindow(const wchar_t* name, bool attach_opengl)
 
 	instance_name = name;
 
-	DWORD style = WS_OVERLAPPEDWINDOW & ~WS_SIZEBOX & ~WS_MAXIMIZEBOX;
+	DWORD style = WS_OVERLAPPEDWINDOW;// & ~WS_SIZEBOX & ~WS_MAXIMIZEBOX;
 	DWORD extended_style = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
 
 	// Adjust the window size to take into account the edges

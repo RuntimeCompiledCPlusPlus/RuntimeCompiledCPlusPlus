@@ -2,139 +2,139 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Precompiled Header">
-      <UniqueIdentifier>{5e382318-db92-434c-a7bf-ee5bfc3aa01c}</UniqueIdentifier>
+      <UniqueIdentifier>{82aeed37-3f03-4064-a95e-9872e4b3171f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Texture">
-      <UniqueIdentifier>{c3583c50-e1b6-4613-9b26-ba8fe407f658}</UniqueIdentifier>
+      <UniqueIdentifier>{d2e0c1f2-7ca5-4652-934c-6e8f85a4eb4e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Element">
-      <UniqueIdentifier>{b44267b2-790e-443b-9036-a444cf6c2966}</UniqueIdentifier>
+      <UniqueIdentifier>{c67b13df-a7dc-4ff1-89df-cf7c809d2eaf}</UniqueIdentifier>
     </Filter>
     <Filter Include="Element\Layout">
-      <UniqueIdentifier>{d3086388-8971-49c5-9cff-fc99c80a7000}</UniqueIdentifier>
+      <UniqueIdentifier>{9c3e18b2-6393-4d2d-b5ca-92cef4de10ff}</UniqueIdentifier>
     </Filter>
     <Filter Include="Element\Instancer">
-      <UniqueIdentifier>{4a17458c-9bff-4e4e-9fdc-5dd9e8e76565}</UniqueIdentifier>
+      <UniqueIdentifier>{26994744-7381-4678-bcea-495a65515d6e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Element\Parser">
-      <UniqueIdentifier>{045eedc6-13c4-4b94-bb44-d9146ff4b48c}</UniqueIdentifier>
+      <UniqueIdentifier>{bbefeb29-c9d0-48ba-ac97-cdadab8521e5}</UniqueIdentifier>
     </Filter>
     <Filter Include="Element\Definition">
-      <UniqueIdentifier>{1603d0d6-7542-4697-848a-5890e831184b}</UniqueIdentifier>
+      <UniqueIdentifier>{4ea0655e-ac4f-4ab4-8386-5511d2ca5a02}</UniqueIdentifier>
     </Filter>
     <Filter Include="Element\Text">
-      <UniqueIdentifier>{6cf8d332-b4ec-4a7f-84f9-9a79d1d5abd6}</UniqueIdentifier>
+      <UniqueIdentifier>{b8c0508e-186b-4e8c-a2c9-55c6f3b2b756}</UniqueIdentifier>
     </Filter>
     <Filter Include="Element\Handle">
-      <UniqueIdentifier>{47e6a5f8-79b9-42d5-97f1-a8c1db2c25d5}</UniqueIdentifier>
+      <UniqueIdentifier>{01e3a92f-c717-4452-9449-b7e56835c434}</UniqueIdentifier>
     </Filter>
     <Filter Include="Element\Widgets">
-      <UniqueIdentifier>{4e8613d6-a0c2-4a19-9347-34447d234e4d}</UniqueIdentifier>
+      <UniqueIdentifier>{a4ae4d56-69ca-492d-86c0-0a08e07dc292}</UniqueIdentifier>
     </Filter>
     <Filter Include="Element\Image">
-      <UniqueIdentifier>{2a529bff-9ed1-423a-8a38-d2afd2712862}</UniqueIdentifier>
+      <UniqueIdentifier>{3cca2172-5de3-4979-b880-59788158be80}</UniqueIdentifier>
     </Filter>
     <Filter Include="Element\Document">
-      <UniqueIdentifier>{d4cfd764-1a72-4fa7-923e-e3683a4ea9c7}</UniqueIdentifier>
+      <UniqueIdentifier>{60bcd5db-530c-4551-9a48-ec580bb1c823}</UniqueIdentifier>
     </Filter>
     <Filter Include="Geometry">
-      <UniqueIdentifier>{b7f54783-dfea-4f91-b6fe-1eade29b4831}</UniqueIdentifier>
+      <UniqueIdentifier>{89b45ed2-3abb-43bf-9914-b5933c95cd56}</UniqueIdentifier>
     </Filter>
     <Filter Include="Decorator">
-      <UniqueIdentifier>{8f04cbab-d4f1-4956-bdd5-bbff1675b6ce}</UniqueIdentifier>
+      <UniqueIdentifier>{546334a9-6b4a-4e1c-8232-ef495ee0bc29}</UniqueIdentifier>
     </Filter>
     <Filter Include="Decorator\Decorators">
-      <UniqueIdentifier>{7ce31f8f-56c0-4eb2-890b-04fdcdfe0b1d}</UniqueIdentifier>
+      <UniqueIdentifier>{5eea2e50-8f7b-46ff-95e9-a8518be5478a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Decorator\Decorators\Tile">
-      <UniqueIdentifier>{5dc930df-c899-460a-819c-9e1ad19dfd56}</UniqueIdentifier>
+      <UniqueIdentifier>{df38c1f9-e33b-4686-abf5-550fb9ced131}</UniqueIdentifier>
     </Filter>
     <Filter Include="Decorator\Decorators\Tile\Horizontal">
-      <UniqueIdentifier>{031d78a9-03c8-4706-9062-bcfec52f9008}</UniqueIdentifier>
+      <UniqueIdentifier>{3a5edae1-f831-487b-9983-dad57e3ff31f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Decorator\Decorators\Tile\Box">
-      <UniqueIdentifier>{fc9621ea-d2fa-41bf-814e-942ec1b69a87}</UniqueIdentifier>
+      <UniqueIdentifier>{5d4f0b08-ff13-4b73-82ff-fdd8e7ffbf18}</UniqueIdentifier>
     </Filter>
     <Filter Include="Decorator\Decorators\Tile\Image">
-      <UniqueIdentifier>{def943fd-2656-42a4-98ff-758ee0d33585}</UniqueIdentifier>
+      <UniqueIdentifier>{83e6d10b-9dbf-47da-9c2a-2045e203f0df}</UniqueIdentifier>
     </Filter>
     <Filter Include="Decorator\Decorators\Tile\Vertical">
-      <UniqueIdentifier>{8b46f68c-e557-467e-98ef-68c55c4bfd0b}</UniqueIdentifier>
+      <UniqueIdentifier>{4363df7a-54b7-47ec-80ee-7ab468098d6f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Style Sheet">
-      <UniqueIdentifier>{d283b8ba-7596-464b-949f-598eee8cb351}</UniqueIdentifier>
+      <UniqueIdentifier>{8a2b8c00-49bc-4a29-a6fa-134066f5645a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Style Sheet\Property">
-      <UniqueIdentifier>{99f0dab6-38c4-4a35-ad37-46dccc996676}</UniqueIdentifier>
+      <UniqueIdentifier>{492c1590-15e9-4aa5-af33-5a6299a7f0a0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Style Sheet\Property\Definition">
-      <UniqueIdentifier>{08b66561-b672-41d8-91eb-732c5586cd42}</UniqueIdentifier>
+      <UniqueIdentifier>{cd385e7a-c9d7-4883-ba42-1dfcf02ac44f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Style Sheet\Property\Definition\Parser">
-      <UniqueIdentifier>{36f023b3-3cca-498b-9d9f-1cb1b6b66c81}</UniqueIdentifier>
+      <UniqueIdentifier>{552a3698-424f-497e-aea7-dfb8b067e5d6}</UniqueIdentifier>
     </Filter>
     <Filter Include="Style Sheet\Selectors">
-      <UniqueIdentifier>{92d4aabc-5f13-4df1-a34b-a738539334a2}</UniqueIdentifier>
+      <UniqueIdentifier>{b3211eda-15f5-4396-98f3-c5f8af103b14}</UniqueIdentifier>
     </Filter>
     <Filter Include="Events">
-      <UniqueIdentifier>{b1f9c5f0-c4ac-4426-b0a7-8d1c96576cda}</UniqueIdentifier>
+      <UniqueIdentifier>{9a93f8cd-436c-4f96-a99a-014b77a7d11e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Fonts">
-      <UniqueIdentifier>{e76fd67a-8353-42ab-b2ce-cfb19275db89}</UniqueIdentifier>
+      <UniqueIdentifier>{ebeb6afc-5e02-4f7c-93db-1b354217e18d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Fonts\Texture Layout">
-      <UniqueIdentifier>{bf19feec-6364-496f-a60d-d5a5e4480c40}</UniqueIdentifier>
+      <UniqueIdentifier>{a6efdc03-8f32-4f8b-a3f7-259cc5c1fa4c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Fonts\Effect">
-      <UniqueIdentifier>{2225fc09-05c3-4404-911a-e28485870d83}</UniqueIdentifier>
+      <UniqueIdentifier>{23c43988-af97-48c0-a18b-181c2826cb0f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Fonts\Effect\Effects">
-      <UniqueIdentifier>{a533b285-be0d-44bf-a4c2-d5847c015098}</UniqueIdentifier>
+      <UniqueIdentifier>{54fd4fd1-afdf-407a-b255-b37b3af13c85}</UniqueIdentifier>
     </Filter>
     <Filter Include="Fonts\Effect\Effects\None">
-      <UniqueIdentifier>{75720522-946a-4927-b3d9-57349df123e8}</UniqueIdentifier>
+      <UniqueIdentifier>{bc41ecc5-be6d-4680-a788-31a1b2718c15}</UniqueIdentifier>
     </Filter>
     <Filter Include="Fonts\Effect\Effects\Outline">
-      <UniqueIdentifier>{a1f8e401-6ed4-47be-9843-ae9dbe5df52c}</UniqueIdentifier>
+      <UniqueIdentifier>{c1c94c50-3674-4233-80c4-0daffe4b3602}</UniqueIdentifier>
     </Filter>
     <Filter Include="Fonts\Effect\Effects\Shadow">
-      <UniqueIdentifier>{44ad246c-16aa-46ce-94d3-a9e2077aa526}</UniqueIdentifier>
+      <UniqueIdentifier>{16c1c2bf-1e27-4c28-8950-991176c0a911}</UniqueIdentifier>
     </Filter>
     <Filter Include="Fonts\Effect\Effects\Convolution Filter">
-      <UniqueIdentifier>{2add54d8-1fdd-44e9-bd79-aa3c21550af4}</UniqueIdentifier>
+      <UniqueIdentifier>{c71f5a24-30c7-4511-83e8-3f33dd6d67e0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Templates">
-      <UniqueIdentifier>{fc4d002f-73a3-411f-bc3a-6a562e9d437e}</UniqueIdentifier>
+      <UniqueIdentifier>{a7b2fb52-2b1d-42dd-a04e-1f71c0ac1776}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core">
-      <UniqueIdentifier>{37e7665f-e9f6-48f7-99ec-d150cb3d4a65}</UniqueIdentifier>
+      <UniqueIdentifier>{1b569d1f-51a8-44c2-8121-a1c498e4a264}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core\Interfaces">
-      <UniqueIdentifier>{9f25cb92-9375-4869-9bef-504dd8f60409}</UniqueIdentifier>
+      <UniqueIdentifier>{3654b7f3-a927-4146-9dc6-4c9b10ef16f2}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core\Interfaces\Renderer">
-      <UniqueIdentifier>{6c8645b9-b68c-480b-9981-e23c920204df}</UniqueIdentifier>
+      <UniqueIdentifier>{a26fe75d-08cd-46e3-8ca3-cea9d0d1d98c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core\Interfaces\File">
-      <UniqueIdentifier>{aa3d9ca3-73de-400f-a4e7-3fd21ef2fcf8}</UniqueIdentifier>
+      <UniqueIdentifier>{83a96487-e36d-4937-a242-55613488576a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core\Interfaces\System">
-      <UniqueIdentifier>{d491c232-9029-492c-96da-31348fd07003}</UniqueIdentifier>
+      <UniqueIdentifier>{566eac7a-6e3e-4bac-9343-ff3eff95558b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core\String">
-      <UniqueIdentifier>{5cfaf56d-6942-40a3-a965-9da4be2d00bb}</UniqueIdentifier>
+      <UniqueIdentifier>{b477f408-343f-469e-ac02-069607970301}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core\Plugin">
-      <UniqueIdentifier>{88dcb50b-c1e2-4d8f-b8ac-f03423c28372}</UniqueIdentifier>
+      <UniqueIdentifier>{003ddd77-893d-4a89-aa44-c0f200c19c26}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core\Types">
-      <UniqueIdentifier>{3c0ee543-262f-4224-b599-e9b87e35be31}</UniqueIdentifier>
+      <UniqueIdentifier>{63703678-5944-46f6-a9ef-cd667e8b2cd3}</UniqueIdentifier>
     </Filter>
     <Filter Include="Context">
-      <UniqueIdentifier>{39be780d-2af5-4c2c-af7f-f6787de39454}</UniqueIdentifier>
+      <UniqueIdentifier>{c3791dda-9f9d-4a9b-90ac-0cfc402b5c19}</UniqueIdentifier>
     </Filter>
     <Filter Include="String Cache">
-      <UniqueIdentifier>{7a00001b-d620-4fa9-bf01-5ddf329c98b9}</UniqueIdentifier>
+      <UniqueIdentifier>{c67404b4-eeb4-430c-9a20-6bff90b57d90}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -502,9 +502,6 @@
       <Filter>Core\Types</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\Core\StreamMemory.cpp">
-      <Filter>Core\Types</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\Core\StringStorage.cpp">
       <Filter>Core\Types</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\Core\StringUtilities.cpp">
@@ -942,9 +939,6 @@
       <Filter>Core\Types</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Rocket\Core\StringBase.h">
-      <Filter>Core\Types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\Rocket\Core\StringStorage.h">
       <Filter>Core\Types</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Rocket\Core\StringUtilities.h">

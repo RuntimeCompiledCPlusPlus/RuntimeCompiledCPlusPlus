@@ -2,40 +2,40 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Plugin">
-      <UniqueIdentifier>{630e2a47-e509-4ae9-a36e-292f6ba0e7f7}</UniqueIdentifier>
+      <UniqueIdentifier>{e886f83a-ac67-4110-a341-d7ef3d6922d8}</UniqueIdentifier>
     </Filter>
     <Filter Include="Forms">
-      <UniqueIdentifier>{438a9a37-5ded-4985-ba4c-10822646c44c}</UniqueIdentifier>
+      <UniqueIdentifier>{4009f2cf-206f-4de8-8250-b8b4ba50a634}</UniqueIdentifier>
     </Filter>
     <Filter Include="Forms\Controls">
-      <UniqueIdentifier>{4e905f98-76fb-4c0e-b3c1-074e5cb02c42}</UniqueIdentifier>
+      <UniqueIdentifier>{76f325b4-1785-4cd4-82bd-2e872e7c7b40}</UniqueIdentifier>
     </Filter>
     <Filter Include="Forms\Controls\Widgets">
-      <UniqueIdentifier>{80a6fa4c-c9f2-4b9e-be1c-d8a3a48b469a}</UniqueIdentifier>
+      <UniqueIdentifier>{8feba535-b42f-462d-855a-348b30c0e6d6}</UniqueIdentifier>
     </Filter>
     <Filter Include="Forms\Controls\Input Types">
-      <UniqueIdentifier>{b6a610ee-0ead-4198-bdee-31fb3ecf74c9}</UniqueIdentifier>
+      <UniqueIdentifier>{77a52dd5-0cca-4da5-9e56-a8d3f0f9e52d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Forms\Parsers">
-      <UniqueIdentifier>{b399a0d0-d3db-4895-be85-0f5ffbd1d217}</UniqueIdentifier>
+      <UniqueIdentifier>{751ff887-5f49-49c5-98c8-f81189cb96e3}</UniqueIdentifier>
     </Filter>
     <Filter Include="Forms\Clipboard">
-      <UniqueIdentifier>{c14c90a8-2870-4cf0-85fe-9c974bc08a34}</UniqueIdentifier>
+      <UniqueIdentifier>{a368552d-67c2-4d0d-ad05-9e258c04b96a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Tab Set">
-      <UniqueIdentifier>{a2fa5014-abc0-4ebe-a27d-26ffeadd8300}</UniqueIdentifier>
+      <UniqueIdentifier>{cd8b8201-5f07-4ab8-b543-1ef7d4a33847}</UniqueIdentifier>
     </Filter>
     <Filter Include="Tab Set\Parser">
-      <UniqueIdentifier>{7ac98592-b188-49ed-a8bb-4618b25a570d}</UniqueIdentifier>
+      <UniqueIdentifier>{c5b6404c-328e-4128-8e59-8eefc90a7f30}</UniqueIdentifier>
     </Filter>
     <Filter Include="Data Grid">
-      <UniqueIdentifier>{5a267a0b-4f53-4cd8-8b81-a85438588d95}</UniqueIdentifier>
+      <UniqueIdentifier>{230459f6-bb13-4de1-b602-9398849ab9ab}</UniqueIdentifier>
     </Filter>
     <Filter Include="Data Grid\Parser">
-      <UniqueIdentifier>{0160f3bc-8f8f-4bf9-aa1c-82e81277505d}</UniqueIdentifier>
+      <UniqueIdentifier>{473ddd51-e38a-427e-ae39-b633379fa506}</UniqueIdentifier>
     </Filter>
     <Filter Include="Data Grid\Data Source">
-      <UniqueIdentifier>{2c3664e5-369e-4130-a143-161ed6b71802}</UniqueIdentifier>
+      <UniqueIdentifier>{2a52a189-ce1a-47e4-9c17-8a5c4ea1ffb1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

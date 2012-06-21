@@ -31,7 +31,9 @@
 #if defined __WIN32__ || defined _WIN32
 	#define ROCKET_PLATFORM_WIN32
 	#define ROCKET_PLATFORM_NAME "win32"
-    #pragma warning(disable:4355)
+	#if !defined(__MINGW32__)
+		#pragma warning(disable:4355)
+	#endif
 #elif defined __APPLE_CC__
 	#define ROCKET_PLATFORM_UNIX
 	#define ROCKET_PLATFORM_MACOSX
@@ -46,7 +48,14 @@
 	#define ROCKET_DEBUG
 #endif
 
-#if defined ROCKET_PLATFORM_WIN32
+#if defined __x86_64__ || defined _M_X64 || defined __powerpc64__ || defined __alpha__ || defined __ia64__ || defined __s390__ || defined __s390x__
+    #define ROCKET_ARCH_64
+#else
+    #define ROCKET_ARCH_32
+#endif
+
+
+#if defined(ROCKET_PLATFORM_WIN32) && !defined(__MINGW32__)
 	// alignment of a member was sensitive to packing
 	#pragma warning(disable : 4121)
 

@@ -30,6 +30,7 @@
 #include <Rocket/Core.h>
 #include <Rocket/Controls/ElementFormControl.h>
 #include <Rocket/Controls/Clipboard.h>
+#include <Rocket/Core/SystemInterface.h>
 
 namespace Rocket {
 namespace Controls {
@@ -38,6 +39,8 @@ const float CURSOR_BLINK_TIME = 0.7f;
 
 WidgetTextInput::WidgetTextInput(ElementFormControl* _parent) : internal_dimensions(0, 0), scroll_offset(0, 0), cursor_position(0, 0), cursor_size(0, 0), cursor_geometry(_parent), selection_geometry(_parent)
 {
+	keyboard_showed = false;
+	
 	parent = _parent;
 	parent->SetProperty("white-space", "pre");
 	parent->SetProperty("overflow", "hidden");
@@ -242,10 +245,28 @@ void WidgetTextInput::DispatchChangeEvent()
 // the state of the cursor.
 void WidgetTextInput::ProcessEvent(Core::Event& event)
 {
-	if (parent->IsDisabled())
-		return;
+	if (event == "resize")
+	{
+		GenerateCursor();
 
-	if (event == "keydown")
+		Rocket::Core::Vector2f text_position = parent->GetBox().GetPosition(Core::Box::CONTENT);
+		text_element->SetOffset(text_position, parent);
+		selected_text_element->SetOffset(text_position, parent);
+
+		Rocket::Core::Vector2f new_internal_dimensions = parent->GetBox().GetSize(Core::Box::CONTENT);
+		if (new_internal_dimensions != internal_dimensions)
+		{
+			internal_dimensions = new_internal_dimensions;
+
+			FormatElement();
+			UpdateCursorPosition();
+		}
+	}
+	else if (parent->IsDisabled())
+	{
+		return;
+	}
+	else if (event == "keydown")
 	{
 		Core::Input::KeyIdentifier key_identifier = (Core::Input::KeyIdentifier) event.GetParameter< int >("key_identifier", 0);
 		bool numlock = event.GetParameter< int >("num_lock_key", 0) > 0;
@@ -329,7 +350,7 @@ void WidgetTextInput::ProcessEvent(Core::Event& event)
     				for (size_t i = 0; i < clipboard_content.Length(); ++i)
     				{
     					if (max_length > 0 &&
-    						(int) Core::WString(GetElement()->GetAttribute< Rocket::Core::String >("value", "")).Length() >= max_length)
+    						(int) Core::WString(GetElement()->GetAttribute< Rocket::Core::String >("value", "")).Length() < max_length)
     						break;
 
     					AddCharacter(clipboard_content[i]);
@@ -376,24 +397,7 @@ void WidgetTextInput::ProcessEvent(Core::Event& event)
 	{
 		ClearSelection();
 		ShowCursor(false, false);
-	}
-	else if (event == "resize")
-	{
-		GenerateCursor();
-
-		Rocket::Core::Vector2f text_position = parent->GetBox().GetPosition(Core::Box::CONTENT);
-		text_element->SetOffset(text_position, parent);
-		selected_text_element->SetOffset(text_position, parent);
-
-		Rocket::Core::Vector2f new_internal_dimensions = parent->GetBox().GetSize(Core::Box::CONTENT);
-		if (new_internal_dimensions != internal_dimensions)
-		{
-			internal_dimensions = new_internal_dimensions;
-
-			FormatElement();
-			UpdateCursorPosition();
-		}
-	}
+	}	
 	else if ((event == "mousedown" ||
 			  event == "drag") &&
 			 event.GetTargetElement() == parent)
@@ -628,6 +632,9 @@ void WidgetTextInput::ShowCursor(bool show, bool move_to_cursor)
 	if (show)
 	{
 		cursor_visible = true;
+		SetKeyboardActive(true);
+		keyboard_showed = true;
+		
 		cursor_timer = CURSOR_BLINK_TIME;
 		last_update_time = Core::GetSystemInterface()->GetElapsedTime();
 
@@ -655,6 +662,11 @@ void WidgetTextInput::ShowCursor(bool show, bool move_to_cursor)
 		cursor_visible = false;
 		cursor_timer = -1;
 		last_update_time = 0;
+		if (keyboard_showed)
+		{
+			SetKeyboardActive(false);
+			keyboard_showed = false;
+		}
 	}
 }
 
@@ -957,5 +969,19 @@ void WidgetTextInput::GetLineSelection(Core::WString& pre_selection, Core::WStri
 	post_selection = line.Substring(selection_begin_index + selection_length - line_begin);
 }
 
+void WidgetTextInput::SetKeyboardActive(bool active)
+{
+	Core::SystemInterface* system = Core::GetSystemInterface();
+	if (system) {
+		if (active) 
+		{
+			system->ActivateKeyboard();
+		} else 
+		{
+			system->DeactivateKeyboard();
+		}
+	}
+}
+	
 }
 }

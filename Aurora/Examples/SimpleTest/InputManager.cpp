@@ -106,9 +106,15 @@ public:
 	
 	virtual void Update( float deltaTime )
 	{
+		if( !m_pInfoElement )
+		{
+			// No available element to alter - probably a document error
+			return;
+		}
+
 		if (m_pSelectedObject)
 		{
-			if (!m_bShowingObjectInfo && m_pInfoElement)
+			if (!m_bShowingObjectInfo)
 			{
 				m_pInfoElement->SetProperty( "display", "inline" );
 				m_bShowingObjectInfo = true;
@@ -118,7 +124,7 @@ public:
 			m_pSelectedObject->GetDebugInfo(info, sizeof(info));
 			m_pInfoElement->SetAttribute( "value", info );
 		}
-		else if (m_bShowingObjectInfo && m_pInfoElement)
+		else if (m_bShowingObjectInfo)
 		{
 			m_pInfoElement->SetProperty( "display", "none" );
 			m_bShowingObjectInfo = false;
@@ -312,19 +318,21 @@ private:
 			
 			// Set up info element in the bottom right corner
 			m_pInfoElement = pDocument->Element()->GetElementById("info");
-			m_pInfoElement->SetProperty( "display", "none" );
 
-			int left;
-			left = (int)( windowWidth - m_pInfoElement->GetClientWidth() );
-			_itoa_s( left, buff, 10 );
-			m_pInfoElement->SetProperty( "left", buff );
-			
-			int top;
-			top = (int)( windowHeight - m_pInfoElement->GetClientHeight() );
-			_itoa_s( top, buff, 10 );
-			m_pInfoElement->SetProperty( "top", buff );
-			
+			if( m_pInfoElement )
+			{
+				if ( m_pSelectedObject )
+				{
+					m_pInfoElement->SetProperty( "display", "inline" );
+					m_bShowingObjectInfo = true;
+				}
+				else
+				{
+					m_pInfoElement->SetProperty( "display", "none" );
+					m_bShowingObjectInfo = false;
+				}
 
+			}
 			pDocument->RemoveReference();
 		}
 	}
