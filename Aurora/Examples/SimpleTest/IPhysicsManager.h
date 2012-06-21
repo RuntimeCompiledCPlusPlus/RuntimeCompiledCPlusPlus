@@ -20,8 +20,9 @@
 #ifndef IPHYSICSMANAGER_INCLUDED
 #define IPHYSICSMANAGER_INCLUDED
 
-#include "../../Systems/IObject.h"
+#include "../../RuntimeObjectSystem/IObject.h"
 #include "InterfaceIds.h"
+#include "../../Common/AUVec3f.inl"
 
 struct IGameObject;
 

@@ -20,7 +20,7 @@
 #ifndef IBLACKBOARD_INCLUDED
 #define IBLACKBOARD_INCLUDED
 
-#include "../../Systems/IObject.h"
+#include "../../RuntimeObjectSystem/IObject.h"
 #include "InterfaceIds.h"
 
 

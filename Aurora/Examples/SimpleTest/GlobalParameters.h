@@ -29,7 +29,7 @@
 //       Not sure exactly what would happen, but it's probably bad!
 //////////////////////////////////////////////////////////////////////////
 
-#include "../../RuntimeCompiler/RuntimeInclude.h"
+#include "../../RuntimeObjectSystem/RuntimeInclude.h"
 RUNTIME_MODIFIABLE_INCLUDE; //adds this include to runtime tracking
 
 #include "IGameManager.h"

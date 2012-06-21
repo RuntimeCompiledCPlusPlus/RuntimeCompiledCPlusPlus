@@ -29,6 +29,11 @@
 class ObjectFactorySystem : public IObjectFactorySystem
 {
 public:
+	ObjectFactorySystem()
+		: m_pLogger( 0 )
+	{
+	}
+
 	virtual IObjectConstructor* GetConstructor( const char* type ) const;
 	virtual ConstructorId GetConstructorId( const char* type ) const;
 	virtual IObjectConstructor* GetConstructor( ConstructorId id ) const;
@@ -38,6 +43,11 @@ public:
 
 	virtual void AddListener(IObjectFactoryListener* pListener);
 	virtual void RemoveListener(IObjectFactoryListener* pListener);
+	virtual void SetLogger( ICompilerLogger * pLogger )
+	{
+		m_pLogger = pLogger;
+	}
+
 
 private:
 	typedef std::map<std::string,ConstructorId> CONSTRUCTORMAP;
@@ -46,6 +56,7 @@ private:
 	CONSTRUCTORMAP m_ConstructorIds;
 	std::vector<IObjectConstructor*> m_Constructors;
 	TObjectFactoryListeners m_Listeners;
+	ICompilerLogger* m_pLogger;
 };
 
 

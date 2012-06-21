@@ -20,7 +20,7 @@
 #ifndef IBLACKBOARDMANAGER_INCLUDED
 #define IBLACKBOARDMANAGER_INCLUDED
 
-#include "../../Systems/IObject.h"
+#include "../../RuntimeObjectSystem/IObject.h"
 #include "InterfaceIds.h"
 #include "IGameManager.h"
 

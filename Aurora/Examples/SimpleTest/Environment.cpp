@@ -26,7 +26,7 @@
 #include "../../Systems/TimeSystem/TimeSystem.h"
 #include "../../Systems/EntitySystem/EntitySystem.h"
 #include "../../Systems/AssetSystem/AssetSystem.h"
-#include "../../Systems/ObjectFactorySystem//ObjectFactorySystem.h"
+#include "../../RuntimeObjectSystem/ObjectFactorySystem//ObjectFactorySystem.h"
 #include "../../Systems/GUISystem/GUISystem.h"
 #include "../../RuntimeCompiler/FileChangeNotifier.h"
 

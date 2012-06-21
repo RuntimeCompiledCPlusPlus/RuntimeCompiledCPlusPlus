@@ -26,9 +26,7 @@
 // will be scrapped for something more sophisticated
 
 
-#include "../Common/Definitions.inl"
-#include "../RunTimeCompiler/ObjectInterface.h"
-#include "SystemTable.h"
+#include "../RuntimeObjectSystem/ObjectInterface.h"
 
 
 #define SERIALIZE(prop) pSerializer->SerializeProperty(#prop, prop);

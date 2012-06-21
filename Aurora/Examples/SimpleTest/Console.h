@@ -25,7 +25,7 @@
 
 #include "../../Common/Definitions.inl"
 #include "../../RuntimeCompiler/IFileChangeNotifier.h"
-#include "../../RuntimeCompiler/ObjectInterface.h"
+#include "../../RuntimeObjectSystem/ObjectInterface.h"
 
 #include <Rocket/Core.h>
 #include <Rocket/Controls.h>

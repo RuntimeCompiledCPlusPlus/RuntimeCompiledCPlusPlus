@@ -22,7 +22,7 @@
 
 #include <vector>
 
-struct SystemTable;
+struct SystemTable; //This is the interface to your own engine code, which you need to define yourself if required.
 struct IObject;
 
 

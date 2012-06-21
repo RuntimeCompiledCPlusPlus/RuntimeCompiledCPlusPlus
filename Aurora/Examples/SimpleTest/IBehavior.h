@@ -20,8 +20,9 @@
 #ifndef IBEHAVIOR_INCLUDED
 #define IBEHAVIOR_INCLUDED
 
-#include "../../Systems/IObject.h"
+#include "../../RuntimeObjectSystem/IObject.h"
 #include "InterfaceIds.h"
+#include "../../Common/AUVec3f.inl"
 
 struct IGameObject;
 

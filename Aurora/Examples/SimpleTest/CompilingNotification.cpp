@@ -17,13 +17,15 @@
 
 // CompilingNotification.cpp : Defines an IObject that displays when we're compiling
 //
-#include "../../RunTimeCompiler/ObjectInterfacePerModule.h"
 #include "../../RuntimeCompiler/IFileChangeNotifier.h"
+
+#include "../../RuntimeObjectSystem/ObjectInterfacePerModule.h"
+#include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
+#include "../../RuntimeObjectSystem/ISimpleSerializer.h"
+
 #include "../../Systems/SystemTable.h"
-#include "../../Systems/IObjectFactorySystem.h"
 #include "../../Systems/ILogSystem.h"
 #include "../../Systems/IGUISystem.h"
-#include "../../Systems/ISimpleSerializer.h"
 #include "../../Systems/IUpdateable.h"
 #include "../../Systems/IEntitySystem.h"
 #include "../../Systems/ITimeSystem.h"

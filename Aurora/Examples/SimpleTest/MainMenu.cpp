@@ -17,17 +17,17 @@
 
 // FPSCounter.cpp : Defines an IObject that displays framerate on screen
 //
-#include "../../RunTimeCompiler/ObjectInterfacePerModule.h"
+#include "../../RuntimeObjectSystem/ObjectInterfacePerModule.h"
 #include "../../RuntimeCompiler/IFileChangeNotifier.h"
 #include "../../Systems/SystemTable.h"
-#include "../../Systems/IObjectFactorySystem.h"
+#include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
 #include "../../Systems/ILogSystem.h"
 #include "../../Systems/IGUISystem.h"
-#include "../../Systems/ISimpleSerializer.h"
+#include "../../RuntimeObjectSystem/ISimpleSerializer.h"
 #include "../../Systems/IUpdateable.h"
 #include "../../Systems/IEntitySystem.h"
 #include "../../Systems/IGame.h"
-#include "../../Systems/IObject.h"
+#include "../../RuntimeObjectSystem/IObject.h"
 
 
 class OnClickCompile : public IGUIEventListener

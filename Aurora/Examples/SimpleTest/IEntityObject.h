@@ -30,10 +30,12 @@
 #define IENTITYOBJECT_INCLUDED
 
 #include "InterfaceIds.h"
-#include "../../RuntimeCompiler/ObjectInterfacePerModule.h"
+#include "../../RuntimeObjectSystem/ObjectInterfacePerModule.h"
+#include "../../RuntimeObjectSystem/ISimpleSerializer.h"
+#include "../../RuntimeObjectSystem/IObject.h"
 #include "../../Systems/SystemTable.h"
-#include "../../Systems/ISimpleSerializer.h"
-#include "../../Systems/IObject.h"
+#include "../../Systems/IEntity.h"
+#include "../../Systems/IEntitySystem.h"
 #include <assert.h>
 
 

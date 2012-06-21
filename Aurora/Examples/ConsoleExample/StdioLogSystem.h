@@ -20,44 +20,24 @@
 #ifndef STDIOLOGSYSTEM_INCLUDED
 #define STDIOLOGSYSTEM_INCLUDED
 
-#include "../../Systems/ILogSystem.h"
+#include "../../RuntimeCompiler/ICompilerLogger.h"
 
 #include <string>
 #include <stdio.h>
 
-// This implementation logs to files only
-// When created, it has no files to log to, it must be set
+// StdioLogSystem for compiler
 
-// Hmm. Would be useful to output the error level of the line, for later filtering.
-// And the pretty printing and so on... was thinking of pasing in a callback wasn't I?
+const size_t LOGSYSTEM_MAX_BUFFER = 4096;
 
-// Might make file flushing optional, and/or get this onto a different thread for performance
-
-class StdioLogSystem : public ILogSystem
+class StdioLogSystem : public ICompilerLogger
 {
-public:
-	//// ILogSystem interface
-	//SErrorDescriptor UnitTest(ILogSystem *) 
-	//	{ return SErrorDescriptor(); }                         // Very awkward to unit test this implementation
-	
-	//// Unique to this implementation
-	
-
-	StdioLogSystem(void);
-	~StdioLogSystem(void);
-	
-	ELogVerbosity GetVerbosity() const;
-	void SetVerbosity(ELogVerbosity eVerbosity); 
-	TVerbosityPeeker GetVerbosityPeeker() const;
-
-	void Log(ELogVerbosity eVerbosity, const char * format, ...);
-	void LogVa(va_list args, ELogVerbosity eVerbosity, const char * format);
-                                                           // Returns false iff a test was attempted and failed.
-
+public:	
+	virtual void LogError(const char * format, ...);
+	virtual void LogWarning(const char * format, ...);
+    virtual void LogInfo(const char * format, ...);
 
 protected:
-	void LogInternal(ELogVerbosity eVerbosity, const char * format, va_list args);
-	ELogVerbosity m_eVerbosity;
+	void LogInternal(const char * format, va_list args);
 	char m_buff[LOGSYSTEM_MAX_BUFFER];
 };
 

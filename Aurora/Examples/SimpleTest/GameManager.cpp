@@ -25,14 +25,14 @@
 #include "BB_Global.h"
 
 #include "../../Common/AUVec3f.inl"
-#include "../../RunTimeCompiler/ObjectInterfacePerModule.h"
+#include "../../RuntimeObjectSystem/ObjectInterfacePerModule.h"
 #include "../../RunTimeCompiler/IFileChangeNotifier.h"
 #include "../../Systems/SystemTable.h"
-#include "../../Systems/IObjectFactorySystem.h"
+#include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
 #include "../../Systems/IEntitySystem.h"
 #include "../../Systems/IAssetSystem.h"
 #include "../../Systems/ILogSystem.h"
-#include "../../Systems/ISimpleSerializer.h"
+#include "../../RuntimeObjectSystem/ISimpleSerializer.h"
 #include "../../Systems/IGame.h"
 
 #include <assert.h>
