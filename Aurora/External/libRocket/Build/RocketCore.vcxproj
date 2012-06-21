@@ -49,6 +49,7 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)_d</TargetName>
     <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</EmbedManifest>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\bin\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -77,7 +78,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>freetype241MT.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>..\bin\$(ProjectName).dll</OutputFile>
+      <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <AdditionalLibraryDirectories>..\..\support\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
