@@ -28,7 +28,7 @@
 #ifndef INTERFACEIDS_INCLUDED
 #define INTERFACEIDS_INCLUDED
 
-#include "../../Systems/IObject.h"
+#include "../../RuntimeObjectSystem/IObject.h"
 
 enum InterfaceIDEnumConsoleExample
 {

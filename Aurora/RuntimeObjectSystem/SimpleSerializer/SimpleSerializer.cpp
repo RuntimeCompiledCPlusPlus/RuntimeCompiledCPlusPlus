@@ -17,9 +17,7 @@
 
 #include "SimpleSerializer.h"
 #include <assert.h>
-#include "../../Systems/IObject.h"
-#include "../../Systems/ILogSystem.h"
-#include "../../Systems/Systems.h"
+#include "../../RuntimeObjectSystem/IObject.h"
 
 SimpleSerializer::SimpleSerializer()
 	: m_numProperties(0)
@@ -126,16 +124,6 @@ const ISerializedValue* SimpleSerializer::GetISerializedValue(const char* proper
 		{
 			pRet = propertyFound->second;
 		}
-		else
-		{
-			gSys->pLogSystem->Log( eLV_WARNINGS, "SimpleSerialiser: Missing property \"%s\" for object of type \"%s\", perTypeID:%d, address:0x%p - newly added?\n"
-				,propertyName, m_pCurrentObject->GetTypeName(), m_pCurrentObject->GetPerTypeId(), m_pCurrentObject );
-		}
-	}
-	else
-	{
-		gSys->pLogSystem->Log( eLV_WARNINGS, "SimpleSerialiser: Found no serialisation entry for object: type \"%s\", perTypeID:%d, address:0x%p\n"
-			,m_pCurrentObject->GetTypeName(), m_pCurrentObject->GetPerTypeId(), m_pCurrentObject );
 	}
 
 	return pRet;

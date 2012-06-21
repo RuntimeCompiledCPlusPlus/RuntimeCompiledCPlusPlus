@@ -27,12 +27,12 @@
 #include "BB_Individual_Common.h"
 
 #include "../../Common/Math.inl"
-#include "../../RunTimeCompiler/ObjectInterfacePerModule.h"
+#include "../../RuntimeObjectSystem/ObjectInterfacePerModule.h"
 #include "../../Systems/SystemTable.h"
 #include "../../Systems/IEntitySystem.h"
 #include "../../Systems/IAssetSystem.h"
 #include "../../Systems/ILogSystem.h"
-#include "../../Systems/ISimpleSerializer.h"
+#include "../../RuntimeObjectSystem/ISimpleSerializer.h"
 #include "../../Renderer/IAURenderable.h"
 
 #include <assert.h>

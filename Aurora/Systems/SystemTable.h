@@ -24,6 +24,7 @@
 
 class RocketLogSystem;
 
+
 struct SystemTable
 {
 	ITimeSystem *pTimeSystem;

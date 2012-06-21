@@ -20,11 +20,11 @@
 #ifndef BB_GROUP_VIRUS_INCLUDED
 #define BB_GROUP_VIRUS_INCLUDED
 
-#include "../../RuntimeCompiler/RuntimeInclude.h"
+#include "../../RuntimeObjectSystem/RuntimeInclude.h"
 RUNTIME_MODIFIABLE_INCLUDE; //adds this include to runtime tracking
 
 #include "IBlackboard.h"
-#include "../../Systems/ISimpleSerializer.h"
+#include "../../RuntimeObjectSystem/ISimpleSerializer.h"
 #include <assert.h>
 
 struct BB_Group_Virus : public IBlackboard

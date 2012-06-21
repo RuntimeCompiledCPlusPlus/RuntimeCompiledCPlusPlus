@@ -25,9 +25,8 @@
 #include "../../RunTimeCompiler/BuildTool.h"
 #include "../../RuntimeCompiler/ICompilerLogger.h"
 #include "../../RuntimeCompiler/FileChangeNotifier.h"
-#include "../../Systems/ILogSystem.h"
-#include "../../Systems/IObjectFactorySystem.h"
-#include "../../Systems/ObjectFactorySystem/ObjectFactorySystem.h"
+#include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
+#include "../../RuntimeObjectSystem/ObjectFactorySystem/ObjectFactorySystem.h"
 
 #include "../../Systems/SystemTable.h"
 #include "../../Systems/Systems.h"
@@ -38,7 +37,7 @@
 #include "../../Systems/LogSystem/MultiLogSystem/MultiLogSystem.h"
 #include "../../Systems/LogSystem/ThreadsafeLogSystem/ThreadsafeLogSystem.h"
 
-#include "../../Systems/IObject.h"
+#include "../../RuntimeObjectSystem/IObject.h"
 #include "../../Systems/IUpdateable.h"
 #include "InterfaceIds.h"
 
@@ -156,6 +155,7 @@ bool ConsoleGame::Init()
 	pPerModuleInterfaceProcAdd()->SetSystemTable(gSys);
 
 	gSys->pObjectFactorySystem = new ObjectFactorySystem();
+	gSys->pObjectFactorySystem->SetLogger( m_pCompilerLogger );
 
 	gSys->pFileChangeNotifier = new FileChangeNotifier();
 
@@ -312,8 +312,8 @@ void ConsoleGame::StartRecompile(const TFileList& filelist, bool bForce)
 		buildFileList.push_back( BuildTool::FileToBuild( filelist[i], bForce ) );
 	}
 
-	buildFileList.push_back( currModuleFullPath / path(L"/../RunTimeCompiler/ObjectInterfacePerModuleSource.cpp") );
-	buildFileList.push_back( currModuleFullPath / path(L"/../RunTimeCompiler/ObjectInterfacePerModuleSource_PlatformWindows.cpp") );
+	buildFileList.push_back( currModuleFullPath / path(L"/../RuntimeObjectSystem/ObjectInterfacePerModuleSource.cpp") );
+	buildFileList.push_back( currModuleFullPath / path(L"/../RuntimeObjectSystem/ObjectInterfacePerModuleSource_PlatformWindows.cpp") );
 
 	m_pBuildTool->BuildModule( buildFileList, includeDirList, m_CurrentlyCompilingModuleName );
 }

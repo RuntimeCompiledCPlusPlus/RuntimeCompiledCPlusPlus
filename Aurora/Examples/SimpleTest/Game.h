@@ -21,9 +21,9 @@
 #define GAME_INCLUDED
 
 #include "../../RuntimeCompiler/IFileChangeNotifier.h"
-#include "../../RuntimeCompiler/ObjectInterface.h"
+#include "../../RuntimeObjectSystem/ObjectInterface.h"
 #include "../../Common/AUArray.inl"
-#include "../../Systems/IObjectFactorySystem.h"
+#include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
 #include "../../Systems/IGame.h"
 #include <Rocket/Core/EventListener.h>
 #include <Rocket/Core/Context.h>

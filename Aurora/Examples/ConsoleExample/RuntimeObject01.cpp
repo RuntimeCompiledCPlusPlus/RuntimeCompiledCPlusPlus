@@ -1,6 +1,6 @@
-#include "../../RunTimeCompiler/ObjectInterfacePerModule.h"
+#include "../../RuntimeObjectSystem/ObjectInterfacePerModule.h"
 
-#include "../../Systems/IObject.h"
+#include "../../RuntimeObjectSystem/IObject.h"
 #include "../../Systems/IUpdateable.h"
 #include "InterfaceIds.h"
 #include <iostream>

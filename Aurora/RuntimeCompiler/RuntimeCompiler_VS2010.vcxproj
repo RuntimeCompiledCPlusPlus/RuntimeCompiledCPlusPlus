@@ -60,8 +60,6 @@
     <ClCompile Include="BuildTool.cpp" />
     <ClCompile Include="Compiler_PlatformWindows.cpp" />
     <ClCompile Include="FileMonitor_PlatformWindows.cpp" />
-    <ClCompile Include="ObjectInterfacePerModuleSource.cpp" />
-    <ClCompile Include="ObjectInterfacePerModuleSource_PlatformWindows.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FileChangeNotifier.h" />
@@ -71,8 +69,6 @@
     <ClInclude Include="IFileChangeNotifier.h" />
     <ClInclude Include="ICompilerLogger.h" />
     <ClInclude Include="IFileMonitor.h" />
-    <ClInclude Include="ObjectInterface.h" />
-    <ClInclude Include="ObjectInterfacePerModule.h" />
     <ClInclude Include="ThreadSafeQueue.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

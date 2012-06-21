@@ -28,13 +28,13 @@
 #ifndef IOBJECTUTILS_INCLUDED
 #define IOBJECTUTILS_INCLUDED
 
-#include "../../Systems/IObject.h"
+#include "../../RuntimeObjectSystem/IObject.h"
 #include "InterfaceIds.h"
 #include "IEntityObject.h"
-#include "../../RunTimeCompiler/ObjectInterfacePerModule.h"
+#include "../../RuntimeObjectSystem/ObjectInterfacePerModule.h"
 #include "../../Systems/SystemTable.h"
-#include "../../Systems/IObjectFactorySystem.h"
-#include "../../Systems/ISimpleSerializer.h"
+#include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
+#include "../../RuntimeObjectSystem/ISimpleSerializer.h"
 #include "../../Systems/IEntitySystem.h"
 #include "../../Systems/ILogSystem.h"
 

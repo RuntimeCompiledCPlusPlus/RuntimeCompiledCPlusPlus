@@ -21,9 +21,9 @@
 #define CONSOLEGAME_INCLUDED
 
 #include "../../RuntimeCompiler/IFileChangeNotifier.h"
-#include "../../RuntimeCompiler/ObjectInterface.h"
+#include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
+#include "../../RuntimeObjectSystem/ObjectInterface.h"
 #include "../../Common/AUArray.inl"
-#include "../../Systems/IObjectFactorySystem.h"
 #include <Windows.h>
 #include <vector>
 
