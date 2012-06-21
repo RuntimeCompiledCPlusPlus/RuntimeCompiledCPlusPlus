@@ -28,14 +28,20 @@
 #ifndef ROCKETCORETYPES_H
 #define ROCKETCORETYPES_H
 
-#include <Rocket/Core/Debug.h>
+// Define NULL as zero.
+#if !defined NULL
+#define NULL 0
+#endif
+
 #include <float.h>
 #include <limits.h>
 #include <string>
 #include <map>
 #include <set>
 #include <vector>
+
 #include <Rocket/Core/Platform.h>
+#include <Rocket/Core/Debug.h>
 
 namespace Rocket {
 namespace Core {
@@ -46,7 +52,6 @@ typedef unsigned short word;
 typedef double Time;
 typedef float TimeDelta;
 typedef unsigned int Hash;
-typedef unsigned short TypeHash;
 typedef void* ScriptObject;
 
 }
@@ -65,11 +70,6 @@ typedef unsigned __int64 uint64_t;
 namespace Rocket {
 namespace Core {
 
-// Define NULL as zero.
-#if !defined NULL
-#define NULL 0
-#endif
-
 // Default colour types.
 typedef Colour< float, 1 > Colourf;
 typedef Colour< byte, 255 > Colourb;
@@ -81,10 +81,10 @@ class Element;
 class Dictionary;
 
 // Types for external interfaces.
-typedef void* FileHandle;
-typedef void* TextureHandle;
-typedef void* CompiledGeometryHandle;
-typedef void* DecoratorDataHandle;
+typedef uintptr_t FileHandle;
+typedef uintptr_t TextureHandle;
+typedef uintptr_t CompiledGeometryHandle;
+typedef uintptr_t DecoratorDataHandle;
 
 // List of elements.
 typedef std::vector< Element* > ElementList;

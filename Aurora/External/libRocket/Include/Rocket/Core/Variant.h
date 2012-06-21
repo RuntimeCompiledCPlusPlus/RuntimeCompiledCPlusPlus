@@ -141,24 +141,14 @@ public:
 	Variant& operator=(const Variant& copy);
 
 private:
-	// Actual variant data, reference counted across variants.
-	class DataBlock
-	{
-	public:
-		DataBlock();    
-		~DataBlock();
-		void Clear();
-		Type type;
-
-		char data[16];
-		void* data_ptr;
-
-		mutable int reference_count;
-	};
-	DataBlock* data_block;
-
-	void NewDataBlock(Type type);  
-	void ReleaseDataBlock();
+	
+#ifdef ROCKET_ARCH_64
+		static const int LOCAL_DATA_SIZE = 32; // Required for Strings
+#else
+		static const int LOCAL_DATA_SIZE = 24;
+#endif
+	Type type;
+	char data[LOCAL_DATA_SIZE];
 };
 
 #include <Rocket/Core/Variant.inl>

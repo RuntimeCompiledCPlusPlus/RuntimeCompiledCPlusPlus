@@ -71,6 +71,11 @@ public:
 	/// @param[in] root_element First element to check.
 	/// @param[in] tag Tag to search for.
 	static void GetElementsByTagName(ElementList& elements, Element* root_element, const String& tag);
+	/// Get all elements with the given class set on them.
+	/// @param[out] elements Resulting elements.
+	/// @param[in] root_element First element to check.
+	/// @param[in] tag Class name to search for.
+	static void GetElementsByClassName(ElementList& elements, Element* root_element, const String& class_name);
 
 	/// Returns an element's font face.
 	/// @param[in] element The element to determine the font face for.
@@ -105,9 +110,10 @@ public:
 	/// @param[in] context The context of the element; if this is not supplied, it will be derived from the element.
 	/// @return The visibility of the given element within its clipping region.
 	static bool SetClippingRegion(Element* element, Context* context = NULL);
-	/// Pushes the cached clip state of a render interface back up to ensure the cache is up-to-date.
+	/// Applies the clip region from the render interface to the renderer
+	/// @param[in] context The context to read the clip region from
 	/// @param[in] render_interface The render interface to update.
-	static void PushClipCache(RenderInterface* render_interface);
+	static void ApplyActiveClipRegion(Context* context, RenderInterface* render_interface);
 
 	/// Formats the contents of an element. This does not need to be called for ordinary elements, but can be useful
 	/// for non-DOM elements of custom elements.

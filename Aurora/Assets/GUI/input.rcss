@@ -8,11 +8,6 @@ body
 	z-index: -2;
 }
 
-div#splash
-{	
-	position: absolute;
-}
-
 textarea#info
 {	
 	font-size: 13;
@@ -20,6 +15,8 @@ textarea#info
 	position: absolute;
 	width: 220px;
 	height: 170px;
+	bottom: 0px;
+	left: 0px;
 
 	color: black;
 	

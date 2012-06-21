@@ -5,6 +5,7 @@ body
 	font-style: normal;
 	font-size: 20;
 	color: white;
+	z-index: -3;
 }
 
 body
