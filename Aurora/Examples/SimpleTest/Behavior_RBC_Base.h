@@ -43,8 +43,8 @@ public:
 	virtual void UpdatePerception( float timeDelta )
 	{
 		/*
-		m_pPerception->GetPerceived( m_pOwner, EGO_VIRUS,  m_pBBIndividual->visible_dangerous ); //Demo
-		m_pPerception->AddPerceived( m_pOwner, EGO_INFECTED,  m_pBBIndividual->visible_dangerous );  //Demo
+		m_pPerception->GetPerceived( m_pOwner, EGO_VIRUS,  m_pBBIndividual->visible_dangerous ); // Demo
+		m_pPerception->AddPerceived( m_pOwner, EGO_INFECTED,  m_pBBIndividual->visible_dangerous );  // Demo
 		//*/
 	}
 

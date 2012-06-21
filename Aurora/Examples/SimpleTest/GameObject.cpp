@@ -52,7 +52,7 @@ public:
 		, m_pGlobalParameters(0)
 		, m_pGameObjectParams(0)
 		, m_pRenMesh(0)
-		, m_rotationAxis(ZERO)	  //	Demo
+		, m_rotationAxis(ZERO)	  // Demo
 		, m_collisionRadius(0.0f)
 		, m_scaleModulationTime(0.0f)
 		, m_bIsSelected(false)
@@ -134,14 +134,14 @@ public:
 		m_pBehaviorTree->Execute(this);
 		
 		AU_ASSERT(m_pBehavior);
-		IBehavior* pBehavior = m_pBehavior; //Demo
+		IBehavior* pBehavior = m_pBehavior; // Demo [Tutorial02] >>> NULL;//
 		
 		pBehavior->Update(deltaTime);
 
 		UpdateScale();
 		m_scaleModulationTime += deltaTime;
 		
-		//m_pRenMesh->SetColor( AUColor(1,1,1) ); // Demo
+		//m_pRenMesh->SetColor( AUColor(1,1,1) ); // Demo // [Tutorial01]
 
 		SetRotation((float)M_PI_4 * 0.5f * deltaTime); // Demo
 	}
