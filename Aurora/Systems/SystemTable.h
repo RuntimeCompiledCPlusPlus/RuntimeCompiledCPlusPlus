@@ -20,13 +20,14 @@
 #ifndef SYSTEMTABLE_INCLUDED
 #define SYSTEMTABLE_INCLUDED
 
-#include "../Common/Definitions.inl"
+#include "Definitions.inl"
 
 class RocketLogSystem;
 
 
 struct SystemTable
 {
+	IRuntimeObjectSystem *	pRuntimeObjectSystem;
 	ITimeSystem *pTimeSystem;
 	ILogSystem *pLogSystem;
 	IEntitySystem *pEntitySystem;

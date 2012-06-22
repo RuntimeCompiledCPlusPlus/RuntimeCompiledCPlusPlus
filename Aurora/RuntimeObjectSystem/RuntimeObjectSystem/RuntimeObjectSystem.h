@@ -72,6 +72,10 @@ public:
 	{
 		return m_bAutoCompile;
 	}
+	virtual bool GetLastLoadModuleSuccess() const
+	{
+		return m_bLastLoadModuleSuccess;
+	}
 
 
 
@@ -102,6 +106,7 @@ private:
 	BuildTool*				m_pBuildTool;
 
 	bool m_bCompiling;
+	bool m_bLastLoadModuleSuccess;
 	std::vector<HMODULE> m_Modules;	// Stores runtime created modules, but not the exe module.
 	TFileList m_RuntimeFileList;
 	bool m_bAutoCompile;

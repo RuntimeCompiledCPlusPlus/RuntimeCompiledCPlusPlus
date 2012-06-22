@@ -22,7 +22,8 @@
 
 struct ICompilerLogger;
 struct IObjectFactorySystem;
-class BuildTool;
+struct IFileChangeNotifier;
+class  BuildTool;
 
 struct IRuntimeObjectSystem
 {
@@ -34,6 +35,7 @@ public:
 	virtual bool GetIsCompiling() = 0;
 	virtual bool GetIsCompiledComplete() = 0;
 	virtual bool LoadCompiledModule() = 0;
+	virtual bool GetLastLoadModuleSuccess() const = 0;
 
 	virtual IObjectFactorySystem* GetObjectFactorySystem() const = 0;
 	virtual IFileChangeNotifier* GetFileChangeNotifier() const = 0;

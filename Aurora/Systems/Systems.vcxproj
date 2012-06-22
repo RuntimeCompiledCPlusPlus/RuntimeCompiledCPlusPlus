@@ -171,6 +171,9 @@ xcopy /y $(SolutionDir)\External\libRocket\bin\*.pdb $(SolutionDir)$(Configurati
     <ClCompile Include="Systems.cpp" />
     <ClCompile Include="TimeSystem\TimeSystem.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Definitions.inl" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

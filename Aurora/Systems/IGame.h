@@ -26,22 +26,14 @@
 //  Contains game functions games should override
 struct IGame : public ISystem
 {
-	virtual void CompileAll( bool bForceRecompile ) = 0;
 	virtual void Reset() = 0;
 	virtual void Restart() = 0;
 	virtual void ToggleConsoleGUI() = 0;
 	virtual void Exit() = 0;
 	virtual void GetWindowSize( float& width, float& height ) const = 0;
-	virtual void AddToRuntimeFileList( const char* filename ) = 0;
-	virtual void RemoveFromRuntimeFileList( const char* filename ) = 0;
 
-	//temporary stuff which should move
 	virtual void SetVolume( float volume ) = 0;
 	virtual void SetSpeed( float speed ) = 0; 
-	virtual void SetAutoCompile( bool autoCompile ) = 0;
-	virtual bool GetIsCompiling() const = 0;
-	virtual bool GetLastLoadModuleSuccess() const = 0;
-
 };
 
 #endif //IGAME_INCLUDED

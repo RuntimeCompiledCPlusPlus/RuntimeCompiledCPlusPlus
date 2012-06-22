@@ -37,6 +37,7 @@ RuntimeObjectSystem::RuntimeObjectSystem()
 	: m_pCompilerLogger(0)
 	, m_pBuildTool(0)
 	, m_bCompiling( false )
+	, m_bLastLoadModuleSuccess( false )
 	, m_bAutoCompile( true )
 	, m_pObjectFactorySystem(0)
 	, m_pFileChangeNotifier(0)
@@ -82,6 +83,7 @@ bool RuntimeObjectSystem::Initialise( ICompilerLogger * pLogger, SystemTable* pS
 		m_pCompilerLogger->LogError( "Failed GetProcAddress for GetPerModuleInterface in current module\n" );
 		return false;
 	}
+	pPerModuleInterfaceProcAdd()->SetSystemTable( m_pSystemTable );
 
 	m_pObjectFactorySystem = new ObjectFactorySystem();
 	m_pObjectFactorySystem->SetLogger( m_pCompilerLogger );
@@ -184,6 +186,7 @@ void RuntimeObjectSystem::StartRecompile(const TFileList& filelist, bool bForce)
 
 bool RuntimeObjectSystem::LoadCompiledModule()
 {
+	m_bLastLoadModuleSuccess = false;
 	m_bCompiling = false;
 
 	// Since the temporary file is created with 0 bytes, loadlibrary can fail with a dialogue we want to prevent. So check size
@@ -218,6 +221,7 @@ bool RuntimeObjectSystem::LoadCompiledModule()
 
 	SetupObjectConstructors(pPerModuleInterfaceProcAdd);
 
+	m_bLastLoadModuleSuccess = true;
 	return true;
 }
 
