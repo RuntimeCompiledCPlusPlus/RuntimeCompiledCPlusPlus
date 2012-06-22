@@ -33,8 +33,6 @@
 
 using boost::filesystem::path;
 
-SystemTable* gSys = 0;
-
 RuntimeObjectSystem::RuntimeObjectSystem()
 	: m_pCompilerLogger(0)
 	, m_pBuildTool(0)
@@ -57,9 +55,10 @@ RuntimeObjectSystem::~RuntimeObjectSystem()
 }
 
 
-bool RuntimeObjectSystem::Initialise( ICompilerLogger * pLogger )
+bool RuntimeObjectSystem::Initialise( ICompilerLogger * pLogger, SystemTable* pSystemTable  )
 {
 	m_pCompilerLogger = pLogger;
+	m_pSystemTable = pSystemTable;
 
 	// We need the current directory to be the process dir
 	DWORD size = MAX_PATH;
@@ -185,6 +184,8 @@ void RuntimeObjectSystem::StartRecompile(const TFileList& filelist, bool bForce)
 
 bool RuntimeObjectSystem::LoadCompiledModule()
 {
+	m_bCompiling = false;
+
 	// Since the temporary file is created with 0 bytes, loadlibrary can fail with a dialogue we want to prevent. So check size
 	// We pass in the ec value so the function won't throw an exception on error, but the value itself sometimes seems to
 	// be set even without an error, so not sure if it should be relied on.
@@ -210,7 +211,7 @@ bool RuntimeObjectSystem::LoadCompiledModule()
 		return false;
 	}
 
-	pPerModuleInterfaceProcAdd()->SetSystemTable( gSys );
+	pPerModuleInterfaceProcAdd()->SetSystemTable( m_pSystemTable );
 	m_Modules.push_back( module );
 
 	m_pCompilerLogger->LogInfo( "Compilation Succeeded\n");

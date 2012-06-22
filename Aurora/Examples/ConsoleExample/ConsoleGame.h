@@ -20,39 +20,22 @@
 #ifndef CONSOLEGAME_INCLUDED
 #define CONSOLEGAME_INCLUDED
 
-#include "../../RuntimeCompiler/IFileChangeNotifier.h"
 #include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
 #include "../../RuntimeObjectSystem/ObjectInterface.h"
 #include "../../Common/AUArray.inl"
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#include <vector>
-
-#define BOOST_FILESYSTEM_VERSION 3
-#include "boost/filesystem.hpp" 
-
-
-struct ICompilerLogger;
-class BuildTool;
 
 struct IUpdateable;
+struct IRuntimeObjectSystem;
 
-class ConsoleGame : public IFileChangeListener, public IObjectFactoryListener
+class ConsoleGame : public IObjectFactoryListener
 {
 public:
 	ConsoleGame();
 	virtual ~ConsoleGame();
 
 	bool Init();
-	void Shutdown();
 	bool MainLoop();
 
-
-	// IFileChangeListener
-
-	virtual void OnFileChange(const IAUDynArray<const char*>& filelist);
-
-	// ~IFileChangeListener
 
 	// IObjectFactoryListener
 
@@ -61,39 +44,21 @@ public:
 	// ~IObjectFactoryListener
 
 
-	void CompileAll( bool bForceRecompile );
-	void AddToRuntimeFileList( const char* filename );
-	void RemoveFromRuntimeFileList( const char* filename );
-	void SetAutoCompile( bool autoCompile );
-
 private:
-	typedef std::vector<boost::filesystem::path> TFileList;
 
-	void StartRecompile(const TFileList& filelist, bool bForce);
-	bool LoadCompiledModule();
 
 	void InitObjects();
-	void SetupObjectConstructors(GETPerModuleInterface_PROC pPerModuleInterfaceProcAdd);
 	void DeleteObjects();
 	void ResetGame();
 
 
 	// Private Members
 	ICompilerLogger*		m_pCompilerLogger;
-	IObjectFactorySystem*	m_pObjectFactorySystem;
-	IFileChangeNotifier*	m_pFileChangeNotifier;
-	BuildTool*				m_pBuildTool;
+	IRuntimeObjectSystem*	m_pRuntimeObjectSystem;
 
 	// Runtime object
 	IUpdateable* m_pUpdateable;
 	ObjectId	   m_ObjectId;
-
-	std::vector<HMODULE> m_Modules;	// Stores runtime created modules, but not the exe module.
-	TFileList m_RuntimeFileList;
-	bool m_bHaveProgramError;
-	bool m_bCompiling;
-	bool m_bAutoCompile;
-	boost::filesystem::path m_CurrentlyCompilingModuleName;
 
 };
 

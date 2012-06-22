@@ -27,10 +27,9 @@ class BuildTool;
 struct IRuntimeObjectSystem
 {
 public:
-	virtual ~IRuntimeObjectSystem();
-
-	// Initialise RuntimeObjectSystem. pLogger should be deleted by creator
-	virtual bool Initialise( ICompilerLogger * pLogger ) = 0;
+	// Initialise RuntimeObjectSystem. pLogger and pSystemTable should be deleted by creator
+	// Both pLogger and pSystemTable can be 0
+	virtual bool Initialise( ICompilerLogger * pLogger, SystemTable* pSystemTable  ) = 0;
 
 	virtual bool GetIsCompiling() = 0;
 	virtual bool GetIsCompiledComplete() = 0;
@@ -43,8 +42,10 @@ public:
 	virtual void AddToRuntimeFileList( const char* filename ) = 0;
 	virtual void RemoveFromRuntimeFileList( const char* filename ) = 0;
 	virtual void SetAutoCompile( bool autoCompile ) = 0;
-	virtual bool GetAutoCompile( bool autoCompile ) = 0;
+	virtual bool GetAutoCompile( bool autoCompile ) const = 0;
 
+	//ensure subclasses are deleted correctly
+	virtual ~IRuntimeObjectSystem(){};
 };
 
 #endif // IRUNTIMEOBJECTSYSTEM_INCLUDED

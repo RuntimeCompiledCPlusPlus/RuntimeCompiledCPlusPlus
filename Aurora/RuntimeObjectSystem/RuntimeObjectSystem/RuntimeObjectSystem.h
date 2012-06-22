@@ -44,7 +44,7 @@ public:
 	virtual ~RuntimeObjectSystem();
 
 	// Initialise RuntimeObjectSystem. pLogger should be deleted by creator
-	virtual bool Initialise( ICompilerLogger * pLogger );
+	virtual bool Initialise( ICompilerLogger * pLogger, SystemTable* pSystemTable );
 
 	virtual bool GetIsCompiling()
 	{
@@ -81,12 +81,6 @@ public:
 
 	// ~IFileChangeListener
 
-	// IObjectFactoryListener
-
-	virtual void OnConstructorsAdded();
-
-	// ~IObjectFactoryListener
-
 private:
 	typedef std::vector<boost::filesystem::path> TFileList;
 
@@ -98,8 +92,11 @@ private:
 	void ResetGame();
 
 
-	// Private Members
+	// Members set in initialise
 	ICompilerLogger*		m_pCompilerLogger;
+	SystemTable*			m_pSystemTable;
+
+	// Members created by this system
 	IObjectFactorySystem*	m_pObjectFactorySystem;
 	IFileChangeNotifier*	m_pFileChangeNotifier;
 	BuildTool*				m_pBuildTool;
