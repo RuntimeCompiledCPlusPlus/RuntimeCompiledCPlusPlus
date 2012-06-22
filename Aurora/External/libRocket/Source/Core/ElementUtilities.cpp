@@ -221,6 +221,14 @@ bool ElementUtilities::GetClippingRegion(Vector2i& clip_origin, Vector2i& clip_d
 				bool clip_y = element->GetProperty(OVERFLOW_Y)->Get< int >() != OVERFLOW_VISIBLE;
 				ROCKET_ASSERT(!clip_x || !clip_y || (clip_x && clip_y));
 				
+				//TODO: REPLACE FOLLOWING BUG FIX FOR OVERFLOW
+				if( !( clip_x && clip_y ) )
+				{
+					clip_x = true;
+					clip_y = true;
+				}
+				//END TODO
+
 				if (!clip_x)
 				{
 					element_origin.x = 0;
