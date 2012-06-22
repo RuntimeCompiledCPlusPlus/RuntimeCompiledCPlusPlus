@@ -17,13 +17,14 @@
 
 #pragma once
 
-#ifndef CONSOLEGAME_INCLUDED
-#define CONSOLEGAME_INCLUDED
+#ifndef RUNTIMEOBJECTSYSTEM_INCLUDED
+#define RUNTIMEOBJECTSYSTEM_INCLUDED
 
 #include "../../RuntimeCompiler/IFileChangeNotifier.h"
-#include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
-#include "../../RuntimeObjectSystem/ObjectInterface.h"
 #include "../../Common/AUArray.inl"
+#include "../ObjectInterface.h"
+#include "../IRuntimeObjectSystem.h"
+
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <vector>
@@ -33,19 +34,45 @@
 
 
 struct ICompilerLogger;
+struct IObjectFactorySystem;
 class BuildTool;
 
-struct IUpdateable;
-
-class ConsoleGame : public IFileChangeListener, public IObjectFactoryListener
+class RuntimeObjectSystem : public IRuntimeObjectSystem, public IFileChangeListener
 {
 public:
-	ConsoleGame();
-	virtual ~ConsoleGame();
+	RuntimeObjectSystem();
+	virtual ~RuntimeObjectSystem();
 
-	bool Init();
-	void Shutdown();
-	bool MainLoop();
+	// Initialise RuntimeObjectSystem. pLogger should be deleted by creator
+	virtual bool Initialise( ICompilerLogger * pLogger );
+
+	virtual bool GetIsCompiling()
+	{
+		return m_bCompiling;
+	}
+
+	virtual bool GetIsCompiledComplete();
+
+	virtual bool LoadCompiledModule();
+
+	virtual IObjectFactorySystem* GetObjectFactorySystem() const
+	{
+		return m_pObjectFactorySystem;
+	}
+	virtual IFileChangeNotifier* GetFileChangeNotifier() const
+	{
+		return m_pFileChangeNotifier;
+	}
+
+	virtual void CompileAll( bool bForceRecompile );
+	virtual void AddToRuntimeFileList( const char* filename );
+	virtual void RemoveFromRuntimeFileList( const char* filename );
+	virtual void SetAutoCompile( bool autoCompile );
+	virtual bool GetAutoCompile( bool autoCompile ) const
+	{
+		return m_bAutoCompile;
+	}
+
 
 
 	// IFileChangeListener
@@ -60,17 +87,10 @@ public:
 
 	// ~IObjectFactoryListener
 
-
-	void CompileAll( bool bForceRecompile );
-	void AddToRuntimeFileList( const char* filename );
-	void RemoveFromRuntimeFileList( const char* filename );
-	void SetAutoCompile( bool autoCompile );
-
 private:
 	typedef std::vector<boost::filesystem::path> TFileList;
 
 	void StartRecompile(const TFileList& filelist, bool bForce);
-	bool LoadCompiledModule();
 
 	void InitObjects();
 	void SetupObjectConstructors(GETPerModuleInterface_PROC pPerModuleInterfaceProcAdd);
@@ -84,17 +104,12 @@ private:
 	IFileChangeNotifier*	m_pFileChangeNotifier;
 	BuildTool*				m_pBuildTool;
 
-	// Runtime object
-	IUpdateable* m_pUpdateable;
-	ObjectId	   m_ObjectId;
-
+	bool m_bCompiling;
 	std::vector<HMODULE> m_Modules;	// Stores runtime created modules, but not the exe module.
 	TFileList m_RuntimeFileList;
-	bool m_bHaveProgramError;
-	bool m_bCompiling;
 	bool m_bAutoCompile;
 	boost::filesystem::path m_CurrentlyCompilingModuleName;
 
 };
 
-#endif // CONSOLEGAME_INCLUDED
+#endif // RUNTIMEOBJECTSYSTEM_INCLUDED

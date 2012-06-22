@@ -15,7 +15,7 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#include "ConsoleGame.h"
+#include "RuntimeObjectSystem.h"
 
 // Remove windows.h define of GetObject which conflicts with EntitySystem GetObject
 #if defined _WINDOWS_ && defined GetObject
@@ -25,57 +25,42 @@
 #include "../../RunTimeCompiler/BuildTool.h"
 #include "../../RuntimeCompiler/ICompilerLogger.h"
 #include "../../RuntimeCompiler/FileChangeNotifier.h"
-#include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
-#include "../../RuntimeObjectSystem/ObjectFactorySystem/ObjectFactorySystem.h"
+#include "../IObjectFactorySystem.h"
+#include "../ObjectFactorySystem/ObjectFactorySystem.h"
 
-#include "StdioLogSystem.h"
 
-#include "../../RuntimeObjectSystem/IObject.h"
-#include "IUpdateable.h"
-#include "InterfaceIds.h"
-
-#include <iostream>
-#include <tchar.h>
-#include <conio.h>
-#include <strstream>
-#include <vector>
-#include <algorithm>
-#include <string>
-#include <stdarg.h>
+#include "../IObject.h"
 
 using boost::filesystem::path;
 
 SystemTable* gSys = 0;
 
-ConsoleGame::ConsoleGame()
+RuntimeObjectSystem::RuntimeObjectSystem()
 	: m_pCompilerLogger(0)
 	, m_pBuildTool(0)
-	, m_bHaveProgramError(false)
 	, m_bCompiling( false )
 	, m_bAutoCompile( true )
-	, m_pUpdateable(0)
 	, m_pObjectFactorySystem(0)
 	, m_pFileChangeNotifier(0)
 {
 }
 
-ConsoleGame::~ConsoleGame()
+RuntimeObjectSystem::~RuntimeObjectSystem()
 {
 	m_pFileChangeNotifier->RemoveListener(this);
-
-	// delete object via correct interface
-	IObject* pObj = m_pObjectFactorySystem->GetObject( m_ObjectId );
-	delete pObj;
 
 	delete m_pObjectFactorySystem;
 	delete m_pFileChangeNotifier;
 	delete m_pBuildTool;
-	delete m_pCompilerLogger;
+
+	// Note we do not delete compiler logger, creator should do this
 }
 
 
-bool ConsoleGame::Init()
+bool RuntimeObjectSystem::Initialise( ICompilerLogger * pLogger )
 {
+	m_pCompilerLogger = pLogger;
+
 	// We need the current directory to be the process dir
 	DWORD size = MAX_PATH;
 	wchar_t filename[MAX_PATH];
@@ -86,7 +71,6 @@ bool ConsoleGame::Init()
 	SetCurrentDirectory( launchPath.wstring().c_str() );
 
 	m_pBuildTool = new BuildTool();
-	m_pCompilerLogger = new StdioLogSystem();
 	m_pBuildTool->Initialise(m_pCompilerLogger);
 
 	// We start by using the code in the current module
@@ -96,7 +80,7 @@ bool ConsoleGame::Init()
 	pPerModuleInterfaceProcAdd = (GETPerModuleInterface_PROC) GetProcAddress(module, "GetPerModuleInterface");
 	if (!pPerModuleInterfaceProcAdd)
 	{
-		std::cout << "Failed GetProcAddress for GetPerModuleInterface in current module\n";
+		m_pCompilerLogger->LogError( "Failed GetProcAddress for GetPerModuleInterface in current module\n" );
 		return false;
 	}
 
@@ -108,38 +92,11 @@ bool ConsoleGame::Init()
 
 	SetupObjectConstructors(pPerModuleInterfaceProcAdd);
 
-	m_pObjectFactorySystem->AddListener(this);
-
-
-	// construct first object
-	IObjectConstructor* pCtor = m_pObjectFactorySystem->GetConstructor( "RuntimeObject01" );
-	if( pCtor )
-	{
-		IObject* pObj = pCtor->Construct();
-		pObj->GetInterface( IID_IUPDATEABLE, (void**)&m_pUpdateable );
-		if( 0 == m_pUpdateable )
-		{
-			delete pObj;
-			m_pCompilerLogger->LogError("Error - no updateable interface found\n");
-			return false;
-		}
-		m_ObjectId = pObj->GetObjectId();
-
-	}
-
-
 	return true;
 }
 
 
-
-
-void ConsoleGame::Shutdown()
-{
-}
-
-
-void ConsoleGame::OnFileChange(const IAUDynArray<const char*>& filelist)
+void RuntimeObjectSystem::OnFileChange(const IAUDynArray<const char*>& filelist)
 {
 
 	if( !m_bAutoCompile )
@@ -159,33 +116,22 @@ void ConsoleGame::OnFileChange(const IAUDynArray<const char*>& filelist)
 	StartRecompile(pathlist, false);
 }
 
-void ConsoleGame::OnConstructorsAdded()
+bool RuntimeObjectSystem::GetIsCompiledComplete()
 {
-	// This could have resulted in a change of object pointer, so release old and get new one.
-	if( m_pUpdateable )
-	{
-		IObject* pObj = m_pObjectFactorySystem->GetObject( m_ObjectId );
-		pObj->GetInterface( IID_IUPDATEABLE, (void**)&m_pUpdateable );
-		if( 0 == m_pUpdateable )
-		{
-			delete pObj;
-			m_pCompilerLogger->LogError( "Error - no updateable interface found\n");
-		}
-	}
+	return m_bCompiling && m_pBuildTool->GetIsComplete();
 }
 
-
-void ConsoleGame::CompileAll( bool bForceRecompile )
+void RuntimeObjectSystem::CompileAll( bool bForceRecompile )
 {
 	StartRecompile(m_RuntimeFileList, bForceRecompile);
 }
 
-void ConsoleGame::SetAutoCompile( bool autoCompile )
+void RuntimeObjectSystem::SetAutoCompile( bool autoCompile )
 {
 	m_bAutoCompile = autoCompile;
 }
 
-void ConsoleGame::AddToRuntimeFileList( const char* filename )
+void RuntimeObjectSystem::AddToRuntimeFileList( const char* filename )
 {
 	TFileList::iterator it = std::find( m_RuntimeFileList.begin(), m_RuntimeFileList.end(), filename );
 	if ( it == m_RuntimeFileList.end() )
@@ -194,7 +140,7 @@ void ConsoleGame::AddToRuntimeFileList( const char* filename )
 	}
 }
 
-void ConsoleGame::RemoveFromRuntimeFileList( const char* filename )
+void RuntimeObjectSystem::RemoveFromRuntimeFileList( const char* filename )
 {
 	TFileList::iterator it = std::find( m_RuntimeFileList.begin(), m_RuntimeFileList.end(), filename );
 	if ( it != m_RuntimeFileList.end() )
@@ -203,41 +149,7 @@ void ConsoleGame::RemoveFromRuntimeFileList( const char* filename )
 	}
 }
 
-
-
-bool ConsoleGame::MainLoop()
-{
-	//check status of any compile
-	if( m_bCompiling && m_pBuildTool->GetIsComplete() )
-	{
-		// load module when compile complete, and notify console - TODO replace with event system 
-		bool bSuccess = LoadCompiledModule();
-		m_bCompiling = false;
-
-	}
-
-	if( !m_bCompiling )
-	{
-
-		std::cout << "\nMain Loop - press q to quit. Updates every second.\n";
-		if( _kbhit() )
-		{
-			int ret = _getche();
-			if( 'q' == ret )
-			{
-				return false;
-			}
-		}
-		const float deltaTime = 1.0f;
-		m_pFileChangeNotifier->Update( deltaTime );
-		m_pUpdateable->Update( deltaTime );
-		Sleep(1000);
-	}
-
-	return true;
-}
-
-void ConsoleGame::StartRecompile(const TFileList& filelist, bool bForce)
+void RuntimeObjectSystem::StartRecompile(const TFileList& filelist, bool bForce)
 {
 	m_bCompiling = true;
 	m_pCompilerLogger->LogInfo( "Compiling...\n");
@@ -271,7 +183,7 @@ void ConsoleGame::StartRecompile(const TFileList& filelist, bool bForce)
 	m_pBuildTool->BuildModule( buildFileList, includeDirList, m_CurrentlyCompilingModuleName );
 }
 
-bool ConsoleGame::LoadCompiledModule()
+bool RuntimeObjectSystem::LoadCompiledModule()
 {
 	// Since the temporary file is created with 0 bytes, loadlibrary can fail with a dialogue we want to prevent. So check size
 	// We pass in the ec value so the function won't throw an exception on error, but the value itself sometimes seems to
@@ -305,12 +217,10 @@ bool ConsoleGame::LoadCompiledModule()
 
 	SetupObjectConstructors(pPerModuleInterfaceProcAdd);
 
-	m_bHaveProgramError = false; //reset
-
 	return true;
 }
 
-void ConsoleGame::SetupObjectConstructors(GETPerModuleInterface_PROC pPerModuleInterfaceProcAdd)
+void RuntimeObjectSystem::SetupObjectConstructors(GETPerModuleInterface_PROC pPerModuleInterfaceProcAdd)
 {
 	// get hold of the constructors
 	const std::vector<IObjectConstructor*> &objectConstructors = pPerModuleInterfaceProcAdd()->GetConstructors();
