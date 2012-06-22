@@ -111,6 +111,16 @@ Game::~Game()
 
 bool Game::Init()
 {
+	// We Set Dir here so logs go to bin directory
+	DWORD size = MAX_PATH;
+	wchar_t filename[MAX_PATH];
+	GetModuleFileName( NULL, filename, size );
+	std::wstring strTempFileName( filename );
+	path launchPath( strTempFileName );
+	launchPath = launchPath.parent_path();
+	SetCurrentDirectory( launchPath.wstring().c_str() );
+
+
 	m_pEnv = new Environment( this );
 	m_pSystemInterface = new RocketLibSystemSystemInterface();
 	m_pOpenGLRenderer = new RocketLibSystemRenderInterfaceOpenGL();

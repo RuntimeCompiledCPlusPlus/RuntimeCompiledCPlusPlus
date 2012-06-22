@@ -79,11 +79,6 @@ public:
 	// ~IGame
 
 private:
-	typedef std::vector<boost::filesystem::path> TFileList;
-	typedef std::multimap<boost::filesystem::path,boost::filesystem::path> TFileToFileMap;
-	typedef TFileToFileMap::iterator TFileToFileIterator;
-	typedef std::pair<boost::filesystem::path,boost::filesystem::path> TFileToFilePair;
-	typedef std::pair<TFileToFileMap::iterator,TFileToFileMap::iterator> TFileToFileEqualRange;
 
 	void RocketLibInit();
 	void RocketLibUpdate();

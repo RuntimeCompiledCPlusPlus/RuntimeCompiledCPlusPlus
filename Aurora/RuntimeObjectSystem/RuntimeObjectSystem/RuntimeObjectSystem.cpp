@@ -99,22 +99,34 @@ bool RuntimeObjectSystem::Initialise( ICompilerLogger * pLogger, SystemTable* pS
 
 void RuntimeObjectSystem::OnFileChange(const IAUDynArray<const char*>& filelist)
 {
-
 	if( !m_bAutoCompile )
 	{
 		return;
 	}
 
 	m_pCompilerLogger->LogInfo("FileChangeNotifier triggered recompile of files:\n");
-
+	bool bForce = false;
 	TFileList pathlist;
-	pathlist.resize(filelist.Size());
 	for( size_t i = 0; i < filelist.Size(); ++ i )
 	{
-		pathlist[i] = path(filelist[i]);
+		//m_pEnv->sys->pLogSystem->Log(eLV_COMMENTS, "  %s\n", filelist[i]);
+		path filePath = filelist[i];
+		if( filePath.extension() != ".h") //TODO: change to check for .cpp and .c as could have .inc files etc.?
+		{
+			pathlist.push_back( filePath );
+		}
+		else
+		{
+			TFileToFileEqualRange range = m_RuntimeIncludeMap.equal_range( filePath );
+			for(TFileToFileIterator it=range.first; it!=range.second; ++it)
+			{
+				pathlist.push_back( (*it).second );
+				bForce = true;
+			}
+		}
 	}
 
-	StartRecompile(pathlist, false);
+	StartRecompile(pathlist, bForce);
 }
 
 bool RuntimeObjectSystem::GetIsCompiledComplete()
@@ -138,6 +150,7 @@ void RuntimeObjectSystem::AddToRuntimeFileList( const char* filename )
 	if ( it == m_RuntimeFileList.end() )
 	{
 		m_RuntimeFileList.push_back( filename );
+		m_pFileChangeNotifier->Watch( filename, this );
 	}
 }
 
@@ -233,18 +246,19 @@ void RuntimeObjectSystem::SetupObjectConstructors(GETPerModuleInterface_PROC pPe
 	for (size_t i=0, iMax=objectConstructors.size(); i<iMax; ++i)
 	{
 		constructors[i] = objectConstructors[i];
-		// Add to runtime file list if it's not already there (and not a ".h" file - temp solution until proper dependency system is in place)
-		path filename = objectConstructors[i]->GetFileName();
-		if ( m_RuntimeFileList.end() == std::find(m_RuntimeFileList.begin(), m_RuntimeFileList.end(), filename) )
-		{
-			// Start watching all the files involved, to trigger recompile
-			m_pFileChangeNotifier->Watch( objectConstructors[i]->GetFileName(), this );
+		AddToRuntimeFileList( objectConstructors[i]->GetFileName() );
 
-			if (filename.extension() != ".h")
-			{
-				m_RuntimeFileList.push_back( filename );
-			}		
-		}		
+		//add include file mappings
+		unsigned int includeNum = 0;
+		while( objectConstructors[i]->GetIncludeFile( includeNum ) )
+		{
+			TFileToFilePair includePathPair;
+			includePathPair.first = objectConstructors[i]->GetIncludeFile( includeNum );
+			includePathPair.second = objectConstructors[i]->GetFileName();
+			AddToRuntimeFileList( objectConstructors[i]->GetIncludeFile( includeNum ) );
+			m_RuntimeIncludeMap.insert( includePathPair );
+			++includeNum;
+		}
 	}
 	m_pObjectFactorySystem->AddConstructors( constructors );
 }
