@@ -20,10 +20,12 @@
 #ifndef ENVIRONMENT_INCLUDED
 #define ENVIRONMENT_INCLUDED
 
-#include "../../Systems/Exceptions.h"
+#include "../../RuntimeObjectSystem/Exceptions.h"
+
 
 struct SystemTable;
 struct IGame;
+struct ICompilerLogger;
 
 class Environment
 {
@@ -37,9 +39,11 @@ public:
 			{}
 	};
 
-	SystemTable *sys;
+	SystemTable*            sys;
+	ICompilerLogger*		pCompilerLogger;
 
-	Environment( IGame* pGame );                                          // Create empty environment
+
+	Environment( IGame* pGame );                            // Create empty environment
 	~Environment(void);                                     // Clean up and destroy environment
 };
 

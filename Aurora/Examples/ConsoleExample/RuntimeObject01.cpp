@@ -1,13 +1,13 @@
-#include "../../RunTimeCompiler/ObjectInterfacePerModule.h"
+#include "../../RuntimeObjectSystem/ObjectInterfacePerModule.h"
 
-#include "../../Systems/IObject.h"
-#include "../../Systems/IUpdateable.h"
+#include "../../RuntimeObjectSystem/IObject.h"
+#include "IUpdateable.h"
 #include "InterfaceIds.h"
 #include <iostream>
 
 
 // Note: Currently need to put the interface for IID_* before the template
-class RuntimeObject01 : public IAUUpdateable, public IObject
+class RuntimeObject01 : public IUpdateable, public IObject
 {
 public:
 	RuntimeObject01()
@@ -32,7 +32,7 @@ public:
 		switch(_iid)
 		{
 		case IID_IUPDATEABLE:
-			*pReturn= static_cast<IAUUpdateable*>( this );
+			*pReturn= static_cast<IUpdateable*>( this );
 			break;
 		default:
 			IObject::GetInterface(_iid, pReturn);

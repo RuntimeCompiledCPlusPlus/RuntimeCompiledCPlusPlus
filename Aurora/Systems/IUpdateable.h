@@ -25,4 +25,4 @@ struct IAUUpdateable
 	virtual void Update( float deltaTime ) = 0;
 };
 
-#endif // IAUENTITY_INCLUDED
+#endif // IAUUPDATEABLE_INCLUDED

@@ -23,9 +23,8 @@
 #define BOOST_FILESYSTEM_VERSION 3
 #include "boost/filesystem.hpp"   // includes all needed Boost.Filesystem declarations
 
-#include "../../Common/Definitions.inl"
 #include "../../RuntimeCompiler/IFileChangeNotifier.h"
-#include "../../RuntimeCompiler/ObjectInterface.h"
+#include "../../RuntimeObjectSystem/ObjectInterface.h"
 
 #include <Rocket/Core.h>
 #include <Rocket/Controls.h>
@@ -37,7 +36,7 @@ class Console : public IFileChangeListener, public Rocket::Core::EventListener
 {
 public:
 	
-	Console(IFileChangeListener* pPrimaryListener, Environment* pEnv, Rocket::Core::Context* pRocketContext);
+	Console(Environment* pEnv, Rocket::Core::Context* pRocketContext);
 	~Console();
 
 	// IFileChangeListener
@@ -61,7 +60,7 @@ public:
 
 private:
 
-	void InitFileChangeNotifier(IFileChangeListener* pPrimaryListener);
+	void InitFileChangeNotifier();
 	bool CreateConsoleContextFile();
 	void CreateConsoleContext();
 	void WriteConsoleContext();

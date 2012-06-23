@@ -17,17 +17,19 @@
 
 // CompilingNotification.cpp : Defines an IObject that displays when we're compiling
 //
-#include "../../RunTimeCompiler/ObjectInterfacePerModule.h"
 #include "../../RuntimeCompiler/IFileChangeNotifier.h"
+
+#include "../../RuntimeObjectSystem/ObjectInterfacePerModule.h"
+#include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
+#include "../../RuntimeObjectSystem/ISimpleSerializer.h"
+#include "../../RuntimeObjectSystem/IRuntimeObjectSystem.h"
+
 #include "../../Systems/SystemTable.h"
-#include "../../Systems/IObjectFactorySystem.h"
 #include "../../Systems/ILogSystem.h"
 #include "../../Systems/IGUISystem.h"
-#include "../../Systems/ISimpleSerializer.h"
 #include "../../Systems/IUpdateable.h"
 #include "../../Systems/IEntitySystem.h"
 #include "../../Systems/ITimeSystem.h"
-#include "../../Systems/IGame.h"
 
 #include "IEntityObject.h"
 
@@ -147,8 +149,8 @@ public:
 			m_fTimeToNextUpdate -= fSmoothFrameTime;
 
 			SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
-			bool bCompiling = pSystemTable->pGame->GetIsCompiling();
-			bool bLoadedModule = pSystemTable->pGame->GetLastLoadModuleSuccess();
+			bool bCompiling = pSystemTable->pRuntimeObjectSystem->GetIsCompiling();
+			bool bLoadedModule = pSystemTable->pRuntimeObjectSystem->GetLastLoadModuleSuccess();
 			char text[200];
 
 			switch( m_CompilationStatus )

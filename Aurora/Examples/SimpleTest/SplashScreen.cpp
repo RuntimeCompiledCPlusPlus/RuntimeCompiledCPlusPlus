@@ -17,13 +17,13 @@
 
 #include "ISplashScreen.h"
 
-#include "../../RunTimeCompiler/ObjectInterfacePerModule.h"
+#include "../../RuntimeObjectSystem/ObjectInterfacePerModule.h"
 #include "../../RuntimeCompiler/IFileChangeNotifier.h"
 #include "../../Systems/SystemTable.h"
 #include "../../Systems/IEntitySystem.h"
 #include "../../Systems/IAssetSystem.h"
 #include "../../Systems/ILogSystem.h"
-#include "../../Systems/ISimpleSerializer.h"
+#include "../../RuntimeObjectSystem/ISimpleSerializer.h"
 #include "../../Systems/IGUISystem.h"
 #include "../../Systems/IGame.h"
 
@@ -108,11 +108,37 @@ public:
 
 	virtual void Update( float deltaTime )
 	{
+		if( !m_pSplashElement || !m_pDocument )
+		{
+			return;
+		}
+
 		if (!m_bReadyToClose)
 		{
 			m_pDocument->Show(); // HACK - recompiling with visible splashscreen seems to make it vanish for some reason
 
+
 			char buff[32];
+			
+			// Check if window has re-szie and move splash screen
+			float currWindowSize[2];
+			PerModuleInterface::GetInstance()->GetSystemTable()->pGame->GetWindowSize( currWindowSize[0], currWindowSize[1] );
+			if( currWindowSize[0] != m_WindowSize[0] || currWindowSize[1] != m_WindowSize[1] )
+			{
+				m_WindowSize[0] = currWindowSize[0];
+				m_WindowSize[1] = currWindowSize[1];
+
+				int left;
+				left = (int)( (m_WindowSize[0] - m_pSplashElement->GetClientWidth()) * 0.5f );
+				_itoa_s(left,buff,10);
+				m_pSplashElement->SetProperty("left", buff);
+
+				int top;
+				top = (int)( (m_WindowSize[1] - m_pSplashElement->GetClientHeight()) * 0.5f );
+				_itoa_s(top,buff,10);
+				m_pSplashElement->SetProperty("top", buff);
+			}
+
 
 			m_fTimeDisplayed += deltaTime;
 			if (m_fTimeDisplayed < m_fFadeInTime)
@@ -176,17 +202,16 @@ public:
 			m_pSplashElement->SetAttribute("src", imageFile);
 
 			// Position element correctly so that it is centered
+			PerModuleInterface::GetInstance()->GetSystemTable()->pGame->GetWindowSize( m_WindowSize[0], m_WindowSize[1] );
+
 			char buff[16];
-			float windowWidth, windowHeight;
-			PerModuleInterface::GetInstance()->GetSystemTable()->pGame->GetWindowSize( windowWidth, windowHeight );
-			
 			int left;
-			left = (int)( (windowWidth - m_pSplashElement->GetClientWidth()) * 0.5f );
+			left = (int)( (m_WindowSize[0] - m_pSplashElement->GetClientWidth()) * 0.5f );
 			_itoa_s(left,buff,10);
 			m_pSplashElement->SetProperty("left", buff);
 
 			int top;
-			top = (int)( (windowHeight - m_pSplashElement->GetClientHeight()) * 0.5f );
+			top = (int)( (m_WindowSize[1] - m_pSplashElement->GetClientHeight()) * 0.5f );
 			_itoa_s(top,buff,10);
 			m_pSplashElement->SetProperty("top", buff);
 		}
@@ -289,6 +314,7 @@ private:
 	bool m_bAutoClose;
 	bool m_bCloseRequested;
 	bool m_bReadyToClose;
+	float m_WindowSize[2];
 };
 
 REGISTERCLASS(SplashScreen);

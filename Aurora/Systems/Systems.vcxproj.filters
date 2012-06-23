@@ -50,14 +50,6 @@
     </ClInclude>
     <ClInclude Include="IEntity.h" />
     <ClInclude Include="IUpdateable.h" />
-    <ClInclude Include="SimpleSerializer\SimpleSerializer.h">
-      <Filter>SimpleSerializer</Filter>
-    </ClInclude>
-    <ClInclude Include="ISimpleSerializer.h" />
-    <ClInclude Include="IObjectFactorySystem.h" />
-    <ClInclude Include="ObjectFactorySystem\ObjectFactorySystem.h">
-      <Filter>ObjectFactorySystem</Filter>
-    </ClInclude>
     <ClInclude Include="ITimeSystem.h" />
     <ClInclude Include="TimeSystem\TimeSystem.h">
       <Filter>TimeSystem</Filter>
@@ -85,8 +77,6 @@
     </ClInclude>
     <ClInclude Include="IGame.h" />
     <ClInclude Include="Systems.h" />
-    <ClInclude Include="Exceptions.h" />
-    <ClInclude Include="IObject.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="LogSystem">
@@ -106,12 +96,6 @@
     </Filter>
     <Filter Include="AssetSystem">
       <UniqueIdentifier>{152394b1-4150-41bf-8641-3787dc746292}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SimpleSerializer">
-      <UniqueIdentifier>{5c18b992-716b-4740-a6be-77447685f692}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ObjectFactorySystem">
-      <UniqueIdentifier>{d1470599-850f-4869-870a-7c041fe1596c}</UniqueIdentifier>
     </Filter>
     <Filter Include="TimeSystem">
       <UniqueIdentifier>{fd4b086c-b4ba-4507-93e2-840daf3e446f}</UniqueIdentifier>
@@ -175,12 +159,6 @@
     <ClCompile Include="AssetSystem\AssetSystem.cpp">
       <Filter>AssetSystem</Filter>
     </ClCompile>
-    <ClCompile Include="SimpleSerializer\SimpleSerializer.cpp">
-      <Filter>SimpleSerializer</Filter>
-    </ClCompile>
-    <ClCompile Include="ObjectFactorySystem\ObjectFactorySystem.cpp">
-      <Filter>ObjectFactorySystem</Filter>
-    </ClCompile>
     <ClCompile Include="TimeSystem\TimeSystem.cpp">
       <Filter>TimeSystem</Filter>
     </ClCompile>
@@ -200,6 +178,8 @@
       <Filter>LogSystem\ThreadsafeLogSystem</Filter>
     </ClCompile>
     <ClCompile Include="Systems.cpp" />
-    <ClCompile Include="Exceptions.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Definitions.inl" />
   </ItemGroup>
 </Project>

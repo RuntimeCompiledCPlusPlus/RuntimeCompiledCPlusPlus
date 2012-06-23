@@ -11,18 +11,29 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <None Include="AUArray.inl" />
-    <None Include="AUOrientation3D.inl" />
-    <None Include="AUVec3f.inl" />
-    <None Include="Math.inl" />
+    <ClInclude Include="Exceptions.h" />
+    <ClInclude Include="IObject.h" />
+    <ClInclude Include="IObjectFactorySystem.h" />
+    <ClInclude Include="IRuntimeObjectSystem.h" />
+    <ClInclude Include="ISimpleSerializer.h" />
+    <ClInclude Include="ObjectFactorySystem\ObjectFactorySystem.h" />
+    <ClInclude Include="ObjectInterface.h" />
+    <ClInclude Include="ObjectInterfacePerModule.h" />
+    <ClInclude Include="RuntimeInclude.h" />
+    <ClInclude Include="RuntimeObjectSystem\RuntimeObjectSystem.h" />
+    <ClInclude Include="SimpleSerializer\SimpleSerializer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AUColor.inl" />
+    <ClCompile Include="Exceptions.cpp" />
+    <ClCompile Include="ObjectFactorySystem\ObjectFactorySystem.cpp" />
+    <ClCompile Include="ObjectInterfacePerModuleSource.cpp" />
+    <ClCompile Include="ObjectInterfacePerModuleSource_PlatformWindows.cpp" />
+    <ClCompile Include="RuntimeObjectSystem\RuntimeObjectSystem.cpp" />
+    <ClCompile Include="SimpleSerializer\SimpleSerializer.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{2947A63C-A245-4853-B4CC-476354188AEE}</ProjectGuid>
-    <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Common</RootNamespace>
+    <ProjectGuid>{FA4E24F1-885C-406B-89A8-436F28D090B2}</ProjectGuid>
+    <RootNamespace>Systems</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -41,43 +52,65 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Aurora.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Aurora.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <CustomBuildAfterTargets>
+    </CustomBuildAfterTargets>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeaderFile>
-      </PrecompiledHeaderFile>
-      <PrecompiledHeaderOutputFile>
-      </PrecompiledHeaderOutputFile>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+    </Lib>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <PreprocessorDefinitions>_UNICODE;UNICODE;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <Lib>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+    </Lib>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

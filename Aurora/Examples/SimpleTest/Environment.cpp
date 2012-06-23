@@ -26,10 +26,11 @@
 #include "../../Systems/TimeSystem/TimeSystem.h"
 #include "../../Systems/EntitySystem/EntitySystem.h"
 #include "../../Systems/AssetSystem/AssetSystem.h"
-#include "../../Systems/ObjectFactorySystem//ObjectFactorySystem.h"
+#include "../../RuntimeObjectSystem/ObjectFactorySystem/ObjectFactorySystem.h"
+#include "../../RuntimeObjectSystem/RuntimeObjectSystem/RuntimeObjectSystem.h"
 #include "../../Systems/GUISystem/GUISystem.h"
 #include "../../RuntimeCompiler/FileChangeNotifier.h"
-
+#include "CompilerLogger.h"
 
 Environment::Environment( IGame* pGame )
 {
@@ -61,6 +62,14 @@ Environment::Environment( IGame* pGame )
 
 	sys->pLogSystem->Log(eLV_EVENTS, "All logs initialised\n");
 
+	pCompilerLogger = new CompilerLogger(this);
+	sys->pRuntimeObjectSystem = new RuntimeObjectSystem();
+	sys->pRuntimeObjectSystem->Initialise( pCompilerLogger, sys );
+	sys->pObjectFactorySystem = sys->pRuntimeObjectSystem->GetObjectFactorySystem();
+	sys->pFileChangeNotifier = sys->pRuntimeObjectSystem->GetFileChangeNotifier();
+
+
+
 	sys->pTimeSystem = new TimeSystem();
 	sys->pTimeSystem->StartSession();
 
@@ -68,23 +77,22 @@ Environment::Environment( IGame* pGame )
 
 	sys->pAssetSystem = new AssetSystem();
 
-	sys->pObjectFactorySystem = new ObjectFactorySystem();
-
 	sys->pGUISystem = new GUISystem();
 
-	sys->pFileChangeNotifier = new FileChangeNotifier();
 }
 
 Environment::~Environment()
 {
 	// Reverse order as a rule
 
-	delete sys->pFileChangeNotifier;
 	delete sys->pGUISystem;
-	delete sys->pObjectFactorySystem;
 	delete sys->pAssetSystem;
 	delete sys->pEntitySystem;
 	delete sys->pTimeSystem;
 	delete sys->pLogSystem;
+	delete sys->pRuntimeObjectSystem;
+
+	delete pCompilerLogger;
+	delete sys;
 }
 

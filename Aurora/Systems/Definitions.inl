@@ -17,36 +17,27 @@
 
 #pragma once
 
-#ifndef BB_GROUP_INFECTED_INCLUDED
-#define BB_GROUP_INFECTED_INCLUDED
+#ifndef DEFINITIONS_DEFINED
+#define DEFINITIONS_DEFINED
 
-#include "../../RuntimeObjectSystem/RuntimeInclude.h"
-RUNTIME_MODIFIABLE_INCLUDE; //adds this include to runtime tracking
+// All typedefs, defines and macros start AU_ to avoid conflicts
 
-#include "IBlackboard.h"
-#include "../../RuntimeObjectSystem/ISimpleSerializer.h"
-#include <assert.h>
+typedef int AUEntityId;           // (Will be a) salted id for uniquely identifying entities
 
-struct BB_Group_Infected : public IBlackboard
-{
-	BB_Group_Infected()
-	{
-		group_size = 0;
-	}
+struct IRuntimeObjectSystem;
+struct IEntitySystem;
+struct ITimeSystem;
+struct ILogSystem;
+struct IAssetSystem;
 
-	virtual void Serialize(ISimpleSerializer *pSerializer)
-	{
-		AU_ASSERT(pSerializer);
-		SERIALIZE(group_size);
-	}
+struct IAUEntity;
+struct IAURenderable;
+struct IAURenderableMesh;
+struct IAUUpdateable;
+struct ISimpleSerializer;
+struct IObjectFactorySystem;
+struct IGUISystem;
+struct IFileChangeNotifier;
+struct IGame;
 
-	// Members
-
-	int group_size;
-};
-
-// Registered inside BlackboardManager.cpp
-// REGISTERCLASS(BB_Group_Infected);
-
-
-#endif // BB_GROUP_INFECTED_INCLUDED
+#endif // DEFINITIONS_DEFINED

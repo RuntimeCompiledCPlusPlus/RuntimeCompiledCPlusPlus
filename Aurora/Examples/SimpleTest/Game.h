@@ -21,9 +21,10 @@
 #define GAME_INCLUDED
 
 #include "../../RuntimeCompiler/IFileChangeNotifier.h"
-#include "../../RuntimeCompiler/ObjectInterface.h"
+#include "../../RuntimeObjectSystem/ObjectInterface.h"
+#include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
+#include "../../RuntimeObjectSystem/IRuntimeObjectSystem.h"
 #include "../../Common/AUArray.inl"
-#include "../../Systems/IObjectFactorySystem.h"
 #include "../../Systems/IGame.h"
 #include <Rocket/Core/EventListener.h>
 #include <Rocket/Core/Context.h>
@@ -37,8 +38,6 @@
 
 class Console;
 class Environment;
-class CompilerLogger;
-class BuildTool;
 class RocketLibSystemRenderInterfaceOpenGL;
 class RocketLibSystemSystemInterface;
 class AURenderContext;
@@ -48,7 +47,7 @@ typedef int AUEntityId;
 class CalSound;
 class CalBuffer;
 
-class Game : public IGame, public IFileChangeListener, public IObjectFactoryListener
+class Game : public IGame, public IObjectFactoryListener
 {
 public:
 	Game();
@@ -60,11 +59,6 @@ public:
 	void MainLoop(); // Called by libRocket and CompilerLogger
 
 
-	// IFileChangeListener
-
-	virtual void OnFileChange(const IAUDynArray<const char*>& filelist);
-
-	// ~IFileChangeListener
 
 	// IObjectFactoryListener
 
@@ -74,37 +68,17 @@ public:
 
 	// IGame 
 
-	virtual void CompileAll( bool bForceRecompile );
 	virtual void Reset();
 	virtual void Restart();
 	virtual void ToggleConsoleGUI();
 	virtual void Exit();
 	virtual void GetWindowSize( float& width, float& height ) const;
-	virtual void AddToRuntimeFileList( const char* filename );
-	virtual void RemoveFromRuntimeFileList( const char* filename );
 	virtual void SetVolume( float volume );
 	virtual void SetSpeed( float speed );
-	virtual void SetAutoCompile( bool autoCompile );
-	virtual bool GetIsCompiling() const
-	{
-		return m_bCompiling;
-	}
-	virtual bool GetLastLoadModuleSuccess() const
-	{
-		return m_bLastLoadModuleSuccess;
-	}
 
 	// ~IGame
 
 private:
-	typedef std::vector<boost::filesystem::path> TFileList;
-	typedef std::multimap<boost::filesystem::path,boost::filesystem::path> TFileToFileMap;
-	typedef TFileToFileMap::iterator TFileToFileIterator;
-	typedef std::pair<boost::filesystem::path,boost::filesystem::path> TFileToFilePair;
-	typedef std::pair<TFileToFileMap::iterator,TFileToFileMap::iterator> TFileToFileEqualRange;
-
-	void StartRecompile(const TFileList& filelist, bool bForce);
-	bool LoadCompiledModule();
 
 	void RocketLibInit();
 	void RocketLibUpdate();
@@ -115,7 +89,6 @@ private:
 	void ShutdownSound();
 
 	void InitObjects();
-	void SetupObjectConstructors(GETPerModuleInterface_PROC pPerModuleInterfaceProcAdd);
 	void DeleteObjects();
 	void ResetGame();
 	void InitStoredObjectPointers(); // Get or refresh our stored pointers to runtime objects
@@ -124,34 +97,25 @@ private:
 
 	// Private Members
 
-	Console* m_pConsole;
-	Environment* m_pEnv;
-	CompilerLogger* m_pCompilerLogger;
-	BuildTool* m_pBuildTool;
+	Console*				m_pConsole;
+	Environment*			m_pEnv;
 	
-	Rocket::Core::Context* m_pRocketContext;
-	RocketLibSystemRenderInterfaceOpenGL* m_pOpenGLRenderer;
-	RocketLibSystemSystemInterface* m_pSystemInterface;
-	AURenderContext* m_pRenderContext;
-	bool m_bRenderError;
+	Rocket::Core::Context*					m_pRocketContext;
+	RocketLibSystemRenderInterfaceOpenGL*	m_pOpenGLRenderer;
+	RocketLibSystemSystemInterface*			m_pSystemInterface;
+	AURenderContext*						m_pRenderContext;
+	bool									m_bRenderError;
 
-	ICameraControl* m_pCameraControl;
-	ILightingControl* m_pLightingControl;
+	ICameraControl*		m_pCameraControl;
+	ILightingControl*	m_pLightingControl;
 
-	std::vector<HMODULE> m_Modules;	// Stores runtime created modules, but not the exe module.
-	TFileList m_RuntimeFileList;
-	TFileToFileMap m_RuntimeIncludeMap;
-	bool m_bHaveProgramError;
-	double m_fLastUpdateSessionTime;
-	bool m_bCompiling;
-	bool m_bLastLoadModuleSuccess;
-	bool m_bAutoCompile;
-	boost::filesystem::path m_CurrentlyCompilingModuleName;
+	bool				m_bHaveProgramError;
+	double				m_fLastUpdateSessionTime;
 
-	CalSound*	m_pLoopingBackgroundSound;
-	CalBuffer*	m_pLoopingBackgroundSoundBuffer;
+	CalSound*			m_pLoopingBackgroundSound;
+	CalBuffer*			m_pLoopingBackgroundSoundBuffer;
 
-	float m_GameSpeed;
+	float				m_GameSpeed;
 
 };
 

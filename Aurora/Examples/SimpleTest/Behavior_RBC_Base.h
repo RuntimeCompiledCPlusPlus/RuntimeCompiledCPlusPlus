@@ -20,7 +20,7 @@
 #ifndef BEHAVIOR_RBC_BASE_INCLUDED
 #define BEHAVIOR_RBC_BASE_INCLUDED
 
-#include "../../RuntimeCompiler/RuntimeInclude.h"
+#include "../../RuntimeObjectSystem/RuntimeInclude.h"
 RUNTIME_MODIFIABLE_INCLUDE; //adds this include to runtime tracking
 
 #include "BehaviorCommon.h"

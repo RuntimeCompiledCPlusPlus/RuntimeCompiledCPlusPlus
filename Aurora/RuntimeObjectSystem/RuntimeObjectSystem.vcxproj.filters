@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="ObjectInterfacePerModuleSource.cpp" />
+    <ClCompile Include="ObjectInterfacePerModuleSource_PlatformWindows.cpp" />
+    <ClCompile Include="ObjectFactorySystem\ObjectFactorySystem.cpp">
+      <Filter>ObjectFactorySystem</Filter>
+    </ClCompile>
+    <ClCompile Include="SimpleSerializer\SimpleSerializer.cpp">
+      <Filter>SimpleSerializer</Filter>
+    </ClCompile>
+    <ClCompile Include="Exceptions.cpp" />
+    <ClCompile Include="RuntimeObjectSystem\RuntimeObjectSystem.cpp">
+      <Filter>RuntimeObjectSystem</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="IObject.h" />
+    <ClInclude Include="IObjectFactorySystem.h" />
+    <ClInclude Include="ISimpleSerializer.h" />
+    <ClInclude Include="ObjectInterface.h" />
+    <ClInclude Include="ObjectInterfacePerModule.h" />
+    <ClInclude Include="ObjectFactorySystem\ObjectFactorySystem.h">
+      <Filter>ObjectFactorySystem</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleSerializer\SimpleSerializer.h">
+      <Filter>SimpleSerializer</Filter>
+    </ClInclude>
+    <ClInclude Include="RuntimeInclude.h" />
+    <ClInclude Include="Exceptions.h" />
+    <ClInclude Include="RuntimeObjectSystem\RuntimeObjectSystem.h">
+      <Filter>RuntimeObjectSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="IRuntimeObjectSystem.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="SimpleSerializer">
+      <UniqueIdentifier>{d5986d12-394a-47fc-9758-17ebc5c6720c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ObjectFactorySystem">
+      <UniqueIdentifier>{59da87f4-0b75-46be-82e1-26feaffac32c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RuntimeObjectSystem">
+      <UniqueIdentifier>{be23e8a4-5cd9-4001-9e54-fcf61522c4d4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

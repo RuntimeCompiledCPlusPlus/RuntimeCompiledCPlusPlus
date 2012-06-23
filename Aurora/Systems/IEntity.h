@@ -20,7 +20,7 @@
 #ifndef IAUENTITY_INCLUDED
 #define IAUENTITY_INCLUDED
 
-#include "../Common/Definitions.inl"
+#include "Definitions.inl"
 #include "../Common/AUOrientation3D.inl"
 #include "../Common/AUVec3f.inl"
 

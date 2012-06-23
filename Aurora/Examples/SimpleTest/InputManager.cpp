@@ -22,13 +22,13 @@
 #include "ICameraControl.h"
 #include "GlobalParameters.h"
 
-#include "../../RunTimeCompiler/ObjectInterfacePerModule.h"
+#include "../../RuntimeObjectSystem/ObjectInterfacePerModule.h"
 #include "../../RuntimeCompiler/IFileChangeNotifier.h"
 #include "../../Systems/SystemTable.h"
 #include "../../Systems/IEntitySystem.h"
 #include "../../Systems/IAssetSystem.h"
 #include "../../Systems/ILogSystem.h"
-#include "../../Systems/ISimpleSerializer.h"
+#include "../../RuntimeObjectSystem/ISimpleSerializer.h"
 #include "../../Systems/IGUISystem.h"
 #include "../../Systems/IGame.h"
 

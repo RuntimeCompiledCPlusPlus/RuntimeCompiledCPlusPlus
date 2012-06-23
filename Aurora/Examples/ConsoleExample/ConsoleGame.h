@@ -20,37 +20,22 @@
 #ifndef CONSOLEGAME_INCLUDED
 #define CONSOLEGAME_INCLUDED
 
-#include "../../RuntimeCompiler/IFileChangeNotifier.h"
-#include "../../RuntimeCompiler/ObjectInterface.h"
+#include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
+#include "../../RuntimeObjectSystem/ObjectInterface.h"
 #include "../../Common/AUArray.inl"
-#include "../../Systems/IObjectFactorySystem.h"
-#include <Windows.h>
-#include <vector>
 
-#define BOOST_FILESYSTEM_VERSION 3
-#include "boost/filesystem.hpp" 
+struct IUpdateable;
+struct IRuntimeObjectSystem;
 
-
-class CompilerLogger;
-class BuildTool;
-struct IAUUpdateable;
-
-class ConsoleGame : public IFileChangeListener, public IObjectFactoryListener
+class ConsoleGame : public IObjectFactoryListener
 {
 public:
 	ConsoleGame();
 	virtual ~ConsoleGame();
 
 	bool Init();
-	void Shutdown();
 	bool MainLoop();
 
-
-	// IFileChangeListener
-
-	virtual void OnFileChange(const IAUDynArray<const char*>& filelist);
-
-	// ~IFileChangeListener
 
 	// IObjectFactoryListener
 
@@ -59,37 +44,21 @@ public:
 	// ~IObjectFactoryListener
 
 
-	void CompileAll( bool bForceRecompile );
-	void AddToRuntimeFileList( const char* filename );
-	void RemoveFromRuntimeFileList( const char* filename );
-	void SetAutoCompile( bool autoCompile );
-
 private:
-	typedef std::vector<boost::filesystem::path> TFileList;
 
-	void StartRecompile(const TFileList& filelist, bool bForce);
-	bool LoadCompiledModule();
 
 	void InitObjects();
-	void SetupObjectConstructors(GETPerModuleInterface_PROC pPerModuleInterfaceProcAdd);
 	void DeleteObjects();
 	void ResetGame();
 
 
 	// Private Members
-	CompilerLogger* m_pCompilerLogger;
-	BuildTool* m_pBuildTool;
+	ICompilerLogger*		m_pCompilerLogger;
+	IRuntimeObjectSystem*	m_pRuntimeObjectSystem;
 
 	// Runtime object
-	IAUUpdateable* m_pUpdateable;
+	IUpdateable* m_pUpdateable;
 	ObjectId	   m_ObjectId;
-
-	std::vector<HMODULE> m_Modules;	// Stores runtime created modules, but not the exe module.
-	TFileList m_RuntimeFileList;
-	bool m_bHaveProgramError;
-	bool m_bCompiling;
-	bool m_bAutoCompile;
-	boost::filesystem::path m_CurrentlyCompilingModuleName;
 
 };
 

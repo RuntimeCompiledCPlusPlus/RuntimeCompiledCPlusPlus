@@ -19,13 +19,14 @@
 
 #include "../../RunTimeCompiler/BuildTool.h"
 #include "../../RuntimeCompiler/ICompilerLogger.h"
-#include "../../RuntimeCompiler/ObjectInterface.h"
+#include "../../RuntimeObjectSystem/ObjectInterface.h"
+#include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
+#include "../../RuntimeObjectSystem/IRuntimeObjectSystem.h"
+#include "../../RuntimeObjectSystem/IObject.h"
 #include "../../Systems/ILogSystem.h"
 #include "../../Systems/IEntitySystem.h"
-#include "../../Systems/IObjectFactorySystem.h"
 #include "../../Systems/IGame.h"
 #include "../../Systems/SystemTable.h"
-#include "../../Systems/IObject.h"
 #include "Environment.h"
 #include "IConsoleContext.h"
 #include "IObjectUtils.h"
@@ -50,9 +51,9 @@ using boost::filesystem::path;
 
 static const char* CONTEXT_HEADER = 
 	"// Generated/modified by Console.cpp during runtime - safe to delete \n"
-	"#include \"../../RunTimeCompiler/ObjectInterfacePerModule.h\" \n"
+	"#include \"../../RuntimeObjectSystem/ObjectInterfacePerModule.h\" \n"
 	"#include \"../../Systems/SystemTable.h\" \n"
-	"#include \"../../Systems/IObjectFactorySystem.h\" \n"
+	"#include \"../../RuntimeObjectSystem/IObjectFactorySystem.h\" \n"
 	"#include \"../../Systems/ILogSystem.h\" \n"
 	"#include \"ConsoleContext.h\" \n\n"
 	"REGISTERCLASS(ConsoleContext); \n\n"
@@ -62,7 +63,7 @@ static const char* CONTEXT_HEADER =
 static const char* CONTEXT_FOOTER =
 	"\n}";
 
-Console::Console(IFileChangeListener* pPrimaryListener, Environment* pEnv, Rocket::Core::Context* pRocketContext) 
+Console::Console(Environment* pEnv, Rocket::Core::Context* pRocketContext) 
 	: m_pEnv(pEnv)
 	, m_pRocketContext(pRocketContext)
 	, m_bWaitingForCompile(false)
@@ -91,7 +92,7 @@ Console::Console(IFileChangeListener* pPrimaryListener, Environment* pEnv, Rocke
 
 	if (CreateConsoleContextFile())
 	{
-		InitFileChangeNotifier(pPrimaryListener);
+		InitFileChangeNotifier();
 	}	
 
 	m_textAreaParams[ETAT_SINGLE].history.push_back("");
@@ -152,7 +153,7 @@ void Console::OnCompileDone(bool bSuccess)
 
 		// Remove temp context file from game runtime file list so it isn't included in full recompiles
 		// This must be done every time ConsoleContext.cpp gets recompiled because it will get registered again
-		m_pEnv->sys->pGame->RemoveFromRuntimeFileList(m_contextFile.string().c_str());
+		m_pEnv->sys->pRuntimeObjectSystem->RemoveFromRuntimeFileList(m_contextFile.string().c_str());
 
 		if (bSuccess)
 		{
@@ -177,13 +178,14 @@ void Console::OnCompileDone(bool bSuccess)
 	}
 }
 
-void Console::InitFileChangeNotifier(IFileChangeListener* pPrimaryListener)
+void Console::InitFileChangeNotifier()
 {
 	// Make filechangenotifier monitor console code file and notify here
 	m_pEnv->sys->pFileChangeNotifier->Watch(m_inputFile.string().c_str(), this);
 
 	// Make filechangenotifier watch temp context file for changes and notify regular listener for recompile
-	m_pEnv->sys->pFileChangeNotifier->Watch(m_contextFile.string().c_str(), pPrimaryListener);
+	m_pEnv->sys->pRuntimeObjectSystem->AddToRuntimeFileList( m_contextFile.string().c_str() );
+	//m_pEnv->sys->pFileChangeNotifier->Watch(m_contextFile.string().c_str(), m_pEnv->sys->pRuntimeObjectSystem);
 
 	// Make filechangenotifier watch console RML/RCSS files
 	path basepath = path(__FILE__).parent_path();

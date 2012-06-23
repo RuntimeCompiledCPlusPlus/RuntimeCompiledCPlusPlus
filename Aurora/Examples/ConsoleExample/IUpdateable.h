@@ -17,26 +17,12 @@
 
 #pragma once
 
-#ifndef DEFINITIONS_DEFINED
-#define DEFINITIONS_DEFINED
+#ifndef IUPDATEABLE_INCLUDED
+#define IUPDATEABLE_INCLUDED
 
-// All typedefs, defines and macros start AU_ to avoid conflicts
+struct IUpdateable
+{
+	virtual void Update( float deltaTime ) = 0;
+};
 
-typedef int AUEntityId;           // (Will be a) salted id for uniquely identifying entities
-
-struct IEntitySystem;
-struct ITimeSystem;
-struct ILogSystem;
-struct IAssetSystem;
-
-struct IAUEntity;
-struct IAURenderable;
-struct IAURenderableMesh;
-struct IAUUpdateable;
-struct ISimpleSerializer;
-struct IObjectFactorySystem;
-struct IGUISystem;
-struct IFileChangeNotifier;
-struct IGame;
-
-#endif // DEFINITIONS_DEFINED
+#endif // IUPDATEABLE_INCLUDED

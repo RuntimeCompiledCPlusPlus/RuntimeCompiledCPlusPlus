@@ -95,7 +95,6 @@ xcopy /y $(SolutionDir)\External\libRocket\bin\*.pdb $(SolutionDir)$(Configurati
   <ItemGroup>
     <ClInclude Include="AssetSystem\AssetSystem.h" />
     <ClInclude Include="EntitySystem\EntitySystem.h" />
-    <ClInclude Include="Exceptions.h" />
     <ClInclude Include="GUISystem\GUIDocument.h" />
     <ClInclude Include="GUISystem\GUIElement.h" />
     <ClInclude Include="GUISystem\GUISystem.h" />
@@ -109,9 +108,6 @@ xcopy /y $(SolutionDir)\External\libRocket\bin\*.pdb $(SolutionDir)$(Configurati
     <ClInclude Include="IGUIElement.h" />
     <ClInclude Include="IGUISystem.h" />
     <ClInclude Include="ILogSystem.h" />
-    <ClInclude Include="IObject.h" />
-    <ClInclude Include="IObjectFactorySystem.h" />
-    <ClInclude Include="ISimpleSerializer.h" />
     <ClInclude Include="ISystem.h" />
     <ClInclude Include="ITimeSystem.h" />
     <ClInclude Include="IUpdateable.h" />
@@ -119,7 +115,6 @@ xcopy /y $(SolutionDir)\External\libRocket\bin\*.pdb $(SolutionDir)$(Configurati
     <ClInclude Include="LogSystem\MultiLogSystem\MultiLogSystem.h" />
     <ClInclude Include="LogSystem\RocketLogSystem\RocketLogSystem.h" />
     <ClInclude Include="LogSystem\ThreadsafeLogSystem\ThreadsafeLogSystem.h" />
-    <ClInclude Include="ObjectFactorySystem\ObjectFactorySystem.h" />
     <ClInclude Include="RocketLibSystem\Input.h" />
     <ClInclude Include="RocketLibSystem\InputMacOSX.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -135,7 +130,6 @@ xcopy /y $(SolutionDir)\External\libRocket\bin\*.pdb $(SolutionDir)$(Configurati
     <ClInclude Include="RocketLibSystem\RocketLibSystemOpenGL.h" />
     <ClInclude Include="RocketLibSystem\RocketLibSystemRenderInterfaceOpenGL.h" />
     <ClInclude Include="RocketLibSystem\RocketLibSystemSystemInterface.h" />
-    <ClInclude Include="SimpleSerializer\SimpleSerializer.h" />
     <ClInclude Include="Systems.h" />
     <ClInclude Include="SystemTable.h" />
     <ClInclude Include="TimeSystem\TimeSystem.h" />
@@ -143,7 +137,6 @@ xcopy /y $(SolutionDir)\External\libRocket\bin\*.pdb $(SolutionDir)$(Configurati
   <ItemGroup>
     <ClCompile Include="AssetSystem\AssetSystem.cpp" />
     <ClCompile Include="EntitySystem\EntitySystem.cpp" />
-    <ClCompile Include="Exceptions.cpp" />
     <ClCompile Include="GUISystem\GUIDocument.cpp" />
     <ClCompile Include="GUISystem\GUIElement.cpp" />
     <ClCompile Include="GUISystem\GUISystem.cpp" />
@@ -152,7 +145,6 @@ xcopy /y $(SolutionDir)\External\libRocket\bin\*.pdb $(SolutionDir)$(Configurati
     <ClCompile Include="LogSystem\MultiLogSystem\MultiLogSystem.cpp" />
     <ClCompile Include="LogSystem\RocketLogSystem\RocketLogSystem.cpp" />
     <ClCompile Include="LogSystem\ThreadsafeLogSystem\ThreadsafeLogSystem_PlatformWindows.cpp" />
-    <ClCompile Include="ObjectFactorySystem\ObjectFactorySystem.cpp" />
     <ClCompile Include="RocketLibSystem\Input.cpp" />
     <ClCompile Include="RocketLibSystem\InputMacOSX.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -176,9 +168,11 @@ xcopy /y $(SolutionDir)\External\libRocket\bin\*.pdb $(SolutionDir)$(Configurati
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="SimpleSerializer\SimpleSerializer.cpp" />
     <ClCompile Include="Systems.cpp" />
     <ClCompile Include="TimeSystem\TimeSystem.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Definitions.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

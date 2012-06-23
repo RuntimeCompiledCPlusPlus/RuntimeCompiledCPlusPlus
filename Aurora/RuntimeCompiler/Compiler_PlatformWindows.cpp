@@ -89,7 +89,7 @@ public:
 		HANDLE hOutputReadTmp,hOutputWrite;
 		if (!CreatePipe(&hOutputReadTmp,&hOutputWrite,&sa,20*1024))
 		{
-			m_pLogger->LogError("[RuntimeCompiler] Failed to create output redirection pipe\n");
+			if( m_pLogger ) m_pLogger->LogError("[RuntimeCompiler] Failed to create output redirection pipe\n");
 			goto ERROR_EXIT;
 		}
 		si.hStdOutput = hOutputWrite;
@@ -102,7 +102,7 @@ public:
 							   GetCurrentProcess(),&hErrorWrite,0,
 							   TRUE,DUPLICATE_SAME_ACCESS))
 		{
-			m_pLogger->LogError("[RuntimeCompiler] Failed to duplicate error output redirection pipe\n");
+			if( m_pLogger ) m_pLogger->LogError("[RuntimeCompiler] Failed to duplicate error output redirection pipe\n");
 			goto ERROR_EXIT;
 		}
 		si.hStdError = hErrorWrite;
@@ -121,7 +121,7 @@ public:
 								   0,FALSE, // Make it uninheritable.
 								   DUPLICATE_SAME_ACCESS))
 			 {
-				   m_pLogger->LogError("[RuntimeCompiler] Failed to duplicate output read pipe\n");
+				   if( m_pLogger ) m_pLogger->LogError("[RuntimeCompiler] Failed to duplicate output read pipe\n");
 				   goto ERROR_EXIT;
 			 }
 		}
@@ -131,7 +131,7 @@ public:
 		// Create a pipe for the child process's STDIN. 
 		if (!CreatePipe(&hInputRead, &hInputWriteTmp, &sa, 4096))
 		{
-			m_pLogger->LogError("[RuntimeCompiler] Failed to create input pipes\n");
+			if( m_pLogger ) m_pLogger->LogError("[RuntimeCompiler] Failed to create input pipes\n");
 			goto ERROR_EXIT;
 		}
 		si.hStdInput = hInputRead;
@@ -148,7 +148,7 @@ public:
 								   0,FALSE, // Make it uninheritable.
 								   DUPLICATE_SAME_ACCESS))
 			 {
-				   m_pLogger->LogError("[RuntimeCompiler] Failed to duplicate input write pipe\n");
+				   if( m_pLogger ) m_pLogger->LogError("[RuntimeCompiler] Failed to duplicate input write pipe\n");
 				   goto ERROR_EXIT;
 			 }
 		}
@@ -259,7 +259,6 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
 			else removed++;
 		}
 		boost::filesystem::remove(path,ec);
-		//m_pLogger->LogInfo("Deleted folder \"%ls\" containing existing intermediate runtime files\n", m_pImplData->m_intermediatePath.c_str(), numRemoved);
 	}
 
 }
@@ -287,7 +286,7 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
 	{
 		boost::system::error_code ec;
 		boost::filesystem::create_directory(intermediate,ec);
-		m_pImplData->m_pLogger->LogInfo("Created intermediate folder \"%s\"\n",intermediate.c_str());
+		if( m_pImplData->m_pLogger ) m_pImplData->m_pLogger->LogInfo("Created intermediate folder \"%s\"\n",intermediate.c_str());
 	}
 
 
@@ -402,7 +401,7 @@ void ReadAndHandleOutputThread( LPVOID arg )
 			bReadActive = false;
 			if (GetLastError() != ERROR_BROKEN_PIPE)	//broken pipe is OK
 			{
-				pImpl->m_pLogger->LogError( "[RuntimeCompiler] Redirect of compile output failed on read\n" );
+				if( pImpl->m_pLogger ) pImpl->m_pLogger->LogError( "[RuntimeCompiler] Redirect of compile output failed on read\n" );
 			}
 		}
 		else
@@ -417,7 +416,7 @@ void ReadAndHandleOutputThread( LPVOID arg )
 			{
 				//we've found the completion token, which means we quit
 				buffer = buffer.substr( 0, found );
-				pImpl->m_pLogger->LogInfo("[RuntimeCompiler] Complete\n");
+				if( pImpl->m_pLogger ) pImpl->m_pLogger->LogInfo("[RuntimeCompiler] Complete\n");
 				pImpl->m_bCompileIsComplete = true;
 			}
 			if( bReadActive || buffer.length() ) //don't output blank last line
@@ -427,11 +426,11 @@ void ReadAndHandleOutputThread( LPVOID arg )
 				if( found != std::string::npos )
 				{
 					//OutputDebugStringA( buffer.c_str() );
-					pImpl->m_pLogger->LogError( "%s", buffer.c_str() );
+					if( pImpl->m_pLogger ) pImpl->m_pLogger->LogError( "%s", buffer.c_str() );
 				}
 				else
 				{
-					pImpl->m_pLogger->LogInfo( "%s", buffer.c_str() );
+					if( pImpl->m_pLogger ) pImpl->m_pLogger->LogInfo( "%s", buffer.c_str() );
 				}
 			}
 		}

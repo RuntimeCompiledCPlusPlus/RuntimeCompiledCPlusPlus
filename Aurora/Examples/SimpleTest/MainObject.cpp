@@ -15,13 +15,13 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#include "../../RunTimeCompiler/ObjectInterfacePerModule.h"
+#include "../../RuntimeObjectSystem/ObjectInterfacePerModule.h"
 #include "../../Systems/SystemTable.h"
-#include "../../Systems/IObjectFactorySystem.h"
+#include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
 #include "../../Systems/ILogSystem.h"
-#include "../../Systems/ISimpleSerializer.h"
+#include "../../RuntimeObjectSystem/ISimpleSerializer.h"
 
-#include "../../Systems/IObject.h"
+#include "../../RuntimeObjectSystem/IObject.h"
 #include "IObjectUtils.h"
 #include "IGameManager.h"
 

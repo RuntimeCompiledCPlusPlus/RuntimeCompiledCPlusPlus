@@ -23,7 +23,7 @@
 #include "IEntityObject.h"
 #include "InterfaceIds.h"
 #include "../../Systems/IUpdateable.h" 
-#include "../../RuntimeCompiler/ObjectInterface.h"
+#include "../../RuntimeObjectSystem/ObjectInterface.h"
 #include "../../Common/AUArray.inl"
 
 enum EGameState

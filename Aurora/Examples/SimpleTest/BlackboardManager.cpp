@@ -35,11 +35,11 @@
 #include "BB_Group_Infected.h"
 #include "BB_Global.h"
 
-#include "../../RunTimeCompiler/ObjectInterfacePerModule.h"
+#include "../../RuntimeObjectSystem/ObjectInterfacePerModule.h"
 #include "../../Systems/SystemTable.h"
-#include "../../Systems/IObjectFactorySystem.h"
+#include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
 #include "../../Systems/ILogSystem.h"
-#include "../../Systems/ISimpleSerializer.h"
+#include "../../RuntimeObjectSystem/ISimpleSerializer.h"
 
 #include <assert.h>
 #include <map>

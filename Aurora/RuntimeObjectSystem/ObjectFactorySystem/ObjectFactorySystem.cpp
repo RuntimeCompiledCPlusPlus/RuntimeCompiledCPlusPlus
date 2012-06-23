@@ -17,14 +17,12 @@
 
 #include "ObjectFactorySystem.h"
 
-#include "../../Systems/Systems.h"
-#include "../../RuntimeCompiler/ObjectInterface.h"
-#include "../../RuntimeCompiler/ObjectInterfacePerModule.h"
-#include "../../Systems/SimpleSerializer/SimpleSerializer.h"
-#include "../../Systems/IlogSystem.h"
-#include "../../Systems/ISystem.h"
-#include "../../Examples/SimpleTest/Environment.h"	//TODO: Move exception handling to systems
-#include "../../Systems/IObject.h"		//TODO: Move to systems
+#include "../ObjectInterface.h"
+#include "../ObjectInterfacePerModule.h"
+#include "../IObject.h"
+#include "../SimpleSerializer/SimpleSerializer.h"
+#include "../Exceptions.h"
+
 
 IObjectConstructor* ObjectFactorySystem::GetConstructor( const char* type ) const
 {
@@ -96,12 +94,10 @@ bool ProtectedInit( IObject* pObject )
 
 void ObjectFactorySystem::AddConstructors( IAUDynArray<IObjectConstructor*> &constructors )
 {
-	ILogSystem *pLogSystem = gSys->pLogSystem;
-
 	//serialize all out
 	SimpleSerializer serializer;
 
-	pLogSystem->Log( eLV_EVENTS, "Serializing out from %d old constructors\n", m_Constructors.size());
+	if( m_pLogger ) m_pLogger->LogInfo( "Serializing out from %d old constructors\n", m_Constructors.size());
 
 	//currently we don't protect the serialize out... should perhaps do so.
 	serializer.SetIsLoading( false );
@@ -119,7 +115,7 @@ void ObjectFactorySystem::AddConstructors( IAUDynArray<IObjectConstructor*> &con
 		}
 	}
 
-	pLogSystem->Log( eLV_EVENTS, "Swapping in and creating objects for %d new constructors\n", constructors.Size());
+	if( m_pLogger ) m_pLogger->LogInfo( "Swapping in and creating objects for %d new constructors\n", constructors.Size());
 
 	std::vector<IObjectConstructor*> oldConstructors( m_Constructors );
 
@@ -167,7 +163,7 @@ void ObjectFactorySystem::AddConstructors( IAUDynArray<IObjectConstructor*> &con
 	bool bInitOk = true;
 	if( bConstructionOK )
 	{
-		pLogSystem->Log( eLV_EVENTS, "Serialising in...\n");
+		if( m_pLogger ) m_pLogger->LogInfo( "Serialising in...\n");
 
 		//serialize back
 		serializer.SetIsLoading( true );
@@ -193,7 +189,7 @@ void ObjectFactorySystem::AddConstructors( IAUDynArray<IObjectConstructor*> &con
 		// Do a second pass, initializing objects now that they've all been serialized
 		if ( bSerializeOK )
 		{
-			pLogSystem->Log( eLV_EVENTS, "Initialising and testing new serialisation...\n");
+			if( m_pLogger ) m_pLogger->LogInfo( "Initialising and testing new serialisation...\n");
 
 			for( size_t i = 0; i < m_Constructors.size() && bSerializeOK == true; ++i )
 			{
@@ -230,11 +226,11 @@ void ObjectFactorySystem::AddConstructors( IAUDynArray<IObjectConstructor*> &con
 	{
 		if( !bSerializeOK )
 		{
-			pLogSystem->Log( eLV_ERRORS, "Exception during object serialization, switching back to previous objects" );
+			if( m_pLogger ) m_pLogger->LogError( "Exception during object serialization, switching back to previous objects" );
 		}
 		else
 		{
-			pLogSystem->Log( eLV_ERRORS, "Exception during object construction, switching back to previous objects" );
+			if( m_pLogger ) m_pLogger->LogError( "Exception during object construction, switching back to previous objects" );
 		}
 
 		//swap back to new constructors before everything is serialized back in
@@ -272,7 +268,7 @@ void ObjectFactorySystem::AddConstructors( IAUDynArray<IObjectConstructor*> &con
 	}
 	else
 	{
-		pLogSystem->Log( eLV_EVENTS, "Object swap completed\n");
+		if( m_pLogger ) m_pLogger->LogInfo( "Object swap completed\n");
 	}
 
 	try
@@ -301,7 +297,7 @@ void ObjectFactorySystem::AddConstructors( IAUDynArray<IObjectConstructor*> &con
 	catch(...)
 	{
 		//do nothing.
-		pLogSystem->Log( eLV_ERRORS, "Exception during object destruction of old objects, leaking." );
+		if( m_pLogger ) m_pLogger->LogError( "Exception during object destruction of old objects, leaking." );
 	}
 
 	// Notify any listeners that constructors have changed
