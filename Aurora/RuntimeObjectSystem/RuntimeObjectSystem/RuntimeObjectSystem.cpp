@@ -22,7 +22,6 @@
 #undef GetObject
 #endif
 #include "../../Common/AUArray.inl"
-#include "../../RunTimeCompiler/BuildTool.h"
 #include "../../RuntimeCompiler/ICompilerLogger.h"
 #include "../../RuntimeCompiler/FileChangeNotifier.h"
 #include "../IObjectFactorySystem.h"
@@ -103,30 +102,28 @@ void RuntimeObjectSystem::OnFileChange(const IAUDynArray<const char*>& filelist)
 	{
 		return;
 	}
+	std::vector<BuildTool::FileToBuild> buildFileList;
 
 	m_pCompilerLogger->LogInfo("FileChangeNotifier triggered recompile of files:\n");
-	bool bForce = false;
-	TFileList pathlist;
 	for( size_t i = 0; i < filelist.Size(); ++ i )
 	{
-		//m_pEnv->sys->pLogSystem->Log(eLV_COMMENTS, "  %s\n", filelist[i]);
-		path filePath = filelist[i];
-		if( filePath.extension() != ".h") //TODO: change to check for .cpp and .c as could have .inc files etc.?
+		BuildTool::FileToBuild fileToBuild(filelist[i]);
+		if( fileToBuild.filePath.extension() != ".h") //TODO: change to check for .cpp and .c as could have .inc files etc.?
 		{
-			pathlist.push_back( filePath );
+			buildFileList.push_back( fileToBuild );
 		}
 		else
 		{
-			TFileToFileEqualRange range = m_RuntimeIncludeMap.equal_range( filePath );
+			TFileToFileEqualRange range = m_RuntimeIncludeMap.equal_range( fileToBuild.filePath );
 			for(TFileToFileIterator it=range.first; it!=range.second; ++it)
 			{
-				pathlist.push_back( (*it).second );
-				bForce = true;
+				BuildTool::FileToBuild fileToBuildFromIncludes( (*it).second, true );
+				buildFileList.push_back( fileToBuildFromIncludes );
 			}
 		}
 	}
 
-	StartRecompile(pathlist, bForce);
+	StartRecompile( buildFileList );
 }
 
 bool RuntimeObjectSystem::GetIsCompiledComplete()
@@ -136,7 +133,17 @@ bool RuntimeObjectSystem::GetIsCompiledComplete()
 
 void RuntimeObjectSystem::CompileAll( bool bForceRecompile )
 {
-	StartRecompile(m_RuntimeFileList, bForceRecompile);
+	std::vector<BuildTool::FileToBuild> buildFileList;
+	for( size_t i = 0; i < m_RuntimeFileList.size(); ++ i )
+	{
+		BuildTool::FileToBuild fileToBuild(m_RuntimeFileList[i], true ); //force re-compile on compile all
+		if( fileToBuild.filePath.extension() != ".h") //TODO: change to check for .cpp and .c as could have .inc files etc.?
+		{
+			buildFileList.push_back( fileToBuild );
+		}
+	}
+
+	StartRecompile(buildFileList);
 }
 
 void RuntimeObjectSystem::SetAutoCompile( bool autoCompile )
@@ -163,7 +170,7 @@ void RuntimeObjectSystem::RemoveFromRuntimeFileList( const char* filename )
 	}
 }
 
-void RuntimeObjectSystem::StartRecompile(const TFileList& filelist, bool bForce)
+void RuntimeObjectSystem::StartRecompile( const std::vector<BuildTool::FileToBuild>& buildFileList )
 {
 	m_bCompiling = true;
 	m_pCompilerLogger->LogInfo( "Compiling...\n");
@@ -174,27 +181,21 @@ void RuntimeObjectSystem::StartRecompile(const TFileList& filelist, bool bForce)
 	wchar_t tempFileName[MAX_PATH]; 
 	GetTempFileName( tempPath, L"", 0, tempFileName );
 	std::wstring strTempFileName( tempFileName );
+	m_CurrentlyCompilingModuleName= strTempFileName;
+
+
+	std::vector<BuildTool::FileToBuild> ourBuildFileList( buildFileList );
+	std::vector<path> includeDirList; //we don't need any include paths for this example
 
 	//Need currentmodule path
 	wchar_t CurrentModuleFileName[MAX_PATH];
 	GetModuleFileNameW( NULL, CurrentModuleFileName, MAX_PATH ); //get filename of current module (full path?)
 	path currModuleFileName(CurrentModuleFileName);
 	path currModuleFullPath = currModuleFileName.parent_path();
+	ourBuildFileList.push_back( currModuleFullPath / path(L"/../RuntimeObjectSystem/ObjectInterfacePerModuleSource.cpp") );
+	ourBuildFileList.push_back( currModuleFullPath / path(L"/../RuntimeObjectSystem/ObjectInterfacePerModuleSource_PlatformWindows.cpp") );
 
-
-	std::vector<BuildTool::FileToBuild> buildFileList;
-	std::vector<path> includeDirList; //we don't need any include paths for this example
-	m_CurrentlyCompilingModuleName= strTempFileName;
-
-	for( size_t i = 0; i < filelist.size(); ++ i )
-	{
-		buildFileList.push_back( BuildTool::FileToBuild( filelist[i], bForce ) );
-	}
-
-	buildFileList.push_back( currModuleFullPath / path(L"/../RuntimeObjectSystem/ObjectInterfacePerModuleSource.cpp") );
-	buildFileList.push_back( currModuleFullPath / path(L"/../RuntimeObjectSystem/ObjectInterfacePerModuleSource_PlatformWindows.cpp") );
-
-	m_pBuildTool->BuildModule( buildFileList, includeDirList, m_CurrentlyCompilingModuleName );
+	m_pBuildTool->BuildModule( ourBuildFileList, includeDirList, m_CurrentlyCompilingModuleName );
 }
 
 bool RuntimeObjectSystem::LoadCompiledModule()

@@ -21,6 +21,7 @@
 #define RUNTIMEOBJECTSYSTEM_INCLUDED
 
 #include "../../RuntimeCompiler/IFileChangeNotifier.h"
+#include "../../RunTimeCompiler/BuildTool.h"
 #include "../../Common/AUArray.inl"
 #include "../ObjectInterface.h"
 #include "../IRuntimeObjectSystem.h"
@@ -36,7 +37,6 @@
 
 struct ICompilerLogger;
 struct IObjectFactorySystem;
-class BuildTool;
 
 class RuntimeObjectSystem : public IRuntimeObjectSystem, public IFileChangeListener
 {
@@ -93,7 +93,7 @@ private:
 	typedef std::pair<boost::filesystem::path,boost::filesystem::path> TFileToFilePair;
 	typedef std::pair<TFileToFileMap::iterator,TFileToFileMap::iterator> TFileToFileEqualRange;
 
-	void StartRecompile(const TFileList& filelist, bool bForce);
+	void StartRecompile( const std::vector<BuildTool::FileToBuild>& buildFileList );
 
 	void InitObjects();
 	void SetupObjectConstructors(GETPerModuleInterface_PROC pPerModuleInterfaceProcAdd);
