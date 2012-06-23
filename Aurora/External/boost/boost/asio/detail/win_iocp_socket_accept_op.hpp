@@ -2,7 +2,7 @@
 // detail/win_iocp_socket_accept_op.hpp
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -45,7 +45,7 @@ public:
   win_iocp_socket_accept_op(win_iocp_socket_service_base& socket_service,
       socket_type socket, Socket& peer, const Protocol& protocol,
       typename Protocol::endpoint* peer_endpoint,
-      bool enable_connection_aborted, Handler handler)
+      bool enable_connection_aborted, Handler& handler)
     : operation(&win_iocp_socket_accept_op::do_complete),
       socket_service_(socket_service),
       socket_(socket),
@@ -53,7 +53,7 @@ public:
       protocol_(protocol),
       peer_endpoint_(peer_endpoint),
       enable_connection_aborted_(enable_connection_aborted),
-      handler_(handler)
+      handler_(BOOST_ASIO_MOVE_CAST(Handler)(handler))
   {
   }
 
@@ -73,8 +73,11 @@ public:
   }
 
   static void do_complete(io_service_impl* owner, operation* base,
-      boost::system::error_code ec, std::size_t /*bytes_transferred*/)
+      const boost::system::error_code& result_ec,
+      std::size_t /*bytes_transferred*/)
   {
+    boost::system::error_code ec(result_ec);
+
     // Take ownership of the operation object.
     win_iocp_socket_accept_op* o(static_cast<win_iocp_socket_accept_op*>(base));
     ptr p = { boost::addressof(o->handler_), o, o };
@@ -107,7 +110,7 @@ public:
       if (!ec)
       {
         o->peer_.assign(o->protocol_,
-            typename Socket::native_type(
+            typename Socket::native_handle_type(
               o->new_socket_.get(), peer_endpoint), ec);
         if (!ec)
           o->new_socket_.release();
@@ -117,6 +120,8 @@ public:
       if (o->peer_endpoint_)
         *o->peer_endpoint_ = peer_endpoint;
     }
+
+    BOOST_ASIO_HANDLER_COMPLETION((o));
 
     // Make a copy of the handler so that the memory can be deallocated before
     // the upcall is made. Even if we're not about to make an upcall, a
@@ -132,8 +137,10 @@ public:
     // Make the upcall if required.
     if (owner)
     {
-      boost::asio::detail::fenced_block b;
+      fenced_block b(fenced_block::half);
+      BOOST_ASIO_HANDLER_INVOCATION_BEGIN((handler.arg1_));
       boost_asio_handler_invoke_helpers::invoke(handler, handler.handler_);
+      BOOST_ASIO_HANDLER_INVOCATION_END;
     }
   }
 

@@ -2,7 +2,7 @@
 // detail/impl/descriptor_ops.ipp
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -43,8 +43,19 @@ int close(int d, state_type& state, boost::system::error_code& ec)
   int result = 0;
   if (d != -1)
   {
-    if (state & internal_non_blocking)
+    errno = 0;
+    result = error_wrapper(::close(d), ec);
+
+    if (result != 0
+        && (ec == boost::asio::error::would_block
+          || ec == boost::asio::error::try_again))
     {
+      // According to UNIX Network Programming Vol. 1, it is possible for
+      // close() to fail with EWOULDBLOCK under certain circumstances. What
+      // isn't clear is the state of the descriptor after this error. The one
+      // current OS where this behaviour is seen, Windows, says that the socket
+      // remains open. Therefore we'll put the descriptor back into blocking
+      // mode and have another attempt at closing it.
 #if defined(__SYMBIAN32__)
       int flags = ::fcntl(d, F_GETFL, 0);
       if (flags >= 0)
@@ -53,11 +64,11 @@ int close(int d, state_type& state, boost::system::error_code& ec)
       ioctl_arg_type arg = 0;
       ::ioctl(d, FIONBIO, &arg);
 #endif // defined(__SYMBIAN32__)
-      state &= ~internal_non_blocking;
-    }
+      state &= ~non_blocking;
 
-    errno = 0;
-    result = error_wrapper(::close(d), ec);
+      errno = 0;
+      result = error_wrapper(::close(d), ec);
+    }
   }
 
   if (result == 0)
@@ -65,8 +76,8 @@ int close(int d, state_type& state, boost::system::error_code& ec)
   return result;
 }
 
-bool set_internal_non_blocking(int d,
-    state_type& state, boost::system::error_code& ec)
+bool set_user_non_blocking(int d, state_type& state,
+    bool value, boost::system::error_code& ec)
 {
   if (d == -1)
   {
@@ -80,17 +91,71 @@ bool set_internal_non_blocking(int d,
   if (result >= 0)
   {
     errno = 0;
-    result = error_wrapper(::fcntl(d, F_SETFL, result | O_NONBLOCK), ec);
+    int flag = (value ? (result | O_NONBLOCK) : (result & ~O_NONBLOCK));
+    result = error_wrapper(::fcntl(d, F_SETFL, flag), ec);
   }
 #else // defined(__SYMBIAN32__)
-  ioctl_arg_type arg = 1;
+  ioctl_arg_type arg = (value ? 1 : 0);
   int result = error_wrapper(::ioctl(d, FIONBIO, &arg), ec);
 #endif // defined(__SYMBIAN32__)
 
   if (result >= 0)
   {
     ec = boost::system::error_code();
-    state |= internal_non_blocking;
+    if (value)
+      state |= user_set_non_blocking;
+    else
+    {
+      // Clearing the user-set non-blocking mode always overrides any
+      // internally-set non-blocking flag. Any subsequent asynchronous
+      // operations will need to re-enable non-blocking I/O.
+      state &= ~(user_set_non_blocking | internal_non_blocking);
+    }
+    return true;
+  }
+
+  return false;
+}
+
+bool set_internal_non_blocking(int d, state_type& state,
+    bool value, boost::system::error_code& ec)
+{
+  if (d == -1)
+  {
+    ec = boost::asio::error::bad_descriptor;
+    return false;
+  }
+
+  if (!value && (state & user_set_non_blocking))
+  {
+    // It does not make sense to clear the internal non-blocking flag if the
+    // user still wants non-blocking behaviour. Return an error and let the
+    // caller figure out whether to update the user-set non-blocking flag.
+    ec = boost::asio::error::invalid_argument;
+    return false;
+  }
+
+  errno = 0;
+#if defined(__SYMBIAN32__)
+  int result = error_wrapper(::fcntl(d, F_GETFL, 0), ec);
+  if (result >= 0)
+  {
+    errno = 0;
+    int flag = (value ? (result | O_NONBLOCK) : (result & ~O_NONBLOCK));
+    result = error_wrapper(::fcntl(d, F_SETFL, flag), ec);
+  }
+#else // defined(__SYMBIAN32__)
+  ioctl_arg_type arg = (value ? 1 : 0);
+  int result = error_wrapper(::ioctl(d, FIONBIO, &arg), ec);
+#endif // defined(__SYMBIAN32__)
+
+  if (result >= 0)
+  {
+    ec = boost::system::error_code();
+    if (value)
+      state |= internal_non_blocking;
+    else
+      state &= ~internal_non_blocking;
     return true;
   }
 
@@ -138,7 +203,7 @@ std::size_t sync_read(int d, state_type state, buf* bufs,
       return 0;
 
     // Wait for descriptor to become ready.
-    if (descriptor_ops::poll_read(d, ec) < 0)
+    if (descriptor_ops::poll_read(d, 0, ec) < 0)
       return 0;
   }
 }
@@ -215,7 +280,7 @@ std::size_t sync_write(int d, state_type state, const buf* bufs,
       return 0;
 
     // Wait for descriptor to become ready.
-    if (descriptor_ops::poll_write(d, ec) < 0)
+    if (descriptor_ops::poll_write(d, 0, ec) < 0)
       return 0;
   }
 }
@@ -322,7 +387,7 @@ int fcntl(int d, long cmd, long arg, boost::system::error_code& ec)
   return result;
 }
 
-int poll_read(int d, boost::system::error_code& ec)
+int poll_read(int d, state_type state, boost::system::error_code& ec)
 {
   if (d == -1)
   {
@@ -334,14 +399,18 @@ int poll_read(int d, boost::system::error_code& ec)
   fds.fd = d;
   fds.events = POLLIN;
   fds.revents = 0;
+  int timeout = (state & user_set_non_blocking) ? 0 : -1;
   errno = 0;
-  int result = error_wrapper(::poll(&fds, 1, -1), ec);
-  if (result >= 0)
+  int result = error_wrapper(::poll(&fds, 1, timeout), ec);
+  if (result == 0)
+    ec = (state & user_set_non_blocking)
+      ? boost::asio::error::would_block : boost::system::error_code();
+  else if (result > 0)
     ec = boost::system::error_code();
   return result;
 }
 
-int poll_write(int d, boost::system::error_code& ec)
+int poll_write(int d, state_type state, boost::system::error_code& ec)
 {
   if (d == -1)
   {
@@ -353,9 +422,13 @@ int poll_write(int d, boost::system::error_code& ec)
   fds.fd = d;
   fds.events = POLLOUT;
   fds.revents = 0;
+  int timeout = (state & user_set_non_blocking) ? 0 : -1;
   errno = 0;
-  int result = error_wrapper(::poll(&fds, 1, -1), ec);
-  if (result >= 0)
+  int result = error_wrapper(::poll(&fds, 1, timeout), ec);
+  if (result == 0)
+    ec = (state & user_set_non_blocking)
+      ? boost::asio::error::would_block : boost::system::error_code();
+  else if (result > 0)
     ec = boost::system::error_code();
   return result;
 }

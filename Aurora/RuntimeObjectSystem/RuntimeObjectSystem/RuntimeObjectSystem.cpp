@@ -192,8 +192,15 @@ void RuntimeObjectSystem::StartRecompile( const std::vector<BuildTool::FileToBui
 	GetModuleFileNameW( NULL, CurrentModuleFileName, MAX_PATH ); //get filename of current module (full path?)
 	path currModuleFileName(CurrentModuleFileName);
 	path currModuleFullPath = currModuleFileName.parent_path();
+
+#ifndef _WIN64
 	ourBuildFileList.push_back( currModuleFullPath / path(L"/../RuntimeObjectSystem/ObjectInterfacePerModuleSource.cpp") );
 	ourBuildFileList.push_back( currModuleFullPath / path(L"/../RuntimeObjectSystem/ObjectInterfacePerModuleSource_PlatformWindows.cpp") );
+#else
+	//x64 builds have an extra directory
+	ourBuildFileList.push_back( currModuleFullPath / path(L"/../../RuntimeObjectSystem/ObjectInterfacePerModuleSource.cpp") );
+	ourBuildFileList.push_back( currModuleFullPath / path(L"/../../RuntimeObjectSystem/ObjectInterfacePerModuleSource_PlatformWindows.cpp") );
+#endif
 
 	m_pBuildTool->BuildModule( ourBuildFileList, includeDirList, m_CurrentlyCompilingModuleName );
 }

@@ -2,7 +2,7 @@
 // detail/strand_service.hpp
 // ~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -16,11 +16,11 @@
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include <boost/asio/detail/config.hpp>
-#include <boost/scoped_ptr.hpp>
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/detail/mutex.hpp>
 #include <boost/asio/detail/op_queue.hpp>
 #include <boost/asio/detail/operation.hpp>
+#include <boost/asio/detail/scoped_ptr.hpp>
 
 #include <boost/asio/detail/push_options.hpp>
 
@@ -57,11 +57,20 @@ public:
     // Mutex to protect access to internal data.
     boost::asio::detail::mutex mutex_;
 
-    // The count of handlers in the strand, including the upcall (if any).
-    std::size_t count_;
+    // Indicates whether the strand is currently "locked" by a handler. This
+    // means that there is a handler upcall in progress, or that the strand
+    // itself has been scheduled in order to invoke some pending handlers.
+    bool locked_;
 
-    // The handlers waiting on the strand.
-    op_queue<operation> queue_;
+    // The handlers that are waiting on the strand but should not be run until
+    // after the next time the strand is scheduled. This queue must only be
+    // modified while the mutex is locked.
+    op_queue<operation> waiting_queue_;
+
+    // The handlers that are ready to be run. Logically speaking, these are the
+    // handlers that hold the strand's lock. The ready queue is only modified
+    // from within the strand and so may be accessed without locking the mutex.
+    op_queue<operation> ready_queue_;
   };
 
   typedef strand_impl* implementation_type;
@@ -87,8 +96,15 @@ public:
   void post(implementation_type& impl, Handler handler);
 
 private:
+  // Helper function to dispatch a handler. Returns true if the handler should
+  // be dispatched immediately.
+  BOOST_ASIO_DECL bool do_dispatch(implementation_type& impl, operation* op);
+
+  // Helper fiunction to post a handler.
+  BOOST_ASIO_DECL void do_post(implementation_type& impl, operation* op);
+
   BOOST_ASIO_DECL static void do_complete(io_service_impl* owner,
-      operation* base, boost::system::error_code ec,
+      operation* base, const boost::system::error_code& ec,
       std::size_t bytes_transferred);
 
   // The io_service implementation used to post completions.
@@ -98,10 +114,14 @@ private:
   boost::asio::detail::mutex mutex_;
 
   // Number of implementations shared between all strand objects.
+#if defined(BOOST_ASIO_STRAND_IMPLEMENTATIONS)
+  enum { num_implementations = BOOST_ASIO_STRAND_IMPLEMENTATIONS };
+#else // defined(BOOST_ASIO_STRAND_IMPLEMENTATIONS)
   enum { num_implementations = 193 };
+#endif // defined(BOOST_ASIO_STRAND_IMPLEMENTATIONS)
 
-  // The head of a linked list of all implementations.
-  boost::scoped_ptr<strand_impl> implementations_[num_implementations];
+  // Pool of implementations.
+  scoped_ptr<strand_impl> implementations_[num_implementations];
 
   // Extra value used when hashing to prevent recycled memory locations from
   // getting the same strand implementation.

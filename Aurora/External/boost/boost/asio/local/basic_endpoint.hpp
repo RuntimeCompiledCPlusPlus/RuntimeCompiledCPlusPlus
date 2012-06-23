@@ -2,7 +2,7 @@
 // local/basic_endpoint.hpp
 // ~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 // Derived from a public domain implementation written by Daniel Casimiro.
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
@@ -66,14 +66,14 @@ public:
   }
 
   /// Construct an endpoint using the specified path name.
-  basic_endpoint(const char* path)
-    : impl_(path)
+  basic_endpoint(const char* path_name)
+    : impl_(path_name)
   {
   }
 
   /// Construct an endpoint using the specified path name.
-  basic_endpoint(const std::string& path)
-    : impl_(path)
+  basic_endpoint(const std::string& path_name)
+    : impl_(path_name)
   {
   }
 
@@ -83,12 +83,29 @@ public:
   {
   }
 
+#if defined(BOOST_ASIO_HAS_MOVE)
+  /// Move constructor.
+  basic_endpoint(basic_endpoint&& other)
+    : impl_(other.impl_)
+  {
+  }
+#endif // defined(BOOST_ASIO_HAS_MOVE)
+
   /// Assign from another endpoint.
   basic_endpoint& operator=(const basic_endpoint& other)
   {
     impl_ = other.impl_;
     return *this;
   }
+
+#if defined(BOOST_ASIO_HAS_MOVE)
+  /// Move-assign from another endpoint.
+  basic_endpoint& operator=(basic_endpoint&& other)
+  {
+    impl_ = other.impl_;
+    return *this;
+  }
+#endif // defined(BOOST_ASIO_HAS_MOVE)
 
   /// The protocol associated with the endpoint.
   protocol_type protocol() const
@@ -115,9 +132,9 @@ public:
   }
 
   /// Set the underlying size of the endpoint in the native type.
-  void resize(std::size_t size)
+  void resize(std::size_t new_size)
   {
-    impl_.resize(size);
+    impl_.resize(new_size);
   }
 
   /// Get the capacity of the endpoint in the native type.

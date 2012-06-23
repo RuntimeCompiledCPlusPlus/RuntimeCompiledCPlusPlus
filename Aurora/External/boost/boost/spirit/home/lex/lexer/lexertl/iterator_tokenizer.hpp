@@ -1,4 +1,4 @@
-//  Copyright (c) 2001-2010 Hartmut Kaiser
+//  Copyright (c) 2001-2011 Hartmut Kaiser
 // 
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying 
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -40,12 +40,14 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
             }
 
             bool bol = bol_;
+            boost::lexer::detail::internals const& internals_ =
+                state_machine_.data();
 
         again:
-            std::size_t const* lookup_ = &state_machine_.data()._lookup[dfa_state_]->
+            std::size_t const* lookup_ = &internals_._lookup[dfa_state_]->
                 front ();
-            std::size_t dfa_alphabet_ = state_machine_.data()._dfa_alphabet[dfa_state_];
-            std::size_t const* dfa_ = &state_machine_.data()._dfa[dfa_state_]->front ();
+            std::size_t dfa_alphabet_ = internals_._dfa_alphabet[dfa_state_];
+            std::size_t const* dfa_ = &internals_._dfa[dfa_state_]->front ();
 
             std::size_t const* ptr_ = dfa_ + dfa_alphabet_;
             Iterator curr_ = start_token_;

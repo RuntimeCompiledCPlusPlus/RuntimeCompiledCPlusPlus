@@ -24,7 +24,7 @@ struct distribution_quantile_finder
 
    value_type operator()(value_type const& x)
    {
-      return comp ? target - cdf(complement(dist, x)) : cdf(dist, x) - target;
+      return comp ? value_type(target - cdf(complement(dist, x))) : value_type(cdf(dist, x) - target);
    }
 
 private:
@@ -92,7 +92,7 @@ typename Dist::value_type
    // Max bounds of the distribution:
    //
    value_type min_bound, max_bound;
-   std::tr1::tie(min_bound, max_bound) = support(dist);
+   boost::math::tie(min_bound, max_bound) = support(dist);
 
    if(guess > max_bound)
       guess = max_bound;

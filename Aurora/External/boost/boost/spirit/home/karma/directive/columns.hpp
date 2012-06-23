@@ -1,4 +1,4 @@
-//  Copyright (c) 2001-2010 Hartmut Kaiser
+//  Copyright (c) 2001-2011 Hartmut Kaiser
 //
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -19,6 +19,8 @@
 #include <boost/spirit/home/karma/auxiliary/lazy.hpp>
 #include <boost/spirit/home/support/unused.hpp>
 #include <boost/spirit/home/support/common_terminals.hpp>
+#include <boost/spirit/home/support/has_semantic_action.hpp>
+#include <boost/spirit/home/support/handles_container.hpp>
 #include <boost/spirit/home/karma/detail/attributes.hpp>
 #include <boost/spirit/home/support/info.hpp>
 #include <boost/fusion/include/at.hpp>
@@ -60,7 +62,9 @@ namespace boost { namespace spirit
 
 namespace boost { namespace spirit { namespace karma
 {
+#ifndef BOOST_SPIRIT_NO_PREDEFINED_TERMINALS
     using spirit::columns;
+#endif
     using spirit::columns_type;
 
     namespace detail
@@ -182,6 +186,9 @@ namespace boost { namespace spirit { namespace karma
         result_type operator()(unused_type, Subject const& subject
           , unused_type) const
         {
+#if defined(BOOST_SPIRIT_NO_PREDEFINED_TERMINALS)
+            eol_type const eol = eol_type();
+#endif
             return result_type(subject, detail::default_columns()
               , compile<karma::domain>(eol));
         }
@@ -205,6 +212,9 @@ namespace boost { namespace spirit { namespace karma
         result_type operator()(Terminal const& term, Subject const& subject
           , unused_type) const
         {
+#if defined(BOOST_SPIRIT_NO_PREDEFINED_TERMINALS)
+            eol_type const eol = eol_type();
+#endif
             return result_type(subject, fusion::at_c<0>(term.args)
               , compile<karma::domain>(eol));
         }
@@ -265,9 +275,18 @@ namespace boost { namespace spirit { namespace karma
 
 namespace boost { namespace spirit { namespace traits
 {
+    ///////////////////////////////////////////////////////////////////////////
     template <typename Subject, typename T1, typename T2>
     struct has_semantic_action<karma::columns_generator<Subject, T1, T2> >
       : unary_has_semantic_action<Subject> {};
+
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename Subject, typename T1, typename T2, typename Attribute
+      , typename Context, typename Iterator>
+    struct handles_container<
+            karma::columns_generator<Subject, T1, T2>, Attribute
+          , Context, Iterator>
+      : unary_handles_container<Subject, Attribute, Context, Iterator> {};
 }}}
 
 #endif

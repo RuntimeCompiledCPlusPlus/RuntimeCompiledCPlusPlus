@@ -2,7 +2,7 @@
 // deadline_timer_service.hpp
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -20,6 +20,7 @@
 #include <boost/asio/detail/deadline_timer_service.hpp>
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/time_traits.hpp>
+#include <boost/asio/detail/timer_queue_ptime.hpp>
 
 #include <boost/asio/detail/push_options.hpp>
 
@@ -72,12 +73,6 @@ public:
   {
   }
 
-  /// Destroy all user-defined handler objects owned by the service.
-  void shutdown_service()
-  {
-    service_impl_.shutdown_service();
-  }
-
   /// Construct a new timer implementation.
   void construct(implementation_type& impl)
   {
@@ -94,6 +89,13 @@ public:
   std::size_t cancel(implementation_type& impl, boost::system::error_code& ec)
   {
     return service_impl_.cancel(impl, ec);
+  }
+
+  /// Cancels one asynchronous wait operation associated with the timer.
+  std::size_t cancel_one(implementation_type& impl,
+      boost::system::error_code& ec)
+  {
+    return service_impl_.cancel_one(impl, ec);
   }
 
   /// Get the expiry time for the timer as an absolute time.
@@ -130,12 +132,19 @@ public:
 
   // Start an asynchronous wait on the timer.
   template <typename WaitHandler>
-  void async_wait(implementation_type& impl, WaitHandler handler)
+  void async_wait(implementation_type& impl,
+      BOOST_ASIO_MOVE_ARG(WaitHandler) handler)
   {
-    service_impl_.async_wait(impl, handler);
+    service_impl_.async_wait(impl, BOOST_ASIO_MOVE_CAST(WaitHandler)(handler));
   }
 
 private:
+  // Destroy all user-defined handler objects owned by the service.
+  void shutdown_service()
+  {
+    service_impl_.shutdown_service();
+  }
+
   // The platform-specific implementation.
   service_impl_type service_impl_;
 };

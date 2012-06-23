@@ -1,7 +1,7 @@
 /*=============================================================================
     Copyright (c) 2001-2009 Joel de Guzman
     Copyright (c) 2005-2006 Dan Marsden
-    Copyright (c) 2009-2010 Christopher Schmidt
+    Copyright (c) 2009-2011 Christopher Schmidt
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -23,6 +23,7 @@
 #include <boost/preprocessor/seq/seq.hpp>
 #include <boost/preprocessor/tuple/eat.hpp>
 #include <boost/preprocessor/tuple/elem.hpp>
+#include <boost/preprocessor/arithmetic/dec.hpp>
 #include <boost/mpl/bool.hpp>
 #include <boost/mpl/tag.hpp>
 #include <boost/mpl/eval_if.hpp>
@@ -87,15 +88,41 @@
         I,                                                                      \
         ATTRIBUTE)
 
+#ifdef BOOST_MSVC
+#   define BOOST_FUSION_ADAPT_STRUCT_MSVC_REDEFINE_TEMPLATE_PARAM(R,_,ELEM)     \
+        typedef ELEM ELEM;
+#   define BOOST_FUSION_ADAPT_STRUCT_MSVC_REDEFINE_TEMPLATE_PARAMS_IMPL(SEQ)    \
+        BOOST_PP_SEQ_FOR_EACH(                                                  \
+            BOOST_FUSION_ADAPT_STRUCT_MSVC_REDEFINE_TEMPLATE_PARAM,             \
+            _,                                                                  \
+            BOOST_PP_SEQ_TAIL(SEQ))
+#   define BOOST_FUSION_ADAPT_STRUCT_MSVC_REDEFINE_TEMPLATE_PARAMS(SEQ)         \
+        BOOST_PP_IF(                                                            \
+            BOOST_PP_SEQ_HEAD(SEQ),                                             \
+            BOOST_FUSION_ADAPT_STRUCT_MSVC_REDEFINE_TEMPLATE_PARAMS_IMPL,       \
+            BOOST_PP_TUPLE_EAT(1))(SEQ)
+#else
+#   define BOOST_FUSION_ADAPT_STRUCT_MSVC_REDEFINE_TEMPLATE_PARAMS(SEQ)
+#endif
+
 #define BOOST_FUSION_ADAPT_STRUCT_C_BASE(                                       \
     TEMPLATE_PARAMS_SEQ,NAME_SEQ,I,PREFIX,ATTRIBUTE,ATTRIBUTE_TUPEL_SIZE)       \
                                                                                 \
     template<                                                                   \
         BOOST_FUSION_ADAPT_STRUCT_UNPACK_TEMPLATE_PARAMS(TEMPLATE_PARAMS_SEQ)   \
     >                                                                           \
-    struct struct_member<BOOST_FUSION_ADAPT_STRUCT_UNPACK_NAME(NAME_SEQ), I>    \
+    struct access::struct_member<                                               \
+        BOOST_FUSION_ADAPT_STRUCT_UNPACK_NAME(NAME_SEQ)                         \
+      , I                                                                       \
+    >                                                                           \
     {                                                                           \
-        typedef BOOST_PP_TUPLE_ELEM(ATTRIBUTE_TUPEL_SIZE, 0, ATTRIBUTE) type;   \
+        typedef                                                                 \
+            BOOST_PP_TUPLE_ELEM(ATTRIBUTE_TUPEL_SIZE, 0, ATTRIBUTE)             \
+        attribute_type;                                                         \
+        BOOST_FUSION_ADAPT_STRUCT_MSVC_REDEFINE_TEMPLATE_PARAMS(                \
+            TEMPLATE_PARAMS_SEQ)                                                \
+                                                                                \
+        typedef attribute_type type;                                            \
                                                                                 \
         template<typename Seq>                                                  \
         struct apply                                                            \
@@ -104,12 +131,8 @@
                 add_reference<                                                  \
                     typename mpl::eval_if<                                      \
                         is_const<Seq>                                           \
-                      , add_const<BOOST_PP_TUPLE_ELEM(                          \
-                            ATTRIBUTE_TUPEL_SIZE, 0, ATTRIBUTE)                 \
-                        >                                                       \
-                      , mpl::identity<BOOST_PP_TUPLE_ELEM(                      \
-                          ATTRIBUTE_TUPEL_SIZE, 0, ATTRIBUTE)                   \
-                        >                                                       \
+                      , add_const<attribute_type>                               \
+                      , mpl::identity<attribute_type>                           \
                     >::type                                                     \
                 >::type                                                         \
             type;                                                               \
@@ -163,18 +186,21 @@ namespace boost                                                                 
                                                                                 \
         namespace extension                                                     \
         {                                                                       \
-            BOOST_PP_SEQ_FOR_EACH_I_R(                                          \
-                1,                                                              \
-                BOOST_FUSION_ADAPT_STRUCT_BASE_UNPACK_AND_CALL,                 \
-                (ATTRIBUTES_CALLBACK,TEMPLATE_PARAMS_SEQ,NAME_SEQ),             \
-                ATTRIBUTES_SEQ)                                                 \
+            BOOST_PP_IF(                                                        \
+                BOOST_PP_DEC(BOOST_PP_SEQ_SIZE(ATTRIBUTES_SEQ)),                \
+                BOOST_PP_SEQ_FOR_EACH_I_R,                                      \
+                BOOST_PP_TUPLE_EAT(4))(                                         \
+                    1,                                                          \
+                    BOOST_FUSION_ADAPT_STRUCT_BASE_UNPACK_AND_CALL,             \
+                    (ATTRIBUTES_CALLBACK,TEMPLATE_PARAMS_SEQ,NAME_SEQ),         \
+                    BOOST_PP_SEQ_TAIL(ATTRIBUTES_SEQ))                          \
                                                                                 \
             template<                                                           \
                 BOOST_FUSION_ADAPT_STRUCT_UNPACK_TEMPLATE_PARAMS(               \
                     TEMPLATE_PARAMS_SEQ)                                        \
             >                                                                   \
             struct struct_size<BOOST_FUSION_ADAPT_STRUCT_UNPACK_NAME(NAME_SEQ)> \
-              : mpl::int_<BOOST_PP_SEQ_SIZE(ATTRIBUTES_SEQ)>                    \
+              : mpl::int_<BOOST_PP_DEC(BOOST_PP_SEQ_SIZE(ATTRIBUTES_SEQ))>      \
             {};                                                                 \
                                                                                 \
             template<                                                           \

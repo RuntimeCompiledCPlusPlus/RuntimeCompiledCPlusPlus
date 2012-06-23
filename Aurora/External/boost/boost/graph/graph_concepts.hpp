@@ -18,8 +18,10 @@
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/graph/numeric_values.hpp>
+#include <boost/graph/buffer_concepts.hpp>
 #include <boost/concept_check.hpp>
 #include <boost/detail/workaround.hpp>
+#include <boost/concept/assert.hpp>
 
 #include <boost/concept/detail/concept_def.hpp>
 namespace boost
@@ -341,7 +343,7 @@ typename T::ThereReallyIsNoMemberByThisNameInT vertices(T const&);
         }
         G g;
         typename graph_traits<G>::vertex_descriptor v;
-        typename vertex_property<G>::type vp;
+        typename vertex_property_type<G>::type vp;
     };
 
     BOOST_concept(EdgeMutablePropertyGraph,(G))
@@ -355,7 +357,7 @@ typename T::ThereReallyIsNoMemberByThisNameInT vertices(T const&);
         G g;
         std::pair<edge_descriptor, bool> p;
         typename graph_traits<G>::vertex_descriptor u, v;
-        typename edge_property<G>::type ep;
+        typename edge_property_type<G>::type ep;
     };
 
     BOOST_concept(AdjacencyMatrix,(G))
@@ -493,28 +495,6 @@ typename T::ThereReallyIsNoMemberByThisNameInT vertices(T const&);
         Graph g;
     };
 
-    // This needs to move out of the graph library
-    BOOST_concept(Buffer,(B))
-    {
-        BOOST_CONCEPT_USAGE(Buffer) {
-        b.push(t);
-        b.pop();
-        typename B::value_type& v = b.top();
-        const_constraints(b);
-        ignore_unused_variable_warning(v);
-        }
-        void const_constraints(const B& cb) {
-        const typename B::value_type& v = cb.top();
-        n = cb.size();
-        bool e = cb.empty();
-        ignore_unused_variable_warning(v);
-        ignore_unused_variable_warning(e);
-        }
-        typename B::size_type n;
-        typename B::value_type t;
-        B b;
-    };
-
     BOOST_concept(ColorValue,(C))
         : EqualityComparable<C>
         , DefaultConstructible<C>
@@ -550,8 +530,8 @@ typename T::ThereReallyIsNoMemberByThisNameInT vertices(T const&);
     {
         BOOST_CONCEPT_USAGE(NumericValue)
         {
-            function_requires< DefaultConstructible<Numeric> >();
-            function_requires< CopyConstructible<Numeric> >();
+            BOOST_CONCEPT_ASSERT(( DefaultConstructible<Numeric> ));
+            BOOST_CONCEPT_ASSERT(( CopyConstructible<Numeric> ));
             numeric_values<Numeric>::zero();
             numeric_values<Numeric>::infinity();
         }
@@ -614,7 +594,6 @@ using boost::concepts::VertexIndexGraphConcept;
 using boost::concepts::EdgeIndexGraphConcept;
 
 // Utility concepts
-using boost::concepts::BufferConcept;
 using boost::concepts::ColorValueConcept;
 using boost::concepts::BasicMatrixConcept;
 using boost::concepts::NumericValueConcept;

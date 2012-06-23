@@ -20,7 +20,7 @@
 
 #include <typeinfo>
 #include <cstdarg>
-#include <cassert>
+#include <boost/assert.hpp>
 #include <boost/config.hpp>
 
 #include <boost/static_assert.hpp>
@@ -80,7 +80,7 @@ public:
 template<class T>
 class extended_type_info_typeid : 
     public typeid_system::extended_type_info_typeid_0,
-    public singleton<extended_type_info_typeid<T> >
+    public singleton<extended_type_info_typeid< T > >
 {
 public:
     extended_type_info_typeid() :
@@ -99,14 +99,14 @@ public:
     get_derived_extended_type_info(const T & t) const {
         // note: this implementation - based on usage of typeid (rtti)
         // only does something if the class has at least one virtual function.
-        BOOST_STATIC_WARNING(boost::is_polymorphic<T>::value);
+        BOOST_STATIC_WARNING(boost::is_polymorphic< T >::value);
         return 
             typeid_system::extended_type_info_typeid_0::get_extended_type_info(
                 typeid(t)
             );
     }
     const char * get_key() const {
-        return boost::serialization::guid<T>();
+        return boost::serialization::guid< T >();
     }
     virtual void * construct(unsigned int count, ...) const{
         // count up the arguments
@@ -114,17 +114,17 @@ public:
         va_start(ap, count);
         switch(count){
         case 0:
-            return factory<BOOST_DEDUCED_TYPENAME boost::remove_const<T>::type, 0>(ap);
+            return factory<BOOST_DEDUCED_TYPENAME boost::remove_const< T >::type, 0>(ap);
         case 1:
-            return factory<BOOST_DEDUCED_TYPENAME boost::remove_const<T>::type, 1>(ap);
+            return factory<BOOST_DEDUCED_TYPENAME boost::remove_const< T >::type, 1>(ap);
         case 2:
-            return factory<BOOST_DEDUCED_TYPENAME boost::remove_const<T>::type, 2>(ap);
+            return factory<BOOST_DEDUCED_TYPENAME boost::remove_const< T >::type, 2>(ap);
         case 3:
-            return factory<BOOST_DEDUCED_TYPENAME boost::remove_const<T>::type, 3>(ap);
+            return factory<BOOST_DEDUCED_TYPENAME boost::remove_const< T >::type, 3>(ap);
         case 4:
-            return factory<BOOST_DEDUCED_TYPENAME boost::remove_const<T>::type, 4>(ap);
+            return factory<BOOST_DEDUCED_TYPENAME boost::remove_const< T >::type, 4>(ap);
         default:
-            assert(false); // too many arguments
+            BOOST_ASSERT(false); // too many arguments
             // throw exception here?
             return NULL;
         }
@@ -151,7 +151,7 @@ public:
     template<class T>
     struct extended_type_info_impl {
         typedef BOOST_DEDUCED_TYPENAME 
-            boost::serialization::extended_type_info_typeid<T> type;
+            boost::serialization::extended_type_info_typeid< T > type;
     };
     } // namespace serialization
     } // namespace boost

@@ -1,5 +1,5 @@
-//  Copyright (c) 2001-2010 Hartmut Kaiser
-//  Copyright (c) 2001-2010 Joel de Guzman
+//  Copyright (c) 2001-2011 Hartmut Kaiser
+//  Copyright (c) 2001-2011 Joel de Guzman
 //
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -10,6 +10,7 @@
 #include <boost/spirit/home/qi/domain.hpp>
 #include <boost/spirit/home/support/attributes_fwd.hpp>
 #include <boost/spirit/home/support/attributes.hpp>
+#include <boost/spirit/home/support/utree/utree_traits_fwd.hpp>
 
 ///////////////////////////////////////////////////////////////////////////////
 namespace boost { namespace spirit { namespace qi
@@ -19,7 +20,7 @@ namespace boost { namespace spirit { namespace qi
     {
         typedef Transformed type;
 
-        static Transformed pre(Exposed& val) { return Transformed(); }
+        static Transformed pre(Exposed&) { return Transformed(); }
 
         static void post(Exposed& val, Transformed const& attr)
         {
@@ -46,7 +47,7 @@ namespace boost { namespace spirit { namespace qi
         typedef Transformed type;
 
         static Transformed pre(Exposed& val) { return Transformed(val); }
-        static void post(Exposed& val, Transformed const& attr) { /* no-op */ }
+        static void post(Exposed&, Transformed const&) { /* no-op */ }
 
         // fail() will be called by Qi rule's if the rhs failed parsing
         static void fail(Exposed&) {}

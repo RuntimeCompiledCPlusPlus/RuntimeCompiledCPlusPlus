@@ -25,20 +25,20 @@ namespace serialization{
 template<class Archive, class T>
 inline void save(
     Archive & ar,
-    const boost::weak_ptr<T> &t,
+    const boost::weak_ptr< T > &t,
     const unsigned int /* file_version */
 ){
-    const boost::shared_ptr<T> sp = t.lock();
+    const boost::shared_ptr< T > sp = t.lock();
     ar << boost::serialization::make_nvp("weak_ptr", sp);
 }
 
 template<class Archive, class T>
 inline void load(
     Archive & ar,
-    boost::weak_ptr<T> &t,
+    boost::weak_ptr< T > &t,
     const unsigned int /* file_version */
 ){
-    boost::shared_ptr<T> sp;
+    boost::shared_ptr< T > sp;
     ar >> boost::serialization::make_nvp("weak_ptr", sp);
     t = sp;
 }
@@ -46,7 +46,7 @@ inline void load(
 template<class Archive, class T>
 inline void serialize(
     Archive & ar,
-    boost::weak_ptr<T> &t,
+    boost::weak_ptr< T > &t,
     const unsigned int file_version
 ){
     boost::serialization::split_free(ar, t, file_version);

@@ -11,7 +11,23 @@
 #ifndef BOOST_MATH_MPLFR_BINDINGS_HPP
 #define BOOST_MATH_MPLFR_BINDINGS_HPP
 
+#include <boost/config.hpp>
+
+#ifdef BOOST_MSVC
+//
+// We get a lot of warnings from the gmp, mpfr and gmpfrxx headers, 
+// disable them here, so we only see warnings from *our* code:
+//
+#pragma warning(push)
+#pragma warning(disable: 4127 4800 4512)
+#endif
+
 #include <gmpfrxx.h>
+
+#ifdef BOOST_MSVC
+#pragma warning(pop)
+#endif
+
 #include <boost/math/tools/precision.hpp>
 #include <boost/math/tools/real_cast.hpp>
 #include <boost/math/policies/policy.hpp>
@@ -49,7 +65,7 @@ inline mpfr_class frexp(const mpfr_class& v, int* expon)
    return result;
 }
 
-mpfr_class fmod(const mpfr_class& v1, const mpfr_class& v2)
+inline mpfr_class fmod(const mpfr_class& v1, const mpfr_class& v2)
 {
    mpfr_class n;
    if(v1 < 0)
@@ -433,7 +449,7 @@ mpfr_class digamma_imp(mpfr_class x, const mpl::int_<0>* , const Policy& pol)
 // starting guess for Halley iteration:
 //
 template <class Policy>
-mpfr_class erf_inv_imp(const mpfr_class& p, const mpfr_class& q, const Policy&, const boost::mpl::int_<64>*)
+inline mpfr_class erf_inv_imp(const mpfr_class& p, const mpfr_class& q, const Policy&, const boost::mpl::int_<64>*)
 {
    BOOST_MATH_STD_USING // for ADL of std names.
 
@@ -689,7 +705,7 @@ mpfr_class erf_inv_imp(const mpfr_class& p, const mpfr_class& q, const Policy&, 
    return result;
 }
 
-mpfr_class bessel_i0(mpfr_class x)
+inline mpfr_class bessel_i0(mpfr_class x)
 {
     static const mpfr_class P1[] = {
         boost::lexical_cast<mpfr_class>("-2.2335582639474375249e+15"),
@@ -764,7 +780,7 @@ mpfr_class bessel_i0(mpfr_class x)
     return value;
 }
 
-mpfr_class bessel_i1(mpfr_class x)
+inline mpfr_class bessel_i1(mpfr_class x)
 {
     static const mpfr_class P1[] = {
         static_cast<mpfr_class>("-1.4577180278143463643e+15"),

@@ -1,4 +1,4 @@
-//  Copyright (c) 2001-2010 Hartmut Kaiser
+//  Copyright (c) 2001-2011 Hartmut Kaiser
 // 
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying 
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -18,17 +18,22 @@
 #include <boost/spirit/home/support/detail/lexer/generator.hpp>
 #include <boost/spirit/home/support/detail/lexer/rules.hpp>
 #include <boost/spirit/home/support/detail/lexer/consts.hpp>
+#include <boost/spirit/home/support/utree/utree_traits_fwd.hpp>
+#include <boost/spirit/home/lex/lexer/terminals.hpp>
 #include <boost/fusion/include/vector.hpp>
 #include <boost/fusion/include/at.hpp>
 #include <boost/fusion/include/value_at.hpp>
 #include <boost/detail/iterator.hpp>
 #include <boost/variant.hpp>
-#include <boost/mpl/vector.hpp>
-#include <boost/mpl/insert.hpp>
-#include <boost/mpl/begin.hpp>
 #include <boost/mpl/bool.hpp>
-#include <boost/mpl/identity.hpp>
+#include <boost/mpl/vector.hpp>
+#include <boost/mpl/is_sequence.hpp>
+#include <boost/mpl/begin.hpp>
+#include <boost/mpl/insert.hpp>
+#include <boost/mpl/vector.hpp>
 #include <boost/mpl/if.hpp>
+#include <boost/mpl/or.hpp>
+#include <boost/type_traits/is_same.hpp>
 #include <boost/range/iterator_range.hpp>
 #if !BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
 #include <boost/static_assert.hpp>
@@ -53,6 +58,8 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
     //                        by this token type.
     //        HasState        A mpl::bool_ indicating, whether this token type
     //                        should support lexer states.
+    //        Idtype          The type to use for the token id (defaults to 
+    //                        std::size_t).
     //
     //  It is possible to use other token types with the spirit::lex 
     //  framework as well. If you plan to use a different type as your token 
@@ -82,7 +89,7 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
     //
     //                        and:
     //
-    //              token(std::size_t id, std::size_t state, 
+    //              token(Idtype id, std::size_t state, 
     //                    iterator_type first, iterator_type last);
     //
     //              where:  id:           token id
@@ -101,47 +108,50 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
     //  Additionally, you will have to implement a couple of helper functions
     //  in the same namespace as the token type: a comparison operator==() to 
     //  compare your token instances, a token_is_valid() function and different 
-    //  construct() function overloads as described below.
+    //  specializations of the Spirit customization point 
+    //  assign_to_attribute_from_value as shown below.
     //
     ///////////////////////////////////////////////////////////////////////////
     template <typename Iterator = char const*
       , typename AttributeTypes = mpl::vector0<>
-      , typename HasState = mpl::true_> 
+      , typename HasState = mpl::true_
+      , typename Idtype = std::size_t> 
     struct token;
 
     ///////////////////////////////////////////////////////////////////////////
     //  This specialization of the token type doesn't contain any item data and
     //  doesn't support working with lexer states.
     ///////////////////////////////////////////////////////////////////////////
-    template <typename Iterator>
-    struct token<Iterator, lex::omit, mpl::false_>
+    template <typename Iterator, typename Idtype>
+    struct token<Iterator, lex::omit, mpl::false_, Idtype>
     {
         typedef Iterator iterator_type;
         typedef mpl::false_ has_state;
-        typedef std::size_t id_type;
+        typedef Idtype id_type;
         typedef unused_type token_value_type;
 
         //  default constructed tokens correspond to EOI tokens
-        token() : id_(boost::lexer::npos) {}
+        token() : id_(id_type(boost::lexer::npos)) {}
 
         //  construct an invalid token
-        explicit token(int) : id_(0) {}
+        explicit token(int) : id_(id_type(0)) {}
 
         token(id_type id, std::size_t) : id_(id) {}
 
         token(id_type id, std::size_t, token_value_type)
           : id_(id) {}
 
+        token_value_type& value() { static token_value_type u; return u; }
+        token_value_type const& value() const { return unused; }
+
 #if defined(BOOST_SPIRIT_DEBUG)
         token(id_type id, std::size_t, Iterator const& first
               , Iterator const& last)
-          : id_(id) 
-          , matched_(first, last)
-        {}
+          : matched_(first, last)
+          , id_(id) {}
 #else
         token(id_type id, std::size_t, Iterator const&, Iterator const&)
-          : id_(id) 
-        {}
+          : id_(id) {}
 #endif
 
         //  this default conversion operator is needed to allow the direct 
@@ -166,20 +176,16 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
         // constructed iterator_range
         token& operator= (token const& rhs)
         {
+            if (this != &rhs) 
+            {
+                id_ = rhs.id_;
+                if (is_valid()) 
+                    matched_ = rhs.matched_;
+            }
             return *this;
         }
 #endif
         std::pair<Iterator, Iterator> matched_;
-#endif
-
-// works only starting MSVC V8
-#if !BOOST_WORKAROUND(BOOST_MSVC, <= 1400)
-    private:
-        struct dummy { void true_() {}; };
-        typedef void (dummy::*safe_bool)();
-
-    public:
-        operator safe_bool() const { return is_valid() ? &dummy::true_ : 0; }
 #endif
 
     protected:
@@ -188,12 +194,12 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
 
 #if defined(BOOST_SPIRIT_DEBUG)
     template <typename Char, typename Traits, typename Iterator
-      , typename AttributeTypes, typename HasState> 
+      , typename AttributeTypes, typename HasState, typename Idtype> 
     inline std::basic_ostream<Char, Traits>& 
     operator<< (std::basic_ostream<Char, Traits>& os
-      , token<Iterator, AttributeTypes, HasState> const& t)
+      , token<Iterator, AttributeTypes, HasState, Idtype> const& t)
     {
-        if (t) {
+        if (t.is_valid()) {
             Iterator end = t.matched_.second;
             for (Iterator it = t.matched_.first; it != end; ++it)
                 os << *it;
@@ -209,12 +215,12 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
     //  This specialization of the token type doesn't contain any item data but
     //  supports working with lexer states.
     ///////////////////////////////////////////////////////////////////////////
-    template <typename Iterator>
-    struct token<Iterator, lex::omit, mpl::true_>
-      : token<Iterator, lex::omit, mpl::false_>
+    template <typename Iterator, typename Idtype>
+    struct token<Iterator, lex::omit, mpl::true_, Idtype>
+      : token<Iterator, lex::omit, mpl::false_, Idtype>
     {
     private:
-        typedef token<Iterator, lex::omit, mpl::false_> base_type;
+        typedef token<Iterator, lex::omit, mpl::false_, Idtype> base_type;
 
     public:
         typedef typename base_type::id_type id_type;
@@ -242,6 +248,20 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
 
         std::size_t state() const { return state_; }
 
+#if defined(BOOST_SPIRIT_DEBUG) && BOOST_WORKAROUND(BOOST_MSVC, == 1600)
+        // workaround for MSVC10 which has problems copying a default 
+        // constructed iterator_range
+        token& operator= (token const& rhs)
+        {
+            if (this != &rhs) 
+            {
+                this->base_type::operator=(static_cast<base_type const&>(rhs));
+                state_ = rhs.state_;
+            }
+            return *this;
+        }
+#endif
+
     protected:
         std::size_t state_;      // lexer state this token was matched in
     };
@@ -254,7 +274,7 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
     namespace detail
     {
         ///////////////////////////////////////////////////////////////////////
-        //  Metafunction to calculate the type of the variant data item to be 
+        //  Meta-function to calculate the type of the variant data item to be 
         //  stored with each token instance.
         //
         //  Note: The iterator pair needs to be the first type in the list of 
@@ -305,15 +325,16 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
         {};
     }
 
-    template <typename Iterator, typename AttributeTypes, typename HasState>
-    struct token : token<Iterator, lex::omit, HasState>
+    template <typename Iterator, typename AttributeTypes, typename HasState
+      , typename Idtype>
+    struct token : token<Iterator, lex::omit, HasState, Idtype>
     {
     private: // precondition assertions
 #if !BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
         BOOST_STATIC_ASSERT((mpl::is_sequence<AttributeTypes>::value || 
                             is_same<AttributeTypes, lex::omit>::value));
 #endif
-        typedef token<Iterator, lex::omit, HasState> base_type;
+        typedef token<Iterator, lex::omit, HasState, Idtype> base_type;
 
     protected: 
         //  If no additional token value types are given, the the token will 
@@ -361,7 +382,7 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
             if (this != &rhs) 
             {
                 this->base_type::operator=(static_cast<base_type const&>(rhs));
-                if (this->id_ != boost::lexer::npos && this->id_ != 0) 
+                if (this->is_valid()) 
                     value_ = rhs.value_;
             }
             return *this;
@@ -374,10 +395,11 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
 
     ///////////////////////////////////////////////////////////////////////////
     //  tokens are considered equal, if their id's match (these are unique)
-    template <typename Iterator, typename AttributeTypes, typename HasState>
+    template <typename Iterator, typename AttributeTypes, typename HasState
+      , typename Idtype>
     inline bool 
-    operator== (token<Iterator, AttributeTypes, HasState> const& lhs, 
-                token<Iterator, AttributeTypes, HasState> const& rhs)
+    operator== (token<Iterator, AttributeTypes, HasState, Idtype> const& lhs, 
+                token<Iterator, AttributeTypes, HasState, Idtype> const& rhs)
     {
         return lhs.id() == rhs.id();
     }
@@ -387,13 +409,13 @@ namespace boost { namespace spirit { namespace lex { namespace lexertl
     //  validate a token instance. It has to be defined in the same namespace 
     //  as the token class itself to allow ADL to find it.
     ///////////////////////////////////////////////////////////////////////////
-    template <typename Iterator, typename AttributeTypes, typename HasState>
+    template <typename Iterator, typename AttributeTypes, typename HasState
+      , typename Idtype>
     inline bool 
-    token_is_valid(token<Iterator, AttributeTypes, HasState> const& t)
+    token_is_valid(token<Iterator, AttributeTypes, HasState, Idtype> const& t)
     {
         return t.is_valid();
     }
-
 }}}}
 
 namespace boost { namespace spirit { namespace traits
@@ -407,12 +429,12 @@ namespace boost { namespace spirit { namespace traits
     //  This is called from the parse function of token_def if the token_def
     //  has been defined to carry a special attribute type
     template <typename Attribute, typename Iterator, typename AttributeTypes
-      , typename HasState>
+      , typename HasState, typename Idtype>
     struct assign_to_attribute_from_value<Attribute
-      , lex::lexertl::token<Iterator, AttributeTypes, HasState> >
+      , lex::lexertl::token<Iterator, AttributeTypes, HasState, Idtype> >
     {
         static void 
-        call(lex::lexertl::token<Iterator, AttributeTypes, HasState> const& t
+        call(lex::lexertl::token<Iterator, AttributeTypes, HasState, Idtype> const& t
           , Attribute& attr)
         {
         //  The goal of this function is to avoid the conversion of the pair of
@@ -425,7 +447,7 @@ namespace boost { namespace spirit { namespace traits
             if (0 == t.value().which()) {
             //  first access to the token value
                 typedef iterator_range<Iterator> iterpair_type;
-                iterpair_type const& ip = get<iterpair_type>(t.value());
+                iterpair_type const& ip = boost::get<iterpair_type>(t.value());
 
             // Interestingly enough we use the assign_to() framework defined in 
             // Spirit.Qi allowing to convert the pair of iterators to almost any 
@@ -462,24 +484,53 @@ namespace boost { namespace spirit { namespace traits
             //  tokenization.
 
                 typedef lex::lexertl::token<
-                    Iterator, AttributeTypes, HasState> token_type;
-                const_cast<token_type&>(t).value() = attr;   // re-assign value
+                    Iterator, AttributeTypes, HasState, Idtype> token_type;
+                spirit::traits::assign_to(
+                    attr, const_cast<token_type&>(t).value());   // re-assign value
             }
             else {
             // reuse the already assigned value
-                spirit::traits::assign_to(get<Attribute>(t.value()), attr);
+                spirit::traits::assign_to(boost::get<Attribute>(t.value()), attr);
             }
+        }
+    };
+
+    template <typename Attribute, typename Iterator, typename AttributeTypes
+      , typename HasState, typename Idtype>
+    struct assign_to_container_from_value<Attribute
+          , lex::lexertl::token<Iterator, AttributeTypes, HasState, Idtype> >
+      : assign_to_attribute_from_value<Attribute
+          , lex::lexertl::token<Iterator, AttributeTypes, HasState, Idtype> >
+    {};
+
+    template <typename Iterator, typename AttributeTypes
+      , typename HasState, typename Idtype>
+    struct assign_to_container_from_value<utree
+          , lex::lexertl::token<Iterator, AttributeTypes, HasState, Idtype> >
+      : assign_to_attribute_from_value<utree
+          , lex::lexertl::token<Iterator, AttributeTypes, HasState, Idtype> >
+    {};
+
+    template <typename Iterator>
+    struct assign_to_container_from_value<
+        iterator_range<Iterator>, iterator_range<Iterator> >
+    {
+        static void 
+        call(iterator_range<Iterator> const& val, iterator_range<Iterator>& attr)
+        {
+            attr = val;
         }
     };
 
     //  These are called from the parse function of token_def if the token type
     //  has no special attribute type assigned 
-    template <typename Attribute, typename Iterator, typename HasState>
-    struct assign_to_attribute_from_value<
-        Attribute, lex::lexertl::token<Iterator, mpl::vector0<>, HasState> >
+    template <typename Attribute, typename Iterator, typename HasState
+      , typename Idtype>
+    struct assign_to_attribute_from_value<Attribute
+      , lex::lexertl::token<Iterator, mpl::vector0<>, HasState, Idtype> >
     {
         static void 
-        call(lex::lexertl::token<Iterator, mpl::vector0<>, HasState> const& t
+        call(lex::lexertl::token<Iterator, mpl::vector0<>, HasState, Idtype> const& t
           , Attribute& attr)
         {
             //  The default type returned by the token_def parser component (if 
@@ -489,13 +540,22 @@ namespace boost { namespace spirit { namespace traits
         }
     };
 
+//     template <typename Attribute, typename Iterator, typename HasState
+//       , typename Idtype>
+//     struct assign_to_container_from_value<Attribute
+//           , lex::lexertl::token<Iterator, mpl::vector0<>, HasState, Idtype> >
+//       : assign_to_attribute_from_value<Attribute
+//           , lex::lexertl::token<Iterator, mpl::vector0<>, HasState, Idtype> >
+//     {};
+
     // same as above but using mpl::vector<> instead of mpl::vector0<>
-    template <typename Attribute, typename Iterator, typename HasState>
-    struct assign_to_attribute_from_value<
-        Attribute, lex::lexertl::token<Iterator, mpl::vector<>, HasState> >
+    template <typename Attribute, typename Iterator, typename HasState
+      , typename Idtype>
+    struct assign_to_attribute_from_value<Attribute
+      , lex::lexertl::token<Iterator, mpl::vector<>, HasState, Idtype> >
     {
         static void 
-        call(lex::lexertl::token<Iterator, mpl::vector<>, HasState> const& t
+        call(lex::lexertl::token<Iterator, mpl::vector<>, HasState, Idtype> const& t
           , Attribute& attr)
         {
             //  The default type returned by the token_def parser component (if 
@@ -504,62 +564,91 @@ namespace boost { namespace spirit { namespace traits
             spirit::traits::assign_to(t.value().begin(), t.value().end(), attr);
         }
     };
+
+//     template <typename Attribute, typename Iterator, typename HasState
+//       , typename Idtype>
+//     struct assign_to_container_from_value<Attribute
+//           , lex::lexertl::token<Iterator, mpl::vector<>, HasState, Idtype> >
+//       : assign_to_attribute_from_value<Attribute
+//           , lex::lexertl::token<Iterator, mpl::vector<>, HasState, Idtype> >
+//     {};
 
     //  This is called from the parse function of token_def if the token type
     //  has been explicitly omitted (i.e. no attribute value is used), which
     //  essentially means that every attribute gets initialized using default 
     //  constructed values.
-    template <typename Attribute, typename Iterator, typename HasState>
-    struct assign_to_attribute_from_value<
-        Attribute, lex::lexertl::token<Iterator, lex::omit, HasState> >
+    template <typename Attribute, typename Iterator, typename HasState
+      , typename Idtype>
+    struct assign_to_attribute_from_value<Attribute
+      , lex::lexertl::token<Iterator, lex::omit, HasState, Idtype> >
     {
         static void 
-        call(lex::lexertl::token<Iterator, lex::omit, HasState> const& t
+        call(lex::lexertl::token<Iterator, lex::omit, HasState, Idtype> const& t
           , Attribute& attr)
         {
             // do nothing
         }
     };
 
+    template <typename Attribute, typename Iterator, typename HasState
+      , typename Idtype>
+    struct assign_to_container_from_value<Attribute
+          , lex::lexertl::token<Iterator, lex::omit, HasState, Idtype> >
+      : assign_to_attribute_from_value<Attribute
+          , lex::lexertl::token<Iterator, lex::omit, HasState, Idtype> >
+    {};
+
     //  This is called from the parse function of lexer_def_
-    template <typename Iterator, typename AttributeTypes, typename HasState>
+    template <typename Iterator, typename AttributeTypes, typename HasState
+      , typename Idtype_, typename Idtype>
     struct assign_to_attribute_from_value<
-        fusion::vector2<std::size_t, iterator_range<Iterator> >
-      , lex::lexertl::token<Iterator, AttributeTypes, HasState> >
+        fusion::vector2<Idtype_, iterator_range<Iterator> >
+      , lex::lexertl::token<Iterator, AttributeTypes, HasState, Idtype> >
     {
         static void 
-        call(lex::lexertl::token<Iterator, AttributeTypes, HasState> const& t
-          , fusion::vector2<std::size_t, iterator_range<Iterator> >& attr)
+        call(lex::lexertl::token<Iterator, AttributeTypes, HasState, Idtype> const& t
+          , fusion::vector2<Idtype_, iterator_range<Iterator> >& attr)
         {
             //  The type returned by the lexer_def_ parser components is a 
             //  fusion::vector containing the token id of the matched token 
             //  and the pair of iterators to the matched character sequence.
             typedef iterator_range<Iterator> iterpair_type;
-            typedef fusion::vector2<std::size_t, iterator_range<Iterator> > 
+            typedef fusion::vector2<Idtype_, iterator_range<Iterator> > 
                 attribute_type;
 
-            iterpair_type const& ip = get<iterpair_type>(t.value());
-            attr = attribute_type(t.id(), get<iterpair_type>(t.value()));
+            iterpair_type const& ip = boost::get<iterpair_type>(t.value());
+            attr = attribute_type(t.id(), ip);
         }
     };
+
+    template <typename Iterator, typename AttributeTypes, typename HasState
+      , typename Idtype_, typename Idtype>
+    struct assign_to_container_from_value<
+            fusion::vector2<Idtype_, iterator_range<Iterator> >
+          , lex::lexertl::token<Iterator, AttributeTypes, HasState, Idtype> >
+      : assign_to_attribute_from_value<
+            fusion::vector2<Idtype_, iterator_range<Iterator> >
+          , lex::lexertl::token<Iterator, AttributeTypes, HasState, Idtype> >
+    {};
 
     ///////////////////////////////////////////////////////////////////////////
     // Overload debug output for a single token, this integrates lexer tokens 
     // with Qi's simple_trace debug facilities
-    template <typename Iterator, typename Attribute, typename HasState>
-    struct token_printer_debug<lex::lexertl::token<Iterator, Attribute, HasState> >
+    template <typename Iterator, typename Attribute, typename HasState
+      , typename Idtype>
+    struct token_printer_debug<
+        lex::lexertl::token<Iterator, Attribute, HasState, Idtype> >
     {
-        typedef lex::lexertl::token<Iterator, Attribute, HasState> token_type;
+        typedef lex::lexertl::token<Iterator, Attribute, HasState, Idtype> token_type;
 
         template <typename Out>
         static void print(Out& out, token_type const& val) 
         {
-            out << '<';
+            out << '[';
             spirit::traits::print_token(out, val.value());
-            out << '>';
+            out << ']';
         }
     };
-
 }}}
 
 #endif

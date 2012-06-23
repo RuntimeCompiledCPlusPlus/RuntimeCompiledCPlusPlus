@@ -16,6 +16,7 @@
 #include <boost/intrusive/intrusive_fwd.hpp>
 #include <boost/intrusive/sgtree.hpp>
 #include <boost/intrusive/detail/mpl.hpp>
+#include <boost/move/move.hpp>
 #include <iterator>
 
 namespace boost {
@@ -42,12 +43,8 @@ class sg_set_impl
    /// @cond
    typedef sgtree_impl<Config> tree_type;
    //! This class is
-   //! non-copyable
-   sg_set_impl (const sg_set_impl&);
-
-   //! This class is
-   //! non-assignable
-   sg_set_impl &operator =(const sg_set_impl&);
+   //! movable
+   BOOST_MOVABLE_BUT_NOT_COPYABLE(sg_set_impl)
 
    typedef tree_type implementation_defined;
    /// @endcond
@@ -110,6 +107,17 @@ class sg_set_impl
            , const value_traits &v_traits = value_traits())
       : tree_(true, b, e, cmp, v_traits)
    {}
+
+   //! <b>Effects</b>: to-do
+   //!   
+   sg_set_impl(BOOST_RV_REF(sg_set_impl) x) 
+      :  tree_(::boost::move(x.tree_))
+   {}
+
+   //! <b>Effects</b>: to-do
+   //!   
+   sg_set_impl& operator=(BOOST_RV_REF(sg_set_impl) x) 
+   {  tree_ = ::boost::move(x.tree_);  return *this;  }
 
    //! <b>Effects</b>: Detaches all elements from this. The objects in the sg_set 
    //!   are not deleted (i.e. no destructors are called).
@@ -1218,6 +1226,7 @@ class sg_set
       Options...
       #endif
       >::type   Base;
+   BOOST_MOVABLE_BUT_NOT_COPYABLE(sg_set)
 
    public:
    typedef typename Base::value_compare      value_compare;
@@ -1239,6 +1248,13 @@ class sg_set
       , const value_traits &v_traits = value_traits())
       :  Base(b, e, cmp, v_traits)
    {}
+
+   sg_set(BOOST_RV_REF(sg_set) x)
+      :  Base(::boost::move(static_cast<Base&>(x)))
+   {}
+
+   sg_set& operator=(BOOST_RV_REF(sg_set) x)
+   {  this->Base::operator=(::boost::move(static_cast<Base&>(x))); return *this;  }
 
    static sg_set &container_from_end_iterator(iterator end_iterator)
    {  return static_cast<sg_set &>(Base::container_from_end_iterator(end_iterator));   }
@@ -1277,8 +1293,7 @@ class sg_multiset_impl
    typedef sgtree_impl<Config> tree_type;
 
    //Non-copyable and non-assignable
-   sg_multiset_impl (const sg_multiset_impl&);
-   sg_multiset_impl &operator =(const sg_multiset_impl&);
+   BOOST_MOVABLE_BUT_NOT_COPYABLE(sg_multiset_impl)
    typedef tree_type implementation_defined;
    /// @endcond
 
@@ -1340,6 +1355,17 @@ class sg_multiset_impl
                 , const value_traits &v_traits = value_traits())
       : tree_(false, b, e, cmp, v_traits)
    {}
+
+   //! <b>Effects</b>: to-do
+   //!   
+   sg_multiset_impl(BOOST_RV_REF(sg_multiset_impl) x) 
+      :  tree_(::boost::move(x.tree_))
+   {}
+
+   //! <b>Effects</b>: to-do
+   //!   
+   sg_multiset_impl& operator=(BOOST_RV_REF(sg_multiset_impl) x) 
+   {  tree_ = ::boost::move(x.tree_);  return *this;  }
 
    //! <b>Effects</b>: Detaches all elements from this. The objects in the sg_multiset 
    //!   are not deleted (i.e. no destructors are called).
@@ -2352,6 +2378,7 @@ class sg_multiset
       Options...
       #endif
       >::type   Base;
+   BOOST_MOVABLE_BUT_NOT_COPYABLE(sg_multiset)
 
    public:
    typedef typename Base::value_compare      value_compare;
@@ -2373,6 +2400,13 @@ class sg_multiset
            , const value_traits &v_traits = value_traits())
       :  Base(b, e, cmp, v_traits)
    {}
+
+   sg_multiset(BOOST_RV_REF(sg_multiset) x)
+      :  Base(::boost::move(static_cast<Base&>(x)))
+   {}
+
+   sg_multiset& operator=(BOOST_RV_REF(sg_multiset) x)
+   {  this->Base::operator=(::boost::move(static_cast<Base&>(x))); return *this;  }
 
    static sg_multiset &container_from_end_iterator(iterator end_iterator)
    {  return static_cast<sg_multiset &>(Base::container_from_end_iterator(end_iterator));   }

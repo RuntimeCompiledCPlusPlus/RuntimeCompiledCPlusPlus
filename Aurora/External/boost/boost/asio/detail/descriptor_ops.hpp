@@ -2,7 +2,7 @@
 // detail/descriptor_ops.hpp
 // ~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -40,7 +40,10 @@ enum
   internal_non_blocking = 2,
 
   // Helper "state" used to determine whether the descriptor is non-blocking.
-  non_blocking = user_set_non_blocking | internal_non_blocking
+  non_blocking = user_set_non_blocking | internal_non_blocking,
+
+  // The descriptor may have been dup()-ed.
+  possible_dup = 4
 };
 
 typedef unsigned char state_type;
@@ -60,8 +63,11 @@ BOOST_ASIO_DECL int open(const char* path, int flags,
 BOOST_ASIO_DECL int close(int d, state_type& state,
     boost::system::error_code& ec);
 
+BOOST_ASIO_DECL bool set_user_non_blocking(int d,
+    state_type& state, bool value, boost::system::error_code& ec);
+
 BOOST_ASIO_DECL bool set_internal_non_blocking(int d,
-    state_type& state, boost::system::error_code& ec);
+    state_type& state, bool value, boost::system::error_code& ec);
 
 typedef iovec buf;
 
@@ -87,9 +93,11 @@ BOOST_ASIO_DECL int fcntl(int d, long cmd, boost::system::error_code& ec);
 BOOST_ASIO_DECL int fcntl(int d, long cmd,
     long arg, boost::system::error_code& ec);
 
-BOOST_ASIO_DECL int poll_read(int d, boost::system::error_code& ec);
+BOOST_ASIO_DECL int poll_read(int d,
+    state_type state, boost::system::error_code& ec);
 
-BOOST_ASIO_DECL int poll_write(int d, boost::system::error_code& ec);
+BOOST_ASIO_DECL int poll_write(int d,
+    state_type state, boost::system::error_code& ec);
 
 } // namespace descriptor_ops
 } // namespace detail

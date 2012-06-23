@@ -118,7 +118,7 @@ T inverse_students_t_tail_series(T df, T v, const Policy& pol)
    T rn = sqrt(df);
    T div = pow(rn * w, 1 / df);
    T power = div * div;
-   T result = tools::evaluate_polynomial(d, power);
+   T result = tools::evaluate_polynomial<7, T, T>(d, power);
    result *= rn;
    result /= div;
    return -result;
@@ -200,7 +200,7 @@ T inverse_students_t_body_series(T df, T u, const Policy& pol)
    //
    // The result is then a polynomial in v (see Eq 56 of Shaw):
    //
-   return tools::evaluate_odd_polynomial(c, v);
+   return tools::evaluate_odd_polynomial<11, T, T>(c, v);
 }
 
 template <class T, class Policy>
@@ -460,7 +460,7 @@ T fast_students_t_quantile_imp(T df, T p, const Policy& pol, const mpl::true_*)
    // Get an estimate of the result:
    //
    bool exact;
-   T t = inverse_students_t(df, p, 1-p, pol, &exact);
+   T t = inverse_students_t(df, p, T(1-p), pol, &exact);
    if((t == 0) || exact)
       return invert ? -t : t; // can't do better!
    //
@@ -529,7 +529,10 @@ inline T fast_students_t_quantile(T df, T p, const Policy& pol)
    typedef mpl::bool_<
       (std::numeric_limits<T>::digits <= 53)
        &&
-      (std::numeric_limits<T>::is_specialized)> tag_type;
+      (std::numeric_limits<T>::is_specialized)
+       &&
+      (std::numeric_limits<T>::radix == 2)
+   > tag_type;
    return policies::checked_narrowing_cast<T, forwarding_policy>(fast_students_t_quantile_imp(static_cast<value_type>(df), static_cast<value_type>(p), pol, static_cast<tag_type*>(0)), "boost::math::students_t_quantile<%1%>(%1%,%1%,%1%)");
 }
 

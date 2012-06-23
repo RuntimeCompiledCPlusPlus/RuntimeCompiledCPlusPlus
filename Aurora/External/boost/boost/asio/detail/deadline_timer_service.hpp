@@ -2,7 +2,7 @@
 // detail/deadline_timer_service.hpp
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -24,14 +24,10 @@
 #include <boost/asio/detail/noncopyable.hpp>
 #include <boost/asio/detail/socket_ops.hpp>
 #include <boost/asio/detail/socket_types.hpp>
-#include <boost/asio/detail/timer_op.hpp>
 #include <boost/asio/detail/timer_queue.hpp>
 #include <boost/asio/detail/timer_scheduler.hpp>
 #include <boost/asio/detail/wait_handler.hpp>
-
-#include <boost/asio/detail/push_options.hpp>
-#include <boost/date_time/posix_time/posix_time_types.hpp>
-#include <boost/asio/detail/pop_options.hpp>
+#include <boost/asio/detail/wait_op.hpp>
 
 #include <boost/asio/detail/push_options.hpp>
 
@@ -100,8 +96,31 @@ public:
       ec = boost::system::error_code();
       return 0;
     }
+
+    BOOST_ASIO_HANDLER_OPERATION(("deadline_timer", &impl, "cancel"));
+
     std::size_t count = scheduler_.cancel_timer(timer_queue_, impl.timer_data);
     impl.might_have_pending_waits = false;
+    ec = boost::system::error_code();
+    return count;
+  }
+
+  // Cancels one asynchronous wait operation associated with the timer.
+  std::size_t cancel_one(implementation_type& impl,
+      boost::system::error_code& ec)
+  {
+    if (!impl.might_have_pending_waits)
+    {
+      ec = boost::system::error_code();
+      return 0;
+    }
+
+    BOOST_ASIO_HANDLER_OPERATION(("deadline_timer", &impl, "cancel_one"));
+
+    std::size_t count = scheduler_.cancel_timer(
+        timer_queue_, impl.timer_data, 1);
+    if (count == 0)
+      impl.might_have_pending_waits = false;
     ec = boost::system::error_code();
     return count;
   }
@@ -140,18 +159,13 @@ public:
   void wait(implementation_type& impl, boost::system::error_code& ec)
   {
     time_type now = Time_Traits::now();
-    while (Time_Traits::less_than(now, impl.expiry))
+    ec = boost::system::error_code();
+    while (Time_Traits::less_than(now, impl.expiry) && !ec)
     {
-      boost::posix_time::time_duration timeout =
-        Time_Traits::to_posix_duration(Time_Traits::subtract(impl.expiry, now));
-      ::timeval tv;
-      tv.tv_sec = timeout.total_seconds();
-      tv.tv_usec = timeout.total_microseconds() % 1000000;
-      boost::system::error_code ec;
-      socket_ops::select(0, 0, 0, 0, &tv, ec);
+      this->do_wait(Time_Traits::to_posix_duration(
+            Time_Traits::subtract(impl.expiry, now)), ec);
       now = Time_Traits::now();
     }
-    ec = boost::system::error_code();
   }
 
   // Start an asynchronous wait on the timer.
@@ -167,11 +181,25 @@ public:
 
     impl.might_have_pending_waits = true;
 
+    BOOST_ASIO_HANDLER_CREATION((p.p, "deadline_timer", &impl, "async_wait"));
+
     scheduler_.schedule_timer(timer_queue_, impl.expiry, impl.timer_data, p.p);
     p.v = p.p = 0;
   }
 
 private:
+  // Helper function to wait given a duration type. The duration type should
+  // either be of type boost::posix_time::time_duration, or implement the
+  // required subset of its interface.
+  template <typename Duration>
+  void do_wait(const Duration& timeout, boost::system::error_code& ec)
+  {
+    ::timeval tv;
+    tv.tv_sec = timeout.total_seconds();
+    tv.tv_usec = timeout.total_microseconds() % 1000000;
+    socket_ops::select(0, 0, 0, 0, &tv, ec);
+  }
+
   // The queue of timers.
   timer_queue<Time_Traits> timer_queue_;
 

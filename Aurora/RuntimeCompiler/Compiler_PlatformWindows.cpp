@@ -73,8 +73,12 @@ public:
 		si.cb = sizeof(si);
 
 		boost::filesystem::path VSPath(  m_VSPath );
-		std::string cmdSetParams = "@PROMPT $ \n\"" + VSPath.string() + "Vcvars32.bat\"\n";
 
+#ifndef _WIN64
+		std::string cmdSetParams = "@PROMPT $ \n\"" + VSPath.string() + "Vcvars32.bat\"\n";
+#else
+		std::string cmdSetParams = "@PROMPT $ \n\"" + VSPath.string() + "/../Vcvarsall.bat\" amd64\n";
+#endif
 		// Set up the security attributes struct.
 		SECURITY_ATTRIBUTES sa;
 		sa.nLength= sizeof(SECURITY_ATTRIBUTES);
@@ -441,6 +445,6 @@ void ReadAndHandleOutputThread( LPVOID arg )
 void WriteInput( HANDLE hPipeWrite, std::string& input  )
 {
     DWORD nBytesWritten;
-	size_t length = input.length();
+	DWORD length = (DWORD)input.length();
 	WriteFile( hPipeWrite, input.c_str() , length, &nBytesWritten, NULL );
 }

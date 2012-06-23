@@ -18,6 +18,7 @@
 #include <boost/type_traits/conversion_traits.hpp>
 #include <boost/static_assert.hpp>
 #include <boost/graph/overloading.hpp>
+#include <boost/concept/assert.hpp>
 
 namespace boost {
 
@@ -93,11 +94,11 @@ namespace boost {
        const bgl_named_params<P, T, R>& params)
     {
       typedef typename graph_traits<Graph>::vertex_descriptor Vertex;
-      function_requires< ReadWritePropertyMapConcept<ComponentMap, Vertex> >();
-      function_requires< ReadWritePropertyMapConcept<RootMap, Vertex> >();
+      BOOST_CONCEPT_ASSERT(( ReadWritePropertyMapConcept<ComponentMap, Vertex> ));
+      BOOST_CONCEPT_ASSERT(( ReadWritePropertyMapConcept<RootMap, Vertex> ));
       typedef typename property_traits<RootMap>::value_type RootV;
-      function_requires< ConvertibleConcept<RootV, Vertex> >();
-      function_requires< ReadWritePropertyMapConcept<DiscoverTime, Vertex> >();
+      BOOST_CONCEPT_ASSERT(( ConvertibleConcept<RootV, Vertex> ));
+      BOOST_CONCEPT_ASSERT(( ReadWritePropertyMapConcept<DiscoverTime, Vertex> ));
 
       typename property_traits<ComponentMap>::value_type total = 0;
 
@@ -282,7 +283,7 @@ namespace boost {
   kosaraju_strong_components(Graph& G, ComponentsMap c,
                              FinishTime finish_time, ColorMap color)
   {
-    function_requires< MutableGraphConcept<Graph> >();
+    BOOST_CONCEPT_ASSERT(( MutableGraphConcept<Graph> ));
     // ...
     
     typedef typename graph_traits<Graph>::vertex_descriptor Vertex;

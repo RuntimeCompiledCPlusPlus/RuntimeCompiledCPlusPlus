@@ -16,7 +16,9 @@
 #include <boost/intrusive/detail/config_begin.hpp>
 #include <boost/intrusive/intrusive_fwd.hpp>
 #include <boost/intrusive/hashtable.hpp>
+#include <boost/move/move.hpp>
 #include <iterator>
+
 
 namespace boost {
 namespace intrusive {
@@ -39,7 +41,7 @@ namespace intrusive {
 //! The container supports the following options:
 //! \c base_hook<>/member_hook<>/value_traits<>,
 //! \c constant_time_size<>, \c size_type<>, \c hash<> and \c equal<>
-//! \c bucket_traits<>, power_2_buckets<> and cache_begin<>.
+//! \c bucket_traits<>, \c power_2_buckets<> and \c cache_begin<>.
 //!
 //! unordered_set only provides forward iterators but it provides 4 iterator types:
 //! iterator and const_iterator to navigate through the whole container and
@@ -68,12 +70,8 @@ class unordered_set_impl
    typedef hashtable_impl<Config> table_type;
 
    //! This class is
-   //! non-copyable
-   unordered_set_impl (const unordered_set_impl&);
-
-   //! This class is
-   //! non-assignable
-   unordered_set_impl &operator =(const unordered_set_impl&);
+   //! movable
+   BOOST_MOVABLE_BUT_NOT_COPYABLE(unordered_set_impl)
 
    typedef table_type implementation_defined;
    /// @endcond
@@ -155,6 +153,17 @@ class unordered_set_impl
                      , const value_traits &v_traits = value_traits()) 
       :  table_(b_traits, hash_func, equal_func, v_traits)
    {  table_.insert_unique(b, e);  }
+
+   //! <b>Effects</b>: to-do
+   //!   
+   unordered_set_impl(BOOST_RV_REF(unordered_set_impl) x) 
+      :  table_(::boost::move(x.table_))
+   {}
+
+   //! <b>Effects</b>: to-do
+   //!   
+   unordered_set_impl& operator=(BOOST_RV_REF(unordered_set_impl) x) 
+   {  table_ = ::boost::move(x.table_);  return *this;  }
 
    //! <b>Effects</b>: Detaches all elements from this. The objects in the unordered_set 
    //!   are not deleted (i.e. no destructors are called).
@@ -248,7 +257,7 @@ class unordered_set_impl
    //! <b>Effects</b>: Returns the number of elements stored in the unordered_set.
    //! 
    //! <b>Complexity</b>: Linear to elements contained in *this if
-   //!   constant-time size option is enabled. Constant-time otherwise.
+   //!   constant-time size option is disabled. Constant-time otherwise.
    //! 
    //! <b>Throws</b>: Nothing.
    size_type size() const
@@ -395,8 +404,8 @@ class unordered_set_impl
    //! 
    //! <b>Note</b>: Invalidates the iterators (but not the references)
    //!    to the erased element. No destructors are called.
-   iterator erase(const_iterator i)
-   {  return table_.erase(i);  }
+   void erase(const_iterator i)
+   {  table_.erase(i);  }
 
    //! <b>Effects</b>: Erases the range pointed to by b end e. 
    //! 
@@ -407,8 +416,8 @@ class unordered_set_impl
    //! 
    //! <b>Note</b>: Invalidates the iterators (but not the references)
    //!    to the erased elements. No destructors are called.
-   iterator erase(const_iterator b, const_iterator e)
-   {  return table_.erase(b, e);  }
+   void erase(const_iterator b, const_iterator e)
+   {  table_.erase(b, e);  }
 
    //! <b>Effects</b>: Erases all the elements with the given value.
    //! 
@@ -460,12 +469,12 @@ class unordered_set_impl
    //! <b>Note</b>: Invalidates the iterators 
    //!    to the erased elements.
    template<class Disposer>
-   iterator erase_and_dispose(const_iterator i, Disposer disposer
+   void erase_and_dispose(const_iterator i, Disposer disposer
                               /// @cond
                               , typename detail::enable_if_c<!detail::is_convertible<Disposer, const_iterator>::value >::type * = 0
                               /// @endcond
                               )
-   {  return table_.erase_and_dispose(i, disposer);  }
+   {  table_.erase_and_dispose(i, disposer);  }
 
    //! <b>Requires</b>: Disposer::operator()(pointer) shouldn't throw.
    //!
@@ -480,8 +489,8 @@ class unordered_set_impl
    //! <b>Note</b>: Invalidates the iterators
    //!    to the erased elements.
    template<class Disposer>
-   iterator erase_and_dispose(const_iterator b, const_iterator e, Disposer disposer)
-   {  return table_.erase_and_dispose(b, e, disposer);  }
+   void erase_and_dispose(const_iterator b, const_iterator e, Disposer disposer)
+   {  table_.erase_and_dispose(b, e, disposer);  }
 
    //! <b>Requires</b>: Disposer::operator()(pointer) shouldn't throw.
    //!
@@ -1046,6 +1055,7 @@ class unordered_set
 
    //Assert if passed value traits are compatible with the type
    BOOST_STATIC_ASSERT((detail::is_same<typename Base::value_traits::value_type, T>::value));
+   BOOST_MOVABLE_BUT_NOT_COPYABLE(unordered_set)
 
    public:
    typedef typename Base::value_traits       value_traits;
@@ -1073,6 +1083,13 @@ class unordered_set
                   , const value_traits &v_traits = value_traits()) 
       :  Base(b, e, b_traits, hash_func, equal_func, v_traits)
    {}
+
+   unordered_set(BOOST_RV_REF(unordered_set) x)
+      :  Base(::boost::move(static_cast<Base&>(x)))
+   {}
+
+   unordered_set& operator=(BOOST_RV_REF(unordered_set) x)
+   {  this->Base::operator=(::boost::move(static_cast<Base&>(x))); return *this;  }
 };
 
 #endif
@@ -1096,7 +1113,7 @@ class unordered_set
 //! The container supports the following options:
 //! \c base_hook<>/member_hook<>/value_traits<>,
 //! \c constant_time_size<>, \c size_type<>, \c hash<> and \c equal<>
-//! \c bucket_traits<>, power_2_buckets<> and cache_begin<>.
+//! \c bucket_traits<>, \c power_2_buckets<> and \c cache_begin<>.
 //!
 //! unordered_multiset only provides forward iterators but it provides 4 iterator types:
 //! iterator and const_iterator to navigate through the whole container and
@@ -1125,13 +1142,8 @@ class unordered_multiset_impl
    typedef hashtable_impl<Config> table_type;
    /// @endcond
 
-   //! This class is
-   //! non-copyable
-   unordered_multiset_impl (const unordered_multiset_impl&);
-
-   //! This class is
-   //! non-assignable
-   unordered_multiset_impl &operator =(const unordered_multiset_impl&);
+   //Movable
+   BOOST_MOVABLE_BUT_NOT_COPYABLE(unordered_multiset_impl)
 
    typedef table_type implementation_defined;
 
@@ -1212,6 +1224,17 @@ class unordered_multiset_impl
                            , const value_traits &v_traits = value_traits()) 
       :  table_(b_traits, hash_func, equal_func, v_traits)
    {  table_.insert_equal(b, e);  }
+
+   //! <b>Effects</b>: to-do
+   //!   
+   unordered_multiset_impl(BOOST_RV_REF(unordered_multiset_impl) x) 
+      :  table_(::boost::move(x.table_))
+   {}
+
+   //! <b>Effects</b>: to-do
+   //!   
+   unordered_multiset_impl& operator=(BOOST_RV_REF(unordered_multiset_impl) x) 
+   {  table_ = ::boost::move(x.table_);  return *this;  }
 
    //! <b>Effects</b>: Detaches all elements from this. The objects in the unordered_multiset 
    //!   are not deleted (i.e. no destructors are called).
@@ -1305,7 +1328,7 @@ class unordered_multiset_impl
    //! <b>Effects</b>: Returns the number of elements stored in the unordered_multiset.
    //! 
    //! <b>Complexity</b>: Linear to elements contained in *this if
-   //!   constant-time size option is enabled. Constant-time otherwise.
+   //!   constant-time size option is disabled. Constant-time otherwise.
    //! 
    //! <b>Throws</b>: Nothing.
    size_type size() const
@@ -1387,8 +1410,8 @@ class unordered_multiset_impl
    //! 
    //! <b>Note</b>: Invalidates the iterators (but not the references)
    //!    to the erased element. No destructors are called.
-   iterator erase(const_iterator i)
-   {  return table_.erase(i);  }
+   void erase(const_iterator i)
+   {  table_.erase(i);  }
 
    //! <b>Effects</b>: Erases the range pointed to by b end e. 
    //! 
@@ -1399,8 +1422,8 @@ class unordered_multiset_impl
    //! 
    //! <b>Note</b>: Invalidates the iterators (but not the references)
    //!    to the erased elements. No destructors are called.
-   iterator erase(const_iterator b, const_iterator e)
-   {  return table_.erase(b, e);  }
+   void erase(const_iterator b, const_iterator e)
+   {  table_.erase(b, e);  }
 
    //! <b>Effects</b>: Erases all the elements with the given value.
    //! 
@@ -1453,17 +1476,17 @@ class unordered_multiset_impl
    //! <b>Note</b>: Invalidates the iterators 
    //!    to the erased elements.
    template<class Disposer>
-   iterator erase_and_dispose(const_iterator i, Disposer disposer
+   void erase_and_dispose(const_iterator i, Disposer disposer
                               /// @cond
                               , typename detail::enable_if_c<!detail::is_convertible<Disposer, const_iterator>::value >::type * = 0
                               /// @endcond
                               )
-   {  return table_.erase_and_dispose(i, disposer);  }
+   {  table_.erase_and_dispose(i, disposer);  }
 
    #if !defined(BOOST_INTRUSIVE_DOXYGEN_INVOKED)
    template<class Disposer>
-   iterator erase_and_dispose(const_iterator i, Disposer disposer)
-   {  return this->erase_and_dispose(const_iterator(i), disposer);   }
+   void erase_and_dispose(const_iterator i, Disposer disposer)
+   {  this->erase_and_dispose(const_iterator(i), disposer);   }
    #endif
 
    //! <b>Requires</b>: Disposer::operator()(pointer) shouldn't throw.
@@ -1479,8 +1502,8 @@ class unordered_multiset_impl
    //! <b>Note</b>: Invalidates the iterators
    //!    to the erased elements.
    template<class Disposer>
-   iterator erase_and_dispose(const_iterator b, const_iterator e, Disposer disposer)
-   {  return table_.erase_and_dispose(b, e, disposer);  }
+   void erase_and_dispose(const_iterator b, const_iterator e, Disposer disposer)
+   {  table_.erase_and_dispose(b, e, disposer);  }
 
    //! <b>Requires</b>: Disposer::operator()(pointer) shouldn't throw.
    //!
@@ -2045,6 +2068,7 @@ class unordered_multiset
       >::type   Base;
    //Assert if passed value traits are compatible with the type
    BOOST_STATIC_ASSERT((detail::is_same<typename Base::value_traits::value_type, T>::value));
+   BOOST_MOVABLE_BUT_NOT_COPYABLE(unordered_multiset)
 
    public:
    typedef typename Base::value_traits       value_traits;
@@ -2072,6 +2096,13 @@ class unordered_multiset
                      , const value_traits &v_traits = value_traits()) 
       :  Base(b, e, b_traits, hash_func, equal_func, v_traits)
    {}
+
+   unordered_multiset(BOOST_RV_REF(unordered_multiset) x)
+      :  Base(::boost::move(static_cast<Base&>(x)))
+   {}
+
+   unordered_multiset& operator=(BOOST_RV_REF(unordered_multiset) x)
+   {  this->Base::operator=(::boost::move(static_cast<Base&>(x))); return *this;  }
 };
 
 #endif

@@ -9,13 +9,15 @@
 #ifndef BOOST_PROTO_DETAIL_DONT_CARE_HPP_EAN_11_07_2007
 #define BOOST_PROTO_DETAIL_DONT_CARE_HPP_EAN_11_07_2007
 
+#include <boost/config.hpp>
+
 namespace boost { namespace proto
 {
     namespace detail
     {
         struct dont_care
         {
-            dont_care(...);
+            BOOST_FORCEINLINE dont_care(...);
         };
     }
 }}

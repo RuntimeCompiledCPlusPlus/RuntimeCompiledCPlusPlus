@@ -2,7 +2,7 @@
 // detail/impl/reactive_serial_port_service.ipp
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 // Copyright (c) 2008 Rep Invariant Systems, Inc. (info@repinvariant.com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
@@ -113,7 +113,7 @@ boost::system::error_code reactive_serial_port_service::do_set_option(
   termios ios;
   errno = 0;
   descriptor_ops::error_wrapper(::tcgetattr(
-        descriptor_service_.native(impl), &ios), ec);
+        descriptor_service_.native_handle(impl), &ios), ec);
   if (ec)
     return ec;
 
@@ -122,7 +122,7 @@ boost::system::error_code reactive_serial_port_service::do_set_option(
 
   errno = 0;
   descriptor_ops::error_wrapper(::tcsetattr(
-        descriptor_service_.native(impl), TCSANOW, &ios), ec);
+        descriptor_service_.native_handle(impl), TCSANOW, &ios), ec);
   return ec;
 }
 
@@ -134,7 +134,7 @@ boost::system::error_code reactive_serial_port_service::do_get_option(
   termios ios;
   errno = 0;
   descriptor_ops::error_wrapper(::tcgetattr(
-        descriptor_service_.native(impl), &ios), ec);
+        descriptor_service_.native_handle(impl), &ios), ec);
   if (ec)
     return ec;
 

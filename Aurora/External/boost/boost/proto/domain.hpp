@@ -142,6 +142,7 @@ namespace boost { namespace proto
                 BOOST_PROTO_CALLABLE()
                 typedef typename remove_const<T>::type result_type;
 
+                BOOST_FORCEINLINE
                 result_type operator()(T &e) const
                 {
                     return e;
@@ -185,6 +186,7 @@ namespace boost { namespace proto
                 BOOST_PROTO_CALLABLE()
                 typedef T &result_type;
 
+                BOOST_FORCEINLINE
                 result_type operator()(T &e) const
                 {
                     return e;
@@ -198,6 +200,13 @@ namespace boost { namespace proto
         ///
         struct default_domain
           : domain<>
+        {};
+
+        /// \brief A domain to use when you prefer the use of
+        /// \c proto::basic_expr\<\> over \c proto::expr\<\>.
+        ///
+        struct basic_default_domain
+          : domain<basic_default_generator>
         {};
 
         /// \brief A pseudo-domain for use in functions and
@@ -291,6 +300,28 @@ namespace boost { namespace proto
     {
         typedef typename domain_of<T>::type type;
     };
+
+    /// A metafunction that returns \c mpl::true_
+    /// if the type \c SubDomain is a sub-domain of
+    /// \c SuperDomain; \c mpl::false_ otherwise.
+    template<typename SubDomain, typename SuperDomain>
+    struct is_sub_domain_of
+      : is_sub_domain_of<typename SubDomain::proto_super_domain, SuperDomain>
+    {};
+
+    /// INTERNAL ONLY
+    ///
+    template<typename SuperDomain>
+    struct is_sub_domain_of<proto::no_super_domain, SuperDomain>
+      : mpl::false_
+    {};
+
+    /// INTERNAL ONLY
+    ///
+    template<typename SuperDomain>
+    struct is_sub_domain_of<SuperDomain, SuperDomain>
+      : mpl::true_
+    {};
 
 }}
 

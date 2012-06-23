@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2006 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
     Copyright (c) 2005-2006 Dan Marsden
     Copyright (c) 2009-2010 Christopher Schmidt
 
@@ -20,7 +20,7 @@ namespace boost { namespace fusion { namespace extension
     {
         template <typename Seq, typename N>
         struct apply
-          : struct_member<typename remove_const<Seq>::type, N::value>
+          : access::struct_member<typename remove_const<Seq>::type, N::value>
         {};
     };
 

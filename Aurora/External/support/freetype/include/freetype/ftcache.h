@@ -56,9 +56,12 @@ FT_BEGIN_HEADER
    *   interpret them in any way.
    *
    *   Second, the cache calls, only when needed, a client-provided function
-   *   to convert a @FTC_FaceID into a new @FT_Face object.  The latter is
+   *   to convert an @FTC_FaceID into a new @FT_Face object.  The latter is
    *   then completely managed by the cache, including its termination
-   *   through @FT_Done_Face.
+   *   through @FT_Done_Face.  To monitor termination of face objects, the
+   *   finalizer callback in the `generic' field of the @FT_Face object can
+   *   be used, which might also be used to store the @FTC_FaceID of the
+   *   face.
    *
    *   Clients are free to map face IDs to anything else.  The most simple
    *   usage is to associate them to a (pathname,face_index) pair that is
@@ -211,12 +214,17 @@ FT_BEGIN_HEADER
 
  /* */
 
+#ifdef FT_CONFIG_OPTION_OLD_INTERNALS
+
+  /* these macros are incompatible with LLP64, should not be used */
+
 #define FT_POINTER_TO_ULONG( p )  ( (FT_ULong)(FT_Pointer)(p) )
 
 #define FTC_FACE_ID_HASH( i )                                \
           ((FT_UInt32)(( FT_POINTER_TO_ULONG( i ) >> 3 ) ^   \
                        ( FT_POINTER_TO_ULONG( i ) << 7 ) ) )
 
+#endif /* FT_CONFIG_OPTION_OLD_INTERNALS */
 
   /*************************************************************************/
   /*************************************************************************/
@@ -697,10 +705,16 @@ FT_BEGIN_HEADER
             (d1)->width   == (d2)->width   && \
             (d1)->flags   == (d2)->flags   )
 
+#ifdef FT_CONFIG_OPTION_OLD_INTERNALS
+
+  /* this macro is incompatible with LLP64, should not be used */
+
 #define FTC_IMAGE_TYPE_HASH( d )                          \
           (FT_UFast)( FTC_FACE_ID_HASH( (d)->face_id )  ^ \
                       ( (d)->width << 8 ) ^ (d)->height ^ \
                       ( (d)->flags << 4 )               )
+
+#endif /* FT_CONFIG_OPTION_OLD_INTERNALS */
 
 
   /*************************************************************************/
@@ -1093,6 +1107,7 @@ FT_BEGIN_HEADER
             (f1)->pix_width  == (f2)->pix_width  && \
             (f1)->pix_height == (f2)->pix_height )
 
+  /* this macro is incompatible with LLP64, should not be used */
 #define FTC_FONT_HASH( f )                              \
           (FT_UInt32)( FTC_FACE_ID_HASH((f)->face_id) ^ \
                        ((f)->pix_width << 8)          ^ \

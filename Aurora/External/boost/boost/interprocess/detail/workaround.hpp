@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2011. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -25,7 +25,7 @@
 
 #endif
 
-#if !(defined BOOST_INTERPROCESS_WINDOWS)
+#if !defined(BOOST_INTERPROCESS_WINDOWS)
 
    #include <unistd.h>
 
@@ -46,8 +46,9 @@
    #  if defined(__CYGWIN__)
       #define BOOST_INTERPROCESS_POSIX_SEMAPHORES_NO_UNLINK
    #  endif
-   //#elif defined(__APPLE__)
-   //# define BOOST_INTERPROCESS_POSIX_NAMED_SEMAPHORES   
+   //Some platforms have a limited (name length) named semaphore support
+   #elif (defined(__FreeBSD__) && (__FreeBSD__ >= 4)) || defined(__APPLE__)
+     # define BOOST_INTERPROCESS_POSIX_NAMED_SEMAPHORES   
    #endif 
 
    #if ((defined _V6_ILP32_OFFBIG)  &&(_V6_ILP32_OFFBIG   - 0 > 0)) ||\
@@ -98,8 +99,10 @@
       //portable "/shmname" format does not work due to permission issues
       //For those systems we need to form a path to a temporary directory:
       //          hp-ux               tru64               vms               freebsd
-      #if defined(__hpux) || defined(__osf__) || defined(__vms) || (defined(__FreeBSD__) && (__FreeBSD__ < 8)) 
+      #if defined(__hpux) || defined(__osf__) || defined(__vms) || (defined(__FreeBSD__) && (__FreeBSD__ < 7)) 
       #define BOOST_INTERPROCESS_FILESYSTEM_BASED_POSIX_SHARED_MEMORY
+      #elif defined(__FreeBSD__)
+      #define BOOST_INTERPROCESS_RUNTIME_FILESYSTEM_BASED_POSIX_SHARED_MEMORY
       #endif
    #endif
 
@@ -115,7 +118,7 @@
 
 #endif
 
-#if     defined(BOOST_HAS_RVALUE_REFS) && defined(BOOST_HAS_VARIADIC_TMPL)\
+#if    !defined(BOOST_NO_RVALUE_REFERENCES) && !defined(BOOST_NO_VARIADIC_TEMPLATES)\
     && !defined(BOOST_INTERPROCESS_DISABLE_VARIADIC_TMPL)
 #define BOOST_INTERPROCESS_PERFECT_FORWARDING
 #endif
@@ -133,6 +136,11 @@
 #define BOOST_INTERPROCESS_NAMED_MUTEX_USES_POSIX_SEMAPHORES
 #define BOOST_INTERPROCESS_NAMED_SEMAPHORE_USES_POSIX_SEMAPHORES
 
+#endif
+
+// Timeout duration use if BOOST_INTERPROCESS_ENABLE_TIMEOUT_WHEN_LOCKING is set
+#ifndef BOOST_INTERPROCESS_TIMEOUT_WHEN_LOCKING_DURATION_MS
+#define BOOST_INTERPROCESS_TIMEOUT_WHEN_LOCKING_DURATION_MS 10000
 #endif
 
 #include <boost/interprocess/detail/config_end.hpp>

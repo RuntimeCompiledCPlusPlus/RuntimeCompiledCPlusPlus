@@ -4,7 +4,7 @@
     
     http://www.boost.org/
 
-    Copyright (c) 2001-2010 Hartmut Kaiser. Distributed under the Boost
+    Copyright (c) 2001-2011 Hartmut Kaiser. Distributed under the Boost
     Software License, Version 1.0. (See accompanying file
     LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
@@ -26,7 +26,7 @@ enum language_support {
 //  support flags for C++98
     support_normal = 0x01,
     support_cpp = support_normal,
-    
+
     support_option_long_long = 0x02,
 
 #if BOOST_WAVE_SUPPORT_VARIADICS_PLACEMARKERS != 0
@@ -34,8 +34,12 @@ enum language_support {
     support_option_variadics = 0x04,
     support_c99 = support_option_variadics | support_option_long_long | 0x08,
 #endif 
+#if BOOST_WAVE_SUPPORT_CPP0X != 0
+    support_cpp0x = support_option_variadics | support_option_long_long | 0x10,
+#endif
 
-    support_option_mask = 0xFF80,
+    support_option_mask = 0xFFB0,
+    support_option_emit_contnewlines = 0x0040,
     support_option_insert_whitespace = 0x0080,
     support_option_preserve_comments = 0x0100,
     support_option_no_character_validation = 0x0200,
@@ -59,6 +63,31 @@ need_cpp(language_support language)
 {
     return (language & ~support_option_mask) == support_cpp;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+//  
+//  need_cpp0x
+//
+//      Extract, if the language to support is C++0x
+//
+///////////////////////////////////////////////////////////////////////////////
+#if BOOST_WAVE_SUPPORT_CPP0X != 0
+
+inline bool
+need_cpp0x(language_support language) 
+{
+    return (language & ~support_option_mask) == support_cpp0x;
+}
+
+#else
+
+inline bool
+need_cpp0x(language_support language) 
+{
+    return false;
+}
+
+#endif
 
 #if BOOST_WAVE_SUPPORT_VARIADICS_PLACEMARKERS != 0
 ///////////////////////////////////////////////////////////////////////////////
@@ -168,6 +197,7 @@ BOOST_WAVE_OPTION(variadics)                // support_option_variadics
 BOOST_WAVE_OPTION(emit_pragma_directives)   // support_option_emit_pragma_directives
 #endif
 BOOST_WAVE_OPTION(insert_whitespace)        // support_option_insert_whitespace
+BOOST_WAVE_OPTION(emit_contnewlines)        // support_option_emit_contnewlines
 
 #undef BOOST_WAVE_NEED_OPTION
 #undef BOOST_WAVE_ENABLE_OPTION

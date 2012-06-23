@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2008-2009. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2008-2011. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -16,7 +16,6 @@
 #endif
 
 #include <boost/interprocess/detail/config_begin.hpp>
-#include <boost/interprocess/detail/workaround.hpp>
 
 #ifdef BOOST_INTERPROCESS_PERFECT_FORWARDING
 #error "This file is not needed when perfect forwarding is available"
@@ -36,7 +35,7 @@
 //This cast is ugly but it is necessary until "perfect forwarding"
 //is achieved in C++0x. Meanwhile, if we want to be able to
 //bind rvalues with non-const references, we have to be ugly
-#ifdef BOOST_HAS_RVALUE_REFS
+#ifndef BOOST_NO_RVALUE_REFERENCES
    #define BOOST_INTERPROCESS_PP_PARAM_LIST(z, n, data) \
    BOOST_PP_CAT(P, n) && BOOST_PP_CAT(p, n) \
    //!
@@ -46,47 +45,84 @@
    //!
 #endif
 
-#ifdef BOOST_HAS_RVALUE_REFS
-   #define BOOST_INTERPROCESS_PARAM(U, u) \
+#ifndef BOOST_NO_RVALUE_REFERENCES
+   #define BOOST_INTERPROCESS_PP_PARAM(U, u) \
    U && u \
    //!
 #else
-   #define BOOST_INTERPROCESS_PARAM(U, u) \
+   #define BOOST_INTERPROCESS_PP_PARAM(U, u) \
    const U & u \
    //!
 #endif
 
-#ifdef BOOST_HAS_RVALUE_REFS
-#define BOOST_INTERPROCESS_AUX_PARAM_INIT(z, n, data) \
+#ifndef BOOST_NO_RVALUE_REFERENCES
+
+#ifdef BOOST_MOVE_OLD_RVALUE_REF_BINDING_RULES
+
+#define BOOST_INTERPROCESS_PP_PARAM_INIT(z, n, data) \
+  BOOST_PP_CAT(m_p, n) (BOOST_INTERPROCESS_MOVE_NAMESPACE::forward< BOOST_PP_CAT(P, n) >( BOOST_PP_CAT(p, n) ))           \
+//!
+
+#else
+
+#define BOOST_INTERPROCESS_PP_PARAM_INIT(z, n, data) \
   BOOST_PP_CAT(m_p, n) (BOOST_PP_CAT(p, n))           \
 //!
+
+#endif
+
 #else
-#define BOOST_INTERPROCESS_AUX_PARAM_INIT(z, n, data) \
+#define BOOST_INTERPROCESS_PP_PARAM_INIT(z, n, data) \
   BOOST_PP_CAT(m_p, n) (const_cast<BOOST_PP_CAT(P, n) &>(BOOST_PP_CAT(p, n))) \
 //!
 #endif
 
-#define BOOST_INTERPROCESS_AUX_PARAM_INC(z, n, data)   \
+#define BOOST_INTERPROCESS_PP_PARAM_INC(z, n, data)   \
   BOOST_PP_CAT(++m_p, n)                        \
 //!
 
-#ifdef BOOST_HAS_RVALUE_REFS
-#define BOOST_INTERPROCESS_AUX_PARAM_DEFINE(z, n, data)  \
+#ifndef BOOST_NO_RVALUE_REFERENCES
+
+#if defined(BOOST_MOVE_MSVC_10_MEMBER_RVALUE_REF_BUG)
+
+#define BOOST_INTERPROCESS_PP_PARAM_DEFINE(z, n, data)  \
+  BOOST_PP_CAT(P, n) & BOOST_PP_CAT(m_p, n);            \
+//!
+
+#else
+
+#define BOOST_INTERPROCESS_PP_PARAM_DEFINE(z, n, data)  \
   BOOST_PP_CAT(P, n) && BOOST_PP_CAT(m_p, n);            \
 //!
+
+#endif //defined(BOOST_MOVE_MSVC_10_MEMBER_RVALUE_REF_BUG)
+
+
 #else
-#define BOOST_INTERPROCESS_AUX_PARAM_DEFINE(z, n, data)  \
+#define BOOST_INTERPROCESS_PP_PARAM_DEFINE(z, n, data)  \
   BOOST_PP_CAT(P, n) & BOOST_PP_CAT(m_p, n);             \
 //!
 #endif
 
 #define BOOST_INTERPROCESS_PP_PARAM_FORWARD(z, n, data) \
-boost::interprocess::forward< BOOST_PP_CAT(P, n) >( BOOST_PP_CAT(p, n) ) \
+::boost::forward< BOOST_PP_CAT(P, n) >( BOOST_PP_CAT(p, n) ) \
 //!
 
+#if !defined(BOOST_NO_RVALUE_REFERENCES) && defined(BOOST_MOVE_MSVC_10_MEMBER_RVALUE_REF_BUG)
+
+#include <boost/container/detail/stored_ref.hpp>
+
 #define BOOST_INTERPROCESS_PP_MEMBER_FORWARD(z, n, data) \
-boost::interprocess::forward< BOOST_PP_CAT(P, n) >( BOOST_PP_CAT(m_p, n) ) \
+::boost::container::container_detail::stored_ref< BOOST_PP_CAT(P, n) >::forward( BOOST_PP_CAT(m_p, n) ) \
 //!
+
+#else
+
+#define BOOST_INTERPROCESS_PP_MEMBER_FORWARD(z, n, data) \
+::boost::forward< BOOST_PP_CAT(P, n) >( BOOST_PP_CAT(m_p, n) ) \
+//!
+
+#endif   //!defined(BOOST_NO_RVALUE_REFERENCES) && defined(BOOST_MOVE_MSVC_10_MEMBER_RVALUE_REF_BUG)
 
 #define BOOST_INTERPROCESS_PP_MEMBER_IT_FORWARD(z, n, data) \
 BOOST_PP_CAT(*m_p, n) \

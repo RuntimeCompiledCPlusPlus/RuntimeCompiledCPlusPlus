@@ -24,6 +24,7 @@
 #include <boost/intrusive/detail/assert.hpp>
 #include <boost/intrusive/detail/utilities.hpp>
 #include <boost/intrusive/detail/tree_algorithms.hpp>
+#include <boost/intrusive/pointer_traits.hpp>
 
 
 namespace boost {
@@ -68,17 +69,15 @@ class sgtree_algorithms
 
    typedef detail::tree_algorithms<NodeTraits>  tree_algorithms;
 
-   static node_ptr uncast(const_node_ptr ptr)
-   {
-      return node_ptr(const_cast<node*>(::boost::intrusive::detail::get_pointer(ptr)));
-   }
+   static node_ptr uncast(const const_node_ptr & ptr)
+   {  return pointer_traits<node_ptr>::const_cast_from(ptr);  }
    /// @endcond
 
    public:
-   static node_ptr begin_node(const_node_ptr header)
+   static node_ptr begin_node(const const_node_ptr & header)
    {  return tree_algorithms::begin_node(header);   }
 
-   static node_ptr end_node(const_node_ptr header)
+   static node_ptr end_node(const const_node_ptr & header)
    {  return tree_algorithms::end_node(header);   }
 
    //! This type is the information that will be
@@ -98,7 +97,7 @@ class sgtree_algorithms
    //! <b>Complexity</b>: Constant. 
    //! 
    //! <b>Throws</b>: Nothing.
-   static void swap_tree(node_ptr header1, node_ptr header2)
+   static void swap_tree(const node_ptr & header1, const node_ptr & header2)
    {  return tree_algorithms::swap_tree(header1, header2);  }
 
    //! <b>Requires</b>: node1 and node2 can't be header nodes
@@ -116,7 +115,7 @@ class sgtree_algorithms
    //!   node1 and node2 are not equivalent according to the ordering rules.
    //!
    //!Experimental function
-   static void swap_nodes(node_ptr node1, node_ptr node2)
+   static void swap_nodes(const node_ptr & node1, const node_ptr & node2)
    {
       if(node1 == node2)
          return;
@@ -140,7 +139,7 @@ class sgtree_algorithms
    //!   node1 and node2 are not equivalent according to the ordering rules.
    //!
    //!Experimental function
-   static void swap_nodes(node_ptr node1, node_ptr header1, node_ptr node2, node_ptr header2)
+   static void swap_nodes(const node_ptr & node1, const node_ptr & header1, const node_ptr & node2, const node_ptr & header2)
    {  tree_algorithms::swap_nodes(node1, header1, node2, header2);  }
 
    //! <b>Requires</b>: node_to_be_replaced must be inserted in a tree
@@ -159,7 +158,7 @@ class sgtree_algorithms
    //!   the node, since no rebalancing and comparison is needed.
    //!
    //!Experimental function
-   static void replace_node(node_ptr node_to_be_replaced, node_ptr new_node)
+   static void replace_node(const node_ptr & node_to_be_replaced, const node_ptr & new_node)
    {
       if(node_to_be_replaced == new_node)
          return;
@@ -182,7 +181,7 @@ class sgtree_algorithms
    //!   the node, since no rebalancing or comparison is needed.
    //!
    //!Experimental function
-   static void replace_node(node_ptr node_to_be_replaced, node_ptr header, node_ptr new_node)
+   static void replace_node(const node_ptr & node_to_be_replaced, const node_ptr & header, const node_ptr & new_node)
    {  tree_algorithms::replace_node(node_to_be_replaced, header, new_node);  }
 
    //! <b>Requires</b>: node is a tree node but not the header.
@@ -192,7 +191,7 @@ class sgtree_algorithms
    //! <b>Complexity</b>: Average complexity is constant time.
    //! 
    //! <b>Throws</b>: Nothing.
-   static void unlink(node_ptr node)
+   static void unlink(const node_ptr & node)
    {
       node_ptr x = NodeTraits::get_parent(node);
       if(x){
@@ -215,7 +214,7 @@ class sgtree_algorithms
    //!   only be used for more unlink_leftmost_without_rebalance calls.
    //!   This function is normally used to achieve a step by step
    //!   controlled destruction of the tree.
-   static node_ptr unlink_leftmost_without_rebalance(node_ptr header)
+   static node_ptr unlink_leftmost_without_rebalance(const node_ptr & header)
    {  return tree_algorithms::unlink_leftmost_without_rebalance(header);   }
 
    //! <b>Requires</b>: node is a node of the tree or an node initialized
@@ -226,7 +225,7 @@ class sgtree_algorithms
    //! <b>Complexity</b>: Constant time.
    //! 
    //! <b>Throws</b>: Nothing.
-   static bool unique(const_node_ptr node)
+   static bool unique(const const_node_ptr & node)
    {  return tree_algorithms::unique(node);  }
 
    //! <b>Requires</b>: node is a node of the tree but it's not the header.
@@ -236,7 +235,7 @@ class sgtree_algorithms
    //! <b>Complexity</b>: Linear time.
    //! 
    //! <b>Throws</b>: Nothing.
-   static std::size_t count(const_node_ptr node)
+   static std::size_t count(const const_node_ptr & node)
    {  return tree_algorithms::count(node);   }
 
    //! <b>Requires</b>: header is the header node of the tree.
@@ -246,7 +245,7 @@ class sgtree_algorithms
    //! <b>Complexity</b>: Linear time.
    //! 
    //! <b>Throws</b>: Nothing.
-   static std::size_t size(const_node_ptr header)
+   static std::size_t size(const const_node_ptr & header)
    {  return tree_algorithms::size(header);   }
 
    //! <b>Requires</b>: p is a node from the tree except the header.
@@ -256,7 +255,7 @@ class sgtree_algorithms
    //! <b>Complexity</b>: Average constant time.
    //! 
    //! <b>Throws</b>: Nothing.
-   static node_ptr next_node(node_ptr p)
+   static node_ptr next_node(const node_ptr & p)
    {  return tree_algorithms::next_node(p); }
 
    //! <b>Requires</b>: p is a node from the tree except the leftmost node.
@@ -266,7 +265,7 @@ class sgtree_algorithms
    //! <b>Complexity</b>: Average constant time.
    //! 
    //! <b>Throws</b>: Nothing.
-   static node_ptr prev_node(node_ptr p)
+   static node_ptr prev_node(const node_ptr & p)
    {  return tree_algorithms::prev_node(p); }
 
    //! <b>Requires</b>: node must not be part of any tree.
@@ -278,7 +277,7 @@ class sgtree_algorithms
    //! <b>Throws</b>: Nothing.
    //!
    //! <b>Nodes</b>: If node is inserted in a tree, this function corrupts the tree.
-   static void init(node_ptr node)
+   static void init(const node_ptr & node)
    {  tree_algorithms::init(node);  }
 
    //! <b>Requires</b>: node must not be part of any tree.
@@ -291,7 +290,7 @@ class sgtree_algorithms
    //! <b>Throws</b>: Nothing.
    //!
    //! <b>Nodes</b>: If node is inserted in a tree, this function corrupts the tree.
-   static void init_header(node_ptr header)
+   static void init_header(const node_ptr & header)
    {  tree_algorithms::init_header(header);  }
 
    //! <b>Requires</b>: header must be the header of a tree, z a node
@@ -303,7 +302,7 @@ class sgtree_algorithms
    //! 
    //! <b>Throws</b>: Nothing.
    template<class AlphaByMaxSize>
-   static node_ptr erase(node_ptr header, node_ptr z, std::size_t tree_size, std::size_t &max_tree_size, AlphaByMaxSize alpha_by_maxsize)
+   static node_ptr erase(const node_ptr & header, const node_ptr & z, std::size_t tree_size, std::size_t &max_tree_size, AlphaByMaxSize alpha_by_maxsize)
    {
       //typename tree_algorithms::data_for_rebalance info;
       tree_algorithms::erase(header, z);
@@ -321,13 +320,13 @@ class sgtree_algorithms
    //!   take a node_ptr and shouldn't throw.
    //!
    //! <b>Effects</b>: First empties target tree calling 
-   //!   <tt>void disposer::operator()(node_ptr)</tt> for every node of the tree
+   //!   <tt>void disposer::operator()(const node_ptr &)</tt> for every node of the tree
    //!    except the header.
    //!    
    //!   Then, duplicates the entire tree pointed by "source_header" cloning each
-   //!   source node with <tt>node_ptr Cloner::operator()(node_ptr)</tt> to obtain 
+   //!   source node with <tt>node_ptr Cloner::operator()(const node_ptr &)</tt> to obtain 
    //!   the nodes of the target tree. If "cloner" throws, the cloned target nodes
-   //!   are disposed using <tt>void disposer(node_ptr)</tt>.
+   //!   are disposed using <tt>void disposer(const node_ptr &)</tt>.
    //! 
    //! <b>Complexity</b>: Linear to the number of element of the source tree plus the.
    //!   number of elements of tree target tree when calling this function.
@@ -335,7 +334,7 @@ class sgtree_algorithms
    //! <b>Throws</b>: If cloner functor throws. If this happens target nodes are disposed.
    template <class Cloner, class Disposer>
    static void clone
-      (const_node_ptr source_header, node_ptr target_header, Cloner cloner, Disposer disposer)
+      (const const_node_ptr & source_header, const node_ptr & target_header, Cloner cloner, Disposer disposer)
    {
       tree_algorithms::clone(source_header, target_header, cloner, disposer);
    }
@@ -344,7 +343,7 @@ class sgtree_algorithms
    //!   taking a node_ptr parameter and shouldn't throw.
    //!
    //! <b>Effects</b>: Empties the target tree calling 
-   //!   <tt>void disposer::operator()(node_ptr)</tt> for every node of the tree
+   //!   <tt>void disposer::operator()(const node_ptr &)</tt> for every node of the tree
    //!    except the header.
    //! 
    //! <b>Complexity</b>: Linear to the number of element of the source tree plus the.
@@ -352,7 +351,7 @@ class sgtree_algorithms
    //! 
    //! <b>Throws</b>: If cloner functor throws. If this happens target nodes are disposed.
    template<class Disposer>
-   static void clear_and_dispose(node_ptr header, Disposer disposer)
+   static void clear_and_dispose(const node_ptr & header, Disposer disposer)
    {  tree_algorithms::clear_and_dispose(header, disposer); }
 
    //! <b>Requires</b>: "header" must be the header node of a tree.
@@ -369,7 +368,7 @@ class sgtree_algorithms
    //! <b>Throws</b>: If "comp" throws.
    template<class KeyType, class KeyNodePtrCompare>
    static node_ptr lower_bound
-      (const_node_ptr header, const KeyType &key, KeyNodePtrCompare comp)
+      (const const_node_ptr & header, const KeyType &key, KeyNodePtrCompare comp)
    {  return tree_algorithms::lower_bound(header, key, comp);  }
 
    //! <b>Requires</b>: "header" must be the header node of a tree.
@@ -385,7 +384,7 @@ class sgtree_algorithms
    //! <b>Throws</b>: If "comp" throws.
    template<class KeyType, class KeyNodePtrCompare>
    static node_ptr upper_bound
-      (const_node_ptr header, const KeyType &key, KeyNodePtrCompare comp)
+      (const const_node_ptr & header, const KeyType &key, KeyNodePtrCompare comp)
    {  return tree_algorithms::upper_bound(header, key, comp);  }
 
    //! <b>Requires</b>: "header" must be the header node of a tree.
@@ -401,7 +400,7 @@ class sgtree_algorithms
    //! <b>Throws</b>: If "comp" throws.
    template<class KeyType, class KeyNodePtrCompare>
    static node_ptr find
-      (const_node_ptr header, const KeyType &key, KeyNodePtrCompare comp)
+      (const const_node_ptr & header, const KeyType &key, KeyNodePtrCompare comp)
    {  return tree_algorithms::find(header, key, comp);  }
 
    //! <b>Requires</b>: "header" must be the header node of a tree.
@@ -419,7 +418,7 @@ class sgtree_algorithms
    //! <b>Throws</b>: If "comp" throws.
    template<class KeyType, class KeyNodePtrCompare>
    static std::pair<node_ptr, node_ptr> equal_range
-      (const_node_ptr header, const KeyType &key, KeyNodePtrCompare comp)
+      (const const_node_ptr & header, const KeyType &key, KeyNodePtrCompare comp)
    {  return tree_algorithms::equal_range(header, key, comp);  }
 
    //! <b>Requires</b>: "h" must be the header node of a tree.
@@ -436,7 +435,7 @@ class sgtree_algorithms
    //! <b>Throws</b>: If "comp" throws.
    template<class NodePtrCompare, class H_Alpha>
    static node_ptr insert_equal_upper_bound
-      (node_ptr h, node_ptr new_node, NodePtrCompare comp
+      (const node_ptr & h, const node_ptr & new_node, NodePtrCompare comp
       ,std::size_t tree_size, H_Alpha h_alpha, std::size_t &max_tree_size)
    {
       std::size_t depth;
@@ -459,7 +458,7 @@ class sgtree_algorithms
    //! <b>Throws</b>: If "comp" throws.
    template<class NodePtrCompare, class H_Alpha>
    static node_ptr insert_equal_lower_bound
-      (node_ptr h, node_ptr new_node, NodePtrCompare comp
+      (const node_ptr & h, const node_ptr & new_node, NodePtrCompare comp
       ,std::size_t tree_size, H_Alpha h_alpha, std::size_t &max_tree_size)
    {
       std::size_t depth;
@@ -484,7 +483,7 @@ class sgtree_algorithms
    //! <b>Throws</b>: If "comp" throws.
    template<class NodePtrCompare, class H_Alpha>
    static node_ptr insert_equal
-      (node_ptr header, node_ptr hint, node_ptr new_node, NodePtrCompare comp
+      (const node_ptr & header, const node_ptr & hint, const node_ptr & new_node, NodePtrCompare comp
       ,std::size_t tree_size, H_Alpha h_alpha, std::size_t &max_tree_size)
    {
       std::size_t depth;
@@ -529,7 +528,7 @@ class sgtree_algorithms
    //!   if no more objects are inserted or erased from the set.
    template<class KeyType, class KeyNodePtrCompare>
    static std::pair<node_ptr, bool> insert_unique_check
-      (const_node_ptr header,  const KeyType &key
+      (const const_node_ptr & header,  const KeyType &key
       ,KeyNodePtrCompare comp, insert_commit_data &commit_data)
    {
       std::size_t depth;
@@ -556,7 +555,7 @@ class sgtree_algorithms
    //! tree invariants might be broken.
    template<class H_Alpha>
    static node_ptr insert_before
-      (node_ptr header, node_ptr pos, node_ptr new_node
+      (const node_ptr & header, const node_ptr & pos, const node_ptr & new_node
       ,std::size_t tree_size, H_Alpha h_alpha, std::size_t &max_tree_size)
    {
       std::size_t depth;
@@ -579,7 +578,7 @@ class sgtree_algorithms
    //! tree invariants are broken. This function is slightly faster than
    //! using "insert_before".
    template<class H_Alpha>
-   static void push_back(node_ptr header, node_ptr new_node
+   static void push_back(const node_ptr & header, const node_ptr & new_node
          ,std::size_t tree_size, H_Alpha h_alpha, std::size_t &max_tree_size)
    {
       std::size_t depth;
@@ -601,7 +600,7 @@ class sgtree_algorithms
    //! tree invariants are broken. This function is slightly faster than
    //! using "insert_before".
    template<class H_Alpha>
-   static void push_front(node_ptr header, node_ptr new_node
+   static void push_front(const node_ptr & header, const node_ptr & new_node
          ,std::size_t tree_size, H_Alpha h_alpha, std::size_t &max_tree_size)
    {
       std::size_t depth;
@@ -650,7 +649,7 @@ class sgtree_algorithms
    //!   if no more objects are inserted or erased from the set.
    template<class KeyType, class KeyNodePtrCompare>
    static std::pair<node_ptr, bool> insert_unique_check
-      (const_node_ptr header,  node_ptr hint, const KeyType &key
+      (const const_node_ptr & header, const node_ptr &hint, const KeyType &key
       ,KeyNodePtrCompare comp, insert_commit_data &commit_data)
    {
       std::size_t depth;
@@ -680,7 +679,7 @@ class sgtree_algorithms
    //!   erased between the "insert_check" and "insert_commit" calls.
    template<class H_Alpha>
    static void insert_unique_commit
-      (node_ptr header, node_ptr new_value, const insert_commit_data &commit_data
+      (const node_ptr & header, const node_ptr & new_value, const insert_commit_data &commit_data
       ,std::size_t tree_size, H_Alpha h_alpha, std::size_t &max_tree_size)
    {
       tree_algorithms::insert_unique_commit(header, new_value, commit_data);
@@ -694,7 +693,7 @@ class sgtree_algorithms
    //! <b>Throws</b>: Nothing.
    //! 
    //! <b>Complexity</b>: Linear.
-   static void rebalance(node_ptr header)
+   static void rebalance(const node_ptr & header)
    {  tree_algorithms::rebalance(header); }
 
    //! <b>Requires</b>: old_root is a node of a tree.
@@ -706,7 +705,7 @@ class sgtree_algorithms
    //! <b>Throws</b>: Nothing.
    //! 
    //! <b>Complexity</b>: Linear.
-   static node_ptr rebalance_subtree(node_ptr old_root)
+   static node_ptr rebalance_subtree(const node_ptr & old_root)
    {  return tree_algorithms::rebalance_subtree(old_root); }
 
    //! <b>Requires</b>: "n" must be a node inserted in a tree.
@@ -716,7 +715,7 @@ class sgtree_algorithms
    //! <b>Complexity</b>: Logarithmic.
    //! 
    //! <b>Throws</b>: Nothing.
-   static node_ptr get_header(node_ptr n)
+   static node_ptr get_header(const node_ptr & n)
    {  return tree_algorithms::get_header(n);   }
 
    /// @cond
@@ -729,12 +728,12 @@ class sgtree_algorithms
    //! <b>Complexity</b>: Constant.
    //! 
    //! <b>Throws</b>: Nothing.
-   static bool is_header(const_node_ptr p)
+   static bool is_header(const const_node_ptr & p)
    {  return tree_algorithms::is_header(p);  }
 
    template<class H_Alpha>
    static void rebalance_after_insertion
-      ( node_ptr x, std::size_t depth
+      (const node_ptr &x, std::size_t depth
       , std::size_t tree_size, H_Alpha h_alpha, std::size_t &max_tree_size)
    {
       if(tree_size > max_tree_size)

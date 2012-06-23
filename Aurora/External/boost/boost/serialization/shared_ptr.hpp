@@ -39,7 +39,7 @@
     namespace boost {
     namespace serialization{
         template<class T>
-        struct version< ::boost::shared_ptr<T> > {
+        struct version< ::boost::shared_ptr< T > > {
             typedef mpl::integral_c_tag tag;
             #if BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3206))
             typedef BOOST_DEDUCED_TYPENAME mpl::int_<1> type;
@@ -54,7 +54,7 @@
         };
         // don't track shared pointers
         template<class T>
-        struct tracking_level< ::boost::shared_ptr<T> > { 
+        struct tracking_level< ::boost::shared_ptr< T > > { 
             typedef mpl::integral_c_tag tag;
             #if BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3206))
             typedef BOOST_DEDUCED_TYPENAME mpl::int_< ::boost::serialization::track_never> type;
@@ -96,13 +96,13 @@ struct null_deleter {
 template<class Archive, class T>
 inline void save(
     Archive & ar,
-    const boost::shared_ptr<T> &t,
+    const boost::shared_ptr< T > &t,
     const unsigned int /* file_version */
 ){
     // The most common cause of trapping here would be serializing
     // something like shared_ptr<int>.  This occurs because int
     // is never tracked by default.  Wrap int in a trackable type
-    BOOST_STATIC_ASSERT((tracking_level<T>::value != track_never));
+    BOOST_STATIC_ASSERT((tracking_level< T >::value != track_never));
     const T * t_ptr = t.get();
     ar << boost::serialization::make_nvp("px", t_ptr);
 }
@@ -111,22 +111,22 @@ inline void save(
 template<class Archive, class T>
 inline void load(
     Archive & ar,
-    boost::shared_ptr<T> &t,
+    boost::shared_ptr< T > &t,
     const unsigned int file_version
 ){
     // The most common cause of trapping here would be serializing
     // something like shared_ptr<int>.  This occurs because int
     // is never tracked by default.  Wrap int in a trackable type
-    BOOST_STATIC_ASSERT((tracking_level<T>::value != track_never));
+    BOOST_STATIC_ASSERT((tracking_level< T >::value != track_never));
     T* r;
     if(file_version < 1){
         //ar.register_type(static_cast<
-        //    boost_132::detail::sp_counted_base_impl<T *, boost::checked_deleter<T> > *
+        //    boost_132::detail::sp_counted_base_impl<T *, boost::checked_deleter< T > > *
         //>(NULL));
         ar.register_type(static_cast<
             boost_132::detail::sp_counted_base_impl<T *, null_deleter > *
         >(NULL));
-        boost_132::shared_ptr<T> sp;
+        boost_132::shared_ptr< T > sp;
         ar >> boost::serialization::make_nvp("px", sp.px);
         ar >> boost::serialization::make_nvp("pn", sp.pn);
         // got to keep the sps around so the sp.pns don't disappear
@@ -143,13 +143,13 @@ inline void load(
 template<class Archive, class T>
 inline void load(
     Archive & ar,
-    boost::shared_ptr<T> &t,
+    boost::shared_ptr< T > &t,
     const unsigned int /*file_version*/
 ){
     // The most common cause of trapping here would be serializing
     // something like shared_ptr<int>.  This occurs because int
     // is never tracked by default.  Wrap int in a trackable type
-    BOOST_STATIC_ASSERT((tracking_level<T>::value != track_never));
+    BOOST_STATIC_ASSERT((tracking_level< T >::value != track_never));
     T* r;
     ar >> boost::serialization::make_nvp("px", r);
     ar.reset(t,r);
@@ -159,13 +159,13 @@ inline void load(
 template<class Archive, class T>
 inline void serialize(
     Archive & ar,
-    boost::shared_ptr<T> &t,
+    boost::shared_ptr< T > &t,
     const unsigned int file_version
 ){
     // correct shared_ptr serialization depends upon object tracking
     // being used.
     BOOST_STATIC_ASSERT(
-        boost::serialization::tracking_level<T>::value
+        boost::serialization::tracking_level< T >::value
         != boost::serialization::track_never
     );
     boost::serialization::split_free(ar, t, file_version);

@@ -11,7 +11,6 @@
 #endif
 
 #include <boost/config.hpp>
-#include <boost/archive/basic_archive.hpp>
 #include <boost/serialization/strong_typedef.hpp>
 #include <boost/serialization/pfto.hpp>
 

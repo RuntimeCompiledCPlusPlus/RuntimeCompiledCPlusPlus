@@ -1,4 +1,4 @@
-//  Copyright (c) 2001-2010 Hartmut Kaiser
+//  Copyright (c) 2001-2011 Hartmut Kaiser
 //
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -10,44 +10,50 @@
 #pragma once
 #endif
 
-#include <limits>
+#include <boost/limits.hpp>
 #include <boost/config.hpp>
 #include <boost/mpl/bool.hpp>
-#include <boost/mpl/not.hpp>
+#include <boost/utility/enable_if.hpp>
 
 #include <boost/spirit/home/support/common_terminals.hpp>
 #include <boost/spirit/home/support/string_traits.hpp>
+#include <boost/spirit/home/support/numeric_traits.hpp>
 #include <boost/spirit/home/support/info.hpp>
 #include <boost/spirit/home/support/char_class.hpp>
 #include <boost/spirit/home/support/container.hpp>
 #include <boost/spirit/home/support/detail/get_encoding.hpp>
+#include <boost/spirit/home/support/detail/is_spirit_tag.hpp>
 #include <boost/spirit/home/karma/meta_compiler.hpp>
 #include <boost/spirit/home/karma/delimit_out.hpp>
 #include <boost/spirit/home/karma/auxiliary/lazy.hpp>
 #include <boost/spirit/home/karma/detail/get_casetag.hpp>
 #include <boost/spirit/home/karma/detail/extract_from.hpp>
+#include <boost/spirit/home/karma/detail/enable_lit.hpp>
 #include <boost/spirit/home/karma/domain.hpp>
 #include <boost/spirit/home/karma/numeric/detail/numeric_utils.hpp>
 #include <boost/fusion/include/at.hpp>
 #include <boost/fusion/include/value_at.hpp>
 #include <boost/fusion/include/vector.hpp>
 
-namespace boost { namespace spirit 
+namespace boost { namespace spirit
 {
     namespace tag
     {
         template <typename T, unsigned Radix>
-        struct uint_tag {};
+        struct uint_generator 
+        {
+            BOOST_SPIRIT_IS_TAG()
+        };
     }
 
     namespace karma
     {
         ///////////////////////////////////////////////////////////////////////
-        // This one is the class that the user can instantiate directly in 
+        // This one is the class that the user can instantiate directly in
         // order to create a customized int generator
         template <typename T = unsigned int, unsigned Radix = 10>
         struct uint_generator
-          : spirit::terminal<tag::uint_tag<T, Radix> > 
+          : spirit::terminal<tag::uint_generator<T, Radix> >
         {};
     }
 
@@ -101,7 +107,7 @@ namespace boost { namespace spirit
 
 #ifdef BOOST_HAS_LONG_LONG
     template <>           // enables lit(0ULL)
-    struct use_terminal<karma::domain, boost::ulong_long_type> 
+    struct use_terminal<karma::domain, boost::ulong_long_type>
       : mpl::true_ {};
 #endif
 
@@ -145,81 +151,94 @@ namespace boost { namespace spirit
 
     ///////////////////////////////////////////////////////////////////////////
     template <>                               // enables *lazy* ushort_(...)
-    struct use_lazy_terminal<karma::domain, tag::ushort_, 1> 
+    struct use_lazy_terminal<karma::domain, tag::ushort_, 1>
       : mpl::true_ {};
 
     template <>                               // enables *lazy* uint_(...)
-    struct use_lazy_terminal<karma::domain, tag::uint_, 1> 
+    struct use_lazy_terminal<karma::domain, tag::uint_, 1>
       : mpl::true_ {};
 
     template <>                               // enables *lazy* ulong_(...)
-    struct use_lazy_terminal<karma::domain, tag::ulong_, 1> 
+    struct use_lazy_terminal<karma::domain, tag::ulong_, 1>
       : mpl::true_ {};
 
     template <>                               // enables *lazy* bin(...)
-    struct use_lazy_terminal<karma::domain, tag::bin, 1> 
+    struct use_lazy_terminal<karma::domain, tag::bin, 1>
       : mpl::true_ {};
 
     template <>                               // enables *lazy* oct(...)
-    struct use_lazy_terminal<karma::domain, tag::oct, 1> 
+    struct use_lazy_terminal<karma::domain, tag::oct, 1>
       : mpl::true_ {};
 
     template <>                               // enables *lazy* hex(...)
-    struct use_lazy_terminal<karma::domain, tag::hex, 1> 
+    struct use_lazy_terminal<karma::domain, tag::hex, 1>
       : mpl::true_ {};
 
 #ifdef BOOST_HAS_LONG_LONG
     template <>                               // enables *lazy* ulong_long(...)
-    struct use_lazy_terminal<karma::domain, tag::ulong_long, 1> 
+    struct use_lazy_terminal<karma::domain, tag::ulong_long, 1>
       : mpl::true_ {};
 #endif
 
     ///////////////////////////////////////////////////////////////////////////
     // enables any custom uint_generator
     template <typename T, unsigned Radix>
-    struct use_terminal<karma::domain, tag::uint_tag<T, Radix> >
+    struct use_terminal<karma::domain, tag::uint_generator<T, Radix> >
       : mpl::true_ {};
 
     // enables any custom uint_generator(...)
     template <typename T, unsigned Radix, typename A0>
     struct use_terminal<karma::domain
-      , terminal_ex<tag::uint_tag<T, Radix>, fusion::vector1<A0> >
+      , terminal_ex<tag::uint_generator<T, Radix>, fusion::vector1<A0> >
     > : mpl::true_ {};
 
     // enables *lazy* custom uint_generator
     template <typename T, unsigned Radix>
     struct use_lazy_terminal<
         karma::domain
-      , tag::uint_tag<T, Radix>
+      , tag::uint_generator<T, Radix>
       , 1 // arity
     > : mpl::true_ {};
 
-}} 
+    // enables lit(uint)
+    template <typename A0>
+    struct use_terminal<karma::domain
+          , terminal_ex<tag::lit, fusion::vector1<A0> >
+          , typename enable_if<traits::is_uint<A0> >::type>
+      : mpl::true_ {};
+}}
 
 ///////////////////////////////////////////////////////////////////////////////
 namespace boost { namespace spirit { namespace karma
 {
+#ifndef BOOST_SPIRIT_NO_PREDEFINED_TERMINALS
     using spirit::ushort_;
-    using spirit::ushort__type;
     using spirit::uint_;
-    using spirit::uint__type;
     using spirit::ulong_;
-    using spirit::ulong__type;
 #ifdef BOOST_HAS_LONG_LONG
     using spirit::ulong_long;
-    using spirit::ulong_long_type;
 #endif
     using spirit::bin;
-    using spirit::bin_type;
     using spirit::oct;
-    using spirit::oct_type;
     using spirit::hex;
-    using spirit::hex_type;
 
     using spirit::lit;    // lit(1U) is equivalent to 1U
+#endif
+
+    using spirit::ushort_type;
+    using spirit::uint_type;
+    using spirit::ulong_type;
+#ifdef BOOST_HAS_LONG_LONG
+    using spirit::ulong_long_type;
+#endif
+    using spirit::bin_type;
+    using spirit::oct_type;
+    using spirit::hex_type;
+
+    using spirit::lit_type;
 
     ///////////////////////////////////////////////////////////////////////////
-    //  This specialization is used for unsigned int generators not having a 
+    //  This specialization is used for unsigned int generators not having a
     //  direct initializer: uint_, ulong_ etc. These generators must be used in
     //  conjunction with an Attribute.
     ///////////////////////////////////////////////////////////////////////////
@@ -235,10 +254,9 @@ namespace boost { namespace spirit { namespace karma
 
         // check template Attribute 'Radix' for validity
         BOOST_SPIRIT_ASSERT_MSG(
-            Radix == 2 || Radix == 8 || Radix == 10 || Radix == 16,
-            not_supported_radix, ());
+            Radix >= 2 && Radix <= 36, not_supported_radix, ());
 
-        BOOST_SPIRIT_ASSERT_MSG( 
+        BOOST_SPIRIT_ASSERT_MSG(
             // the following is a workaround for STLPort, where the simpler
             // `!std::numeric_limits<T>::is_signed` wouldn't compile
             mpl::not_<mpl::bool_<std::numeric_limits<T>::is_signed> >::value,
@@ -265,8 +283,8 @@ namespace boost { namespace spirit { namespace karma
         static bool
         generate(OutputIterator&, Context&, Delimiter const&, unused_type)
         {
-            // It is not possible (doesn't make sense) to use numeric generators 
-            // without providing any attribute, as the generator doesn't 'know' 
+            // It is not possible (doesn't make sense) to use numeric generators
+            // without providing any attribute, as the generator doesn't 'know'
             // what to output. The following assertion fires if this situation
             // is detected in your code.
             BOOST_SPIRIT_ASSERT_MSG(false, uint_not_usable_without_attribute, ());
@@ -301,8 +319,7 @@ namespace boost { namespace spirit { namespace karma
 
         // check template Attribute 'Radix' for validity
         BOOST_SPIRIT_ASSERT_MSG(
-            Radix == 2 || Radix == 8 || Radix == 10 || Radix == 16,
-            not_supported_radix, ());
+            Radix >= 2 && Radix <= 36, not_supported_radix, ());
 
         BOOST_SPIRIT_ASSERT_MSG(
             // the following is a workaround for STLPort, where the simpler
@@ -319,7 +336,7 @@ namespace boost { namespace spirit { namespace karma
           , Delimiter const& d, Attribute const& attr) const
         {
             typedef typename attribute<Context>::type attribute_type;
-            if (!traits::has_optional_value(attr) || 
+            if (!traits::has_optional_value(attr) ||
                 n_ != traits::extract_from<attribute_type>(attr, context))
             {
                 return false;
@@ -328,7 +345,7 @@ namespace boost { namespace spirit { namespace karma
                    delimit_out(sink, d);      // always do post-delimiting
         }
 
-        // A uint(1U) without any associated attribute just emits its 
+        // A uint(1U) without any associated attribute just emits its
         // immediate literal
         template <typename OutputIterator, typename Context, typename Delimiter>
         bool generate(OutputIterator& sink, Context&, Delimiter const& d
@@ -355,9 +372,9 @@ namespace boost { namespace spirit { namespace karma
         template <typename T, typename Modifiers, unsigned Radix = 10>
         struct make_uint
         {
-            static bool const lower = 
+            static bool const lower =
                 has_modifier<Modifiers, tag::char_code_base<tag::lower> >::value;
-            static bool const upper = 
+            static bool const upper =
                 has_modifier<Modifiers, tag::char_code_base<tag::upper> >::value;
 
             typedef any_uint_generator<
@@ -377,38 +394,38 @@ namespace boost { namespace spirit { namespace karma
 
     ///////////////////////////////////////////////////////////////////////////
     template <typename Modifiers>
-    struct make_primitive<tag::ushort_, Modifiers> 
+    struct make_primitive<tag::ushort_, Modifiers>
       : detail::make_uint<unsigned short, Modifiers> {};
 
     template <typename Modifiers>
-    struct make_primitive<tag::uint_, Modifiers> 
+    struct make_primitive<tag::uint_, Modifiers>
       : detail::make_uint<unsigned int, Modifiers> {};
 
     template <typename Modifiers>
-    struct make_primitive<tag::ulong_, Modifiers> 
+    struct make_primitive<tag::ulong_, Modifiers>
       : detail::make_uint<unsigned long, Modifiers> {};
 
     template <typename Modifiers>
-    struct make_primitive<tag::bin, Modifiers> 
+    struct make_primitive<tag::bin, Modifiers>
       : detail::make_uint<unsigned, Modifiers, 2> {};
 
     template <typename Modifiers>
-    struct make_primitive<tag::oct, Modifiers> 
+    struct make_primitive<tag::oct, Modifiers>
       : detail::make_uint<unsigned, Modifiers, 8> {};
 
     template <typename Modifiers>
-    struct make_primitive<tag::hex, Modifiers> 
+    struct make_primitive<tag::hex, Modifiers>
       : detail::make_uint<unsigned, Modifiers, 16> {};
 
 #ifdef BOOST_HAS_LONG_LONG
     template <typename Modifiers>
-    struct make_primitive<tag::ulong_long, Modifiers> 
+    struct make_primitive<tag::ulong_long, Modifiers>
       : detail::make_uint<boost::ulong_long_type, Modifiers> {};
 #endif
 
     template <typename T, unsigned Radix, typename Modifiers>
-    struct make_primitive<tag::uint_tag<T, Radix>, Modifiers>
-      : detail::make_uint<T, Modifiers, Radix> {};
+    struct make_primitive<tag::uint_generator<T, Radix>, Modifiers>
+      : detail::make_uint<typename remove_const<T>::type, Modifiers, Radix> {};
 
     ///////////////////////////////////////////////////////////////////////////
     namespace detail
@@ -416,9 +433,9 @@ namespace boost { namespace spirit { namespace karma
         template <typename T, typename Modifiers, unsigned Radix = 10>
         struct make_uint_direct
         {
-            static bool const lower = 
+            static bool const lower =
                 has_modifier<Modifiers, tag::char_code_base<tag::lower> >::value;
-            static bool const upper = 
+            static bool const upper =
                 has_modifier<Modifiers, tag::char_code_base<tag::upper> >::value;
 
             typedef literal_uint_generator<
@@ -476,10 +493,12 @@ namespace boost { namespace spirit { namespace karma
 
     template <typename T, unsigned Radix, typename A0, typename Modifiers>
     struct make_primitive<
-        terminal_ex<tag::uint_tag<T, Radix>, fusion::vector1<A0> >
+        terminal_ex<tag::uint_generator<T, Radix>, fusion::vector1<A0> >
           , Modifiers>
-      : detail::make_uint_direct<T, Modifiers, Radix> {};
+      : detail::make_uint_direct<typename remove_const<T>::type, Modifiers, Radix>
+    {};
 
+    ///////////////////////////////////////////////////////////////////////////
     namespace detail
     {
         template <typename T, typename Modifiers>
@@ -508,24 +527,50 @@ namespace boost { namespace spirit { namespace karma
 
 #if !defined(BOOST_NO_INTRINSIC_WCHAR_T)
     template <typename Modifiers>
-    struct make_primitive<unsigned short, Modifiers> 
+    struct make_primitive<unsigned short, Modifiers>
       : detail::basic_uint_literal<unsigned short, Modifiers> {};
 #endif
 
     template <typename Modifiers>
-    struct make_primitive<unsigned int, Modifiers> 
+    struct make_primitive<unsigned int, Modifiers>
       : detail::basic_uint_literal<unsigned int, Modifiers> {};
 
     template <typename Modifiers>
-    struct make_primitive<unsigned long, Modifiers> 
+    struct make_primitive<unsigned long, Modifiers>
       : detail::basic_uint_literal<unsigned long, Modifiers> {};
 
 #ifdef BOOST_HAS_LONG_LONG
     template <typename Modifiers>
-    struct make_primitive<boost::ulong_long_type, Modifiers> 
+    struct make_primitive<boost::ulong_long_type, Modifiers>
       : detail::basic_uint_literal<boost::ulong_long_type, Modifiers> {};
 #endif
 
+    // lit(uint)
+    template <typename Modifiers, typename A0>
+    struct make_primitive<
+            terminal_ex<tag::lit, fusion::vector1<A0> >
+          , Modifiers
+          , typename enable_if<traits::is_uint<A0> >::type>
+    {
+        static bool const lower =
+            has_modifier<Modifiers, tag::char_code_base<tag::lower> >::value;
+        static bool const upper =
+            has_modifier<Modifiers, tag::char_code_base<tag::upper> >::value;
+
+        typedef literal_uint_generator<
+            typename remove_const<A0>::type
+          , typename spirit::detail::get_encoding_with_case<
+                Modifiers, unused_type, lower || upper>::type
+          , typename detail::get_casetag<Modifiers, lower || upper>::type
+          , 10, true
+        > result_type;
+
+        template <typename Terminal>
+        result_type operator()(Terminal const& term, unused_type) const
+        {
+            return result_type(fusion::at_c<0>(term.args));
+        }
+    };
 }}}
 
 #endif

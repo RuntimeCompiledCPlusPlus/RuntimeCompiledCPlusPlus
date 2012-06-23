@@ -21,6 +21,7 @@
 #include <boost/graph/named_function_params.hpp>
 #include <boost/ref.hpp>
 #include <boost/implicit_cast.hpp>
+#include <boost/concept/assert.hpp>
 
 #include <vector>
 #include <utility>
@@ -31,7 +32,7 @@ namespace boost {
   class DFSVisitorConcept {
   public:
     void constraints() {
-      function_requires< CopyConstructibleConcept<Visitor> >();
+      BOOST_CONCEPT_ASSERT(( CopyConstructibleConcept<Visitor> ));
       vis.initialize_vertex(u, g);
       vis.start_vertex(u, g);
       vis.discover_vertex(u, g);
@@ -80,12 +81,12 @@ namespace boost {
        DFSVisitor& vis,
        ColorMap color, TerminatorFunc func = TerminatorFunc())
     {
-      function_requires<IncidenceGraphConcept<IncidenceGraph> >();
-      function_requires<DFSVisitorConcept<DFSVisitor, IncidenceGraph> >();
+      BOOST_CONCEPT_ASSERT(( IncidenceGraphConcept<IncidenceGraph> ));
+      BOOST_CONCEPT_ASSERT(( DFSVisitorConcept<DFSVisitor, IncidenceGraph> ));
       typedef typename graph_traits<IncidenceGraph>::vertex_descriptor Vertex;
-      function_requires< ReadWritePropertyMapConcept<ColorMap, Vertex> >();
+      BOOST_CONCEPT_ASSERT(( ReadWritePropertyMapConcept<ColorMap, Vertex> ));
       typedef typename property_traits<ColorMap>::value_type ColorValue;
-      function_requires< ColorValueConcept<ColorValue> >();
+      BOOST_CONCEPT_ASSERT(( ColorValueConcept<ColorValue> ));
       typedef color_traits<ColorValue> Color;
       typedef typename graph_traits<IncidenceGraph>::out_edge_iterator Iter;
       typedef std::pair<Vertex, std::pair<Iter, Iter> > VertexInfo;
@@ -151,12 +152,12 @@ namespace boost {
        DFSVisitor& vis,  // pass-by-reference here, important!
        ColorMap color, TerminatorFunc func)
     {
-      function_requires<IncidenceGraphConcept<IncidenceGraph> >();
-      function_requires<DFSVisitorConcept<DFSVisitor, IncidenceGraph> >();
+      BOOST_CONCEPT_ASSERT(( IncidenceGraphConcept<IncidenceGraph> ));
+      BOOST_CONCEPT_ASSERT(( DFSVisitorConcept<DFSVisitor, IncidenceGraph> ));
       typedef typename graph_traits<IncidenceGraph>::vertex_descriptor Vertex;
-      function_requires< ReadWritePropertyMapConcept<ColorMap, Vertex> >();
+      BOOST_CONCEPT_ASSERT(( ReadWritePropertyMapConcept<ColorMap, Vertex> ));
       typedef typename property_traits<ColorMap>::value_type ColorValue;
-      function_requires< ColorValueConcept<ColorValue> >();
+      BOOST_CONCEPT_ASSERT(( ColorValueConcept<ColorValue> ));
       typedef color_traits<ColorValue> Color;
       typename graph_traits<IncidenceGraph>::out_edge_iterator ei, ei_end;
 
@@ -187,7 +188,7 @@ namespace boost {
                      typename graph_traits<VertexListGraph>::vertex_descriptor start_vertex)
   {
     typedef typename graph_traits<VertexListGraph>::vertex_descriptor Vertex;
-    function_requires<DFSVisitorConcept<DFSVisitor, VertexListGraph> >();
+    BOOST_CONCEPT_ASSERT(( DFSVisitorConcept<DFSVisitor, VertexListGraph> ));
     typedef typename property_traits<ColorMap>::value_type ColorValue;
     typedef color_traits<ColorValue> Color;
 

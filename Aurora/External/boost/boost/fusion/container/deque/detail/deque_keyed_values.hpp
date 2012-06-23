@@ -1,8 +1,8 @@
 /*=============================================================================
-    Copyright (c) 2001-2006 Joel de Guzman
+    Copyright (c) 2005-2011 Joel de Guzman
     Copyright (c) 2005-2006 Dan Marsden
 
-    Distributed under the Boost Software License, Version 1.0. (See accompanying 
+    Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 ==============================================================================*/
 #if !defined(BOOST_FUSION_DEQUE_DETAIL_DEQUE_KEYED_VALUES_26112006_1330)
@@ -24,12 +24,33 @@
 
 #define FUSION_VOID(z, n, _) void_
 
-namespace boost { namespace fusion { 
-
+namespace boost { namespace fusion
+{
     struct void_;
+}}
 
-namespace detail {
+#if !defined(BOOST_FUSION_DONT_USE_PREPROCESSED_FILES)
+#include <boost/fusion/container/deque/detail/preprocessed/deque_keyed_values.hpp>
+#else
+#if defined(__WAVE__) && defined(BOOST_FUSION_CREATE_PREPROCESSED_FILES)
+#pragma wave option(preserve: 2, line: 0, output: "preprocessed/deque_keyed_values" FUSION_MAX_DEQUE_SIZE_STR ".hpp")
+#endif
 
+/*=============================================================================
+    Copyright (c) 2001-2011 Joel de Guzman
+
+    Distributed under the Boost Software License, Version 1.0. (See accompanying
+    file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+    This is an auto-generated file. Do not edit!
+==============================================================================*/
+
+#if defined(__WAVE__) && defined(BOOST_FUSION_CREATE_PREPROCESSED_FILES)
+#pragma wave option(preserve: 1)
+#endif
+
+namespace boost { namespace fusion { namespace detail
+{
     template<typename Key, typename Value, typename Rest>
     struct keyed_element;
 
@@ -44,18 +65,18 @@ namespace detail {
         typedef nil_keyed_element type;
 
         static type call()
-            {
-                return type();
-            }
+        {
+            return type();
+        }
     };
-    
+
     template<typename N, BOOST_PP_ENUM_PARAMS(FUSION_MAX_DEQUE_SIZE, typename T)>
     struct deque_keyed_values_impl
     {
         typedef mpl::int_<mpl::plus<N, mpl::int_<1> >::value> next_index;
 
         typedef typename deque_keyed_values_impl<
-            next_index, 
+            next_index,
             BOOST_PP_ENUM_SHIFTED_PARAMS(FUSION_MAX_DEQUE_SIZE, T)>::type tail;
         typedef keyed_element<N, T0, tail> type;
 
@@ -69,6 +90,12 @@ namespace detail {
     {};
 
 }}}
+
+#if defined(__WAVE__) && defined(BOOST_FUSION_CREATE_PREPROCESSED_FILES)
+#pragma wave option(output: null)
+#endif
+
+#endif // BOOST_FUSION_DONT_USE_PREPROCESSED_FILES
 
 #undef FUSION_VOID
 

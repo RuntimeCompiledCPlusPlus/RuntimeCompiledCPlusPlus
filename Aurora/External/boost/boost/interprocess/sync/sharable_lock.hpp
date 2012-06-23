@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2011. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -27,7 +27,7 @@
 #include <boost/interprocess/exceptions.hpp>
 #include <boost/interprocess/detail/mpl.hpp>
 #include <boost/interprocess/detail/type_traits.hpp>
-#include <boost/interprocess/detail/move.hpp>
+#include <boost/move/move.hpp>
 #include <boost/interprocess/detail/posix_time_types_wrk.hpp>
 
 //!\file
@@ -56,7 +56,7 @@ class sharable_lock
    typedef sharable_lock<SharableMutex> this_type;
    explicit sharable_lock(scoped_lock<mutex_type>&);
    typedef bool this_type::*unspecified_bool_type;
-   BOOST_INTERPROCESS_MOVABLE_BUT_NOT_COPYABLE(sharable_lock)
+   BOOST_MOVABLE_BUT_NOT_COPYABLE(sharable_lock)
    /// @endcond
    public:
 
@@ -122,9 +122,9 @@ class sharable_lock
    //!   sharable_lock with no blocking. If the upgr sharable_lock does not own the mutex, then
    //!   neither will this sharable_lock. Only a moved sharable_lock's will match this
    //!   signature. An non-moved sharable_lock can be moved with the expression:
-   //!   "boost::interprocess::move(lock);". This constructor does not alter the state of the mutex,
+   //!   "boost::move(lock);". This constructor does not alter the state of the mutex,
    //!   only potentially who owns it.
-   sharable_lock(BOOST_INTERPROCESS_RV_REF(sharable_lock<mutex_type>) upgr)
+   sharable_lock(BOOST_RV_REF(sharable_lock<mutex_type>) upgr)
       : mp_mutex(0), m_locked(upgr.owns())
    {  mp_mutex = upgr.release(); }
 
@@ -136,10 +136,10 @@ class sharable_lock
    //!Notes: If upgr is locked, this constructor will lock this sharable_lock while
    //!   unlocking upgr. Only a moved sharable_lock's will match this
    //!   signature. An non-moved upgradable_lock can be moved with the expression:
-   //!   "boost::interprocess::move(lock);".*/
+   //!   "boost::move(lock);".*/
    template<class T>
-   sharable_lock(BOOST_INTERPROCESS_RV_REF(upgradable_lock<T>) upgr
-      , typename detail::enable_if< detail::is_same<T, SharableMutex> >::type * = 0)
+   sharable_lock(BOOST_RV_REF(upgradable_lock<T>) upgr
+      , typename ipcdetail::enable_if< ipcdetail::is_same<T, SharableMutex> >::type * = 0)
       : mp_mutex(0), m_locked(false)
    {
       upgradable_lock<mutex_type> &u_lock = upgr;
@@ -159,10 +159,10 @@ class sharable_lock
    //!   to a sharable-ownership of this sharable_lock. 
    //!   Only a moved scoped_lock's will match this
    //!   signature. An non-moved scoped_lock can be moved with the expression:
-   //!   "boost::interprocess::move(lock);".
+   //!   "boost::move(lock);".
    template<class T>
-   sharable_lock(BOOST_INTERPROCESS_RV_REF(scoped_lock<T>) scop
-               , typename detail::enable_if< detail::is_same<T, SharableMutex> >::type * = 0)
+   sharable_lock(BOOST_RV_REF(scoped_lock<T>) scop
+               , typename ipcdetail::enable_if< ipcdetail::is_same<T, SharableMutex> >::type * = 0)
       : mp_mutex(0), m_locked(false)
    {
       scoped_lock<mutex_type> &e_lock = scop;
@@ -188,7 +188,7 @@ class sharable_lock
    //!Notes: With a recursive mutex it is possible that both this and upgr own the mutex
    //!   before the assignment. In this case, this will own the mutex after the assignment
    //!   (and upgr will not), but the mutex's lock count will be decremented by one.
-   sharable_lock &operator=(BOOST_INTERPROCESS_RV_REF(sharable_lock<mutex_type>) upgr)
+   sharable_lock &operator=(BOOST_RV_REF(sharable_lock<mutex_type>) upgr)
    {  
       if(this->owns())
          this->unlock();

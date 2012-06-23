@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2011. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -10,18 +10,6 @@
 //
 // Parts of the pthread code come from Boost Threads code.
 //
-//////////////////////////////////////////////////////////////////////////////
-//
-// Copyright (C) 2001-2003
-// William E. Kempf
-//
-// Permission to use, copy, modify, distribute and sell this software
-// and its documentation for any purpose is hereby granted without fee,
-// provided that the above copyright notice appear in all copies and
-// that both that copyright notice and this permission notice appear
-// in supporting documentation.  William E. Kempf makes no representations
-// about the suitability of this software for any purpose.
-// It is provided "as is" without express or implied warranty.
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef BOOST_INTERPROCESS_MUTEX_HPP
@@ -34,20 +22,32 @@
 #endif
 
 #include <boost/interprocess/detail/config_begin.hpp>
+#include <boost/interprocess/exceptions.hpp>
 #include <boost/interprocess/detail/workaround.hpp>
 #include <boost/interprocess/detail/posix_time_types_wrk.hpp>
-#include <cassert>
+#include <boost/assert.hpp>
 
 #if !defined(BOOST_INTERPROCESS_FORCE_GENERIC_EMULATION) && defined (BOOST_INTERPROCESS_POSIX_PROCESS_SHARED)
-   #include <pthread.h>
-   #include <errno.h>   
-   #include <boost/interprocess/sync/posix/pthread_helpers.hpp>
+   #include <boost/interprocess/sync/posix/mutex.hpp>
    #define BOOST_INTERPROCESS_USE_POSIX
-#else
-   #include <boost/interprocess/detail/atomic.hpp>
-   #include <boost/cstdint.hpp>
-   #include <boost/interprocess/detail/os_thread_functions.hpp>
+//Experimental...
+//#elif !defined(BOOST_INTERPROCESS_FORCE_GENERIC_EMULATION) && defined (BOOST_INTERPROCESS_WINDOWS)
+//   #include <boost/interprocess/sync/windows/mutex.hpp>
+//   #define BOOST_INTERPROCESS_USE_WINDOWS
+#elif !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+   #include <boost/interprocess/sync/spin/mutex.hpp>
    #define BOOST_INTERPROCESS_USE_GENERIC_EMULATION
+
+namespace boost {
+namespace interprocess {
+namespace ipcdetail{
+namespace robust_emulation_helpers {
+
+template<class T>
+class mutex_traits;
+
+}}}}
+
 #endif
 
 /// @endcond
@@ -110,27 +110,60 @@ class interprocess_mutex
    /// @cond
    private:
 
-   #if   defined(BOOST_INTERPROCESS_USE_GENERIC_EMULATION)
-      volatile boost::uint32_t m_s;
+   #if defined(BOOST_INTERPROCESS_USE_GENERIC_EMULATION)
+      #undef BOOST_INTERPROCESS_USE_GENERIC_EMULATION
+      friend class ipcdetail::robust_emulation_helpers::mutex_traits<interprocess_mutex>;
+      void take_ownership(){ mutex.take_ownership(); }
+      ipcdetail::spin_mutex mutex;
    #elif defined(BOOST_INTERPROCESS_USE_POSIX)
-      pthread_mutex_t   m_mut;
-   #endif   //#if (defined BOOST_INTERPROCESS_WINDOWS)
+      #undef BOOST_INTERPROCESS_USE_POSIX
+      ipcdetail::posix_mutex mutex;
+   #elif defined(BOOST_INTERPROCESS_USE_WINDOWS)
+      #undef BOOST_INTERPROCESS_USE_WINDOWS
+      ipcdetail::windows_mutex mutex;
+   #else
+      #error "Unknown platform for interprocess_mutex"
+   #endif
    /// @endcond
 };
 
 }  //namespace interprocess {
-
 }  //namespace boost {
 
-#ifdef BOOST_INTERPROCESS_USE_GENERIC_EMULATION
-#  undef BOOST_INTERPROCESS_USE_GENERIC_EMULATION
-#  include <boost/interprocess/sync/emulation/interprocess_mutex.hpp>
-#endif
 
-#ifdef BOOST_INTERPROCESS_USE_POSIX
-#  undef BOOST_INTERPROCESS_USE_POSIX
-#  include <boost/interprocess/sync/posix/interprocess_mutex.hpp>
-#endif
+namespace boost {
+namespace interprocess {
+
+inline interprocess_mutex::interprocess_mutex(){}
+
+inline interprocess_mutex::~interprocess_mutex(){}
+
+inline void interprocess_mutex::lock()
+{
+   #ifdef BOOST_INTERPROCESS_ENABLE_TIMEOUT_WHEN_LOCKING
+      boost::posix_time::ptime wait_time
+         = boost::posix_time::microsec_clock::universal_time()
+         + boost::posix_time::milliseconds(BOOST_INTERPROCESS_TIMEOUT_WHEN_LOCKING_DURATION_MS);
+      if (!mutex.timed_lock(wait_time))
+      {
+         throw interprocess_exception(timeout_when_locking_error, "Interprocess mutex timeout when locking. Possible deadlock: owner died without unlocking?");
+      }
+   #else
+      mutex.lock();
+   #endif
+}
+
+inline bool interprocess_mutex::try_lock()
+{ return mutex.try_lock(); }
+
+inline bool interprocess_mutex::timed_lock(const boost::posix_time::ptime &abs_time)
+{ return mutex.timed_lock(abs_time); }
+
+inline void interprocess_mutex::unlock()
+{ mutex.unlock(); }
+
+}  //namespace interprocess {
+}  //namespace boost {
 
 #include <boost/interprocess/detail/config_end.hpp>
 

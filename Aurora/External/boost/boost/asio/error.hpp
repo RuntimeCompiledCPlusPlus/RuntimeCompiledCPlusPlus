@@ -2,7 +2,7 @@
 // error.hpp
 // ~~~~~~~~~
 //
-// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -19,7 +19,7 @@
 #include <boost/cerrno.hpp>
 #include <boost/system/error_code.hpp>
 #if defined(BOOST_WINDOWS) || defined(__CYGWIN__)
-# include <WinError.h>
+# include <winerror.h>
 #else
 # include <cerrno>
 # include <netdb.h>
@@ -211,13 +211,9 @@ enum misc_errors
   fd_set_failure
 };
 
-enum ssl_errors
-{
-};
-
 inline const boost::system::error_category& get_system_category()
 {
-  return boost::system::get_system_category();
+  return boost::system::system_category();
 }
 
 #if !defined(BOOST_WINDOWS) && !defined(__CYGWIN__)
@@ -245,9 +241,6 @@ inline const boost::system::error_category& get_addrinfo_category()
 extern BOOST_ASIO_DECL
 const boost::system::error_category& get_misc_category();
 
-extern BOOST_ASIO_DECL
-const boost::system::error_category& get_ssl_category();
-
 static const boost::system::error_category& system_category
   = boost::asio::error::get_system_category();
 static const boost::system::error_category& netdb_category
@@ -256,12 +249,12 @@ static const boost::system::error_category& addrinfo_category
   = boost::asio::error::get_addrinfo_category();
 static const boost::system::error_category& misc_category
   = boost::asio::error::get_misc_category();
-static const boost::system::error_category& ssl_category
-  = boost::asio::error::get_ssl_category();
 
 } // namespace error
 } // namespace asio
+} // namespace boost
 
+namespace boost {
 namespace system {
 
 template<> struct is_error_code_enum<boost::asio::error::basic_errors>
@@ -284,13 +277,10 @@ template<> struct is_error_code_enum<boost::asio::error::misc_errors>
   static const bool value = true;
 };
 
-template<> struct is_error_code_enum<boost::asio::error::ssl_errors>
-{
-  static const bool value = true;
-};
-
 } // namespace system
+} // namespace boost
 
+namespace boost {
 namespace asio {
 namespace error {
 
@@ -316,12 +306,6 @@ inline boost::system::error_code make_error_code(misc_errors e)
 {
   return boost::system::error_code(
       static_cast<int>(e), get_misc_category());
-}
-
-inline boost::system::error_code make_error_code(ssl_errors e)
-{
-  return boost::system::error_code(
-      static_cast<int>(e), get_ssl_category());
 }
 
 } // namespace error

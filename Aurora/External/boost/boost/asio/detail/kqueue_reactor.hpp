@@ -2,7 +2,7 @@
 // detail/kqueue_reactor.hpp
 // ~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 // Copyright (c) 2005 Stefan Arentz (stefan at soze dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
@@ -20,6 +20,7 @@
 
 #if defined(BOOST_ASIO_HAS_KQUEUE)
 
+#include <boost/limits.hpp>
 #include <cstddef>
 #include <sys/types.h>
 #include <sys/event.h>
@@ -31,10 +32,10 @@
 #include <boost/asio/detail/reactor_op.hpp>
 #include <boost/asio/detail/select_interrupter.hpp>
 #include <boost/asio/detail/socket_types.hpp>
-#include <boost/asio/detail/timer_op.hpp>
 #include <boost/asio/detail/timer_queue_base.hpp>
 #include <boost/asio/detail/timer_queue_fwd.hpp>
 #include <boost/asio/detail/timer_queue_set.hpp>
+#include <boost/asio/detail/wait_op.hpp>
 #include <boost/asio/error.hpp>
 #include <boost/asio/io_service.hpp>
 
@@ -61,11 +62,14 @@ public:
   {
     friend class kqueue_reactor;
     friend class object_pool_access;
-    mutex mutex_;
-    op_queue<reactor_op> op_queue_[max_ops];
-    bool shutdown_;
+
     descriptor_state* next_;
     descriptor_state* prev_;
+
+    mutex mutex_;
+    int descriptor_;
+    op_queue<reactor_op> op_queue_[max_ops];
+    bool shutdown_;
   };
 
   // Per-descriptor data.
@@ -80,6 +84,10 @@ public:
   // Destroy all user-defined handler objects owned by the service.
   BOOST_ASIO_DECL void shutdown_service();
 
+  // Recreate internal descriptors following a fork.
+  BOOST_ASIO_DECL void fork_service(
+      boost::asio::io_service::fork_event fork_ev);
+
   // Initialise the task.
   BOOST_ASIO_DECL void init_task();
 
@@ -87,6 +95,17 @@ public:
   // code on failure.
   BOOST_ASIO_DECL int register_descriptor(socket_type descriptor,
       per_descriptor_data& descriptor_data);
+
+  // Register a descriptor with an associated single operation. Returns 0 on
+  // success, system error code on failure.
+  BOOST_ASIO_DECL int register_internal_descriptor(
+      int op_type, socket_type descriptor,
+      per_descriptor_data& descriptor_data, reactor_op* op);
+
+  // Move descriptor registration from one descriptor_data object to another.
+  BOOST_ASIO_DECL void move_descriptor(socket_type descriptor,
+      per_descriptor_data& target_descriptor_data,
+      per_descriptor_data& source_descriptor_data);
 
   // Post a reactor operation for immediate completion.
   void post_immediate_completion(reactor_op* op)
@@ -108,8 +127,12 @@ public:
 
   // Cancel any operations that are running against the descriptor and remove
   // its registration from the reactor.
-  BOOST_ASIO_DECL void close_descriptor(socket_type descriptor,
-      per_descriptor_data& descriptor_data);
+  BOOST_ASIO_DECL void deregister_descriptor(socket_type descriptor,
+      per_descriptor_data& descriptor_data, bool closing);
+
+  // Remote the descriptor's registration from the reactor.
+  BOOST_ASIO_DECL void deregister_internal_descriptor(
+      socket_type descriptor, per_descriptor_data& descriptor_data);
 
   // Add a new timer queue to the reactor.
   template <typename Time_Traits>
@@ -124,13 +147,14 @@ public:
   template <typename Time_Traits>
   void schedule_timer(timer_queue<Time_Traits>& queue,
       const typename Time_Traits::time_type& time,
-      typename timer_queue<Time_Traits>::per_timer_data& timer, timer_op* op);
+      typename timer_queue<Time_Traits>::per_timer_data& timer, wait_op* op);
 
   // Cancel the timer operations associated with the given token. Returns the
   // number of operations that have been posted or dispatched.
   template <typename Time_Traits>
   std::size_t cancel_timer(timer_queue<Time_Traits>& queue,
-      typename timer_queue<Time_Traits>::per_timer_data& timer);
+      typename timer_queue<Time_Traits>::per_timer_data& timer,
+      std::size_t max_cancelled = (std::numeric_limits<std::size_t>::max)());
 
   // Run the kqueue loop.
   BOOST_ASIO_DECL void run(bool block, op_queue<operation>& ops);
@@ -142,6 +166,12 @@ private:
   // Create the kqueue file descriptor. Throws an exception if the descriptor
   // cannot be created.
   BOOST_ASIO_DECL static int do_kqueue_create();
+
+  // Allocate a new descriptor state object.
+  BOOST_ASIO_DECL descriptor_state* allocate_descriptor_state();
+
+  // Free an existing descriptor state object.
+  BOOST_ASIO_DECL void free_descriptor_state(descriptor_state* s);
 
   // Helper function to add a new timer queue.
   BOOST_ASIO_DECL void do_add_timer_queue(timer_queue_base& queue);
