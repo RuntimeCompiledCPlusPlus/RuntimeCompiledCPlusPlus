@@ -7,7 +7,7 @@
 #define ALAPIENTRY __cdecl
 
 #include <al\altypes.h>
-#include "..\include\eax.h"
+//#include "..\include\eax.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -121,7 +121,7 @@ typedef struct ALsource_struct
 	struct ALsource_struct *previous;
 	struct ALsource_struct *next;
     
-	EAXBUFFERPROPERTIES eaxBP;
+//	EAXBUFFERPROPERTIES eaxBP;
 
 } ALsource;
 

@@ -23,6 +23,9 @@
 #include "include\alEax.h"
 #include "include\eax.h"
 #include <objbase.h>
+#include <initguid.h>
+
+
 
 ALAPI ALenum ALAPIENTRY EAXGet(const GUID *propertySetID,ALuint property,ALuint source,ALvoid *value,ALuint size)
 {

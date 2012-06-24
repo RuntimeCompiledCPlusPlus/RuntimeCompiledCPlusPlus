@@ -114,7 +114,7 @@ xcopy /y $(SolutionDir)\External\libRocket\bin\*.pdb $(SolutionDir)$(Configurati
     </Link>
     <Lib>
       <AdditionalDependencies>RocketCore_d.lib;RocketDebugger_d.lib;RocketControls_d.lib;opengl32.lib;</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\External\libRocket\bin</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
     </Lib>
     <CustomBuildStep>
       <Command>

@@ -405,7 +405,12 @@ void Game::RocketLibUpdate()
 void Game::RocketLibInit()
 {
 	// Generic OS initialisation, creates a window and attaches OpenGL.
-	if (!RocketLibSystem::Initialise("../") ||
+#ifndef _WIN64 //TODO: Improve paths
+	char* path = "../";
+#else
+	char* path = "../../";
+#endif
+	if (!RocketLibSystem::Initialise(path) ||
 	    !RocketLibSystem::OpenWindow(L"Pulse", true))
 	{
 		RocketLibSystem::Shutdown();
@@ -524,7 +529,11 @@ void Game::InitSound()
 	AUOrientation3D orientation;
 	CalManager::GetInstance().SetListener(	pos, vel, orientation );
 
+#ifndef _WIN64
 	m_pLoopingBackgroundSoundBuffer = new CalBuffer("./../Assets/Sounds/62912_Benboncan_Heartbeat_Mono_shortloop.wav");
+#else
+	m_pLoopingBackgroundSoundBuffer = new CalBuffer("./../../Assets/Sounds/62912_Benboncan_Heartbeat_Mono_shortloop.wav");
+#endif
 	m_pLoopingBackgroundSound = new CalSound(*m_pLoopingBackgroundSoundBuffer, true );
 	m_pLoopingBackgroundSound->SetReferenceDistance( 1000.0f );	//since this is ambient it doesn't fade
 	m_pLoopingBackgroundSound->Play( pos );

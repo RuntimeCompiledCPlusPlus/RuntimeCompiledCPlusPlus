@@ -22,17 +22,11 @@
 // Windows Requirements
 #define WIN32_LEAN_AND_MEAN				// Exclude rarely-used stuff from Windows headers
 #include <windows.h>
-#include <GL/glew.h>
 #include <GL/gl.h>
 
 
 AURenderContext::AURenderContext()
 {
-	GLenum err = glewInit();
-	if(GLEW_OK != err)
-	{
-		//should log error here
-	}
 }
 
 
