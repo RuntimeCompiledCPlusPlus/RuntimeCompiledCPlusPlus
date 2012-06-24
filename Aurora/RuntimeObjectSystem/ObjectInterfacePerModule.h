@@ -36,10 +36,6 @@ public:
 
 	void AddConstructor( IObjectConstructor* pConstructor );
 
-	void SetNameOfModule( const char* name_ );
-
-	virtual const char* GetNameOfModule() const;
-
 	virtual std::vector<IObjectConstructor*>& GetConstructors();
 	virtual void SetSystemTable( SystemTable* pSystemTable );
 
@@ -48,7 +44,8 @@ public:
 		return m_pSystemTable;
 	}
 
-
+	virtual const std::vector<const char*>& GetRequiredSourceFiles() const;
+	virtual void AddRequiredSourceFiles( const char* file_ );
 
 private:
 	PerModuleInterface();
@@ -58,12 +55,11 @@ private:
 	}
 
 
-	static PerModuleInterface*		ms_pObjectManager;
+	static PerModuleInterface*			ms_pObjectManager;
 	std::vector<IObjectConstructor*>	m_ObjectConstructors;
-	std::string						m_Name;
-	SystemTable*					m_pSystemTable;
+	std::vector<const char*>			m_RequiredSourceFiles;
+	SystemTable*						m_pSystemTable;
 };
-
 
 template<typename T> class TObjectConstructorConcrete: public IObjectConstructor
 {
