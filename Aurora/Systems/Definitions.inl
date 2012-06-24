@@ -39,5 +39,6 @@ struct IObjectFactorySystem;
 struct IGUISystem;
 struct IFileChangeNotifier;
 struct IGame;
+class CalSound;
 
 #endif // DEFINITIONS_DEFINED

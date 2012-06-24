@@ -187,11 +187,7 @@ public:
 
 	virtual void SetModel( const char* file )
 	{
-#ifndef _WIN64 //TODO Improve path handling
-			std::string path = "..\\Assets\\Models\\";
-#else
-			std::string path = "..\\..\\Assets\\Models\\";
-#endif
+		std::string path = "/Models/"; //directories relative to asset dir
 		path += file;
 		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
 		m_pRenMesh = pSystemTable->pAssetSystem->CreateRenderableMeshFromFile( path.c_str() );
