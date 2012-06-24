@@ -40,11 +40,11 @@ BB_Individual_RBC()
 		AU_ASSERT(pSerializer);
 		
 		// Serialize members here
-		//SERIALIZE(visible_dangerous); // Demo
+		//SERIALIZE(visible_dangerous); // Demo [Tutorial03]
 	}
 
 	// Members
-	//AUDynArray<ObjectId> visible_dangerous; // Demo
+	//AUDynArray<ObjectId> visible_dangerous; // Demo [Tutorial03]
 };
 
 

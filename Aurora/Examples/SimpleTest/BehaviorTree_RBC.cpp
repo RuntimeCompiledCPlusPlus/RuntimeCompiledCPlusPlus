@@ -57,7 +57,7 @@ public:
 		{
 			pGameObject->SetBehavior( "Behavior_RBC_Approach" );
 		}
-		/* Demo
+		/* Demo [Tutorial03]
 		else if ( pBBIndividual->visible_dangerous.Size() > 0 )
 		{
 			pGameObject->SetBehavior( "Behavior_RBC_Evade" );
