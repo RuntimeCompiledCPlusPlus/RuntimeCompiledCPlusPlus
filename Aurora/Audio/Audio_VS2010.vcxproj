@@ -182,7 +182,7 @@
       <AdditionalDependencies>OpenAL32.lib;ALut.lib;Dxguid.lib</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>$(SolutionDir)\External\openal\win\bin;$(DXSDK_DIR)\Lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\External\openal\win\bin\x64;$(DXSDK_DIR)\Lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <PostBuildEvent>
       <Command>xcopy /y $(SolutionDir)\External\openal\win\bin\*.dll $(SolutionDir)$(Configuration)\</Command>

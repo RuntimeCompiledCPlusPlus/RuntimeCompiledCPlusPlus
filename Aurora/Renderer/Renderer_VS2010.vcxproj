@@ -193,7 +193,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)\External\glew-1.6.0\lib;$(SolutionDir)\External\assimp\lib\assimp_release-dll_x64;$(SolutionDir)\External\Independant JPEG Group\jpeg-6b\bin</AdditionalLibraryDirectories>
     </Lib>
     <PostBuildEvent>
-      <Command>xcopy /y $(SolutionDir)\External\assimp\bin\assimp_release-dll_win32\*.dll $(SolutionDir)$(Configuration)\</Command>
+      <Command>xcopy /y $(SolutionDir)\External\assimp\bin\assimp_release-dll_win32\*.dll $(OutDir)</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>copy dlls for assimp</Message>
