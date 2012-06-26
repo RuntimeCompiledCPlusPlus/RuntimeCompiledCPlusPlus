@@ -88,18 +88,19 @@
     </Link>
     <Lib>
       <AdditionalDependencies>RocketCore_d.lib;RocketDebugger_d.lib;RocketControls_d.lib;opengl32.lib;</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\External\libRocket\bin</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration)\</AdditionalLibraryDirectories>
     </Lib>
     <CustomBuildStep>
       <Command>
       </Command>
     </CustomBuildStep>
     <PostBuildEvent>
-      <Command>xcopy /y $(SolutionDir)\External\libRocket\bin\*.dll $(SolutionDir)$(Configuration)\
-xcopy /y $(SolutionDir)\External\libRocket\bin\*.pdb $(SolutionDir)$(Configuration)\</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copy dlls for RocketLib</Message>
+      <Message>
+      </Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -121,11 +122,12 @@ xcopy /y $(SolutionDir)\External\libRocket\bin\*.pdb $(SolutionDir)$(Configurati
       </Command>
     </CustomBuildStep>
     <PostBuildEvent>
-      <Command>xcopy /y $(SolutionDir)\External\libRocket\bin\*.dll $(SolutionDir)$(Configuration)\
-xcopy /y $(SolutionDir)\External\libRocket\bin\*.pdb $(SolutionDir)$(Configuration)\</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copy dlls for RocketLib</Message>
+      <Message>
+      </Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -145,11 +147,13 @@ xcopy /y $(SolutionDir)\External\libRocket\bin\*.pdb $(SolutionDir)$(Configurati
     </Link>
     <Lib>
       <AdditionalDependencies>RocketCore.lib;RocketDebugger.lib;RocketControls.lib;opengl32.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\External\libRocket\bin</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration)\</AdditionalLibraryDirectories>
     </Lib>
     <PostBuildEvent>
-      <Command>xcopy /y $(SolutionDir)\External\libRocket\bin\*.dll $(SolutionDir)$(Configuration)\</Command>
-      <Message>Copy dlls for RocketLib</Message>
+      <Command>
+      </Command>
+      <Message>
+      </Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -169,11 +173,13 @@ xcopy /y $(SolutionDir)\External\libRocket\bin\*.pdb $(SolutionDir)$(Configurati
     </Link>
     <Lib>
       <AdditionalDependencies>RocketCore.lib;RocketDebugger.lib;RocketControls.lib;opengl32.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\External\libRocket\bin</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
     </Lib>
     <PostBuildEvent>
-      <Command>xcopy /y $(SolutionDir)\External\libRocket\bin\*.dll $(SolutionDir)$(Configuration)\</Command>
-      <Message>Copy dlls for RocketLib</Message>
+      <Command>
+      </Command>
+      <Message>
+      </Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
