@@ -14,11 +14,13 @@
     <ClInclude Include="Exceptions.h" />
     <ClInclude Include="IObject.h" />
     <ClInclude Include="IObjectFactorySystem.h" />
+    <ClInclude Include="IRuntimeObjectSystem.h" />
     <ClInclude Include="ISimpleSerializer.h" />
     <ClInclude Include="ObjectFactorySystem\ObjectFactorySystem.h" />
     <ClInclude Include="ObjectInterface.h" />
     <ClInclude Include="ObjectInterfacePerModule.h" />
     <ClInclude Include="RuntimeInclude.h" />
+    <ClInclude Include="RuntimeObjectSystem\RuntimeObjectSystem.h" />
     <ClInclude Include="SimpleSerializer\SimpleSerializer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -26,6 +28,7 @@
     <ClCompile Include="ObjectFactorySystem\ObjectFactorySystem.cpp" />
     <ClCompile Include="ObjectInterfacePerModuleSource.cpp" />
     <ClCompile Include="ObjectInterfacePerModuleSource_PlatformWindows.cpp" />
+    <ClCompile Include="RuntimeObjectSystem\RuntimeObjectSystem.cpp" />
     <ClCompile Include="SimpleSerializer\SimpleSerializer.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

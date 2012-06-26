@@ -44,6 +44,7 @@
 #include "../../Systems/ITimeSystem.h"
 #include "../../Systems/IUpdateable.h"
 #include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
+#include "../../RuntimeObjectSystem/RuntimeObjectSystem/RuntimeObjectSystem.h"
 #include "../../Systems/IGUISystem.h"
 #include "../../Systems/SystemTable.h"
 #include "../../Audio/alManager.h"
@@ -80,8 +81,6 @@ void MainLoop_Wrapper()
 Game::Game()
 	: m_pEnv(0)
 	, m_pConsole(0)
-	, m_pCompilerLogger(0)
-	, m_pBuildTool(0)
 	, m_pRocketContext(0)
 	, m_pOpenGLRenderer(0)
 	, m_pSystemInterface(0)
@@ -91,12 +90,9 @@ Game::Game()
 	, m_pLightingControl(0)
 	, m_bHaveProgramError(false)
 	, m_fLastUpdateSessionTime(-1)
-	, m_bCompiling( false )
-	, m_bLastLoadModuleSuccess( true )
 	, m_pLoopingBackgroundSound(0)
 	, m_pLoopingBackgroundSoundBuffer(0)
 	, m_GameSpeed(1.0f)
-	, m_bAutoCompile( true )
 {
 	AU_ASSERT(g_pGame == NULL);
 	g_pGame = this;
@@ -104,13 +100,10 @@ Game::Game()
 
 Game::~Game()
 {
-	m_pEnv->sys->pFileChangeNotifier->RemoveListener(this);
 
 	delete m_pRenderContext;
 	delete m_pSystemInterface;
 	delete m_pOpenGLRenderer;
-	delete m_pBuildTool;
-	delete m_pCompilerLogger;
 	delete m_pConsole;
 	delete m_pEnv;
 }
@@ -118,7 +111,7 @@ Game::~Game()
 
 bool Game::Init()
 {
-	// We need the current directory to be the process dir
+	// We Set Dir here so logs go to bin directory
 	DWORD size = MAX_PATH;
 	wchar_t filename[MAX_PATH];
 	GetModuleFileName( NULL, filename, size );
@@ -127,10 +120,8 @@ bool Game::Init()
 	launchPath = launchPath.parent_path();
 	SetCurrentDirectory( launchPath.wstring().c_str() );
 
+
 	m_pEnv = new Environment( this );
-	m_pCompilerLogger = new CompilerLogger(m_pEnv);
-	m_pBuildTool = new BuildTool();
-	m_pBuildTool->Initialise(m_pCompilerLogger);
 	m_pSystemInterface = new RocketLibSystemSystemInterface();
 	m_pOpenGLRenderer = new RocketLibSystemRenderInterfaceOpenGL();
 
@@ -142,25 +133,9 @@ bool Game::Init()
 	//AURenderContext must be initialized after RocketLibInit() due to OGL init in RocketLibInit;
 	m_pRenderContext = new AURenderContext();
 
-	// We start by using the code in the current module
-	HMODULE module = GetModuleHandle(NULL);
-
-	GETPerModuleInterface_PROC pPerModuleInterfaceProcAdd = NULL;
-	pPerModuleInterfaceProcAdd = (GETPerModuleInterface_PROC) GetProcAddress(module, "GetPerModuleInterface");
-	if (!pPerModuleInterfaceProcAdd)
-	{
-		m_pEnv->sys->pLogSystem->Log(eLV_ERRORS,"Failed GetProcAddress\n");
-		return false;
-	}
-
-	// Tell it the system table to pass to objects we construct
-	pPerModuleInterfaceProcAdd()->SetSystemTable(m_pEnv->sys);
-
-	SetupObjectConstructors(pPerModuleInterfaceProcAdd);
-
 	m_pEnv->sys->pObjectFactorySystem->AddListener(this);
 
-	m_pConsole = new Console(this, m_pEnv, m_pRocketContext);
+	m_pConsole = new Console(m_pEnv, m_pRocketContext);
 
 	InitSound();
 
@@ -183,73 +158,15 @@ void Game::Shutdown()
 	ShutdownSound();
 }
 
-
-void Game::OnFileChange(const IAUDynArray<const char*>& filelist)
-{
-
-	if( !m_bAutoCompile )
-	{
-		return;
-	}
-
-	m_pEnv->sys->pLogSystem->Log(eLV_COMMENTS, "FileChangeNotifier triggered recompile of files:\n");
-	bool bForce = false;
-	TFileList pathlist;
-	for( size_t i = 0; i < filelist.Size(); ++ i )
-	{
-		//m_pEnv->sys->pLogSystem->Log(eLV_COMMENTS, "  %s\n", filelist[i]);
-		path filePath = filelist[i];
-		if( filePath.extension() != ".h") //TODO: change to check for .cpp and .c as could have .inc files etc.?
-		{
-			pathlist.push_back( filePath );
-		}
-		else
-		{
-			TFileToFileEqualRange range = m_RuntimeIncludeMap.equal_range( filePath );
-			for(TFileToFileIterator it=range.first; it!=range.second; ++it)
-			{
-				pathlist.push_back( (*it).second );
-				bForce = true;
-			}
-		}
-	}
-
-	StartRecompile(pathlist, bForce);
-}
-
 void Game::OnConstructorsAdded()
 {
 	InitStoredObjectPointers();
-}
-
-
-void Game::CompileAll( bool bForceRecompile )
-{
-	StartRecompile(m_RuntimeFileList, bForceRecompile);
 }
 
 void Game::Reset()
 {
 	ResetGame();
 }
-
-void Game::SetAutoCompile( bool autoCompile )
-{
-	m_bAutoCompile = autoCompile;
-}
-
-void Game::AddToRuntimeFileList( const char* filename )
-{
-	path filePath = filename;
-	TFileList::iterator it = std::find( m_RuntimeFileList.begin(), m_RuntimeFileList.end(), filePath );
-	if ( it == m_RuntimeFileList.end() )
-	{
-		m_RuntimeFileList.push_back( filePath );
-		m_pEnv->sys->pFileChangeNotifier->Watch( filename, this );
-	}
-}
-
-
 
 void Game::Restart()
 {
@@ -266,15 +183,6 @@ void Game::ToggleConsoleGUI()
 void Game::Exit()
 {
 	RocketLibSystem::RequestExit();
-}
-
-void Game::RemoveFromRuntimeFileList( const char* filename )
-{
-	TFileList::iterator it = std::find( m_RuntimeFileList.begin(), m_RuntimeFileList.end(), filename );
-	if ( it != m_RuntimeFileList.end() )
-	{
-		m_RuntimeFileList.erase( it );
-	}
 }
 
 void Game::SetVolume( float volume )
@@ -343,10 +251,9 @@ void Game::MainLoop()
 
 	//check status of any compile
 	bool bLoadModule = false;
-	if( m_bCompiling && m_pBuildTool->GetIsComplete() )
+	if( m_pEnv->sys->pRuntimeObjectSystem->GetIsCompiledComplete() )
 	{
 		bLoadModule = true; //we load module after update/display, to get notification on screen correct
-		m_bCompiling = false;
 	}
 
 	pTimeSystem->StartFrame();
@@ -383,8 +290,13 @@ void Game::MainLoop()
 	if( bLoadModule )
 	{
 		// load module when compile complete, and notify console - TODO replace with event system 
-		m_bLastLoadModuleSuccess = LoadCompiledModule();
-		m_pConsole->OnCompileDone(m_bLastLoadModuleSuccess);
+		bool bSuccess = m_pEnv->sys->pRuntimeObjectSystem->LoadCompiledModule();
+		m_pConsole->OnCompileDone(bSuccess);
+		if( bSuccess )
+		{
+			// reset program error status
+			m_bHaveProgramError = false; 
+		}
 	}
 
 	// Limit frame rate
@@ -490,83 +402,6 @@ void Game::RocketLibUpdate()
 	RocketLibSystem::FlipBuffers();
 }
 
-void Game::StartRecompile(const TFileList& filelist, bool bForce)
-{
-	m_bCompiling = true;
-	m_pEnv->sys->pLogSystem->Log(eLV_COMMENTS, "Compiling...\n");
-
-	//Use a temporary filename for the dll
-	wchar_t tempPath[MAX_PATH];
-	GetTempPath( MAX_PATH, tempPath );
-	wchar_t tempFileName[MAX_PATH]; 
-	GetTempFileName( tempPath, L"", 0, tempFileName );
-	std::wstring strTempFileName( tempFileName );
-
-	//Need currentmodule path
-	wchar_t CurrentModuleFileName[MAX_PATH];
-	GetModuleFileNameW( NULL, CurrentModuleFileName, MAX_PATH ); //get filename of current module (full path?)
-	path currModuleFileName(CurrentModuleFileName);
-	path currModuleFullPath = currModuleFileName.parent_path();
-
-
-	std::vector<BuildTool::FileToBuild> buildFileList;
-	std::vector<path> includeDirList; //currently no include paths required
-	m_CurrentlyCompilingModuleName= strTempFileName;
-
-	for( size_t i = 0; i < filelist.size(); ++ i )
-	{
-		//don't compile .h files:
-		if( filelist[i].extension() != ".h" ) //TODO: change to check for .cpp and .c as could have .inc files etc.?
-		{
-			buildFileList.push_back( BuildTool::FileToBuild( filelist[i], bForce ) );
-		}
-	}
-	buildFileList.push_back( currModuleFullPath / path(L"/../RuntimeObjectSystem/ObjectInterfacePerModuleSource.cpp") );
-	buildFileList.push_back( currModuleFullPath / path(L"/../RuntimeObjectSystem/ObjectInterfacePerModuleSource_PlatformWindows.cpp") );
-
-	m_pBuildTool->BuildModule( buildFileList, includeDirList, m_CurrentlyCompilingModuleName );
-}
-
-bool Game::LoadCompiledModule()
-{
-	// Since the temporary file is created with 0 bytes, loadlibrary can fail with a dialogue we want to prevent. So check size
-	// We pass in the ec value so the function won't throw an exception on error, but the value itself sometimes seems to
-	// be set even without an error, so not sure if it should be relied on.
-	boost::system::error_code ec;
-	uintmax_t sizeOfModule = file_size( m_CurrentlyCompilingModuleName, ec );
-
-	HMODULE module = 0;
-	if( sizeOfModule )
-	{
-		module = LoadLibraryW( m_CurrentlyCompilingModuleName.c_str() );
-	}
-
-	if (!module)
-	{
-		m_pEnv->sys->pLogSystem->Log(eLV_ERRORS,"Failed to load module %ls\n",m_CurrentlyCompilingModuleName.c_str());
-		return false;
-	}
-
-	GETPerModuleInterface_PROC pPerModuleInterfaceProcAdd = (GETPerModuleInterface_PROC) GetProcAddress(module, "GetPerModuleInterface");
-	if (!pPerModuleInterfaceProcAdd)
-	{
-		m_pEnv->sys->pLogSystem->Log(eLV_ERRORS,"Failed GetProcAddress\n");
-		return false;
-	}
-
-	pPerModuleInterfaceProcAdd()->SetSystemTable( m_pEnv->sys );
-	m_Modules.push_back( module );
-
-	m_pEnv->sys->pLogSystem->Log(eLV_COMMENTS, "Compilation Succeeded\n");
-
-	SetupObjectConstructors(pPerModuleInterfaceProcAdd);
-
-	m_bHaveProgramError = false; //reset
-
-	return true;
-}
-
-
 void Game::RocketLibInit()
 {
 	// Generic OS initialisation, creates a window and attaches OpenGL.
@@ -631,31 +466,6 @@ void Game::InitObjects()
 	IObjectUtils::CreateUniqueObject( "MainObject" );
 	
 	InitStoredObjectPointers();
-}
-
-void Game::SetupObjectConstructors(GETPerModuleInterface_PROC pPerModuleInterfaceProcAdd)
-{
-	// get hold of the constructors
-	const std::vector<IObjectConstructor*> &objectConstructors = pPerModuleInterfaceProcAdd()->GetConstructors();
-	AUDynArray<IObjectConstructor*> constructors( objectConstructors.size() );
-	for (size_t i=0, iMax=objectConstructors.size(); i<iMax; ++i)
-	{
-		constructors[i] = objectConstructors[i];
-		AddToRuntimeFileList( objectConstructors[i]->GetFileName() );
-
-		//add include file mappings
-		unsigned int includeNum = 0;
-		while( objectConstructors[i]->GetIncludeFile( includeNum ) )
-		{
-			TFileToFilePair includePathPair;
-			includePathPair.first = objectConstructors[i]->GetIncludeFile( includeNum );
-			includePathPair.second = objectConstructors[i]->GetFileName();
-			AddToRuntimeFileList( objectConstructors[i]->GetIncludeFile( includeNum ) );
-			m_RuntimeIncludeMap.insert( includePathPair );
-			++includeNum;
-		}
-	}
-	m_pEnv->sys->pObjectFactorySystem->AddConstructors( constructors );
 }
 
 void Game::DeleteObjects()

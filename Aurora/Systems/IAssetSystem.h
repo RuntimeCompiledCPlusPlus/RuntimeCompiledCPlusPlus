@@ -21,7 +21,7 @@
 #ifndef IASSETSYSTEM_INCLUDED
 #define IASSETSYSTEM_INCLUDED
 
-#include "../Common/Definitions.inl"
+#include "Definitions.inl"
 
 struct IAssetSystem
 {

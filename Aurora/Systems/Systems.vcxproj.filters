@@ -179,4 +179,7 @@
     </ClCompile>
     <ClCompile Include="Systems.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Definitions.inl" />
+  </ItemGroup>
 </Project>

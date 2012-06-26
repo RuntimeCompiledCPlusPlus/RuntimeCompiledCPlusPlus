@@ -18,16 +18,17 @@
 // FPSCounter.cpp : Defines an IObject that displays framerate on screen
 //
 #include "../../RuntimeObjectSystem/ObjectInterfacePerModule.h"
+#include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
+#include "../../RuntimeObjectSystem/IRuntimeObjectSystem.h"
+#include "../../RuntimeObjectSystem/IObject.h"
 #include "../../RuntimeCompiler/IFileChangeNotifier.h"
 #include "../../Systems/SystemTable.h"
-#include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
 #include "../../Systems/ILogSystem.h"
 #include "../../Systems/IGUISystem.h"
 #include "../../RuntimeObjectSystem/ISimpleSerializer.h"
 #include "../../Systems/IUpdateable.h"
 #include "../../Systems/IEntitySystem.h"
 #include "../../Systems/IGame.h"
-#include "../../RuntimeObjectSystem/IObject.h"
 
 
 class OnClickCompile : public IGUIEventListener
@@ -36,7 +37,7 @@ public:
 	virtual void OnEvent( int event_id, const IGUIEvent& event_info )
 	{
 		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
-		pSystemTable->pGame->CompileAll( true );
+		pSystemTable->pRuntimeObjectSystem->CompileAll( true );
 	}
 };
 
@@ -152,7 +153,7 @@ public:
 		{
 			g_bAutoCompile = true;
 		}
-		pSystemTable->pGame->SetAutoCompile( g_bAutoCompile );
+		pSystemTable->pRuntimeObjectSystem->SetAutoCompile( g_bAutoCompile );
 	}
 };
 
@@ -440,7 +441,7 @@ public:
 				m_pAutoCompileCheckBox->GetAttribute( "checked", AutoCompile, sizeof( AutoCompile ) );
 				g_bAutoCompile = strlen( AutoCompile ) > 0;
 			}
-			pSystemTable->pGame->SetAutoCompile( g_bAutoCompile );
+			pSystemTable->pRuntimeObjectSystem->SetAutoCompile( g_bAutoCompile );
 
 
 			m_pVolumeSlider = pDocument->Element()->GetElementById( "volumeslider");

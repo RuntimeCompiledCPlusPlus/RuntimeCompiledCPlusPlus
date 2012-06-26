@@ -17,7 +17,7 @@
 
 #include "Behavior_RBC_Base.h"
 
-/* Demo
+/* Demo [Tutorial03]
 class Behavior_RBC_Evade : public Behavior_RBC_Base
 {
 public:
