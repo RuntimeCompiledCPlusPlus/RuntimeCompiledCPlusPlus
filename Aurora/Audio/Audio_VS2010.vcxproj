@@ -123,7 +123,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)\External\openal\win\bin\x64;$(DXSDK_DIR)\Lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <PostBuildEvent>
-      <Command>xcopy /y $(SolutionDir)\External\openal\win\bin\*.dll $(OutDir)</Command>
+      <Command>xcopy /y $(SolutionDir)\External\openal\win\bin\x64\*.dll $(OutDir)</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copy OpenAL binaries.</Message>
@@ -185,7 +185,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)\External\openal\win\bin\x64;$(DXSDK_DIR)\Lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <PostBuildEvent>
-      <Command>xcopy /y $(SolutionDir)\External\openal\win\bin\*.dll $(SolutionDir)$(Configuration)\</Command>
+      <Command>xcopy /y $(SolutionDir)\External\openal\win\bin\x64\*.dll $(OutDir)</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copy OpenAL binaries.</Message>
