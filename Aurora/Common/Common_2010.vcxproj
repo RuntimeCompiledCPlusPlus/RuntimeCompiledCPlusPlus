@@ -14,7 +14,6 @@
     <None Include="AUArray.inl" />
     <None Include="AUOrientation3D.inl" />
     <None Include="AUVec3f.inl" />
-    <None Include="Definitions.inl" />
     <None Include="Math.inl" />
   </ItemGroup>
   <ItemGroup>

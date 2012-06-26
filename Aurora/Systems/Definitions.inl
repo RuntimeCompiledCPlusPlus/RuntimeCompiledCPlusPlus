@@ -24,6 +24,7 @@
 
 typedef int AUEntityId;           // (Will be a) salted id for uniquely identifying entities
 
+struct IRuntimeObjectSystem;
 struct IEntitySystem;
 struct ITimeSystem;
 struct ILogSystem;

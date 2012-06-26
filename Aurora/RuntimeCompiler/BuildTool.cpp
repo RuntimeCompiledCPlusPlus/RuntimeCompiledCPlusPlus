@@ -17,7 +17,7 @@
 
 #include "BuildTool.h"
 #include "Compiler.h"
-#include <fstream> 
+#include <fstream>
 
 #include "ICompilerLogger.h"
 
@@ -43,27 +43,60 @@ void BuildTool::BuildModule( const std::vector<FileToBuild>& buildFileList,
 							 const std::vector<boost::filesystem::path>& includeDirList,
 							 const boost::filesystem::path& moduleName )
 {
-	//initial version is very basic, simply compiles them.
+	// Initial version is very basic, simply compiles them.
 	path objectFileExtension = m_Compiler.GetObjectFileExtension();
-	vector<path> compileFileList;
+	vector<path> compileFileList( buildFileList.size() );			// List of files we pass to the compiler
+	vector<path> forcedCompileFileList;								// List of files which must be compiled even if object file exists
+	vector<path> nonForcedCompileFileList;							// List of files which can be linked if already compiled
 
 	path current = boost::filesystem::current_path();
-	
+
+	// Seperate into seperate file lists of force and non-forced,
+	// so we can ensure we don't have the same file in both
 	for( size_t i = 0; i < buildFileList.size(); ++i )
 	{
-		//TODO: should check if we have a pre-compiled object version of this file, and if so use that.
 		path buildFile = buildFileList[i].filePath;
-		path runtimeFolder = L"Runtime";
-		path objectFileName = current/runtimeFolder/buildFile.leaf();
-		objectFileName.replace_extension(objectFileExtension);
-
-		if( !buildFileList[i].forceCompile && boost::filesystem::exists( objectFileName ) && boost::filesystem::exists( buildFile )
-			&& boost::filesystem::last_write_time( objectFileName ) > boost::filesystem::last_write_time( buildFile ) )
+		if( buildFileList[i].forceCompile )
 		{
-			buildFile = objectFileName;
+			if( find( forcedCompileFileList.begin(), forcedCompileFileList.end(), buildFile ) == forcedCompileFileList.end() )
+			{
+				forcedCompileFileList.push_back( buildFile );
+			}
 		}
+		else
+		{
+			if( find( nonForcedCompileFileList.begin(), nonForcedCompileFileList.end(), buildFile ) == nonForcedCompileFileList.end() )
+			{
+				nonForcedCompileFileList.push_back( buildFile );
+			}
+		}
+	}
+	
+	// Add all forced compile files to build list
+	for( size_t i = 0; i < forcedCompileFileList.size(); ++i )
+	{
+		compileFileList.push_back(  forcedCompileFileList[i] );
+	}
 
-		compileFileList.push_back(buildFile);
+	// Add non forced files, but only if they don't exist in forced compile list
+	for( size_t i = 0; i < nonForcedCompileFileList.size(); ++i )
+	{
+		path buildFile = nonForcedCompileFileList[i];
+		if( find( forcedCompileFileList.begin(), forcedCompileFileList.end(), buildFile ) == forcedCompileFileList.end() )
+		{
+			// Check if we have a pre-compiled object version of this file, and if so use that.
+			path runtimeFolder = L"Runtime";
+			path objectFileName = current/runtimeFolder/buildFile.leaf();
+			objectFileName.replace_extension(objectFileExtension);
+
+			if( boost::filesystem::exists( objectFileName ) && boost::filesystem::exists( buildFile )
+				&& boost::filesystem::last_write_time( objectFileName ) > boost::filesystem::last_write_time( buildFile ) )
+			{
+				buildFile = objectFileName;
+			}
+
+			compileFileList.push_back(buildFile);
+		}
 	}
 
 	m_Compiler.RunCompile( compileFileList, includeDirList, moduleName );
