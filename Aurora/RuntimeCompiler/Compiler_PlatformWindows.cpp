@@ -426,10 +426,10 @@ void ReadAndHandleOutputThread( LPVOID arg )
 			if( bReadActive || buffer.length() ) //don't output blank last line
 			{
 				//check if this is an error
-				size_t found = buffer.find( " : error " );
-				if( found != std::string::npos )
+				size_t errorFound = buffer.find( " : error " );
+				size_t fatalErrorFound = buffer.find( " : fatal error " );
+				if( ( errorFound != std::string::npos ) || ( fatalErrorFound != std::string::npos ) )
 				{
-					//OutputDebugStringA( buffer.c_str() );
 					if( pImpl->m_pLogger ) pImpl->m_pLogger->LogError( "%s", buffer.c_str() );
 				}
 				else
