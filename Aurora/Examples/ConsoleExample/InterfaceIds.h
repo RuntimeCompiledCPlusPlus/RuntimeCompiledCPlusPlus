@@ -32,8 +32,7 @@
 
 enum InterfaceIDEnumConsoleExample
 {
-	IID_IENTITYOBJECT = IID_ENDInterfaceID,
-	IID_IUPDATEABLE,
+	IID_IUPDATEABLE = IID_ENDInterfaceID,
 
 	IID_ENDInterfaceIDEnumConsoleExample
 };
