@@ -22,5 +22,6 @@
     <ClInclude Include="StdioLogSystem.h" />
     <ClInclude Include="ConsoleGame.h" />
     <ClInclude Include="InterfaceIds.h" />
+    <ClInclude Include="IUpdateable.h" />
   </ItemGroup>
 </Project>
