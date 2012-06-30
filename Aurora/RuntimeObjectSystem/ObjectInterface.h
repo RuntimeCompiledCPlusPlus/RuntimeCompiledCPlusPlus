@@ -26,7 +26,7 @@ struct SystemTable; //This is the interface to your own engine code, which you n
 struct IObject;
 
 
-const size_t InvalidId = -1;
+const size_t InvalidId = (size_t)-1;
 typedef size_t PerTypeObjectId;
 typedef size_t ConstructorId;
 
