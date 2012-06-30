@@ -68,8 +68,9 @@ public:
 	virtual void CompileAll( bool bForceRecompile );
 	virtual void AddToRuntimeFileList( const char* filename );
 	virtual void RemoveFromRuntimeFileList( const char* filename );
+	virtual void AddIncludeDir( const char *path );
 	virtual void SetAutoCompile( bool autoCompile );
-	virtual bool GetAutoCompile( bool autoCompile ) const
+	virtual bool GetAutoCompile() const
 	{
 		return m_bAutoCompile;
 	}
@@ -117,6 +118,7 @@ private:
 	TFileToFileMap			m_RuntimeIncludeMap;
 	bool					m_bAutoCompile;
 	boost::filesystem::path m_CurrentlyCompilingModuleName;
+	std::vector<boost::filesystem::path> m_IncludeDirList;
 
 };
 

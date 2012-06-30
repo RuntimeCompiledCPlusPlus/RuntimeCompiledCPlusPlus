@@ -60,14 +60,14 @@ bool RuntimeObjectSystem::Initialise( ICompilerLogger * pLogger, SystemTable* pS
 	m_pCompilerLogger = pLogger;
 	m_pSystemTable = pSystemTable;
 
-	// We need the current directory to be the process dir
+/*	// We need the current directory to be the process dir
 	DWORD size = MAX_PATH;
 	wchar_t filename[MAX_PATH];
 	GetModuleFileName( NULL, filename, size );
 	std::wstring strTempFileName( filename );
 	path launchPath( strTempFileName );
 	launchPath = launchPath.parent_path();
-	SetCurrentDirectory( launchPath.wstring().c_str() );
+	SetCurrentDirectory( launchPath.wstring().c_str() ); */
 
 	m_pBuildTool = new BuildTool();
 	m_pBuildTool->Initialise(m_pCompilerLogger);
@@ -185,7 +185,6 @@ void RuntimeObjectSystem::StartRecompile( const std::vector<BuildTool::FileToBui
 
 
 	std::vector<BuildTool::FileToBuild> ourBuildFileList( buildFileList );
-	std::vector<path> includeDirList; //we don't need any include paths for this example
 
 	//Need currentmodule path
 	wchar_t CurrentModuleFileName[MAX_PATH];
@@ -200,18 +199,8 @@ void RuntimeObjectSystem::StartRecompile( const std::vector<BuildTool::FileToBui
 		BuildTool::FileToBuild reqFile( vecRequiredFiles[i], false );	//don't force compile of these
 		ourBuildFileList.push_back( reqFile );
 	}
-/*
-#ifndef _WIN64
-	ourBuildFileList.push_back( currModuleFullPath / path(L"/../RuntimeObjectSystem/ObjectInterfacePerModuleSource.cpp") );
-	ourBuildFileList.push_back( currModuleFullPath / path(L"/../RuntimeObjectSystem/ObjectInterfacePerModuleSource_PlatformWindows.cpp") );
-#else
-	//x64 builds have an extra directory
-	ourBuildFileList.push_back( currModuleFullPath / path(L"/../../RuntimeObjectSystem/ObjectInterfacePerModuleSource.cpp") );
-	ourBuildFileList.push_back( currModuleFullPath / path(L"/../../RuntimeObjectSystem/ObjectInterfacePerModuleSource_PlatformWindows.cpp") );
-#endif
-	*/
 
-	m_pBuildTool->BuildModule( ourBuildFileList, includeDirList, m_CurrentlyCompilingModuleName );
+	m_pBuildTool->BuildModule( ourBuildFileList, m_IncludeDirList, m_CurrentlyCompilingModuleName );
 }
 
 bool RuntimeObjectSystem::LoadCompiledModule()
@@ -278,4 +267,9 @@ void RuntimeObjectSystem::SetupObjectConstructors(GETPerModuleInterface_PROC pPe
 		}
 	}
 	m_pObjectFactorySystem->AddConstructors( constructors );
+}
+
+void RuntimeObjectSystem::AddIncludeDir( const char *path_ )
+{
+	m_IncludeDirList.push_back(path(path_));
 }
