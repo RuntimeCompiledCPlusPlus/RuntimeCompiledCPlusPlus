@@ -2,7 +2,7 @@
 // detail/impl/win_iocp_io_service.ipp
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -62,7 +62,8 @@ struct win_iocp_io_service::timer_thread_function
   win_iocp_io_service* io_service_;
 };
 
-win_iocp_io_service::win_iocp_io_service(boost::asio::io_service& io_service)
+win_iocp_io_service::win_iocp_io_service(
+    boost::asio::io_service& io_service, size_t concurrency_hint)
   : boost::asio::detail::service_base<win_iocp_io_service>(io_service),
     iocp_(),
     outstanding_work_(0),
@@ -70,10 +71,8 @@ win_iocp_io_service::win_iocp_io_service(boost::asio::io_service& io_service)
     shutdown_(0),
     dispatch_required_(0)
 {
-}
+  BOOST_ASIO_HANDLER_TRACKING_INIT;
 
-void win_iocp_io_service::init(size_t concurrency_hint)
-{
   iocp_.handle = ::CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, 0,
       static_cast<DWORD>((std::min<size_t>)(concurrency_hint, DWORD(~0))));
   if (!iocp_.handle)
@@ -89,7 +88,7 @@ void win_iocp_io_service::shutdown_service()
 {
   ::InterlockedExchange(&shutdown_, 1);
 
-  if (timer_thread_)
+  if (timer_thread_.get())
   {
     LARGE_INTEGER timeout;
     timeout.QuadPart = 1;
@@ -125,7 +124,7 @@ void win_iocp_io_service::shutdown_service()
     }
   }
 
-  if (timer_thread_)
+  if (timer_thread_.get())
     timer_thread_->join();
 }
 
@@ -149,7 +148,7 @@ size_t win_iocp_io_service::run(boost::system::error_code& ec)
 {
   if (::InterlockedExchangeAdd(&outstanding_work_, 0) == 0)
   {
-    stop();
+    InterlockedExchange(&stopped_, 1);
     ec = boost::system::error_code();
     return 0;
   }
@@ -167,7 +166,7 @@ size_t win_iocp_io_service::run_one(boost::system::error_code& ec)
 {
   if (::InterlockedExchangeAdd(&outstanding_work_, 0) == 0)
   {
-    stop();
+    InterlockedExchange(&stopped_, 1);
     ec = boost::system::error_code();
     return 0;
   }
@@ -181,7 +180,7 @@ size_t win_iocp_io_service::poll(boost::system::error_code& ec)
 {
   if (::InterlockedExchangeAdd(&outstanding_work_, 0) == 0)
   {
-    stop();
+    InterlockedExchange(&stopped_, 1);
     ec = boost::system::error_code();
     return 0;
   }
@@ -199,7 +198,7 @@ size_t win_iocp_io_service::poll_one(boost::system::error_code& ec)
 {
   if (::InterlockedExchangeAdd(&outstanding_work_, 0) == 0)
   {
-    stop();
+    InterlockedExchange(&stopped_, 1);
     ec = boost::system::error_code();
     return 0;
   }
@@ -259,6 +258,17 @@ void win_iocp_io_service::post_deferred_completions(
       completed_ops_.push(ops);
       ::InterlockedExchange(&dispatch_required_, 1);
     }
+  }
+}
+
+void win_iocp_io_service::abandon_operations(
+    op_queue<win_iocp_operation>& ops)
+{
+  while (win_iocp_operation* op = ops.front())
+  {
+    ops.pop();
+    ::InterlockedDecrement(&outstanding_work_);
+    op->destroy();
   }
 }
 
@@ -447,9 +457,15 @@ void win_iocp_io_service::do_add_timer_queue(timer_queue_base& queue)
           boost::asio::error::get_system_category());
       boost::asio::detail::throw_error(ec, "timer");
     }
+
+    LARGE_INTEGER timeout;
+    timeout.QuadPart = -max_timeout_usec;
+    timeout.QuadPart *= 10;
+    ::SetWaitableTimer(waitable_timer_.handle,
+        &timeout, max_timeout_msec, 0, 0, FALSE);
   }
 
-  if (!timer_thread_)
+  if (!timer_thread_.get())
   {
     timer_thread_function thread_function = { this };
     timer_thread_.reset(new thread(thread_function, 65536));
@@ -465,7 +481,7 @@ void win_iocp_io_service::do_remove_timer_queue(timer_queue_base& queue)
 
 void win_iocp_io_service::update_timeout()
 {
-  if (timer_thread_)
+  if (timer_thread_.get())
   {
     // There's no point updating the waitable timer if the new timeout period
     // exceeds the maximum timeout. In that case, we might as well wait for the

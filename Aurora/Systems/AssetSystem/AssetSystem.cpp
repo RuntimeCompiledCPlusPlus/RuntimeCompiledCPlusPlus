@@ -18,20 +18,49 @@
 #include "AssetSystem.h"
 
 #include "../../Renderer/AURenMesh.h"
+#include "../../Audio/alManager.h"
+#include "../../Audio/alSound.h"
 
-AssetSystem::AssetSystem()
+#define BOOST_FILESYSTEM_VERSION 3
+#include "boost/filesystem.hpp"
+using namespace boost::filesystem;
+
+AssetSystem::AssetSystem(const char* AssetDirName_)
 {
+	//search for asset directory
+	path currPath;
+	currPath = current_path();
+
+	//test root and downwards for directory
+	while( currPath.has_parent_path() )
+	{
+		path testPath = currPath / AssetDirName_;
+		if( exists( testPath ) )
+		{
+			m_AssetDirectory = testPath.string();
+			break;
+		}
+		currPath = currPath.parent_path();
+	}
 }
 
 
 AssetSystem::~AssetSystem()
 {
-	MESHMAP::iterator curr = m_Meshes.begin();
-	while( curr != m_Meshes.end() )
+	MESHMAP::iterator currMesh = m_Meshes.begin();
+	while( currMesh != m_Meshes.end() )
 	{
-		delete curr->second;
-		++curr;
+		delete currMesh->second;
+		++currMesh;
 	}
+
+	ALBUFFERMAP::iterator currSound = m_AlBuffers.begin();
+	while( currSound != m_AlBuffers.end() )
+	{
+		delete currSound->second;
+		++currSound;
+	}
+
 }
 
 IAURenderableMesh* AssetSystem::CreateRenderableMeshFromFile( const char* pFilename )
@@ -45,9 +74,11 @@ IAURenderableMesh* AssetSystem::CreateRenderableMeshFromFile( const char* pFilen
 	}
 	else
 	{
+		std::string fileToLoad( pFilename );
+		FindFile( fileToLoad );
 		AURenMesh* pMesh = new AURenMesh;
-		pMesh->LoadFromFile( filename );
-		m_Meshes[ filename ] = pMesh;
+		pMesh->LoadFromFile( fileToLoad );
+		m_Meshes[ filename ] = pMesh; //use passed in filename for map
 		pRenMesh = new AURenderableMesh( pMesh );
 	}
 
@@ -58,4 +89,50 @@ IAURenderableMesh* AssetSystem::CreateRenderableMeshFromFile( const char* pFilen
 void AssetSystem::DestroyRenderableMesh(IAURenderableMesh* pMesh)
 {
 	delete pMesh;
+}
+
+CalSound* AssetSystem::CreateSoundFromFile( const char* pFilename, bool looping )
+{
+	CalSound* pSound= 0;
+	std::string filename( pFilename );
+	ALBUFFERMAP::iterator found = m_AlBuffers.find( filename );
+	if( found != m_AlBuffers.end() )
+	{
+		pSound = new CalSound( *(found->second), looping );
+	}
+	else
+	{
+		std::string fileToLoad( pFilename );
+		FindFile( fileToLoad );
+		CalBuffer* pBuffer = new CalBuffer( fileToLoad );
+		m_AlBuffers[ filename ] = pBuffer; //use passed in filename for map
+		pSound = new CalSound( *pBuffer, looping );
+	}
+
+	return pSound;
+}
+
+void AssetSystem::DestroySound( CalSound* pSound )
+{
+	delete pSound;
+}
+
+bool AssetSystem::FindFile( std::string& filename )
+{
+	if( exists( filename ) )
+	{
+		return true;
+	}
+
+	//else try in asset directory
+	path testpath = m_AssetDirectory;
+	testpath /= filename;
+
+	if( exists( testpath ) )
+	{
+		filename = testpath.string();
+		return true;
+	}
+
+	return false;
 }

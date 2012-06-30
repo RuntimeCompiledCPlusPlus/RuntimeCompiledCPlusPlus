@@ -75,7 +75,7 @@ Environment::Environment( IGame* pGame )
 
 	sys->pEntitySystem = new EntitySystem();
 
-	sys->pAssetSystem = new AssetSystem();
+	sys->pAssetSystem = new AssetSystem("Assets");
 
 	sys->pGUISystem = new GUISystem();
 

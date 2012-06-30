@@ -19,17 +19,19 @@
 #include <boost/intrusive/intrusive_fwd.hpp>
 #include <boost/intrusive/list_hook.hpp>
 #include <boost/intrusive/circular_list_algorithms.hpp>
-#include <boost/intrusive/detail/pointer_to_other.hpp>
+#include <boost/intrusive/pointer_traits.hpp>
 #include <boost/intrusive/detail/clear_on_destructor_base.hpp>
 #include <boost/intrusive/detail/mpl.hpp>
 #include <boost/intrusive/link_mode.hpp>
 #include <boost/static_assert.hpp>
 #include <boost/intrusive/options.hpp>
+#include <boost/intrusive/pointer_traits.hpp>
 #include <boost/intrusive/detail/utilities.hpp>
 #include <iterator>
 #include <algorithm>
 #include <functional>
 #include <cstddef>
+#include <boost/move/move.hpp>
 
 namespace boost {
 namespace intrusive {
@@ -90,15 +92,15 @@ class list_impl
    /// @endcond
    typedef typename real_value_traits::pointer                       pointer;
    typedef typename real_value_traits::const_pointer                 const_pointer;
-   typedef typename std::iterator_traits<pointer>::value_type        value_type;
-   typedef typename std::iterator_traits<pointer>::reference         reference;
-   typedef typename std::iterator_traits<const_pointer>::reference   const_reference;
-   typedef typename std::iterator_traits<pointer>::difference_type   difference_type;
+   typedef typename pointer_traits<pointer>::element_type            value_type;
+   typedef typename pointer_traits<pointer>::reference               reference;
+   typedef typename pointer_traits<const_pointer>::reference         const_reference;
+   typedef typename pointer_traits<pointer>::difference_type         difference_type;
    typedef typename Config::size_type                                size_type;
    typedef list_iterator<list_impl, false>                           iterator;
    typedef list_iterator<list_impl, true>                            const_iterator;
-   typedef std::reverse_iterator<iterator>                           reverse_iterator;
-   typedef std::reverse_iterator<const_iterator>                     const_reverse_iterator;
+   typedef boost::intrusive::detail::reverse_iterator<iterator>      reverse_iterator;
+   typedef boost::intrusive::detail::reverse_iterator<const_iterator>const_reverse_iterator;
    typedef typename real_value_traits::node_traits                   node_traits;
    typedef typename node_traits::node                                node;
    typedef typename node_traits::node_ptr                            node_ptr;
@@ -113,9 +115,8 @@ class list_impl
    private:
    typedef detail::size_holder<constant_time_size, size_type>          size_traits;
 
-   //Non-copyable and non-moveable
-   list_impl (const list_impl&);
-   list_impl &operator =(const list_impl&);
+   //noncopyable
+   BOOST_MOVABLE_BUT_NOT_COPYABLE(list_impl)
 
    enum { safemode_or_autounlink  = 
             (int)real_value_traits::link_mode == (int)auto_unlink   ||
@@ -127,17 +128,14 @@ class list_impl
                       ));
 
    //Const cast emulation for smart pointers
-   static node_ptr uncast(const_node_ptr ptr)
-   {
-      //return node_ptr(detail::get_pointer(ptr)));
-      return const_cast<node*>(detail::get_pointer(ptr));
-   }
+   static node_ptr uncast(const const_node_ptr & ptr)
+   {  return pointer_traits<node_ptr>::const_cast_from(ptr);  }
 
    node_ptr get_root_node()
-   {  return node_ptr(&data_.root_plus_size_.root_);  }
+   {  return pointer_traits<node_ptr>::pointer_to(data_.root_plus_size_.root_);  }
 
    const_node_ptr get_root_node() const
-   {  return const_node_ptr(&data_.root_plus_size_.root_);  }
+   {  return pointer_traits<const_node_ptr>::pointer_to(data_.root_plus_size_.root_);  }
 
    struct root_plus_size : public size_traits
    {
@@ -171,6 +169,22 @@ class list_impl
 
    real_value_traits &get_real_value_traits(detail::bool_<true>)
    {  return data_.get_value_traits(*this);  }
+
+   const value_traits &priv_value_traits() const
+   {  return data_;  }
+
+   value_traits &priv_value_traits()
+   {  return data_;  }
+
+   protected:
+   node &prot_root_node()
+   {  return data_.root_plus_size_.root_; }
+
+   node const &prot_root_node() const
+   {  return data_.root_plus_size_.root_; }
+
+   void prot_set_size(size_type s)
+   {  data_.root_plus_size_.set_size(s);  }
 
    /// @endcond
 
@@ -211,6 +225,21 @@ class list_impl
       node_algorithms::init_header(this->get_root_node());
       this->insert(this->cend(), b, e);
    }
+
+   //! <b>Effects</b>: to-do
+   //!   
+   list_impl(BOOST_RV_REF(list_impl) x)
+      : data_(::boost::move(x.priv_value_traits()))
+   {
+      this->priv_size_traits().set_size(size_type(0));
+      node_algorithms::init_header(this->get_root_node());  
+      this->swap(x);
+   }
+
+   //! <b>Effects</b>: to-do
+   //!   
+   list_impl& operator=(BOOST_RV_REF(list_impl) x) 
+   {  this->swap(x); return *this;  }
 
    //! <b>Effects</b>: If it's not a safe-mode or an auto-unlink value_type 
    //!   the destructor does nothing
@@ -971,8 +1000,8 @@ class list_impl
    {
       if(node_traits::get_next(this->get_root_node()) 
          != node_traits::get_previous(this->get_root_node())){
-         list_impl carry;
-         list_impl counter[64];
+         list_impl carry(this->priv_value_traits());
+         detail::array_initializer<list_impl, 64> counter(this->priv_value_traits());
          int fill = 0;
          while(!this->empty()){
             carry.splice(carry.cbegin(), *this, this->cbegin());
@@ -1268,7 +1297,7 @@ class list_impl
    static list_impl &priv_container_from_end_iterator(const const_iterator &end_iterator)
    {
       root_plus_size *r = detail::parent_from_member<root_plus_size, node>
-         ( detail::get_pointer(end_iterator.pointed_node()), &root_plus_size::root_);
+         ( boost::intrusive::detail::to_raw_pointer(end_iterator.pointed_node()), &root_plus_size::root_);
       data_t *d = detail::parent_from_member<data_t, root_plus_size>
          ( r, &data_t::root_plus_size_);
       list_impl *s  = detail::parent_from_member<list_impl, data_t>(d, &list_impl::data_);
@@ -1456,6 +1485,8 @@ class list
    typedef typename Base::real_value_traits     real_value_traits;
    //Assert if passed value traits are compatible with the type
    BOOST_STATIC_ASSERT((detail::is_same<typename real_value_traits::value_type, T>::value));
+   BOOST_MOVABLE_BUT_NOT_COPYABLE(list)
+
    public:
    typedef typename Base::value_traits          value_traits;
    typedef typename Base::iterator              iterator;
@@ -1469,6 +1500,13 @@ class list
    list(Iterator b, Iterator e, const value_traits &v_traits = value_traits())
       :  Base(b, e, v_traits)
    {}
+
+   list(BOOST_RV_REF(list) x)
+      :  Base(::boost::move(static_cast<Base&>(x)))
+   {}
+
+   list& operator=(BOOST_RV_REF(list) x)
+   {  this->Base::operator=(::boost::move(static_cast<Base&>(x))); return *this;  }
 
    static list &container_from_end_iterator(iterator end_iterator)
    {  return static_cast<list &>(Base::container_from_end_iterator(end_iterator));   }

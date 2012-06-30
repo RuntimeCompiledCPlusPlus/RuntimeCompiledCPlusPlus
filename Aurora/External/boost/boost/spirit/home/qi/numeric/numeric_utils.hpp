@@ -1,5 +1,6 @@
 /*=============================================================================
-    Copyright (c) 2001-2010 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
+    Copyright (c) 2011 Jan Frederick Eick
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -48,11 +49,11 @@ namespace boost { namespace spirit { namespace qi
     {
         // check template parameter 'Radix' for validity
         BOOST_SPIRIT_ASSERT_MSG(
-            Radix == 2 || Radix == 8 || Radix == 10 || Radix == 16,
+            Radix >= 2 && Radix <= 36,
             not_supported_radix, ());
 
         template <typename Iterator>
-        static bool call(Iterator& first, Iterator const& last, T& attr)
+        inline static bool call(Iterator& first, Iterator const& last, T& attr)
         {
             if (first == last)
                 return false;
@@ -77,7 +78,7 @@ namespace boost { namespace spirit { namespace qi
         }
 
         template <typename Iterator, typename Attribute>
-        static bool call(Iterator& first, Iterator const& last, Attribute& attr_)
+        inline static bool call(Iterator& first, Iterator const& last, Attribute& attr_)
         {
             // this case is called when Attribute is not T
             T attr;
@@ -102,7 +103,7 @@ namespace boost { namespace spirit { namespace qi
             not_supported_radix, ());
 
         template <typename Iterator>
-        static bool call(Iterator& first, Iterator const& last, T& attr)
+        inline static bool call(Iterator& first, Iterator const& last, T& attr)
         {
             if (first == last)
                 return false;
@@ -131,7 +132,7 @@ namespace boost { namespace spirit { namespace qi
         }
 
         template <typename Iterator, typename Attribute>
-        static bool call(Iterator& first, Iterator const& last, Attribute& attr_)
+        inline static bool call(Iterator& first, Iterator const& last, Attribute& attr_)
         {
             // this case is called when Attribute is not T
             T attr;

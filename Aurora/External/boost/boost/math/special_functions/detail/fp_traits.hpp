@@ -101,11 +101,11 @@ struct ieee_copy_leading_bits_tag : public ieee_tag {};
 // These helper functions are used only when numeric_limits<>
 // members are not compile time constants:
 //
-inline bool is_generic_tag_false(const generic_tag<false>&)
+inline bool is_generic_tag_false(const generic_tag<false>*)
 {
    return true;
 }
-inline bool is_generic_tag_false(...)
+inline bool is_generic_tag_false(const void*)
 {
    return false;
 }
@@ -545,18 +545,20 @@ struct select_native<long double>
    && !defined(__hpux) \
    && !defined(__DECCXX)\
    && !defined(__osf__) \
-   && !defined(__SGI_STL_PORT) && !defined(_STLPORT_VERSION)
+   && !defined(__SGI_STL_PORT) && !defined(_STLPORT_VERSION)\
+   && !defined(BOOST_MATH_DISABLE_STD_FPCLASSIFY)
 #  define BOOST_MATH_USE_STD_FPCLASSIFY
 #endif
 
 template<class T> struct fp_traits
 {
+    typedef BOOST_DEDUCED_TYPENAME size_to_precision<sizeof(T), ::boost::is_floating_point<T>::value>::type precision;
 #if defined(BOOST_MATH_USE_STD_FPCLASSIFY) && !defined(BOOST_MATH_DISABLE_STD_FPCLASSIFY)
     typedef typename select_native<T>::type type;
 #else
-    typedef BOOST_DEDUCED_TYPENAME size_to_precision<sizeof(T), ::boost::is_floating_point<T>::value>::type precision;
     typedef fp_traits_non_native<T, precision> type;
 #endif
+    typedef fp_traits_non_native<T, precision> sign_change_type;
 };
 
 //------------------------------------------------------------------------------

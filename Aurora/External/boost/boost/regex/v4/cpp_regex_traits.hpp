@@ -1,7 +1,7 @@
 /*
  *
- * Copyright (c) 2004
- * John Maddock
+ * Copyright (c) 2004 John Maddock
+ * Copyright 2011 Garmin Ltd. or its subsidiaries
  *
  * Use, modification and distribution are subject to the 
  * Boost Software License, Version 1.0. (See accompanying file 
@@ -511,7 +511,9 @@ typename cpp_regex_traits_implementation<charT>::string_type
    // however at least one std lib will always throw
    // std::bad_alloc for certain arguments...
    //
+#ifndef BOOST_NO_EXCEPTIONS
    try{
+#endif
       //
       // What we do here depends upon the format of the sort key returned by
       // sort key returned by this->transform:
@@ -546,7 +548,9 @@ typename cpp_regex_traits_implementation<charT>::string_type
             result.erase(i);
             break;
       }
+#ifndef BOOST_NO_EXCEPTIONS
    }catch(...){}
+#endif
    while(result.size() && (charT(0) == *result.rbegin()))
       result.erase(result.size() - 1);
    if(result.empty())
@@ -576,7 +580,9 @@ typename cpp_regex_traits_implementation<charT>::string_type
    // std::bad_alloc for certain arguments...
    //
    string_type result;
+#ifndef BOOST_NO_EXCEPTIONS
    try{
+#endif
       result = this->m_pcollate->transform(p1, p2);
       //
       // Borland's STLPort version returns a NULL-terminated
@@ -593,10 +599,12 @@ typename cpp_regex_traits_implementation<charT>::string_type
          result.erase(result.size() - 1);
 #endif
       BOOST_ASSERT(std::find(result.begin(), result.end(), charT(0)) == result.end());
+#ifndef BOOST_NO_EXCEPTIONS
    }
    catch(...)
    {
    }
+#endif
    return result;
 }
 
@@ -827,20 +835,20 @@ template <class charT>
 bool cpp_regex_traits_implementation<charT>::isctype(const charT c, char_class_type mask) const
 {
    return
-      ((mask & ::boost::re_detail::char_class_space) && (m_pctype->is(std::ctype<charT>::space, c)))
-      || ((mask & ::boost::re_detail::char_class_print) && (m_pctype->is(std::ctype<charT>::print, c)))
-      || ((mask & ::boost::re_detail::char_class_cntrl) && (m_pctype->is(std::ctype<charT>::cntrl, c)))
-      || ((mask & ::boost::re_detail::char_class_upper) && (m_pctype->is(std::ctype<charT>::upper, c)))
-      || ((mask & ::boost::re_detail::char_class_lower) && (m_pctype->is(std::ctype<charT>::lower, c)))
-      || ((mask & ::boost::re_detail::char_class_alpha) && (m_pctype->is(std::ctype<charT>::alpha, c)))
-      || ((mask & ::boost::re_detail::char_class_digit) && (m_pctype->is(std::ctype<charT>::digit, c)))
-      || ((mask & ::boost::re_detail::char_class_punct) && (m_pctype->is(std::ctype<charT>::punct, c)))
-      || ((mask & ::boost::re_detail::char_class_xdigit) && (m_pctype->is(std::ctype<charT>::xdigit, c)))
-      || ((mask & ::boost::re_detail::char_class_blank) && (m_pctype->is(std::ctype<charT>::space, c)) && !::boost::re_detail::is_separator(c))
+      ((mask & ::boost::re_detail::char_class_space) && (this->m_pctype->is(std::ctype<charT>::space, c)))
+      || ((mask & ::boost::re_detail::char_class_print) && (this->m_pctype->is(std::ctype<charT>::print, c)))
+      || ((mask & ::boost::re_detail::char_class_cntrl) && (this->m_pctype->is(std::ctype<charT>::cntrl, c)))
+      || ((mask & ::boost::re_detail::char_class_upper) && (this->m_pctype->is(std::ctype<charT>::upper, c)))
+      || ((mask & ::boost::re_detail::char_class_lower) && (this->m_pctype->is(std::ctype<charT>::lower, c)))
+      || ((mask & ::boost::re_detail::char_class_alpha) && (this->m_pctype->is(std::ctype<charT>::alpha, c)))
+      || ((mask & ::boost::re_detail::char_class_digit) && (this->m_pctype->is(std::ctype<charT>::digit, c)))
+      || ((mask & ::boost::re_detail::char_class_punct) && (this->m_pctype->is(std::ctype<charT>::punct, c)))
+      || ((mask & ::boost::re_detail::char_class_xdigit) && (this->m_pctype->is(std::ctype<charT>::xdigit, c)))
+      || ((mask & ::boost::re_detail::char_class_blank) && (this->m_pctype->is(std::ctype<charT>::space, c)) && !::boost::re_detail::is_separator(c))
       || ((mask & ::boost::re_detail::char_class_word) && (c == '_'))
       || ((mask & ::boost::re_detail::char_class_unicode) && ::boost::re_detail::is_extended(c))
       || ((mask & ::boost::re_detail::char_class_vertical_space) && (is_separator(c) || (c == '\v')))
-      || ((mask & ::boost::re_detail::char_class_horizontal_space) && m_pctype->is(std::ctype<charT>::space, c) && !(is_separator(c) || (c == '\v')));
+      || ((mask & ::boost::re_detail::char_class_horizontal_space) && this->m_pctype->is(std::ctype<charT>::space, c) && !(is_separator(c) || (c == '\v')));
 }
 #endif
 

@@ -126,7 +126,7 @@ namespace boost
     active_map_t active_edges;
 
     edge_iterator_t ei, ei_end;
-    for(tie(ei,ei_end) = edges(g); ei != ei_end; ++ei)
+    for(boost::tie(ei,ei_end) = edges(g); ei != ei_end; ++ei)
       {
         edge_t e(*ei);
         vertex_t s(source(e,g));

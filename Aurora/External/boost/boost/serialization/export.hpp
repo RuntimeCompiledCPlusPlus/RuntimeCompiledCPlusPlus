@@ -120,26 +120,26 @@ ptr_serialization_support<Archive,Serializable>::instantiate()
 // This was made this way so that export.hpp could be included
 // in other headers.  This is still under study.
 
-namespace {
+namespace extra_detail {
 
 template<class T>
 struct guid_initializer
-{  
+{
     void export_guid(mpl::false_) const {
         // generates the statically-initialized objects whose constructors
         // register the information allowing serialization of T objects
         // through pointers to their base classes.
         instantiate_ptr_serialization((T*)0, 0, adl_tag());
     }
-    const void export_guid(mpl::true_) const {
+    void export_guid(mpl::true_) const {
     }
     guid_initializer const & export_guid() const {
-        BOOST_STATIC_WARNING(boost::is_polymorphic<T>::value);
+        BOOST_STATIC_WARNING(boost::is_polymorphic< T >::value);
         // note: exporting an abstract base class will have no effect
         // and cannot be used to instantitiate serialization code
         // (one might be using this in a DLL to instantiate code)
-        //BOOST_STATIC_WARNING(! boost::serialization::is_abstract<T>::value);
-        export_guid(boost::serialization::is_abstract<T>());
+        //BOOST_STATIC_WARNING(! boost::serialization::is_abstract< T >::value);
+        export_guid(boost::serialization::is_abstract< T >());
         return *this;
     }
 };
@@ -156,7 +156,7 @@ struct init_guid;
     namespace boost {                                        \
     namespace archive {                                      \
     namespace detail {                                       \
-    namespace {                                              \
+    namespace extra_detail {                                 \
     template<>                                               \
     struct init_guid< T > {                                  \
         static guid_initializer< T > const & g;              \
@@ -172,9 +172,9 @@ struct init_guid;
 namespace boost {                              \
 namespace serialization {                      \
 template<>                                     \
-struct guid_defined<T> : boost::mpl::true_ {}; \
+struct guid_defined< T > : boost::mpl::true_ {}; \
 template<>                                     \
-inline const char * guid<T>(){                 \
+inline const char * guid< T >(){                 \
     return K;                                  \
 }                                              \
 } /* serialization */                          \

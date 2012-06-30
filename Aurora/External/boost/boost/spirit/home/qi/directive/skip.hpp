@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2010 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -22,6 +22,8 @@
 #include <boost/spirit/home/support/common_terminals.hpp>
 #include <boost/spirit/home/qi/detail/attributes.hpp>
 #include <boost/spirit/home/support/info.hpp>
+#include <boost/spirit/home/support/has_semantic_action.hpp>
+#include <boost/spirit/home/support/handles_container.hpp>
 #include <boost/fusion/include/at.hpp>
 #include <boost/fusion/include/vector.hpp>
 
@@ -50,7 +52,9 @@ namespace boost { namespace spirit
 
 namespace boost { namespace spirit { namespace qi
 {
+#ifndef BOOST_SPIRIT_NO_PREDEFINED_TERMINALS
     using spirit::skip;
+#endif
     using spirit::skip_type;
 
     template <typename Subject>
@@ -148,11 +152,11 @@ namespace boost { namespace spirit { namespace qi
         typedef skip_parser<Subject, skipper_type> result_type;
 
         template <typename Terminal>
-        result_type operator()(
-            Terminal const& term, Subject const& subject, unused_type) const
+        result_type operator()(Terminal const& term, Subject const& subject
+          , Modifiers const& modifiers) const
         {
             return result_type(subject
-              , compile<qi::domain>(fusion::at_c<0>(term.args)));
+              , compile<qi::domain>(fusion::at_c<0>(term.args), modifiers));
         }
     };
 
@@ -160,6 +164,7 @@ namespace boost { namespace spirit { namespace qi
 
 namespace boost { namespace spirit { namespace traits
 {
+    ///////////////////////////////////////////////////////////////////////////
     template <typename Subject>
     struct has_semantic_action<qi::reskip_parser<Subject> >
       : unary_has_semantic_action<Subject> {};
@@ -167,6 +172,19 @@ namespace boost { namespace spirit { namespace traits
     template <typename Subject, typename Skipper>
     struct has_semantic_action<qi::skip_parser<Subject, Skipper> >
       : unary_has_semantic_action<Subject> {};
+
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename Subject, typename Attribute, typename Context
+        , typename Iterator>
+    struct handles_container<qi::reskip_parser<Subject>, Attribute
+        , Context, Iterator>
+      : unary_handles_container<Subject, Attribute, Context, Iterator> {};
+
+    template <typename Subject, typename Skipper, typename Attribute
+        , typename Context, typename Iterator>
+    struct handles_container<qi::skip_parser<Subject, Skipper>, Attribute
+        , Context, Iterator>
+      : unary_handles_container<Subject, Attribute, Context, Iterator> {};
 }}}
 
 #endif

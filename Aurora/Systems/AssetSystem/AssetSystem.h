@@ -23,20 +23,29 @@
 #include "../IAssetSystem.h"
 #include <map>
 #include <string>
-class AURenMesh;
 
+class AURenMesh;
+class CalBuffer;
 
 class AssetSystem : public IAssetSystem
 {
 public:
-	AssetSystem();
+	AssetSystem( const char* AssetDirName_ );
 	virtual ~AssetSystem();
+
 	virtual IAURenderableMesh* CreateRenderableMeshFromFile( const char* pFilename );
-	virtual void DestroyRenderableMesh(IAURenderableMesh* pMesh);
+	virtual void DestroyRenderableMesh( IAURenderableMesh* pMesh );
+
+	virtual CalSound* CreateSoundFromFile( const char* pFilename, bool looping );
+	virtual void DestroySound( CalSound* pSound );
 
 private:
+	bool FindFile( std::string& filename );
 	typedef std::map<std::string, AURenMesh*> MESHMAP;
-	MESHMAP m_Meshes;
+	typedef std::map<std::string, CalBuffer*> ALBUFFERMAP;
+	MESHMAP		m_Meshes;
+	ALBUFFERMAP m_AlBuffers;
+	std::string m_AssetDirectory;
 };
 
 #endif //ASSETSYSTEM_INCLUDED

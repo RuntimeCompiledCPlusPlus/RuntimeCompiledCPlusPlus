@@ -263,7 +263,7 @@ write_graphml(std::ostream& out, const Graph& g, VertexIndexMap vertex_index,
     {
         std::string key_id = "key" + lexical_cast<std::string>(key_count++);
         if (i->second->key() == typeid(Graph))
-            vertex_key_ids[i->first] = key_id;
+            graph_key_ids[i->first] = key_id;
         else if (i->second->key() == typeid(vertex_descriptor))
             vertex_key_ids[i->first] = key_id;
         else if (i->second->key() == typeid(edge_descriptor))

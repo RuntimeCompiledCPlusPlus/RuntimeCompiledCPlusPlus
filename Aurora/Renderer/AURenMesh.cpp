@@ -62,7 +62,7 @@ bool AURenMesh::LoadFromFile( const std::string& strFilename )
 	// Safely delete any existing data before loading new mesh
 	Clear();
 
-	int index = strFilename.size() - 3;
+	size_t index = strFilename.size() - 3;
 	std::string extension = index >= 0 ? strFilename.substr(index, 3) : "";
 	if (!_stricmp(extension.c_str(), "aml"))
 	{

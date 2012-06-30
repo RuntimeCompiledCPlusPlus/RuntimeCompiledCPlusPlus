@@ -113,7 +113,8 @@ struct IObject
 	//return the constructor for this class
 	virtual IObjectConstructor* GetConstructor() const = 0;
 
-	virtual void Serialize(ISimpleSerializer *pSerializer) = 0;
+	//serialise is not pure virtual as many objects do not need state
+	virtual void Serialize(ISimpleSerializer *pSerializer) {};
 
 	virtual const char* GetTypeName() const = 0;
 

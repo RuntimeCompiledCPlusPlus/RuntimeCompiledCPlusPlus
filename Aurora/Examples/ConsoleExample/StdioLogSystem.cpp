@@ -22,6 +22,7 @@
 #include <stdarg.h>
 #include <assert.h>
 #include <iostream>
+#include "Windows.h"
 
 #pragma warning( disable : 4996 4800 )
 
@@ -54,5 +55,5 @@ void StdioLogSystem::LogInternal(const char * format, va_list args)
 	m_buff[LOGSYSTEM_MAX_BUFFER-1] = '\0';
 
 	std::cout << m_buff;
-
+	OutputDebugStringA( m_buff );
 }

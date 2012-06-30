@@ -21,7 +21,7 @@
 #include <boost/intrusive/slist_hook.hpp>
 #include <boost/intrusive/circular_slist_algorithms.hpp>
 #include <boost/intrusive/linear_slist_algorithms.hpp>
-#include <boost/intrusive/detail/pointer_to_other.hpp>
+#include <boost/intrusive/pointer_traits.hpp>
 #include <boost/intrusive/detail/clear_on_destructor_base.hpp>
 #include <boost/intrusive/link_mode.hpp>
 #include <boost/intrusive/options.hpp>
@@ -31,6 +31,7 @@
 #include <algorithm>
 #include <cstddef>   //std::size_t
 #include <utility>   //std::pair
+#include <boost/move/move.hpp>
 
 namespace boost {
 namespace intrusive {
@@ -120,19 +121,18 @@ class slist_impl
    /// @endcond
    typedef typename real_value_traits::pointer                       pointer;
    typedef typename real_value_traits::const_pointer                 const_pointer;
-   typedef typename std::iterator_traits<pointer>::value_type        value_type;
-   typedef typename std::iterator_traits<pointer>::reference         reference;
-   typedef typename std::iterator_traits<const_pointer>::reference   const_reference;
-   typedef typename std::iterator_traits<pointer>::difference_type   difference_type;
+   typedef typename pointer_traits<pointer>::element_type            value_type;
+   typedef typename pointer_traits<pointer>::reference               reference;
+   typedef typename pointer_traits<const_pointer>::reference         const_reference;
+   typedef typename pointer_traits<pointer>::difference_type         difference_type;
    typedef typename Config::size_type                                size_type;
    typedef slist_iterator<slist_impl, false>                         iterator;
    typedef slist_iterator<slist_impl, true>                          const_iterator;
    typedef typename real_value_traits::node_traits                   node_traits;
    typedef typename node_traits::node                                node;
-   typedef typename boost::pointer_to_other
-      <pointer, node>::type                                          node_ptr;
-   typedef typename boost::pointer_to_other
-      <pointer, const node>::type                                    const_node_ptr;
+   typedef typename node_traits::node_ptr                            node_ptr;
+   typedef typename node_traits::const_node_ptr                      const_node_ptr;
+
    typedef typename detail::if_c
       < Config::linear
       , linear_slist_algorithms<node_traits>
@@ -148,13 +148,8 @@ class slist_impl
    private:
    typedef detail::size_holder<constant_time_size, size_type>        size_traits;
 
-   //! This class is
-   //! non-copyable
-   slist_impl (const slist_impl&);
-
-   //! This class is
-   //! non-asignable
-   slist_impl &operator =(const slist_impl&);
+   //noncopyable
+   BOOST_MOVABLE_BUT_NOT_COPYABLE(slist_impl)
 
    enum { safemode_or_autounlink  = 
             (int)real_value_traits::link_mode == (int)auto_unlink   ||
@@ -168,18 +163,18 @@ class slist_impl
    BOOST_STATIC_ASSERT(!(cache_last && ((int)real_value_traits::link_mode == (int)auto_unlink)));
 
    node_ptr get_end_node()
-   {  return node_ptr(linear ? node_ptr(0) : this->get_root_node());  }
+   {  return node_ptr(linear ? node_ptr() : this->get_root_node());  }
 
    const_node_ptr get_end_node() const
    {
       return const_node_ptr
-         (linear ? const_node_ptr(0) : this->get_root_node());  }
+         (linear ? const_node_ptr() : this->get_root_node());  }
 
    node_ptr get_root_node()
-   {  return node_ptr(&data_.root_plus_size_.root_);  }
+   {  return pointer_traits<node_ptr>::pointer_to(data_.root_plus_size_.root_);  }
 
    const_node_ptr get_root_node() const
-   {  return const_node_ptr(&data_.root_plus_size_.root_);  }
+   {  return pointer_traits<const_node_ptr>::pointer_to(data_.root_plus_size_.root_);  }
 
    node_ptr get_last_node()
    {  return this->get_last_node(detail::bool_<cache_last>());  }
@@ -187,13 +182,13 @@ class slist_impl
    const_node_ptr get_last_node() const
    {  return this->get_last_node(detail::bool_<cache_last>());  }
 
-   void set_last_node(node_ptr n)
+   void set_last_node(const node_ptr &n)
    {  return this->set_last_node(n, detail::bool_<cache_last>());  }
 
    static node_ptr get_last_node(detail::bool_<false>)
-   {  return node_ptr(0);  }
+   {  return node_ptr();  }
 
-   static void set_last_node(node_ptr, detail::bool_<false>)
+   static void set_last_node(const node_ptr &, detail::bool_<false>)
    {}
 
    node_ptr get_last_node(detail::bool_<true>)
@@ -202,11 +197,11 @@ class slist_impl
    const_node_ptr get_last_node(detail::bool_<true>) const
    {  return const_node_ptr(data_.root_plus_size_.last_);  }
 
-   void set_last_node(node_ptr n, detail::bool_<true>)
+   void set_last_node(const node_ptr & n, detail::bool_<true>)
    {  data_.root_plus_size_.last_ = n;  }
 
-   static node_ptr uncast(const_node_ptr ptr)
-   {  return node_ptr(const_cast<node*>(detail::get_pointer(ptr)));  }
+   static node_ptr uncast(const const_node_ptr & ptr)
+   {  return pointer_traits<node_ptr>::const_cast_from(ptr);  }
 
    void set_default_constructed_state()
    {
@@ -251,6 +246,22 @@ class slist_impl
    real_value_traits &get_real_value_traits(detail::bool_<true>)
    {  return data_.get_value_traits(*this);  }
 
+   const value_traits &priv_value_traits() const
+   {  return data_;  }
+
+   value_traits &priv_value_traits()
+   {  return data_;  }
+
+   protected:
+   node &prot_root_node()
+   {  return data_.root_plus_size_.root_; }
+
+   node const &prot_root_node() const
+   {  return data_.root_plus_size_.root_; }
+
+   void prot_set_size(size_type s)
+   {  data_.root_plus_size_.set_size(s);  }
+
    /// @endcond
 
    public:
@@ -287,6 +298,21 @@ class slist_impl
       this->set_default_constructed_state();
       this->insert_after(this->cbefore_begin(), b, e);
    }
+
+   //! <b>Effects</b>: to-do
+   //!   
+   slist_impl(BOOST_RV_REF(slist_impl) x)
+      : data_(::boost::move(x.priv_value_traits()))
+   {
+      this->priv_size_traits().set_size(size_type(0));
+      node_algorithms::init_header(this->get_root_node());  
+      this->swap(x);
+   }
+
+   //! <b>Effects</b>: to-do
+   //!   
+   slist_impl& operator=(BOOST_RV_REF(slist_impl) x) 
+   {  this->swap(x); return *this;  }
 
    //! <b>Effects</b>: If it's a safe-mode
    //!   or auto-unlink value, the destructor does nothing
@@ -379,7 +405,7 @@ class slist_impl
    //!   This function is only available is cache_last<> is true.
    void push_back(reference value) 
    {
-      BOOST_STATIC_ASSERT((cache_last != 0));
+      BOOST_STATIC_ASSERT((cache_last));
       this->insert_after(const_iterator(this->get_last_node(), this), value);
    }
 
@@ -446,7 +472,7 @@ class slist_impl
    //!   This function is only available is cache_last<> is true.
    reference back()
    {
-      BOOST_STATIC_ASSERT((cache_last != 0));
+      BOOST_STATIC_ASSERT((cache_last));
       return *this->get_real_value_traits().to_value_ptr(this->get_last_node());
    }
 
@@ -460,7 +486,7 @@ class slist_impl
    //!   This function is only available is cache_last<> is true.
    const_reference back() const
    {
-      BOOST_STATIC_ASSERT((cache_last != 0));
+      BOOST_STATIC_ASSERT((cache_last));
       return *this->get_real_value_traits().to_value_ptr(this->get_last_node());
    }
 
@@ -808,7 +834,7 @@ class slist_impl
          node_ptr bfp = before_first.pointed_node();
          node_ptr lp = last.pointed_node();
          if(cache_last){
-            if((lp == this->get_end_node())){
+            if(lp == this->get_end_node()){
                this->set_last_node(bfp);
             }
          }
@@ -1083,7 +1109,8 @@ class slist_impl
       this->insert_after(this->cbefore_begin(), b, e, disposer);
    }
 
-   //! <b>Requires</b>: prev is an iterator to an element or x.end()/x.before_begin() in x.
+   //! <b>Requires</b>: prev must point to an element contained by this list or
+   //!   to the before_begin() element
    //! 
    //! <b>Effects</b>: Transfers all the elements of list x to this list, after the
    //! the element pointed by prev. No destructors or copy constructors are called.
@@ -1199,7 +1226,7 @@ class slist_impl
       }
    }
 
-   //! <b>Requires</b>: it is an iterator to an element in x.
+   //! <b>Requires</b>: it is an iterator to an element in *this.
    //! 
    //! <b>Effects</b>: Transfers all the elements of list x to this list, before the
    //! the element pointed by it. No destructors or copy constructors are called.
@@ -1220,7 +1247,7 @@ class slist_impl
    //!   assigned to the last spliced element or prev if x is empty.
    //!   This iterator can be used as new "prev" iterator for a new splice_after call.
    //!   that will splice new values after the previously spliced values.
-   void splice(const_iterator it, slist_impl &x, iterator *last = 0)
+   void splice(const_iterator it, slist_impl &x, const_iterator *last = 0)
    {  this->splice_after(this->previous(it), x, last);   }
 
    //! <b>Requires</b>: it p must be a valid iterator of *this.
@@ -1295,8 +1322,9 @@ class slist_impl
    {
       if (node_traits::get_next(node_traits::get_next(this->get_root_node()))
          != this->get_root_node()) {
-         slist_impl carry;
-         slist_impl counter[64];
+
+         slist_impl carry(this->priv_value_traits());
+         detail::array_initializer<slist_impl, 64> counter(this->priv_value_traits());
          int fill = 0;
          const_iterator last_inserted;
          while(!this->empty()){
@@ -1715,7 +1743,7 @@ class slist_impl
    //! 
    //! <b>Note</b>: Iterators of values obtained from list x now point to elements of this
    //!   list. Iterators of this list and all the references are not invalidated.
-   void incorporate_after(const_iterator prev_from, node_ptr first, node_ptr before_last)
+   void incorporate_after(const_iterator prev_from, const node_ptr & first, const node_ptr & before_last)
    {
       if(constant_time_size)
          this->incorporate_after(prev_from, first, before_last, std::distance(first, before_last)+1);
@@ -1738,7 +1766,7 @@ class slist_impl
    //! 
    //! <b>Note</b>: Iterators of values obtained from list x now point to elements of this
    //!   list. Iterators of this list and all the references are not invalidated.
-   void incorporate_after(const_iterator prev_pos, node_ptr first, node_ptr before_last, difference_type n)
+   void incorporate_after(const_iterator prev_pos, const node_ptr & first, const node_ptr & before_last, difference_type n)
    {
       if(n){
          BOOST_INTRUSIVE_INVARIANT_ASSERT(std::distance(iterator(first, this), iterator(before_last, this))+1 == n);
@@ -1750,7 +1778,7 @@ class slist_impl
    }
 
    private:
-   void priv_splice_after(node_ptr prev_pos_n, slist_impl &x, node_ptr before_first_n, node_ptr before_last_n)
+   void priv_splice_after(const node_ptr & prev_pos_n, slist_impl &x, const node_ptr & before_first_n, const node_ptr & before_last_n)
    {
       if (before_first_n != before_last_n && prev_pos_n != before_first_n && prev_pos_n != before_last_n)
       {
@@ -1766,7 +1794,7 @@ class slist_impl
       }
    }
 
-   void priv_incorporate_after(node_ptr prev_pos_n, node_ptr first_n, node_ptr before_last_n)
+   void priv_incorporate_after(const node_ptr & prev_pos_n, const node_ptr & first_n, const node_ptr & before_last_n)
    {
       if(cache_last){
          if(node_traits::get_next(prev_pos_n) == this->get_end_node()){
@@ -1866,11 +1894,11 @@ class slist_impl
    }
 
    //circular version
-   static void priv_swap_lists(node_ptr this_node, node_ptr other_node, detail::bool_<false>)
+   static void priv_swap_lists(const node_ptr & this_node, const node_ptr & other_node, detail::bool_<false>)
    {  node_algorithms::swap_nodes(this_node, other_node); }
 
    //linear version
-   static void priv_swap_lists(node_ptr this_node, node_ptr other_node, detail::bool_<true>)
+   static void priv_swap_lists(const node_ptr & this_node, const node_ptr & other_node, detail::bool_<true>)
    {  node_algorithms::swap_trailing_nodes(this_node, other_node); }
 
    static slist_impl &priv_container_from_end_iterator(const const_iterator &end_iterator)
@@ -1879,7 +1907,7 @@ class slist_impl
       //singly linked lists (because "end" is represented by the null pointer)
       BOOST_STATIC_ASSERT(!linear);
       root_plus_size *r = detail::parent_from_member<root_plus_size, node>
-         ( detail::get_pointer(end_iterator.pointed_node()), (&root_plus_size::root_));
+         ( boost::intrusive::detail::to_raw_pointer(end_iterator.pointed_node()), (&root_plus_size::root_));
       data_t *d = detail::parent_from_member<data_t, root_plus_size>
          ( r, &data_t::root_plus_size_);
       slist_impl *s  = detail::parent_from_member<slist_impl, data_t>(d, &slist_impl::data_);
@@ -2066,6 +2094,8 @@ class slist
    typedef typename Base::real_value_traits  real_value_traits;
    //Assert if passed value traits are compatible with the type
    BOOST_STATIC_ASSERT((detail::is_same<typename real_value_traits::value_type, T>::value));
+   BOOST_MOVABLE_BUT_NOT_COPYABLE(slist)
+
    public:
    typedef typename Base::value_traits       value_traits;
    typedef typename Base::iterator           iterator;
@@ -2079,6 +2109,13 @@ class slist
    slist(Iterator b, Iterator e, const value_traits &v_traits = value_traits())
       :  Base(b, e, v_traits)
    {}
+
+   slist(BOOST_RV_REF(slist) x)
+      :  Base(::boost::move(static_cast<Base&>(x)))
+   {}
+
+   slist& operator=(BOOST_RV_REF(slist) x)
+   {  this->Base::operator=(::boost::move(static_cast<Base&>(x))); return *this;  }
 
    static slist &container_from_end_iterator(iterator end_iterator)
    {  return static_cast<slist &>(Base::container_from_end_iterator(end_iterator));   }

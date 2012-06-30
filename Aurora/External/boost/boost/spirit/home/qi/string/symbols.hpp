@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2010 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -63,11 +63,12 @@ namespace boost { namespace spirit { namespace qi
             typedef value_type type;
         };
 
-        symbols()
+        symbols(std::string const& name = "symbols")
           : base_type(terminal::make(reference_(*this)))
           , add(*this)
           , remove(*this)
           , lookup(new Lookup())
+          , name_(name)
         {
         }
 
@@ -76,6 +77,7 @@ namespace boost { namespace spirit { namespace qi
           , add(*this)
           , remove(*this)
           , lookup(syms.lookup)
+          , name_(syms.name_)
         {
         }
 
@@ -85,15 +87,17 @@ namespace boost { namespace spirit { namespace qi
           , add(*this)
           , remove(*this)
           , lookup(syms.lookup)
+          , name_(syms.name_)
         {
         }
 
         template <typename Symbols>
-        symbols(Symbols const& syms)
+        symbols(Symbols const& syms, std::string const& name = "symbols")
           : base_type(terminal::make(reference_(*this)))
           , add(*this)
           , remove(*this)
           , lookup(new Lookup())
+          , name_(name)
         {
             typename range_const_iterator<Symbols>::type si = boost::begin(syms);
             while (si != boost::end(syms))
@@ -101,11 +105,13 @@ namespace boost { namespace spirit { namespace qi
         }
 
         template <typename Symbols, typename Data>
-        symbols(Symbols const& syms, Data const& data)
+        symbols(Symbols const& syms, Data const& data
+              , std::string const& name = "symbols")
           : base_type(terminal::make(reference_(*this)))
           , add(*this)
           , remove(*this)
           , lookup(new Lookup())
+          , name_(name)
         {
             typename range_const_iterator<Symbols>::type si = boost::begin(syms);
             typename range_const_iterator<Data>::type di = boost::begin(data);
@@ -116,6 +122,7 @@ namespace boost { namespace spirit { namespace qi
         symbols&
         operator=(symbols const& rhs)
         {
+            name_ = rhs.name_;
             *lookup = *rhs.lookup;
             return *this;
         }
@@ -124,6 +131,7 @@ namespace boost { namespace spirit { namespace qi
         symbols&
         operator=(symbols<Char, T, Lookup, Filter_> const& rhs)
         {
+            name_ = rhs.name_;
             *lookup = *rhs.lookup;
             return *this;
         }
@@ -158,6 +166,7 @@ namespace boost { namespace spirit { namespace qi
             return sym.remove(str);
         }
 
+#if defined(BOOST_NO_RVALUE_REFERENCES)
         // non-const version needed to suppress proto's += kicking in
         template <typename Str>
         friend adder const&
@@ -173,7 +182,23 @@ namespace boost { namespace spirit { namespace qi
         {
             return sym.remove(str);
         }
+#else
+        // for rvalue references
+        template <typename Str>
+        friend adder const&
+        operator+=(symbols& sym, Str&& str)
+        {
+            return sym.add(str);
+        }
 
+        // for rvalue references
+        template <typename Str>
+        friend remover const&
+        operator-=(symbols& sym, Str&& str)
+        {
+            return sym.remove(str);
+        }
+#endif
         template <typename F>
         void for_each(F f) const
         {
@@ -248,7 +273,16 @@ public:
         template <typename Context>
         info what(Context& /*context*/) const
         {
-            return info("symbols"); // $$$ for now! give symbols a name $$$
+            return info(name_);
+        }
+
+        void name(std::string const &str)
+        {
+            name_ = str;
+        }
+        std::string const &name() const
+        {
+            return name_;
         }
 
         struct adder
@@ -340,6 +374,7 @@ public:
         adder add;
         remover remove;
         shared_ptr<Lookup> lookup;
+        std::string name_;
     };
 
     ///////////////////////////////////////////////////////////////////////////
@@ -378,6 +413,15 @@ public:
             return result_type(ref.ref.get());
         }
     };
+}}}
+
+namespace boost { namespace spirit { namespace traits
+{
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename Char, typename T, typename Lookup, typename Filter
+      , typename Attr, typename Context, typename Iterator>
+    struct handles_container<qi::symbols<Char, T, Lookup, Filter>, Attr, Context, Iterator>
+      : traits::is_container<Attr> {};
 }}}
 
 #if defined(BOOST_MSVC)

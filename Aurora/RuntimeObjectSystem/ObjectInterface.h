@@ -78,10 +78,10 @@ struct IObjectConstructor
 
 struct IPerModuleInterface
 {
-	virtual const char* GetNameOfModule() const = 0;
 	virtual std::vector<IObjectConstructor*>& GetConstructors() = 0;
 	virtual void SetSystemTable( SystemTable* pSystemTable ) = 0;
-
+	virtual const std::vector<const char*>& GetRequiredSourceFiles() const = 0;
+	virtual void AddRequiredSourceFiles( const char* file_ ) = 0;
 };
 
 

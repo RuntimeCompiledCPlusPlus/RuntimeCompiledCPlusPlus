@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2010 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -16,6 +16,7 @@
 #include <boost/spirit/home/support/assert_msg.hpp>
 #include <boost/spirit/home/qi/domain.hpp>
 #include <boost/spirit/home/qi/nonterminal/rule.hpp>
+#include <boost/spirit/home/qi/nonterminal/nonterminal_fwd.hpp>
 #include <boost/spirit/home/qi/reference.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/type_traits/is_same.hpp>
@@ -23,12 +24,8 @@
 namespace boost { namespace spirit { namespace qi
 {
     template <
-        typename Iterator
-      , typename T1 = unused_type
-      , typename T2 = unused_type
-      , typename T3 = unused_type
-      , typename T4 = unused_type
-    >
+        typename Iterator, typename T1, typename T2, typename T3
+      , typename T4>
     struct grammar
       : proto::extends<
             typename proto::terminal<
@@ -50,6 +47,12 @@ namespace boost { namespace spirit { namespace qi
         typedef typename proto::terminal<reference_>::type terminal;
 
         static size_t const params_size = start_type::params_size;
+
+        template <typename Context, typename Iterator_>
+        struct attribute
+        {
+            typedef typename start_type::attr_type type;
+        };
 
         grammar(
             start_type const& start
@@ -94,7 +97,7 @@ namespace boost { namespace spirit { namespace qi
         }
 
         template <typename Context>
-        info what(Context& context) const
+        info what(Context&) const
         {
             return info(name_);
         }
@@ -108,6 +111,22 @@ namespace boost { namespace spirit { namespace qi
         std::string name_;
 
     };
+}}}
+
+namespace boost { namespace spirit { namespace traits
+{
+    ///////////////////////////////////////////////////////////////////////////
+    template <
+        typename IteratorA, typename IteratorB, typename Attribute
+      , typename Context, typename T1, typename T2, typename T3, typename T4>
+    struct handles_container<
+        qi::grammar<IteratorA, T1, T2, T3, T4>, Attribute, Context, IteratorB>
+      : traits::is_container<
+          typename attribute_of<
+              qi::grammar<IteratorA, T1, T2, T3, T4>, Context, IteratorB
+          >::type
+        >
+    {};
 }}}
 
 #endif

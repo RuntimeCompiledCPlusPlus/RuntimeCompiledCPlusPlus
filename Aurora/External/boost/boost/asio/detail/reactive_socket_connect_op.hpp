@@ -2,7 +2,7 @@
 // detail/reactive_socket_connect_op.hpp
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -56,20 +56,23 @@ class reactive_socket_connect_op : public reactive_socket_connect_op_base
 public:
   BOOST_ASIO_DEFINE_HANDLER_PTR(reactive_socket_connect_op);
 
-  reactive_socket_connect_op(socket_type socket, Handler handler)
+  reactive_socket_connect_op(socket_type socket, Handler& handler)
     : reactive_socket_connect_op_base(socket,
         &reactive_socket_connect_op::do_complete),
-      handler_(handler)
+      handler_(BOOST_ASIO_MOVE_CAST(Handler)(handler))
   {
   }
 
   static void do_complete(io_service_impl* owner, operation* base,
-      boost::system::error_code /*ec*/, std::size_t /*bytes_transferred*/)
+      const boost::system::error_code& /*ec*/,
+      std::size_t /*bytes_transferred*/)
   {
     // Take ownership of the handler object.
     reactive_socket_connect_op* o
       (static_cast<reactive_socket_connect_op*>(base));
     ptr p = { boost::addressof(o->handler_), o, o };
+
+    BOOST_ASIO_HANDLER_COMPLETION((o));
 
     // Make a copy of the handler so that the memory can be deallocated before
     // the upcall is made. Even if we're not about to make an upcall, a
@@ -85,8 +88,10 @@ public:
     // Make the upcall if required.
     if (owner)
     {
-      boost::asio::detail::fenced_block b;
+      fenced_block b(fenced_block::half);
+      BOOST_ASIO_HANDLER_INVOCATION_BEGIN((handler.arg1_));
       boost_asio_handler_invoke_helpers::invoke(handler, handler);
+      BOOST_ASIO_HANDLER_INVOCATION_END;
     }
   }
 

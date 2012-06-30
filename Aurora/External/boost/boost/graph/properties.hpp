@@ -11,7 +11,7 @@
 #define BOOST_GRAPH_PROPERTIES_HPP
 
 #include <boost/config.hpp>
-#include <cassert>
+#include <boost/assert.hpp>
 #include <boost/pending/property.hpp>
 #include <boost/detail/workaround.hpp>
 
@@ -115,6 +115,7 @@ namespace boost {
   BOOST_DEF_PROPERTY(vertex, lowpoint);
   BOOST_DEF_PROPERTY(vertex, potential);
   BOOST_DEF_PROPERTY(vertex, update);
+  BOOST_DEF_PROPERTY(vertex, underlying);
   BOOST_DEF_PROPERTY(edge, reverse);
   BOOST_DEF_PROPERTY(edge, capacity);
   BOOST_DEF_PROPERTY(edge, flow);
@@ -123,9 +124,12 @@ namespace boost {
   BOOST_DEF_PROPERTY(edge, discover_time);
   BOOST_DEF_PROPERTY(edge, update);
   BOOST_DEF_PROPERTY(edge, finished);
+  BOOST_DEF_PROPERTY(edge, underlying);
   BOOST_DEF_PROPERTY(graph, visitor);
 
   // These tags are used for property bundles
+  // BOOST_DEF_PROPERTY(graph, bundle); -- needed in graph_traits.hpp, so enum is defined there
+  BOOST_INSTALL_PROPERTY(graph, bundle);
   BOOST_DEF_PROPERTY(vertex, bundle);
   BOOST_DEF_PROPERTY(edge, bundle);
 
@@ -199,6 +203,7 @@ namespace boost {
     };
     template <class Graph, class PropertyTag>
     class vertex_property_map {
+    public:
       typedef typename vertex_property_type<Graph>::type Property;
       typedef typename graph_tag_or_void<Graph>::type graph_tag;
       typedef typename vertex_property_selector<graph_tag>::type Selector;
@@ -242,7 +247,7 @@ namespace boost {
 
   template <class Graph, class Property>
   struct property_map {
-  private:
+  // private:
     typedef typename property_kind<Property>::type Kind;
     typedef typename detail::property_map_kind_selector<Kind>::type Selector;
     typedef typename Selector::template bind_<Graph, Property> Bind;
@@ -263,8 +268,9 @@ namespace boost {
   template <class Graph, class Property>
   class graph_property {
   public:
-    typedef typename property_value<typename Graph::graph_property_type,
-      Property>::type type;
+    typedef typename property_value<
+      typename boost::graph_property_type<Graph>::type, Property
+    >::type type;
   };
 
   template <class Graph>
@@ -350,7 +356,7 @@ namespace boost {
   >
   make_container_vertex_map(RandomAccessContainer& c, const PropertyGraph& g)
   {
-    assert(c.size() >= num_vertices(g));
+    BOOST_ASSERT(c.size() >= num_vertices(g));
     return make_iterator_vertex_map(c.begin(), g);
   }
 
@@ -432,43 +438,70 @@ namespace boost {
 // These metafunctions help implement the process of determining the vertex
 // and edge properties of a graph.
 namespace graph_detail {
-    template <typename Retag>
+    template<typename Retag>
     struct retagged_property {
         typedef typename Retag::type type;
     };
 
-    template <typename Retag, typename With, typename Without>
+    // Search the normalized PropList (as returned by retagged<>::type) for
+    // the given bundle. Return the type error if no such bundle can be found.
+    template <typename PropList, typename Bundle>
     struct retagged_bundle {
-        typedef typename mpl::if_<
-            is_same<typename Retag::retagged, no_property>,
-            Without,
-            With
-        >::type type;
+      typedef typename property_value<PropList, Bundle>::type Value;
+      typedef typename mpl::if_<
+        is_same<Value, detail::error_property_not_found>, no_bundle, Value
+      >::type type;
     };
 
-    template <typename Prop>
-    struct vertex_prop {
-    private:
-        typedef detail::retag_property_list<vertex_bundle_t, Prop> Retag;
+    template<typename Prop, typename Bundle>
+    class normal_property {
+      // Normalize the property into a property list.
+      typedef detail::retag_property_list<Bundle, Prop> List;
     public:
-        typedef typename retagged_property<Retag>::type type;
-        typedef typename retagged_bundle<
-            Retag, Prop, no_vertex_bundle
-        >::type bundle;
+      // Extract the normalized property and bundle types.
+      typedef typename retagged_property<List>::type property;
+      typedef typename retagged_bundle<property, Bundle>::type bundle;
     };
 
-    template <typename Prop>
-    struct edge_prop {
-//     private:
-        typedef detail::retag_property_list<edge_bundle_t, Prop> Retag;
-    public:
-        typedef typename Retag::retagged retagged;
-        typedef typename retagged_property<Retag>::type type;
-        typedef typename retagged_bundle<
-            Retag, Prop, no_edge_bundle
-        >::type bundle;
-    };
+    template<typename Prop>
+    struct graph_prop : normal_property<Prop, graph_bundle_t>
+    { };
+
+    template<typename Prop>
+    struct vertex_prop : normal_property<Prop, vertex_bundle_t>
+    { };
+
+    template<typename Prop>
+    struct edge_prop : normal_property<Prop, edge_bundle_t>
+    { };
 } // namespace graph_detail
+
+// NOTE: These functions are declared, but never defined since they need to
+// be overloaded by graph implementations. However, we need them to be
+// declared for the functions below.
+template<typename Graph, typename Tag>
+typename graph_property<Graph, graph_bundle_t>::type&
+get_property(Graph& g, Tag);
+
+template<typename Graph, typename Tag>
+typename graph_property<Graph, graph_bundle_t>::type const&
+get_property(Graph const& g, Tag);
+
+#ifndef BOOST_GRAPH_NO_BUNDLED_PROPERTIES
+// NOTE: This operation is a simple adaptor over the overloaded get_property
+// operations.
+template<typename Graph>
+inline typename graph_property<Graph, graph_bundle_t>::type&
+get_property(Graph& g) {
+  return get_property(g, graph_bundle);
+}
+
+template<typename Graph>
+inline typename graph_property<Graph, graph_bundle_t>::type const&
+get_property(Graph const& g) {
+  return get_property(g, graph_bundle);
+}
+#endif
 
 } // namespace boost
 

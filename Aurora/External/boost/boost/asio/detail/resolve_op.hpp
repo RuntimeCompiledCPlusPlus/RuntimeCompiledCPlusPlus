@@ -2,7 +2,7 @@
 // detail/resolve_op.hpp
 // ~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -44,12 +44,12 @@ public:
   typedef boost::asio::ip::basic_resolver_iterator<Protocol> iterator_type;
 
   resolve_op(socket_ops::weak_cancel_token_type cancel_token,
-      const query_type& query, io_service_impl& ios, Handler handler)
+      const query_type& query, io_service_impl& ios, Handler& handler)
     : operation(&resolve_op::do_complete),
       cancel_token_(cancel_token),
       query_(query),
       io_service_impl_(ios),
-      handler_(handler),
+      handler_(BOOST_ASIO_MOVE_CAST(Handler)(handler)),
       addrinfo_(0)
   {
   }
@@ -61,7 +61,8 @@ public:
   }
 
   static void do_complete(io_service_impl* owner, operation* base,
-      boost::system::error_code /*ec*/, std::size_t /*bytes_transferred*/)
+      const boost::system::error_code& /*ec*/,
+      std::size_t /*bytes_transferred*/)
   {
     // Take ownership of the operation object.
     resolve_op* o(static_cast<resolve_op*>(base));
@@ -86,6 +87,8 @@ public:
       // The operation has been returned to the main io_service. The completion
       // handler is ready to be delivered.
 
+      BOOST_ASIO_HANDLER_COMPLETION((o));
+
       // Make a copy of the handler so that the memory can be deallocated
       // before the upcall is made. Even if we're not about to make an upcall,
       // a sub-object of the handler may be the true owner of the memory
@@ -104,8 +107,10 @@ public:
 
       if (owner)
       {
-        boost::asio::detail::fenced_block b;
+        fenced_block b(fenced_block::half);
+        BOOST_ASIO_HANDLER_INVOCATION_BEGIN((handler.arg1_, "..."));
         boost_asio_handler_invoke_helpers::invoke(handler, handler.handler_);
+        BOOST_ASIO_HANDLER_INVOCATION_END;
       }
     }
   }

@@ -47,6 +47,7 @@
 #include "../../RuntimeObjectSystem/RuntimeObjectSystem/RuntimeObjectSystem.h"
 #include "../../Systems/IGUISystem.h"
 #include "../../Systems/SystemTable.h"
+#include "../../Systems/IAssetSystem.h"
 #include "../../Audio/alManager.h"
 #include "../../Audio/alSound.h"
 
@@ -405,7 +406,12 @@ void Game::RocketLibUpdate()
 void Game::RocketLibInit()
 {
 	// Generic OS initialisation, creates a window and attaches OpenGL.
-	if (!RocketLibSystem::Initialise("../") ||
+#ifndef _WIN64 //TODO: Improve paths
+	char* path = "../";
+#else
+	char* path = "../../";
+#endif
+	if (!RocketLibSystem::Initialise(path) ||
 	    !RocketLibSystem::OpenWindow(L"Pulse", true))
 	{
 		RocketLibSystem::Shutdown();
@@ -523,17 +529,14 @@ void Game::InitSound()
 	AUVec3f pos, vel;
 	AUOrientation3D orientation;
 	CalManager::GetInstance().SetListener(	pos, vel, orientation );
-
-	m_pLoopingBackgroundSoundBuffer = new CalBuffer("./../Assets/Sounds/62912_Benboncan_Heartbeat_Mono_shortloop.wav");
-	m_pLoopingBackgroundSound = new CalSound(*m_pLoopingBackgroundSoundBuffer, true );
+	m_pLoopingBackgroundSound = m_pEnv->sys->pAssetSystem->CreateSoundFromFile( "/Sounds/62912_Benboncan_Heartbeat_Mono_shortloop.wav", true );
 	m_pLoopingBackgroundSound->SetReferenceDistance( 1000.0f );	//since this is ambient it doesn't fade
 	m_pLoopingBackgroundSound->Play( pos );
 }
 
 void Game::ShutdownSound()
 {
-	delete m_pLoopingBackgroundSound;
-	delete m_pLoopingBackgroundSoundBuffer;
+	m_pEnv->sys->pAssetSystem->DestroySound( m_pLoopingBackgroundSound );
 	CalManager::CleanUp();
 	CalManager::GetInstance().SetIsEnabled( false );
 }

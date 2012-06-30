@@ -22,7 +22,7 @@
 
 #include <boost/assert.hpp>
 #include <boost/interprocess/detail/utilities.hpp>
-#include <boost/pointer_to_other.hpp>
+#include <boost/intrusive/pointer_traits.hpp>
 
 #include <functional>           // for std::less
 #include <iosfwd>               // for std::basic_ostream
@@ -50,7 +50,9 @@ class intrusive_ptr
 {
    public:
    //!Provides the type of the internal stored pointer.
-   typedef typename boost::pointer_to_other<VoidPointer, T>::type pointer;
+   typedef typename boost::intrusive::
+      pointer_traits<VoidPointer>::template
+         rebind_pointer<T>::type                pointer;
    //!Provides the type of the stored pointer.
    typedef T element_type;
 
@@ -68,35 +70,35 @@ class intrusive_ptr
    {}
 
    //!Constructor. Copies pointer and if "p" is not zero and 
-   //!"add_ref" is true calls intrusive_ptr_add_ref(get_pointer(p)).
+   //!"add_ref" is true calls intrusive_ptr_add_ref(to_raw_pointer(p)).
    //!Does not throw
    intrusive_ptr(const pointer &p, bool add_ref = true): m_ptr(p)
    {
-      if(m_ptr != 0 && add_ref) intrusive_ptr_add_ref(detail::get_pointer(m_ptr));
+      if(m_ptr != 0 && add_ref) intrusive_ptr_add_ref(ipcdetail::to_raw_pointer(m_ptr));
    }
 
    //!Copy constructor. Copies the internal pointer and if "p" is not
-   //!zero calls intrusive_ptr_add_ref(get_pointer(p)). Does not throw
+   //!zero calls intrusive_ptr_add_ref(to_raw_pointer(p)). Does not throw
    intrusive_ptr(intrusive_ptr const & rhs)
       :  m_ptr(rhs.m_ptr)
    {
-      if(m_ptr != 0) intrusive_ptr_add_ref(detail::get_pointer(m_ptr));
+      if(m_ptr != 0) intrusive_ptr_add_ref(ipcdetail::to_raw_pointer(m_ptr));
    }
 
    //!Constructor from related. Copies the internal pointer and if "p" is not
-   //!zero calls intrusive_ptr_add_ref(get_pointer(p)). Does not throw
+   //!zero calls intrusive_ptr_add_ref(to_raw_pointer(p)). Does not throw
    template<class U> intrusive_ptr
       (intrusive_ptr<U, VP> const & rhs)
       :  m_ptr(rhs.get())
    {
-      if(m_ptr != 0) intrusive_ptr_add_ref(detail::get_pointer(m_ptr));
+      if(m_ptr != 0) intrusive_ptr_add_ref(ipcdetail::to_raw_pointer(m_ptr));
    }
 
    //!Destructor. If internal pointer is not 0, calls
-   //!intrusive_ptr_release(get_pointer(m_ptr)). Does not throw
+   //!intrusive_ptr_release(to_raw_pointer(m_ptr)). Does not throw
    ~intrusive_ptr()
    {
-      if(m_ptr != 0) intrusive_ptr_release(detail::get_pointer(m_ptr));
+      if(m_ptr != 0) intrusive_ptr_release(ipcdetail::to_raw_pointer(m_ptr));
    }
 
    //!Assignment operator. Equivalent to intrusive_ptr(r).swap(*this). 
@@ -162,7 +164,7 @@ class intrusive_ptr
    //!Exchanges the contents of the two smart pointers.
    //!Does not throw
    void swap(intrusive_ptr & rhs)
-   {  detail::do_swap(m_ptr, rhs.m_ptr);  }
+   {  ipcdetail::do_swap(m_ptr, rhs.m_ptr);  }
 
    /// @cond
    private:
@@ -239,7 +241,7 @@ inline std::basic_ostream<E, T> & operator<<
 //!Does not throw
 template<class T, class VP>
 inline typename boost::interprocess::intrusive_ptr<T, VP>::pointer
-   get_pointer(intrusive_ptr<T, VP> p)
+   to_raw_pointer(intrusive_ptr<T, VP> p)
 {  return p.get();   }
 
 /*Emulates static cast operator. Does not throw*/
@@ -281,7 +283,7 @@ inline boost::interprocess::intrusive_ptr<T, VP>reinterpret_pointer_cast
 //!Returns p.get().
 //!Does not throw
 template<class T, class VP>
-inline T *get_pointer(boost::interprocess::intrusive_ptr<T, VP> p)
+inline T *to_raw_pointer(boost::interprocess::intrusive_ptr<T, VP> p)
 {  return p.get();   }
 #endif
 

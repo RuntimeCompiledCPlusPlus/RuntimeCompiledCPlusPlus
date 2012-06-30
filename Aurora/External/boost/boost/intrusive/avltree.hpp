@@ -27,11 +27,14 @@
 #include <boost/intrusive/detail/tree_node.hpp>
 #include <boost/intrusive/detail/ebo_functor_holder.hpp>
 #include <boost/intrusive/detail/mpl.hpp>
-#include <boost/intrusive/detail/pointer_to_other.hpp>
+#include <boost/intrusive/pointer_traits.hpp>
+#include <boost/intrusive/pointer_traits.hpp>
 #include <boost/intrusive/detail/clear_on_destructor_base.hpp>
 #include <boost/intrusive/options.hpp>
+#include <boost/intrusive/detail/utilities.hpp>
 #include <boost/intrusive/avltree_algorithms.hpp>
 #include <boost/intrusive/link_mode.hpp>
+#include <boost/move/move.hpp>
 
 namespace boost {
 namespace intrusive {
@@ -95,25 +98,31 @@ class avltree_impl
    /// @endcond
    typedef typename real_value_traits::pointer                       pointer;
    typedef typename real_value_traits::const_pointer                 const_pointer;
-   typedef typename std::iterator_traits<pointer>::value_type        value_type;
+   typedef typename boost::intrusive::
+      pointer_traits<pointer>::element_type                          value_type;
    typedef value_type                                                key_type;
-   typedef typename std::iterator_traits<pointer>::reference         reference;
-   typedef typename std::iterator_traits<const_pointer>::reference   const_reference;
-   typedef typename std::iterator_traits<pointer>::difference_type   difference_type;
+   typedef typename boost::intrusive::
+      pointer_traits<pointer>::reference                             reference;
+   typedef typename boost::intrusive::
+      pointer_traits<const_pointer>::reference                       const_reference;
+   typedef typename boost::intrusive::
+      pointer_traits<pointer>::difference_type                       difference_type;
    typedef typename Config::size_type                                size_type;
    typedef typename Config::compare                                  value_compare;
    typedef value_compare                                             key_compare;
-   typedef tree_iterator<avltree_impl, false>                         iterator;
-   typedef tree_iterator<avltree_impl, true>                          const_iterator;
-   typedef std::reverse_iterator<iterator>                           reverse_iterator;
-   typedef std::reverse_iterator<const_iterator>                     const_reverse_iterator;
+   typedef tree_iterator<avltree_impl, false>                        iterator;
+   typedef tree_iterator<avltree_impl, true>                         const_iterator;
+   typedef boost::intrusive::detail::reverse_iterator<iterator>      reverse_iterator;
+   typedef boost::intrusive::detail::reverse_iterator<const_iterator>const_reverse_iterator;
    typedef typename real_value_traits::node_traits                   node_traits;
    typedef typename node_traits::node                                node;
-   typedef typename boost::pointer_to_other
-      <pointer, node>::type                                          node_ptr;
-   typedef typename boost::pointer_to_other
-      <node_ptr, const node>::type                                   const_node_ptr;
-   typedef avltree_algorithms<node_traits>                            node_algorithms;
+   typedef typename pointer_traits
+      <pointer>::template rebind_pointer
+         <node>::type                                                node_ptr;
+   typedef typename pointer_traits
+      <pointer>::template rebind_pointer
+         <const node>::type                                          const_node_ptr;
+   typedef avltree_algorithms<node_traits>                           node_algorithms;
 
    static const bool constant_time_size = Config::constant_time_size;
    static const bool stateful_value_traits = detail::store_cont_ptr_on_it<avltree_impl>::value;
@@ -122,9 +131,8 @@ class avltree_impl
    private:
    typedef detail::size_holder<constant_time_size, size_type>        size_traits;
 
-   //noncopyable
-   avltree_impl (const avltree_impl&);
-   avltree_impl operator =(const avltree_impl&);
+   //noncopyable, movable
+   BOOST_MOVABLE_BUT_NOT_COPYABLE(avltree_impl)
 
    enum { safemode_or_autounlink  = 
             (int)real_value_traits::link_mode == (int)auto_unlink   ||
@@ -159,16 +167,20 @@ class avltree_impl
    value_compare &priv_comp()
    {  return data_.node_plus_pred_.get();  }
 
-   const node &priv_header() const
-   {  return data_.node_plus_pred_.header_plus_size_.header_;  }
+   const value_traits &priv_value_traits() const
+   {  return data_;  }
 
-   node &priv_header()
-   {  return data_.node_plus_pred_.header_plus_size_.header_;  }
+   value_traits &priv_value_traits()
+   {  return data_;  }
 
-   static node_ptr uncast(const_node_ptr ptr)
-   {
-      return node_ptr(const_cast<node*>(detail::get_pointer(ptr)));
-   }
+   node_ptr priv_header_ptr()
+   {  return pointer_traits<node_ptr>::pointer_to(data_.node_plus_pred_.header_plus_size_.header_);  }
+
+   const_node_ptr priv_header_ptr() const
+   {  return pointer_traits<const_node_ptr>::pointer_to(data_.node_plus_pred_.header_plus_size_.header_);  }
+
+   static node_ptr uncast(const const_node_ptr & ptr)
+   {  return pointer_traits<node_ptr>::const_cast_from(ptr);  }
 
    size_traits &priv_size_traits()
    {  return data_.node_plus_pred_.header_plus_size_;  }
@@ -211,7 +223,7 @@ class avltree_impl
                , const value_traits &v_traits = value_traits()) 
       :  data_(cmp, v_traits)
    {  
-      node_algorithms::init_header(&priv_header());  
+      node_algorithms::init_header(this->priv_header_ptr());  
       this->priv_size_traits().set_size(size_type(0));
    }
 
@@ -233,13 +245,28 @@ class avltree_impl
               , const value_traits &v_traits = value_traits())
       : data_(cmp, v_traits)
    {
-      node_algorithms::init_header(&priv_header());
+      node_algorithms::init_header(this->priv_header_ptr());
       this->priv_size_traits().set_size(size_type(0));
       if(unique)
          this->insert_unique(b, e);
       else
          this->insert_equal(b, e);
    }
+
+   //! <b>Effects</b>: to-do
+   //!   
+   avltree_impl(BOOST_RV_REF(avltree_impl) x)
+      : data_(::boost::move(x.priv_comp()), ::boost::move(x.priv_value_traits()))
+   {
+      node_algorithms::init_header(this->priv_header_ptr());  
+      this->priv_size_traits().set_size(size_type(0));
+      this->swap(x);
+   }
+
+   //! <b>Effects</b>: to-do
+   //!   
+   avltree_impl& operator=(BOOST_RV_REF(avltree_impl) x) 
+   {  this->swap(x); return *this;  }
 
    //! <b>Effects</b>: Detaches all elements from this. The objects in the set 
    //!   are not deleted (i.e. no destructors are called), but the nodes according to 
@@ -257,7 +284,7 @@ class avltree_impl
    //! 
    //! <b>Throws</b>: Nothing.
    iterator begin()
-   {  return iterator (node_traits::get_left(node_ptr(&priv_header())), this);   }
+   {  return iterator (node_traits::get_left(this->priv_header_ptr()), this);   }
 
    //! <b>Effects</b>: Returns a const_iterator pointing to the beginning of the tree.
    //! 
@@ -273,7 +300,7 @@ class avltree_impl
    //! 
    //! <b>Throws</b>: Nothing.
    const_iterator cbegin() const
-   {  return const_iterator (node_traits::get_left(const_node_ptr(&priv_header())), this);   }
+   {  return const_iterator (node_traits::get_left(this->priv_header_ptr()), this);   }
 
    //! <b>Effects</b>: Returns an iterator pointing to the end of the tree.
    //! 
@@ -281,7 +308,7 @@ class avltree_impl
    //! 
    //! <b>Throws</b>: Nothing.
    iterator end()
-   {  return iterator (node_ptr(&priv_header()), this);  }
+   {  return iterator (this->priv_header_ptr(), this);  }
 
    //! <b>Effects</b>: Returns a const_iterator pointing to the end of the tree.
    //!
@@ -297,7 +324,7 @@ class avltree_impl
    //! 
    //! <b>Throws</b>: Nothing.
    const_iterator cend() const
-   {  return const_iterator (uncast(const_node_ptr(&priv_header())), this);  }
+   {  return const_iterator (uncast(this->priv_header_ptr()), this);  }
 
    //! <b>Effects</b>: Returns a reverse_iterator pointing to the beginning of the
    //!    reversed tree.
@@ -411,7 +438,7 @@ class avltree_impl
    //! 
    //! <b>Throws</b>: Nothing.
    bool empty() const
-   {  return node_algorithms::unique(const_node_ptr(&priv_header()));   }
+   {  return node_algorithms::unique(this->priv_header_ptr());   }
 
    //! <b>Effects</b>: Returns the number of elements stored in the tree.
    //! 
@@ -424,7 +451,7 @@ class avltree_impl
       if(constant_time_size)
          return this->priv_size_traits().get_size();
       else{
-         return (size_type)node_algorithms::size(const_node_ptr(&priv_header()));
+         return (size_type)node_algorithms::size(this->priv_header_ptr());
       }
    }
 
@@ -439,7 +466,7 @@ class avltree_impl
       using std::swap;
       swap(priv_comp(), priv_comp());
       //These can't throw
-      node_algorithms::swap_tree(node_ptr(&priv_header()), node_ptr(&other.priv_header()));
+      node_algorithms::swap_tree(this->priv_header_ptr(), other.priv_header_ptr());
       if(constant_time_size){
          size_type backup = this->priv_size_traits().get_size();
          this->priv_size_traits().set_size(other.priv_size_traits().get_size());
@@ -465,9 +492,10 @@ class avltree_impl
       node_ptr to_insert(get_real_value_traits().to_node_ptr(value));
       if(safemode_or_autounlink)
          BOOST_INTRUSIVE_SAFE_HOOK_DEFAULT_ASSERT(node_algorithms::unique(to_insert));
+      iterator ret(node_algorithms::insert_equal_upper_bound
+         (this->priv_header_ptr(), to_insert, key_node_comp), this);
       this->priv_size_traits().increment();
-      return iterator(node_algorithms::insert_equal_upper_bound
-         (node_ptr(&priv_header()), to_insert, key_node_comp), this);
+      return ret;
    }
 
    //! <b>Requires</b>: value must be an lvalue, and "hint" must be
@@ -491,9 +519,10 @@ class avltree_impl
       node_ptr to_insert(get_real_value_traits().to_node_ptr(value));
       if(safemode_or_autounlink)
          BOOST_INTRUSIVE_SAFE_HOOK_DEFAULT_ASSERT(node_algorithms::unique(to_insert));
+      iterator ret(node_algorithms::insert_equal
+         (this->priv_header_ptr(), hint.pointed_node(), to_insert, key_node_comp), this);
       this->priv_size_traits().increment();
-      return iterator(node_algorithms::insert_equal
-         (node_ptr(&priv_header()), hint.pointed_node(), to_insert, key_node_comp), this);
+      return ret;
    }
 
    //! <b>Requires</b>: Dereferencing iterator must yield an lvalue 
@@ -627,7 +656,7 @@ class avltree_impl
          comp(key_value_comp, this);
       std::pair<node_ptr, bool> ret = 
          (node_algorithms::insert_unique_check
-            (node_ptr(&priv_header()), key, comp, commit_data));
+            (this->priv_header_ptr(), key, comp, commit_data));
       return std::pair<iterator, bool>(iterator(ret.first, this), ret.second);
    }
 
@@ -672,7 +701,7 @@ class avltree_impl
          comp(key_value_comp, this);
       std::pair<node_ptr, bool> ret = 
          (node_algorithms::insert_unique_check
-            (node_ptr(&priv_header()), hint.pointed_node(), key, comp, commit_data));
+            (this->priv_header_ptr(), hint.pointed_node(), key, comp, commit_data));
       return std::pair<iterator, bool>(iterator(ret.first, this), ret.second);
    }
 
@@ -698,9 +727,9 @@ class avltree_impl
       node_ptr to_insert(get_real_value_traits().to_node_ptr(value));
       if(safemode_or_autounlink)
          BOOST_INTRUSIVE_SAFE_HOOK_DEFAULT_ASSERT(node_algorithms::unique(to_insert));
-      this->priv_size_traits().increment();
       node_algorithms::insert_unique_commit
-               (node_ptr(&priv_header()), to_insert, commit_data);
+               (this->priv_header_ptr(), to_insert, commit_data);
+      this->priv_size_traits().increment();
       return iterator(to_insert, this);
    }
 
@@ -723,9 +752,10 @@ class avltree_impl
       node_ptr to_insert(get_real_value_traits().to_node_ptr(value));
       if(safemode_or_autounlink)
          BOOST_INTRUSIVE_SAFE_HOOK_DEFAULT_ASSERT(node_algorithms::unique(to_insert));
+      iterator ret(node_algorithms::insert_before
+         (this->priv_header_ptr(), pos.pointed_node(), to_insert), this);
       this->priv_size_traits().increment();
-      return iterator(node_algorithms::insert_before
-         (node_ptr(&priv_header()), pos.pointed_node(), to_insert), this);
+      return ret;
    }
 
    //! <b>Requires</b>: value must be an lvalue, and it must be no less
@@ -747,8 +777,8 @@ class avltree_impl
       node_ptr to_insert(get_real_value_traits().to_node_ptr(value));
       if(safemode_or_autounlink)
          BOOST_INTRUSIVE_SAFE_HOOK_DEFAULT_ASSERT(node_algorithms::unique(to_insert));
+      node_algorithms::push_back(this->priv_header_ptr(), to_insert);
       this->priv_size_traits().increment();
-      node_algorithms::push_back(node_ptr(&priv_header()), to_insert);
    }
 
    //! <b>Requires</b>: value must be an lvalue, and it must be no greater
@@ -770,8 +800,8 @@ class avltree_impl
       node_ptr to_insert(get_real_value_traits().to_node_ptr(value));
       if(safemode_or_autounlink)
          BOOST_INTRUSIVE_SAFE_HOOK_DEFAULT_ASSERT(node_algorithms::unique(to_insert));
+      node_algorithms::push_front(this->priv_header_ptr(), to_insert);
       this->priv_size_traits().increment();
-      node_algorithms::push_front(node_ptr(&priv_header()), to_insert);
    }
 
    //! <b>Effects</b>: Erases the element pointed to by pos. 
@@ -789,7 +819,7 @@ class avltree_impl
       node_ptr to_erase(i.pointed_node());
       if(safemode_or_autounlink)
          BOOST_INTRUSIVE_SAFE_HOOK_DEFAULT_ASSERT(!node_algorithms::unique(to_erase));
-      node_algorithms::erase(&priv_header(), to_erase);
+      node_algorithms::erase(this->priv_header_ptr(), to_erase);
       this->priv_size_traits().decrement();
       if(safemode_or_autounlink)
          node_algorithms::init(to_erase);
@@ -951,7 +981,7 @@ class avltree_impl
          this->clear_and_dispose(detail::null_disposer());
       }
       else{
-         node_algorithms::init_header(&priv_header());
+         node_algorithms::init_header(this->priv_header_ptr());
          this->priv_size_traits().set_size(0);
       }
    }
@@ -968,9 +998,9 @@ class avltree_impl
    template<class Disposer>
    void clear_and_dispose(Disposer disposer)
    {
-      node_algorithms::clear_and_dispose(node_ptr(&priv_header())
+      node_algorithms::clear_and_dispose(this->priv_header_ptr()
          , detail::node_disposer<Disposer, avltree_impl>(disposer, this));
-      node_algorithms::init_header(&priv_header());
+      node_algorithms::init_header(this->priv_header_ptr());
       this->priv_size_traits().set_size(0);
    }
 
@@ -1026,7 +1056,7 @@ class avltree_impl
       detail::key_nodeptr_comp<KeyValueCompare, avltree_impl>
          key_node_comp(comp, this);
       return iterator(node_algorithms::lower_bound
-         (const_node_ptr(&priv_header()), key, key_node_comp), this);
+         (this->priv_header_ptr(), key, key_node_comp), this);
    }
 
    //! <b>Effects</b>: Returns a const iterator to the first element whose
@@ -1041,7 +1071,7 @@ class avltree_impl
       detail::key_nodeptr_comp<KeyValueCompare, avltree_impl>
          key_node_comp(comp, this);
       return const_iterator(node_algorithms::lower_bound
-         (const_node_ptr(&priv_header()), key, key_node_comp), this);
+         (this->priv_header_ptr(), key, key_node_comp), this);
    }
 
    //! <b>Effects</b>: Returns an iterator to the first element whose
@@ -1066,7 +1096,7 @@ class avltree_impl
       detail::key_nodeptr_comp<KeyValueCompare, avltree_impl>
          key_node_comp(comp, this);
       return iterator(node_algorithms::upper_bound
-         (const_node_ptr(&priv_header()), key, key_node_comp), this);
+         (this->priv_header_ptr(), key, key_node_comp), this);
    }
 
    //! <b>Effects</b>: Returns an iterator to the first element whose
@@ -1091,7 +1121,7 @@ class avltree_impl
       detail::key_nodeptr_comp<KeyValueCompare, avltree_impl>
          key_node_comp(comp, this);
       return const_iterator(node_algorithms::upper_bound
-         (const_node_ptr(&priv_header()), key, key_node_comp), this);
+         (this->priv_header_ptr(), key, key_node_comp), this);
    }
 
    //! <b>Effects</b>: Finds an iterator to the first element whose key is 
@@ -1115,7 +1145,7 @@ class avltree_impl
       detail::key_nodeptr_comp<KeyValueCompare, avltree_impl>
          key_node_comp(comp, this);
       return iterator
-         (node_algorithms::find(const_node_ptr(&priv_header()), key, key_node_comp), this);
+         (node_algorithms::find(this->priv_header_ptr(), key, key_node_comp), this);
    }
 
    //! <b>Effects</b>: Finds a const_iterator to the first element whose key is 
@@ -1139,7 +1169,7 @@ class avltree_impl
       detail::key_nodeptr_comp<KeyValueCompare, avltree_impl>
          key_node_comp(comp, this);
       return const_iterator
-         (node_algorithms::find(const_node_ptr(&priv_header()), key, key_node_comp), this);
+         (node_algorithms::find(this->priv_header_ptr(), key, key_node_comp), this);
    }
 
    //! <b>Effects</b>: Finds a range containing all elements whose key is k or
@@ -1165,7 +1195,7 @@ class avltree_impl
       detail::key_nodeptr_comp<KeyValueCompare, avltree_impl>
          key_node_comp(comp, this);
       std::pair<node_ptr, node_ptr> ret
-         (node_algorithms::equal_range(const_node_ptr(&priv_header()), key, key_node_comp));
+         (node_algorithms::equal_range(this->priv_header_ptr(), key, key_node_comp));
       return std::pair<iterator, iterator>(iterator(ret.first, this), iterator(ret.second, this));
    }
 
@@ -1194,7 +1224,7 @@ class avltree_impl
       detail::key_nodeptr_comp<KeyValueCompare, avltree_impl>
          key_node_comp(comp, this);
       std::pair<node_ptr, node_ptr> ret
-         (node_algorithms::equal_range(const_node_ptr(&priv_header()), key, key_node_comp));
+         (node_algorithms::equal_range(this->priv_header_ptr(), key, key_node_comp));
       return std::pair<const_iterator, const_iterator>(const_iterator(ret.first, this), const_iterator(ret.second, this));
    }
 
@@ -1220,8 +1250,8 @@ class avltree_impl
          detail::exception_disposer<avltree_impl, Disposer>
             rollback(*this, disposer);
          node_algorithms::clone
-            (const_node_ptr(&src.priv_header())
-            ,node_ptr(&this->priv_header())
+            (src.priv_header_ptr()
+            ,this->priv_header_ptr()
             ,detail::node_cloner<Cloner, avltree_impl>(cloner, this)
             ,detail::node_disposer<Disposer, avltree_impl>(disposer, this));
          this->priv_size_traits().set_size(src.priv_size_traits().get_size());
@@ -1243,7 +1273,7 @@ class avltree_impl
    pointer unlink_leftmost_without_rebalance()
    {
       node_ptr to_be_disposed(node_algorithms::unlink_leftmost_without_rebalance
-                           (node_ptr(&priv_header())));
+                           (this->priv_header_ptr()));
       if(!to_be_disposed)
          return 0;
       this->priv_size_traits().decrement();
@@ -1269,8 +1299,10 @@ class avltree_impl
    void replace_node(iterator replace_this, reference with_this)
    {
       node_algorithms::replace_node( get_real_value_traits().to_node_ptr(*replace_this)
-                                   , node_ptr(&priv_header())
+                                   , this->priv_header_ptr()
                                    , get_real_value_traits().to_node_ptr(with_this));
+      if(safemode_or_autounlink)
+         node_algorithms::init(replace_this.pointed_node());
    }
 
    //! <b>Requires</b>: value must be an lvalue and shall be in a set of
@@ -1398,7 +1430,7 @@ class avltree_impl
    static avltree_impl &priv_container_from_end_iterator(const const_iterator &end_iterator)
    {
       header_plus_size *r = detail::parent_from_member<header_plus_size, node>
-         ( detail::get_pointer(end_iterator.pointed_node()), &header_plus_size::header_);
+         ( boost::intrusive::detail::to_raw_pointer(end_iterator.pointed_node()), &header_plus_size::header_);
       node_plus_pred_t *n = detail::parent_from_member
          <node_plus_pred_t, header_plus_size>(r, &node_plus_pred_t::header_plus_size_);
       data_t *d = detail::parent_from_member<data_t, node_plus_pred_t>(n, &data_t::node_plus_pred_);
@@ -1601,6 +1633,8 @@ class avltree
    #endif
       ::type   Base;
 
+   BOOST_MOVABLE_BUT_NOT_COPYABLE(avltree)
+
    public:
    typedef typename Base::value_compare      value_compare;
    typedef typename Base::value_traits       value_traits;
@@ -1622,6 +1656,13 @@ class avltree
          , const value_traits &v_traits = value_traits())
       :  Base(unique, b, e, cmp, v_traits)
    {}
+
+   avltree(BOOST_RV_REF(avltree) x)
+      :  Base(::boost::move(static_cast<Base&>(x)))
+   {}
+
+   avltree& operator=(BOOST_RV_REF(avltree) x)
+   {  this->Base::operator=(::boost::move(static_cast<Base&>(x))); return *this;  }
 
    static avltree &container_from_end_iterator(iterator end_iterator)
    {  return static_cast<avltree &>(Base::container_from_end_iterator(end_iterator));   }

@@ -2,7 +2,7 @@
 // detail/wince_thread.hpp
 // ~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -39,7 +39,7 @@ class wince_thread
 public:
   // Constructor.
   template <typename Function>
-  wince_thread(Function f)
+  wince_thread(Function f, unsigned int = 0)
   {
     std::auto_ptr<func_base> arg(new func<Function>(f));
     DWORD thread_id = 0;

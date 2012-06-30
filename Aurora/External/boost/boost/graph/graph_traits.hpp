@@ -12,6 +12,7 @@
 
 #include <boost/config.hpp>
 #include <iterator>
+#include <utility> /* Primarily for std::pair */
 #include <boost/tuple/tuple.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/bool.hpp>
@@ -217,31 +218,42 @@ namespace boost {
     //?? not the right place ?? Lee
     typedef boost::forward_traversal_tag multi_pass_input_iterator_tag;
 
+    // Forward declare graph_bundle_t property name (from
+    // boost/graph/properties.hpp, which includes this file) for
+    // bundled_result.
+    enum graph_bundle_t {graph_bundle};
+
+    template <typename G>
+    struct graph_property_type {
+      typedef typename G::graph_property_type type;
+    };
     template <typename G>
     struct edge_property_type {
-        typedef typename G::edge_property_type type;
+      typedef typename G::edge_property_type type;
     };
     template <typename G>
     struct vertex_property_type {
-        typedef typename G::vertex_property_type type;
-    };
-    template <typename G>
-    struct graph_property_type {
-        typedef typename G::graph_property_type type;
+      typedef typename G::vertex_property_type type;
     };
 
     struct no_bundle { };
+    struct no_graph_bundle : no_bundle { };
     struct no_vertex_bundle : no_bundle { };
     struct no_edge_bundle : no_bundle { };
 
     template<typename G>
+    struct graph_bundle_type {
+      typedef typename G::graph_bundled type;
+    };
+
+    template<typename G>
     struct vertex_bundle_type {
-        typedef typename G::vertex_bundled type;
+      typedef typename G::vertex_bundled type;
     };
 
     template<typename G>
     struct edge_bundle_type {
-        typedef typename G::edge_bundled type;
+      typedef typename G::edge_bundled type;
     };
 
     namespace graph { namespace detail {
@@ -255,15 +267,22 @@ namespace boost {
             typedef typename bundler::type type;
         };
 
+        template<typename Graph>
+        class bundled_result<Graph, graph_bundle_t> {
+            typedef typename graph_traits<Graph>::vertex_descriptor Vertex;
+            typedef graph_bundle_type<Graph> bundler;
+        public:
+            typedef typename bundler::type type;
+        };
+
     } } // namespace graph::detail
 
     namespace graph_detail {
-        // A helper metafunction for determining whether or not a type is
-        // bundled.
-        template <typename T>
-        struct is_no_bundle
-            : mpl::bool_<is_convertible<T, no_bundle>::value>
-        { };
+      // A helper metafunction for determining whether or not a type is
+      // bundled.
+      template <typename T>
+      struct is_no_bundle : mpl::bool_<is_convertible<T, no_bundle>::value>
+      { };
     } // namespace graph_detail
 
     /** @name Graph Property Traits
@@ -272,24 +291,43 @@ namespace boost {
      * edges.
      */
     //@{
+    template<typename Graph>
+    struct has_graph_property
+      : mpl::not_<
+        typename detail::is_no_property<
+          typename graph_property_type<Graph>::type
+        >::type
+      >::type
+    { };
+
+    template<typename Graph>
+    struct has_bundled_graph_property
+      : mpl::not_<
+        graph_detail::is_no_bundle<typename graph_bundle_type<Graph>::type>
+      >
+    { };
+
     template <typename Graph>
     struct has_vertex_property
         : mpl::not_<
             typename detail::is_no_property<typename vertex_property_type<Graph>::type>
         >::type
     { };
-    template <typename Graph>
-    struct has_edge_property
-        : mpl::not_<
-            typename detail::is_no_property<typename edge_property_type<Graph>::type>
-        >::type
-    { };
+
     template <typename Graph>
     struct has_bundled_vertex_property
         : mpl::not_<
             graph_detail::is_no_bundle<typename vertex_bundle_type<Graph>::type>
         >
     { };
+
+    template <typename Graph>
+    struct has_edge_property
+        : mpl::not_<
+            typename detail::is_no_property<typename edge_property_type<Graph>::type>
+        >::type
+    { };
+
     template <typename Graph>
     struct has_bundled_edge_property
         : mpl::not_<

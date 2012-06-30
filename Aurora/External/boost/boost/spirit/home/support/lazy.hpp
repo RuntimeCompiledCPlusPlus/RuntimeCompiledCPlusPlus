@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2010 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -11,9 +11,10 @@
 #pragma once
 #endif
 
+#include <boost/spirit/include/phoenix_core.hpp>
 #include <boost/proto/proto.hpp>
-#include <boost/spirit/home/phoenix/core/actor.hpp>
 #include <boost/spirit/home/support/modify.hpp>
+#include <boost/spirit/home/support/detail/is_spirit_tag.hpp>
 
 namespace boost { namespace spirit
 {
@@ -26,7 +27,10 @@ namespace boost { namespace spirit
 
     namespace tag
     {
-        struct lazy_eval {};
+        struct lazy_eval 
+        {
+            BOOST_SPIRIT_IS_TAG()
+        };
     }
 
     template <typename Domain>

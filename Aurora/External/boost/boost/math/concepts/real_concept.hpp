@@ -372,7 +372,7 @@ inline int digits<concepts::real_concept>(BOOST_MATH_EXPLICIT_TEMPLATE_TYPE_SPEC
 
 } // namespace tools
 
-#if defined(__SGI_STL_PORT)
+#if defined(__SGI_STL_PORT) || defined(BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS)
 //
 // We shouldn't really need these type casts any more, but there are some
 // STLport iostream bugs we work around by using them....

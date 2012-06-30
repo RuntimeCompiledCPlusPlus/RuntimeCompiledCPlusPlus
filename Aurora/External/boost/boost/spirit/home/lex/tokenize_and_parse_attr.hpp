@@ -1,5 +1,5 @@
-//  Copyright (c) 2001-2010 Hartmut Kaiser
-//  Copyright (c) 2001-2010 Joel de Guzman
+//  Copyright (c) 2001-2011 Hartmut Kaiser
+//  Copyright (c) 2001-2011 Joel de Guzman
 //  Copyright (c) 2009 Carl Barron
 // 
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying 
@@ -75,7 +75,7 @@ namespace boost { namespace spirit { namespace lex
         BOOST_SPIRIT_ASSERT_MATCH(qi::domain, Skipper);
 
         typedef
-            typename result_of::compile<qi::domain, Skipper>::type
+            typename spirit::result_of::compile<qi::domain, Skipper>::type
         skipper_type;
         skipper_type const skipper_ = compile<qi::domain>(skipper);
 

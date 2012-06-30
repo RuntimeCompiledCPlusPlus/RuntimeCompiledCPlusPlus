@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2006 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -36,8 +36,8 @@
 
 #define N BOOST_PP_ITERATION()
 
-    template <typename Derived, BOOST_PP_ENUM_PARAMS(N, typename T)>
-    struct BOOST_PP_CAT(vector_data, N) : sequence_base<Derived>
+    template <BOOST_PP_ENUM_PARAMS(N, typename T)>
+    struct BOOST_PP_CAT(vector_data, N)
     {
         BOOST_PP_CAT(vector_data, N)()
             : BOOST_PP_ENUM(N, FUSION_MEMBER_DEFAULT_INIT, _) {}
@@ -73,12 +73,11 @@
 
     template <BOOST_PP_ENUM_PARAMS(N, typename T)>
     struct BOOST_PP_CAT(vector, N)
-        : BOOST_PP_CAT(vector_data, N)<
-            BOOST_PP_CAT(vector, N)<BOOST_PP_ENUM_PARAMS(N, T)>
-          , BOOST_PP_ENUM_PARAMS(N, T)>
+      : BOOST_PP_CAT(vector_data, N)<BOOST_PP_ENUM_PARAMS(N, T)>
+      , sequence_base<BOOST_PP_CAT(vector, N)<BOOST_PP_ENUM_PARAMS(N, T)> >
     {
         typedef BOOST_PP_CAT(vector, N)<BOOST_PP_ENUM_PARAMS(N, T)> this_type;
-        typedef BOOST_PP_CAT(vector_data, N)<this_type, BOOST_PP_ENUM_PARAMS(N, T)> base_type;
+        typedef BOOST_PP_CAT(vector_data, N)<BOOST_PP_ENUM_PARAMS(N, T)> base_type;
         typedef mpl::BOOST_PP_CAT(vector, N)<BOOST_PP_ENUM_PARAMS(N, T)> types;
         typedef vector_tag fusion_tag;
         typedef fusion_sequence_tag tag; // this gets picked up by MPL
@@ -105,7 +104,7 @@
         BOOST_PP_CAT(vector, N)(
             Sequence const& seq
 #if (N == 1)
-          , typename disable_if<is_convertible<Sequence, T0> >::type* /*dummy*/ = 0
+          , typename boost::disable_if<is_convertible<Sequence, T0> >::type* /*dummy*/ = 0
 #endif
             )
             : base_type(base_type::init_from_sequence(seq)) {}
@@ -119,7 +118,7 @@
         }
 
         template <typename Sequence>
-        typename disable_if<is_convertible<Sequence, T0>, this_type&>::type
+        typename boost::disable_if<is_convertible<Sequence, T0>, this_type&>::type
         operator=(Sequence const& seq)
         {
             typedef typename result_of::begin<Sequence const>::type I0;

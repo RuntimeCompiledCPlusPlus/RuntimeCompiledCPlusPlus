@@ -5,7 +5,7 @@
 #define ALAPIENTRY __cdecl
 
 #include <al\altypes.h>
-#include "..\include\eax.h"
+//NO EAX SUPPORT// #include "..\include\eax.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,7 +52,7 @@ typedef struct ALlistener_struct
 	ALuint		update1;			// Store changes that need to be made in UpdateContext
 	ALuint		update2;			// Store changes that need to be made in UpdateContext (EAX Related)
 
-	EAXLISTENERPROPERTIES eaxLP;	// EAX Listener Parameters
+//	EAXLISTENERPROPERTIES eaxLP;	// EAX Listener Parameters
 
 } ALlistener;
 

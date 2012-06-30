@@ -1,6 +1,6 @@
 /*=============================================================================
     Copyright (c) 2009 Francois Barel
-    Copyright (c) 2001-2010 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -202,7 +202,7 @@ namespace boost { namespace spirit { namespace repository { namespace qi
             // do down-stream transformation, provides attribute for 
             // rhs parser
             typedef traits::transform_attribute<
-                typename make_attribute::type, subrule_attr_type, domain> 
+                typename make_attribute::type, subrule_attr_type, spirit::qi::domain> 
             transform;
 
             typename make_attribute::type made_attr = make_attribute::call(attr);
@@ -256,7 +256,7 @@ namespace boost { namespace spirit { namespace repository { namespace qi
             // do down-stream transformation, provides attribute for 
             // rhs parser
             typedef traits::transform_attribute<
-                typename make_attribute::type, subrule_attr_type, domain> 
+                typename make_attribute::type, subrule_attr_type, spirit::qi::domain> 
             transform;
 
             typename make_attribute::type made_attr = make_attribute::call(attr);

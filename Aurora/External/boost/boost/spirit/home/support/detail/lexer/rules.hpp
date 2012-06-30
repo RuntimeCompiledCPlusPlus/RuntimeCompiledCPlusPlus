@@ -39,6 +39,21 @@ namespace detail
         {
             return ".";
         }
+
+        static const char *all_states ()
+        {
+            return "*";
+        }
+
+        static const char *char_name ()
+        {
+            return "char";
+        }
+
+        static const char *char_prefix ()
+        {
+            return "";
+        }
     };
 
     template <>
@@ -52,6 +67,21 @@ namespace detail
         static const wchar_t *dot ()
         {
             return L".";
+        }
+
+        static const wchar_t *all_states ()
+        {
+            return L"*";
+        }
+
+        static const char *char_name ()
+        {
+            return "wchar_t";
+        }
+
+        static const char *char_prefix ()
+        {
+            return "L";
         }
     };
 }
@@ -524,6 +554,16 @@ public:
     static const CharT *initial ()
     {
         return detail::strings<CharT>::initial ();
+    }
+
+    static const CharT *all_states ()
+    {
+        return detail::strings<CharT>::all_states ();
+    }
+
+    static const CharT *dot ()
+    {
+        return detail::strings<CharT>::dot ();
     }
 
 private:

@@ -41,7 +41,7 @@ namespace serialization {
 template<class T>
 struct nvp : 
     public std::pair<const char *, T *>,
-    public wrapper_traits<const nvp<T> >
+    public wrapper_traits<const nvp< T > >
 {
     explicit nvp(const char * name_, T & t) :
         // note: redundant cast works around borland issue
@@ -94,8 +94,8 @@ inline
 #ifndef BOOST_NO_FUNCTION_TEMPLATE_ORDERING
 const
 #endif
-nvp<T> make_nvp(const char * name, T & t){
-    return nvp<T>(name, t);
+nvp< T > make_nvp(const char * name, T & t){
+    return nvp< T >(name, t);
 }
 
 // to maintain efficiency and portability, we want to assign
@@ -107,7 +107,7 @@ nvp<T> make_nvp(const char * name, T & t){
 #if 0 // #ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
 template <class T>
-struct implementation_level<nvp<T> >
+struct implementation_level<nvp< T > >
 {
     typedef mpl::integral_c_tag tag;
     typedef mpl::int_<object_serializable> type;
@@ -116,7 +116,7 @@ struct implementation_level<nvp<T> >
 
 // nvp objects are generally created on the stack and are never tracked
 template<class T>
-struct tracking_level<nvp<T> >
+struct tracking_level<nvp< T > >
 {
     typedef mpl::integral_c_tag tag;
     typedef mpl::int_<track_never> type;
