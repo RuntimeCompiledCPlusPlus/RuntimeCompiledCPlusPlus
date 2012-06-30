@@ -298,7 +298,7 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
 	std::string strIncludeFiles;
 	for( size_t i = 0; i < includeDirList.size(); ++i )
 	{
-		strIncludeFiles += " /I " + includeDirList[i].string();
+		strIncludeFiles += " /I \"" + includeDirList[i].string() + "\"";
 	}
 
 
@@ -319,7 +319,7 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
 		std::set<std::string>::const_iterator it = filteredPaths.find(strPath);
 		if (it == filteredPaths.end())
 		{
-			strFilesToCompile += " " + strPath;
+			strFilesToCompile += " \"" + strPath + "\"";
 			filteredPaths.insert(strPath);
 		}
 	}
