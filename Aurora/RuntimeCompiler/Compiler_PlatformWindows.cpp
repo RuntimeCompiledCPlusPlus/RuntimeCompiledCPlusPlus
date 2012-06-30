@@ -346,10 +346,43 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions )
 	//HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\<version>\Setup\VS\<edition>
 	std::wstring keyName = L"SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7";
 
-	std::wstring valueName[3];
-	valueName[0] = L"8.0";
-	valueName[1] = L"9.0";
-	valueName[2] = L"10.0";
+	const size_t NUMNAMESTOCHECK = 4;
+	std::wstring valueName[NUMNAMESTOCHECK];
+
+	//switch around prefered compiler to the one we've used to compile this file
+	const unsigned int MSCVERSION = _MSC_VER;
+	switch( MSCVERSION )
+	{
+	case 1400:	//VS 2005
+		valueName[3] = L"8.0";	//VS 2005
+		valueName[2] = L"9.0";	//VS 2008
+		valueName[1] = L"10.0";	//VS 2010
+		valueName[0] = L"11.0";	//VS 2011
+		break;
+	case 1500:	//VS 2008
+		valueName[2] = L"8.0";	//VS 2005
+		valueName[3] = L"9.0";	//VS 2008
+		valueName[1] = L"10.0";	//VS 2010
+		valueName[0] = L"11.0";	//VS 2011
+		break;
+	case 1600:	//VS 2010
+		valueName[1] = L"8.0";	//VS 2005
+		valueName[2] = L"9.0";	//VS 2008
+		valueName[3] = L"10.0";	//VS 2010
+		valueName[0] = L"11.0";	//VS 2011
+		break;
+	case 1700:	//VS 2011
+		valueName[0] = L"8.0";	//VS 2005
+		valueName[1] = L"9.0";	//VS 2008
+		valueName[2] = L"10.0";	//VS 2010
+		valueName[3] = L"11.0";	//VS 2011
+		break;
+	default:
+		assert( false ); //shouldn't happen.
+	}
+
+
+
 	wchar_t value[MAX_PATH];
 	DWORD size = MAX_PATH;
 
@@ -362,7 +395,7 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions )
 				  &key					//__out       PHKEY phkResult
 				);
 
-	for( int i = 2; i >= 0; --i )
+	for( int i = NUMNAMESTOCHECK-1; i >= 0; --i )
 	{
 
 		LONG retVal = RegQueryValueExW(
