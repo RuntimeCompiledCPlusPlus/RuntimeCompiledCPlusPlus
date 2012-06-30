@@ -18,6 +18,7 @@
 #include <boost/intrusive/detail/mpl.hpp>
 #include <boost/intrusive/rbtree.hpp>
 #include <iterator>
+#include <boost/move/move.hpp>
 
 namespace boost {
 namespace intrusive {
@@ -42,13 +43,7 @@ class set_impl
 {
    /// @cond
    typedef rbtree_impl<Config> tree_type;
-   //! This class is
-   //! non-copyable
-   set_impl (const set_impl&);
-
-   //! This class is
-   //! non-assignable
-   set_impl &operator =(const set_impl&);
+   BOOST_MOVABLE_BUT_NOT_COPYABLE(set_impl)
 
    typedef tree_type implementation_defined;
    /// @endcond
@@ -75,9 +70,19 @@ class set_impl
    typedef typename implementation_defined::const_node_ptr           const_node_ptr;
    typedef typename implementation_defined::node_algorithms          node_algorithms;
 
+   static const bool constant_time_size = Config::constant_time_size;
+   //static const bool stateful_value_traits = detail::is_stateful_value_traits<real_value_traits>::value;
+
    /// @cond
    private:
    tree_type tree_;
+
+   protected:
+   node &prot_header_node(){ return tree_.prot_header_node(); }
+   node const &prot_header_node() const{ return tree_.prot_header_node(); }
+   void prot_set_size(size_type s){ tree_.prot_set_size(s); }
+   value_compare &prot_comp(){ return tree_.prot_comp(); }
+
    /// @endcond
 
    public:
@@ -111,6 +116,17 @@ class set_impl
            , const value_traits &v_traits = value_traits())
       : tree_(true, b, e, cmp, v_traits)
    {}
+
+   //! <b>Effects</b>: to-do
+   //!   
+   set_impl(BOOST_RV_REF(set_impl) x) 
+      :  tree_(::boost::move(x.tree_))
+   {}
+
+   //! <b>Effects</b>: to-do
+   //!   
+   set_impl& operator=(BOOST_RV_REF(set_impl) x) 
+   {  tree_ = ::boost::move(x.tree_);  return *this;  }
 
    //! <b>Effects</b>: Detaches all elements from this. The objects in the set 
    //!   are not deleted (i.e. no destructors are called).
@@ -1180,6 +1196,7 @@ class set
       #endif
       >::type   Base;
 
+   BOOST_MOVABLE_BUT_NOT_COPYABLE(set)
    public:
    typedef typename Base::value_compare      value_compare;
    typedef typename Base::value_traits       value_traits;
@@ -1200,6 +1217,13 @@ class set
       , const value_traits &v_traits = value_traits())
       :  Base(b, e, cmp, v_traits)
    {}
+
+   set(BOOST_RV_REF(set) x)
+      :  Base(::boost::move(static_cast<Base&>(x)))
+   {}
+
+   set& operator=(BOOST_RV_REF(set) x)
+   {  this->Base::operator=(::boost::move(static_cast<Base&>(x))); return *this;  }
 
    static set &container_from_end_iterator(iterator end_iterator)
    {  return static_cast<set &>(Base::container_from_end_iterator(end_iterator));   }
@@ -1237,9 +1261,7 @@ class multiset_impl
    /// @cond
    typedef rbtree_impl<Config> tree_type;
 
-   //Non-copyable and non-assignable
-   multiset_impl (const multiset_impl&);
-   multiset_impl &operator =(const multiset_impl&);
+   BOOST_MOVABLE_BUT_NOT_COPYABLE(multiset_impl)
    typedef tree_type implementation_defined;
    /// @endcond
 
@@ -1265,9 +1287,18 @@ class multiset_impl
    typedef typename implementation_defined::const_node_ptr           const_node_ptr;
    typedef typename implementation_defined::node_algorithms          node_algorithms;
 
+   static const bool constant_time_size = Config::constant_time_size;
+   //static const bool stateful_value_traits = detail::is_stateful_value_traits<real_value_traits>::value;
+
    /// @cond
    private:
    tree_type tree_;
+
+   protected:
+   node &prot_header_node(){ return tree_.prot_header_node(); }
+   node const &prot_header_node() const{ return tree_.prot_header_node(); }
+   void prot_set_size(size_type s){ tree_.prot_set_size(s); }
+   value_compare &prot_comp(){ return tree_.prot_comp(); }
    /// @endcond
 
    public:
@@ -1301,6 +1332,17 @@ class multiset_impl
                 , const value_traits &v_traits = value_traits())
       : tree_(false, b, e, cmp, v_traits)
    {}
+
+   //! <b>Effects</b>: to-do
+   //!   
+   multiset_impl(BOOST_RV_REF(multiset_impl) x) 
+      :  tree_(::boost::move(x.tree_))
+   {}
+
+   //! <b>Effects</b>: to-do
+   //!   
+   multiset_impl& operator=(BOOST_RV_REF(multiset_impl) x) 
+   {  tree_ = ::boost::move(x.tree_);  return *this;  }
 
    //! <b>Effects</b>: Detaches all elements from this. The objects in the set 
    //!   are not deleted (i.e. no destructors are called).
@@ -1450,7 +1492,7 @@ class multiset_impl
    //! 
    //! <b>Throws</b>: Nothing.
    //! 
-   //! <b>Complexity</b>: Constant.
+   //! <b>Complexity</b>: Logarithmic.
    static multiset_impl &container_from_iterator(iterator it)
    {
       return *detail::parent_from_member<multiset_impl, tree_type>
@@ -1464,7 +1506,7 @@ class multiset_impl
    //! 
    //! <b>Throws</b>: Nothing.
    //! 
-   //! <b>Complexity</b>: Constant.
+   //! <b>Complexity</b>: Logarithmic.
    static const multiset_impl &container_from_iterator(const_iterator it)
    {
       return *detail::parent_from_member<multiset_impl, tree_type>
@@ -2288,6 +2330,8 @@ class multiset
       Options...
       #endif
       >::type   Base;
+   
+   BOOST_MOVABLE_BUT_NOT_COPYABLE(multiset)
 
    public:
    typedef typename Base::value_compare      value_compare;
@@ -2309,6 +2353,13 @@ class multiset
            , const value_traits &v_traits = value_traits())
       :  Base(b, e, cmp, v_traits)
    {}
+
+   multiset(BOOST_RV_REF(multiset) x)
+      :  Base(::boost::move(static_cast<Base&>(x)))
+   {}
+
+   multiset& operator=(BOOST_RV_REF(multiset) x)
+   {  this->Base::operator=(::boost::move(static_cast<Base&>(x))); return *this;  }
 
    static multiset &container_from_end_iterator(iterator end_iterator)
    {  return static_cast<multiset &>(Base::container_from_end_iterator(end_iterator));   }

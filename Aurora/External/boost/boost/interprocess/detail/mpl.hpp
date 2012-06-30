@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2009.
+// (C) Copyright Ion Gaztanaga 2005-2011.
 //
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at
@@ -21,7 +21,7 @@
 
 namespace boost {
 namespace interprocess { 
-namespace detail {
+namespace ipcdetail {
 
 template <class T, T val>
 struct integral_constant
@@ -71,7 +71,7 @@ class is_convertible
    static false_t dispatch(...);
    static T trigger();
    public:
-   enum { value = sizeof(dispatch(trigger())) == sizeof(true_t) };
+   static const bool value = sizeof(dispatch(trigger())) == sizeof(true_t);
 };
 
 template<
@@ -144,7 +144,7 @@ struct ls_zeros<1>
    static const std::size_t value = 0;
 };
 
-}  //namespace detail { 
+}  //namespace ipcdetail { 
 }  //namespace interprocess { 
 }  //namespace boost {
 

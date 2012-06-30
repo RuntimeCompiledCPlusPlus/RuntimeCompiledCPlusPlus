@@ -28,7 +28,7 @@
 #include <boost/graph/parallel/detail/property_holders.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/type_traits/is_same.hpp>
-#include <cassert>
+#include <boost/assert.hpp>
 #include <list>
 #include <algorithm>
 #include <boost/limits.hpp>
@@ -966,7 +966,7 @@ namespace boost {
              && i->e == e.local)
         ++i;
 
-      assert(i != in_edges.end());
+      BOOST_ASSERT(i != in_edges.end());
       in_edges.erase(i);
     }
 
@@ -1371,6 +1371,7 @@ namespace boost {
     typedef typename inherited::graph_property_type graph_property_type;
     typedef typename inherited::vertex_bundled vertex_bundled;
     typedef typename inherited::edge_bundled edge_bundled;
+    typedef typename inherited::graph_bundled graph_bundled;
 
     typedef typename container_gen<edge_list_selector, edge_descriptor>::type
       local_edge_list_type;
@@ -1691,27 +1692,33 @@ namespace boost {
     // Directly access a vertex or edge bundle
     vertex_bundled& operator[](vertex_descriptor v)
     {
-      assert(v.owner == processor());
+      BOOST_ASSERT(v.owner == processor());
       return base()[v.local];
     }
     
     const vertex_bundled& operator[](vertex_descriptor v) const
     {
-      assert(v.owner == processor());
+      BOOST_ASSERT(v.owner == processor());
       return base()[v.local];
     }
     
     edge_bundled& operator[](edge_descriptor e)
     {
-      assert(e.owner() == processor());
+      BOOST_ASSERT(e.owner() == processor());
       return base()[e.local];
     }
     
     const edge_bundled& operator[](edge_descriptor e) const
     {
-      assert(e.owner() == processor());
+      BOOST_ASSERT(e.owner() == processor());
       return base()[e.local];
     }
+
+    graph_bundled& operator[](graph_bundle_t)
+    { return get_property(*this); }
+
+    graph_bundled const& operator[](graph_bundle_t) const
+    { return get_property(*this); }
 
     template<typename OStreamConstructibleArchive>
     void save(std::string const& filename) const;
@@ -2071,7 +2078,7 @@ namespace boost {
         detail::parallel::add_local_edge(target(data.e, base()), 
                        source(data.e, base()),
                        build_edge_property(data.get_property()), base());
-      assert(edge.second);
+      BOOST_ASSERT(edge.second);
       put(edge_target_processor_id, base(), edge.first, other_proc);
 
       if (edge.second && on_add_edge)
@@ -2112,7 +2119,7 @@ namespace boost {
 
         remove_local_edge_from_list(src, tgt, undirectedS());
       } else {
-        assert(tgt.owner == process_id(process_group_));
+        BOOST_ASSERT(tgt.owner == process_id(process_group_));
         in_edge_list_type& in_edges =
           get(vertex_in_edges, base())[tgt.local];
         typename in_edge_list_type::iterator ei;
@@ -2280,7 +2287,7 @@ namespace boost {
   PBGL_DISTRIB_ADJLIST_TYPE::lazy_add_vertex_with_property::
   commit() const
   {
-    assert(!this->committed);
+    BOOST_ASSERT(!this->committed);
     this->committed = true;
 
     process_id_type owner 
@@ -2384,7 +2391,7 @@ namespace boost {
   std::pair<typename PBGL_DISTRIB_ADJLIST_TYPE::edge_descriptor, bool>
   PBGL_DISTRIB_ADJLIST_TYPE::lazy_add_edge::commit() const
   {
-    assert(!committed);
+    BOOST_ASSERT(!committed);
     committed = true;
 
     if (source.owner == self.processor())
@@ -2576,7 +2583,7 @@ namespace boost {
   PBGL_DISTRIB_ADJLIST_TYPE::lazy_add_edge_with_property::
   commit() const
   {
-    assert(!this->committed);
+    BOOST_ASSERT(!this->committed);
     this->committed = true;
 
     if (this->source.owner == this->self.processor())
@@ -2676,7 +2683,7 @@ namespace boost {
   out_edges(typename PBGL_DISTRIB_ADJLIST_TYPE::vertex_descriptor v,
             const PBGL_DISTRIB_ADJLIST_TYPE& g)
   {
-    assert(v.owner == g.processor());
+    BOOST_ASSERT(v.owner == g.processor());
 
     typedef PBGL_DISTRIB_ADJLIST_TYPE impl;
     typedef typename impl::out_edge_generator generator;
@@ -2698,7 +2705,7 @@ namespace boost {
   out_degree(typename PBGL_DISTRIB_ADJLIST_TYPE::vertex_descriptor v,
              const PBGL_DISTRIB_ADJLIST_TYPE& g)
   {
-    assert(v.owner == g.processor());
+    BOOST_ASSERT(v.owner == g.processor());
 
     return out_degree(v.local, g.base());
   }
@@ -2720,7 +2727,7 @@ namespace boost {
                          ::vertex_descriptor v,
            const PBGL_DISTRIB_ADJLIST_TYPE_CONFIG(bidirectionalS)& g)
   {
-    assert(v.owner == g.processor());
+    BOOST_ASSERT(v.owner == g.processor());
 
     typedef PBGL_DISTRIB_ADJLIST_TYPE_CONFIG(bidirectionalS) impl;
     typedef typename impl::inherited base_graph_type;
@@ -2748,7 +2755,7 @@ namespace boost {
                          ::vertex_descriptor v,
            const PBGL_DISTRIB_ADJLIST_TYPE_CONFIG(undirectedS)& g)
   {
-    assert(v.owner == g.processor());
+    BOOST_ASSERT(v.owner == g.processor());
 
     typedef PBGL_DISTRIB_ADJLIST_TYPE_CONFIG(undirectedS) impl;
     typedef typename impl::in_edge_generator generator;
@@ -2771,7 +2778,7 @@ namespace boost {
                            ::vertex_descriptor v,
             const PBGL_DISTRIB_ADJLIST_TYPE_CONFIG(bidirectionalS)& g)
   {
-    assert(v.owner == g.processor());
+    BOOST_ASSERT(v.owner == g.processor());
 
     return get(vertex_in_edges, g.base())[v.local].size();
   }
@@ -2785,7 +2792,7 @@ namespace boost {
                            ::vertex_descriptor v,
             const PBGL_DISTRIB_ADJLIST_TYPE_CONFIG(undirectedS)& g)
   {
-    assert(v.owner == g.processor());
+    BOOST_ASSERT(v.owner == g.processor());
 
     return out_degree(v.local, g.base());
   }
@@ -2802,7 +2809,7 @@ namespace boost {
                          ::vertex_descriptor v,
          const PBGL_DISTRIB_ADJLIST_TYPE_CONFIG(undirectedS)& g)
   {
-    assert(v.owner == g.processor());
+    BOOST_ASSERT(v.owner == g.processor());
     return out_degree(v.local, g.base());
   }
 
@@ -2816,7 +2823,7 @@ namespace boost {
                          ::vertex_descriptor v,
          const PBGL_DISTRIB_ADJLIST_TYPE_CONFIG(bidirectionalS)& g)
   {
-    assert(v.owner == g.processor());
+    BOOST_ASSERT(v.owner == g.processor());
     return out_degree(v, g) + in_degree(v, g);
   }
 
@@ -2886,7 +2893,7 @@ namespace boost {
                        ::edge_descriptor edge_descriptor;
 
     // For directed graphs, u must be local
-    assert(u.owner == process_id(g.process_group()));
+    BOOST_ASSERT(u.owner == process_id(g.process_group()));
 
     typename PBGL_DISTRIB_ADJLIST_TYPE_CONFIG(directedS)
         ::out_edge_iterator ei, ei_end;
@@ -2923,8 +2930,8 @@ namespace boost {
       }
       return std::make_pair(edge_descriptor(), false);
     } else {
-      assert(false);
-      exit(1);
+      BOOST_ASSERT(false);
+      abort();
     }
   }
 
@@ -2990,8 +2997,8 @@ namespace boost {
   remove_edge(typename PBGL_DISTRIB_ADJLIST_TYPE::edge_descriptor e,
               PBGL_DISTRIB_ADJLIST_TYPE& g)
   {
-    assert(source(e, g).owner == g.processor()
-           || target(e, g).owner == g.processor());
+    BOOST_ASSERT(source(e, g).owner == g.processor()
+                 || target(e, g).owner == g.processor());
 
     if (target(e, g).owner == g.processor())
       detail::parallel::remove_in_edge(e, g, DirectedS());
@@ -3035,7 +3042,7 @@ namespace boost {
                 ::out_edge_iterator ei,
               PBGL_DISTRIB_ADJLIST_TYPE_CONFIG(directedS)& g)
   {
-    assert(source(*ei, g).owner == g.processor());
+    BOOST_ASSERT(source(*ei, g).owner == g.processor());
     remove_edge(ei->local, g.base());
   }
 
@@ -3101,7 +3108,7 @@ namespace boost {
     typedef parallel::detail::remove_out_edge_predicate<Graph, Predicate>
       Pred;
 
-    assert(u.owner == g.processor());
+    BOOST_ASSERT(u.owner == g.processor());
     remove_out_edge_if(u.local, Pred(g, predicate), g.base());
   }
 
@@ -3162,7 +3169,7 @@ namespace boost {
     typedef parallel::detail::remove_in_edge_predicate<Graph, Predicate>
       Pred;
 
-    assert(u.owner == g.processor());
+    BOOST_ASSERT(u.owner == g.processor());
     graph_detail::erase_if(get(vertex_in_edges, g.base())[u.local],
                            Pred(g, predicate));
   }
@@ -3329,7 +3336,7 @@ namespace boost {
     (typename PBGL_DISTRIB_ADJLIST_TYPE_CONFIG(directedS)::vertex_descriptor u,
       PBGL_DISTRIB_ADJLIST_TYPE_CONFIG(directedS)& g)
   {
-    assert(u.owner == g.processor());
+    BOOST_ASSERT(u.owner == g.processor());
     clear_out_edges(u.local, g.base());
   }
 
@@ -3394,7 +3401,7 @@ namespace boost {
   {
     typedef typename PBGL_DISTRIB_ADJLIST_TYPE::graph_type graph_type;
     typedef typename graph_type::named_graph_mixin named_graph_mixin;
-    assert(u.owner == g.processor());
+    BOOST_ASSERT(u.owner == g.processor());
     static_cast<named_graph_mixin&>(static_cast<graph_type&>(g))
       .removing_vertex(u);
     g.distribution().clear();
@@ -3648,7 +3655,7 @@ namespace boost {
     if (owner(key) == process_id(g.process_group()))
       return get(p, g.base(), local(key));
     else
-      assert(false);
+      BOOST_ASSERT(false);
   }
 
   template<typename Property, PBGL_DISTRIB_ADJLIST_TEMPLATE_PARMS,
@@ -3659,7 +3666,7 @@ namespace boost {
     if (owner(key) == process_id(g.process_group()))
       put(p, g.base(), local(key), v);
     else
-      assert(false);
+      BOOST_ASSERT(false);
   }
 
   template<PBGL_DISTRIB_ADJLIST_TEMPLATE_PARMS>

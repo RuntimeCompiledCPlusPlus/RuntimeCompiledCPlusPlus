@@ -2,7 +2,7 @@
 // detail/socket_select_interrupter.hpp
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -38,6 +38,9 @@ public:
   // Destructor.
   BOOST_ASIO_DECL ~socket_select_interrupter();
 
+  // Recreate the interrupter's descriptors. Used after a fork.
+  BOOST_ASIO_DECL void recreate();
+
   // Interrupt the select call.
   BOOST_ASIO_DECL void interrupt();
 
@@ -51,6 +54,12 @@ public:
   }
 
 private:
+  // Open the descriptors. Throws on error.
+  BOOST_ASIO_DECL void open_descriptors();
+
+  // Close the descriptors.
+  BOOST_ASIO_DECL void close_descriptors();
+
   // The read end of a connection used to interrupt the select call. This file
   // descriptor is passed to select such that when it is time to stop, a single
   // byte will be written on the other end of the connection and this

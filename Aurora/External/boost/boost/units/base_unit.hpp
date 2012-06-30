@@ -8,6 +8,10 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+/// \file
+/// \brief base unit (meter, kg, sec...).
+/// \details base unit definition registration.
+
 #ifndef BOOST_UNITS_BASE_UNIT_HPP
 #define BOOST_UNITS_BASE_UNIT_HPP
 
@@ -94,6 +98,16 @@ class base_unit :
 #endif
 
     private:
+        /// Check for C++0x.  In C++0x, we have to have identical
+        /// arguments but a different return type to trigger an
+        /// error.  Note that this is only needed for clang as
+        /// check_base_unit will trigger an error earlier
+        /// for compilers with less strict name lookup.
+        /// INTERNAL ONLY
+        friend Derived* 
+        check_double_register(const units::base_unit_ordinal<N>&) 
+        { return(0); }
+
         /// Register this ordinal
         /// INTERNAL ONLY
         friend detail::yes 

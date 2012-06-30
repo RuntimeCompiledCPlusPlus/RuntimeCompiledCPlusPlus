@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2011. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -16,7 +16,7 @@
 
 #include <functional>
 #include <utility>
-#include <boost/get_pointer.hpp>
+
 #include <boost/interprocess/detail/utilities.hpp>
 #include <boost/interprocess/containers/vector.hpp>
 #include <boost/intrusive/unordered_set.hpp>
@@ -84,7 +84,7 @@ struct iunordered_set_index_aux
     {
         std::size_t operator()(const value_type &val) const
         {
-            const char_type *beg = detail::get_pointer(val.name()),
+            const char_type *beg = ipcdetail::to_raw_pointer(val.name()),
                             *end = beg + val.name_length();
             return boost::hash_range(beg, end);
         }
@@ -101,6 +101,7 @@ struct iunordered_set_index_aux
       < value_type
       , bi::hash<hash_function>
       , bi::equal<equal_function>
+     , bi::size_type<typename segment_manager_base::size_type>
       >::type                                         index_t;
    typedef typename index_t::bucket_type              bucket_type;
    typedef allocator
@@ -155,33 +156,33 @@ class iunordered_set_index
    typedef typename index_aux::
       segment_manager_base             segment_manager_base;
 
-   enum {   InitBufferSize = 64};
+   static const std::size_t InitBufferSize = 64;
 
-   static bucket_ptr create_buckets(allocator_type &alloc, std::size_t num)
+   static bucket_ptr create_buckets(allocator_type &alloc, size_type num)
    {
       num = index_type::suggested_upper_bucket_count(num);
       bucket_ptr buckets = alloc.allocate(num);
       bucket_ptr buckets_init = buckets;
-      for(std::size_t i = 0; i < num; ++i){
-         new(get_pointer(buckets_init++))bucket_type();
+      for(size_type i = 0; i < num; ++i){
+         new(to_raw_pointer(buckets_init++))bucket_type();
       }
       return buckets;
    }
 
-   static std::size_t shrink_buckets
-      ( bucket_ptr buckets, std::size_t old_size
-      , allocator_type &alloc, std::size_t new_size)
+   static size_type shrink_buckets
+      ( bucket_ptr buckets, size_type old_size
+      , allocator_type &alloc, size_type new_size)
    {
       if(old_size <= new_size )
          return old_size;
-      std::size_t received_size;
+      size_type received_size;
       if(!alloc.allocation_command
          (boost::interprocess::try_shrink_in_place | boost::interprocess::nothrow_allocation, old_size, new_size, received_size, buckets).first){
          return old_size;
       }
 
-      for( bucket_type *p = detail::get_pointer(buckets) + received_size
-         , *pend = detail::get_pointer(buckets) + old_size
+      for( bucket_type *p = ipcdetail::to_raw_pointer(buckets) + received_size
+         , *pend = ipcdetail::to_raw_pointer(buckets) + old_size
          ; p != pend
          ; ++p){
          p->~bucket_type();
@@ -192,30 +193,30 @@ class iunordered_set_index
       BOOST_ASSERT(buckets == shunk_p);
 
       bucket_ptr buckets_init = buckets + received_size;
-      for(std::size_t i = 0; i < (old_size - received_size); ++i){
-         get_pointer(buckets_init++)->~bucket_type();
+      for(size_type i = 0; i < (old_size - received_size); ++i){
+         to_raw_pointer(buckets_init++)->~bucket_type();
       }
       return received_size;
    }
 
    static bucket_ptr expand_or_create_buckets
-      ( bucket_ptr old_buckets, const std::size_t old_num
-      , allocator_type &alloc,  const std::size_t new_num)
+      ( bucket_ptr old_buckets, const size_type old_num
+      , allocator_type &alloc,  const size_type new_num)
    {
-      std::size_t received_size;
+      size_type received_size;
       std::pair<bucket_ptr, bool> ret =
          alloc.allocation_command
             (boost::interprocess::expand_fwd | boost::interprocess::allocate_new, new_num, new_num, received_size, old_buckets);
       if(ret.first == old_buckets){
          bucket_ptr buckets_init = old_buckets + old_num;
-         for(std::size_t i = 0; i < (new_num - old_num); ++i){
-            new(get_pointer(buckets_init++))bucket_type();
+         for(size_type i = 0; i < (new_num - old_num); ++i){
+            new(to_raw_pointer(buckets_init++))bucket_type();
          }
       }
       else{
          bucket_ptr buckets_init = ret.first;
-         for(std::size_t i = 0; i < new_num; ++i){
-            new(get_pointer(buckets_init++))bucket_type();
+         for(size_type i = 0; i < new_num; ++i){
+            new(to_raw_pointer(buckets_init++))bucket_type();
          }
       }
 
@@ -223,11 +224,11 @@ class iunordered_set_index
    }
 
    static void destroy_buckets
-      (allocator_type &alloc, bucket_ptr buckets, std::size_t num)
+      (allocator_type &alloc, bucket_ptr buckets, size_type num)
    {
       bucket_ptr buckets_destroy = buckets;
-      for(std::size_t i = 0; i < num; ++i){
-         get_pointer(buckets_destroy++)->~bucket_type();
+      for(size_type i = 0; i < num; ++i){
+         to_raw_pointer(buckets_destroy++)->~bucket_type();
       }
       alloc.deallocate(buckets, num);
    }
@@ -255,7 +256,7 @@ class iunordered_set_index
 
    //!This reserves memory to optimize the insertion of n
    //!elements in the index
-   void reserve(std::size_t new_n)
+   void reserve(size_type new_n)
    {
       //Let's maintain a 1.0f load factor
       size_type old_n  = this->bucket_count();
@@ -356,7 +357,7 @@ template<class MapConfig>
 struct is_intrusive_index
    <boost::interprocess::iunordered_set_index<MapConfig> >
 {
-   enum{ value = true };
+   static const bool value = true;
 };
 /// @endcond
 

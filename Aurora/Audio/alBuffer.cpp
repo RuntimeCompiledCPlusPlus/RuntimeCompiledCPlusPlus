@@ -86,7 +86,6 @@ CalBuffer::CalBuffer( const string& strWavFileName_ )
 
 
 	alutLoadWAVFile( paWavFileName, &aleFormat, &palvData, &alsiSize, &alsiFreq, &albLooping );
-	//alutLoadWAV( paWavFileName, &palvData, &aleFormat, &alsiSize, &alsiFreq, &alsiBits );
 	if( AL_NO_ERROR != alGetError() )
 	{
 		//should log this

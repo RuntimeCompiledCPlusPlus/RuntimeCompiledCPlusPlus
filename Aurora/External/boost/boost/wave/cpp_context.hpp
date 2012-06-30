@@ -4,7 +4,7 @@
     
     http://www.boost.org/
 
-    Copyright (c) 2001-2010 Hartmut Kaiser. Distributed under the Boost
+    Copyright (c) 2001-2011 Hartmut Kaiser. Distributed under the Boost
     Software License, Version 1.0. (See accompanying file
     LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
@@ -100,7 +100,7 @@ public:
 // concept checks
 // the given iterator should be at least a forward iterator type
     BOOST_CLASS_REQUIRE(IteratorT, boost, ForwardIteratorConcept);
-    
+
 // public typedefs
     typedef typename LexIteratorT::token_type       token_type;
     typedef typename token_type::string_type        string_type;
@@ -165,7 +165,7 @@ public:
         std::string fname(filename);
         if (filename != "<Unknown>" && filename != "<stdin>") {
             using namespace boost::filesystem;
-            path fpath(complete(path(filename)));
+            path fpath(util::complete_path(path(filename)));
             fname = fpath.string();
         }
         return iterator_type(*this, first, last, position_type(fname.c_str())); 
@@ -177,7 +177,7 @@ public:
         std::string fname(filename);
         if (filename != "<Unknown>" && filename != "<stdin>") {
             using namespace boost::filesystem;
-            path fpath(complete(path(filename)));
+            path fpath(util::complete_path(path(filename)));
             fname = fpath.string();
         }
         return iterator_type(*this, first_, last_, position_type(fname.c_str())); 
@@ -291,6 +291,9 @@ public:
     }
     boost::wave::language_support get_language() const { return language; }
 
+    position_type &get_main_pos() { return macros.get_main_pos(); }
+    position_type const& get_main_pos() const { return macros.get_main_pos(); }
+
 // change and ask for maximal possible include nesting depth
     void set_max_include_nesting_depth(iter_size_type new_depth)
         { iter_ctxs.set_max_include_nesting_depth(new_depth); }
@@ -324,7 +327,7 @@ protected:
             std::string fname(filename);
             if (filename != "<Unknown>" && filename != "<stdin>") {
                 using namespace boost::filesystem;
-                path fpath(complete(path(filename)));
+                path fpath(util::complete_path(path(filename)));
                 fname = fpath.string();
                 includes.set_current_directory(fname.c_str());
             }
@@ -337,9 +340,6 @@ protected:
         { return macros.is_defined(begin, end); }
 
 // maintain include paths (helper functions)
-    bool find_include_file (std::string &s, std::string &d, bool is_system, 
-        char const *current_file) const
-    { return includes.find_include_file(s, d, is_system, current_file); }
     void set_current_directory(char const *path_) 
         { includes.set_current_directory(path_); }
 
@@ -363,8 +363,6 @@ protected:
         { iteration_ptr_type top = iter_ctxs.top(); iter_ctxs.pop(); return top; }
     void push_iteration_context(position_type const &act_pos, iteration_ptr_type iter_ctx)
         { iter_ctxs.push(*this, act_pos, iter_ctx); }
-
-    position_type &get_main_pos() { return macros.get_main_pos(); }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -428,6 +426,10 @@ public:
         { current_relative_filename = real_name; }
     std::string const &get_current_relative_filename() const 
         { return current_relative_filename; }
+
+    bool find_include_file (std::string &s, std::string &d, bool is_system, 
+        char const *current_file) const
+    { return includes.find_include_file(s, d, is_system, current_file); }
 
 #if BOOST_WAVE_SERIALIZATION != 0
 public:

@@ -11,7 +11,7 @@
 #define BOOST_PUSH_RELABEL_MAX_FLOW_HPP
 
 #include <boost/config.hpp>
-#include <cassert>
+#include <boost/assert.hpp>
 #include <vector>
 #include <list>
 #include <iosfwd>
@@ -266,7 +266,7 @@ namespace boost {
       // but it is called "discharge" in the paper and in hi_pr.c.
       void discharge(vertex_descriptor u)
       {
-        assert(get(excess_flow, u) > 0);
+        BOOST_ASSERT(get(excess_flow, u) > 0);
         while (1) {
           out_edge_iterator ai, ai_end;
           for (boost::tie(ai, ai_end) = current[u]; ai != ai_end; ++ai) {
@@ -450,7 +450,7 @@ namespace boost {
         for (boost::tie(u_iter, u_end) = vertices(g); u_iter != u_end; ++u_iter) {
           u = *u_iter;
           put(color, u, ColorTraits::white());
-          parent[u] = u;
+          parent[get(index, u)] = u;
           current[u] = out_edges(u, g);
         }
         // eliminate flow cycles and topologically order the vertices
@@ -468,7 +468,7 @@ namespace boost {
                   vertex_descriptor v = target(a, g);
                   if (get(color, v) == ColorTraits::white()) {
                     put(color, v, ColorTraits::gray());
-                    parent[v] = u;
+                    parent[get(index, v)] = u;
                     u = v;
                     break;
                   } else if (get(color, v) == ColorTraits::gray()) {
@@ -523,12 +523,12 @@ namespace boost {
                     bos_null = false;
                     tos = u;
                   } else {
-                    topo_next[u] = tos;
+                    topo_next[get(index, u)] = tos;
                     tos = u;
                   }
                 }
                 if (u != r) {
-                  u = parent[u];
+                  u = parent[get(index, u)];
                   ++current[u].first;
                 } else
                   break;
@@ -540,7 +540,7 @@ namespace boost {
         // return excess flows
         // note that the sink is not on the stack
         if (! bos_null) {
-          for (u = tos; u != bos; u = topo_next[u]) {
+          for (u = tos; u != bos; u = topo_next[get(index, u)]) {
             boost::tie(ai, a_end) = out_edges(u, g);
             while (get(excess_flow, u) > 0 && ai != a_end) {
               if (get(capacity, *ai) == 0 && is_residual_edge(*ai))
@@ -550,8 +550,8 @@ namespace boost {
           }
           // do the bottom
           u = bos;
-          ai = out_edges(u, g).first;
-          while (get(excess_flow, u) > 0) {
+          boost::tie(ai, a_end) = out_edges(u, g);
+          while (get(excess_flow, u) > 0 && ai != a_end) {
             if (get(capacity, *ai) == 0 && is_residual_edge(*ai))
               push_flow(*ai);
             ++ai;
@@ -703,8 +703,8 @@ namespace boost {
     
     algo.convert_preflow_to_flow();
     
-    assert(algo.is_flow());
-    assert(algo.is_optimal());
+    BOOST_ASSERT(algo.is_flow());
+    BOOST_ASSERT(algo.is_optimal());
     
     return flow;
   } // push_relabel_max_flow()

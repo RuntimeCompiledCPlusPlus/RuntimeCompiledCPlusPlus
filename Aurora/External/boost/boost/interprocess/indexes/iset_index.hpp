@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2011. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -112,7 +112,7 @@ class iset_index
 
    //!This reserves memory to optimize the insertion of n
    //!elements in the index
-   void reserve(std::size_t)
+   void reserve(typename MapConfig::segment_manager_base::size_type)
    {  /*Does nothing, map has not reserve or rehash*/  }
 
    //!This frees all unnecessary memory
@@ -138,7 +138,7 @@ template<class MapConfig>
 struct is_intrusive_index
    <boost::interprocess::iset_index<MapConfig> >
 {
-   enum{ value = true };
+   static const bool value = true;
 };
 /// @endcond
 

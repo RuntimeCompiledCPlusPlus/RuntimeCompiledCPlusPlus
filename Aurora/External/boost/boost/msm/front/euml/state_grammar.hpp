@@ -11,6 +11,10 @@
 #ifndef BOOST_MSM_FRONT_EUML_STATE_GRAMMAR_H
 #define BOOST_MSM_FRONT_EUML_STATE_GRAMMAR_H
 
+#ifdef BOOST_MSM_EUML_PHOENIX_SUPPORT
+#include <boost/phoenix/core/meta_grammar.hpp>
+#endif
+
 #include <boost/msm/front/euml/common.hpp>
 #include <boost/fusion/container/vector.hpp>
 #include <boost/fusion/include/pair.hpp>
@@ -18,6 +22,7 @@
 
 #include <boost/mpl/remove_if.hpp>
 #include <boost/mpl/eval_if.hpp>
+#include <boost/mpl/assert.hpp>
 
 #include <boost/msm/row_tags.hpp>
 #include <boost/msm/front/common_states.hpp>
@@ -44,7 +49,7 @@ template<class StateNameTag,
          class Defer = ::boost::mpl::vector0<>,
          class BASE = ::boost::msm::front::default_base_state>
 struct func_state :  public ::boost::msm::front::detail::state_base<BASE,Attributes>, 
-                     euml_state<func_state<StateNameTag,EntryFunctor,ExitFunctor,Attributes,Flags,Defer,BASE> >
+                     euml_state_intern<func_state<StateNameTag,EntryFunctor,ExitFunctor,Attributes,Flags,Defer,BASE> >
 {
     func_state(){}
     // grammar testing
@@ -79,7 +84,7 @@ template<class StateNameTag,
          class Defer = ::boost::mpl::vector0<>,
          class BASE = default_base_state>
 struct entry_func_state :  public ::boost::msm::front::detail::state_base<BASE,Attributes>, 
-                           euml_state<entry_func_state<StateNameTag,ZoneIndex,EntryFunctor,ExitFunctor,Attributes,Flags,Defer,BASE> >
+                           euml_state_intern<entry_func_state<StateNameTag,ZoneIndex,EntryFunctor,ExitFunctor,Attributes,Flags,Defer,BASE> >
 {
     entry_func_state(){}
     // grammar testing
@@ -119,7 +124,7 @@ template<class StateNameTag,
          class BASE = default_base_state>
 struct explicit_entry_func_state :  public ::boost::msm::front::detail::state_base<BASE,Attributes>, 
                                     public ::boost::msm::front::explicit_entry<ZoneIndex>,
-                                    euml_state<explicit_entry_func_state<StateNameTag,
+                                    euml_state_intern<explicit_entry_func_state<StateNameTag,
                                         ZoneIndex,EntryFunctor,ExitFunctor,Attributes,Flags,Defer,BASE> >
 {
     explicit_entry_func_state(){}
@@ -155,7 +160,7 @@ template<class StateNameTag,
          class Defer = ::boost::mpl::vector0<>,
          class BASE = default_base_state>
 struct exit_func_state :   public ::boost::msm::front::detail::state_base<BASE,Attributes>, 
-                           euml_state<exit_func_state<StateNameTag,Event,EntryFunctor,ExitFunctor,Attributes,Flags,Defer,BASE> >
+                           euml_state_intern<exit_func_state<StateNameTag,Event,EntryFunctor,ExitFunctor,Attributes,Flags,Defer,BASE> >
 {
     exit_func_state(){}
     // grammar testing
@@ -208,6 +213,51 @@ struct BuildActionSequence
         >
    >
 {};
+
+#ifdef BOOST_MSM_EUML_PHOENIX_SUPPORT
+struct CustomPhoenixGrammar
+    : proto::switch_<CustomPhoenixGrammar>
+{
+    template <typename Tag, typename Dummy = void>
+    struct case_ 
+        : proto::and_<
+            proto::not_<BuildGuards> ,
+            proto::not_<BuildActionSequence>,
+            boost::phoenix::meta_grammar::case_<Tag>
+        >
+    {};
+};
+#endif
+
+struct GuardGrammar
+        : proto::or_<
+#ifdef BOOST_MSM_EUML_PHOENIX_SUPPORT
+            proto::when<
+                CustomPhoenixGrammar ,
+                proto::_
+            >,
+#endif
+            proto::when<
+                BuildGuards ,
+                BuildGuards
+            >
+    >
+ {};
+
+struct ActionGrammar
+        : proto::or_<
+#ifdef BOOST_MSM_EUML_PHOENIX_SUPPORT
+            proto::when<
+                CustomPhoenixGrammar ,
+                proto::_
+            >,
+#endif
+            proto::when<
+                BuildActionSequence ,
+                BuildActionSequence
+            >
+    >
+ {};
 
 struct BuildActionsCases
 {
@@ -484,23 +534,27 @@ struct BuildActionsCases::case_<proto::tag::terminal>
         proto::when<
             proto::terminal<action_tag>,
             get_action_name<proto::_ >()
-                >,
+            >,
         proto::when<
             proto::terminal<state_tag>,
-            proto::_
-                >,
+            get_state_name<proto::_>()
+            >,
         proto::when<
             proto::terminal<flag_tag>,
             proto::_
-                >,
+            >,
         proto::when<
             proto::terminal<event_tag>,
             proto::_
-                >,
+            >,
         proto::when<
-                proto::terminal<proto::_>,
-                get_fct<proto::_ >()
-                >
+            proto::terminal<fsm_artefact_tag>,
+            get_fct<proto::_ >()
+            >,
+        proto::when<
+            proto::terminal<proto::_>,
+            proto::_value
+            >
     >
 {};
 struct BuildActions
@@ -515,7 +569,7 @@ struct attr_name ## _                                                           
         typedef ::boost::fusion::pair<attr_name ## _,attr_type> attribute_type;                         \
         attr_name ## _ (){}                                                                             \
     };                                                                                                  \
-attr_name ## _ const attr_name;
+attr_name ## _ const attr_name = attr_name ## _();
 
 struct make_attributes_tag
 {
@@ -548,8 +602,8 @@ struct attribute
    typedef ::boost::fusion::pair<int,int> attribute_type;
 };
 
- attribute<> const attributes_ = {{}};
- attribute<> const no_attributes_ = {{}};
+attribute<> const attributes_ = {{{}}};
+ attribute<> const no_attributes_ = {{{}}};
 
  struct BuildAttributesHelper
    : proto::make<
@@ -618,8 +672,8 @@ struct configure
    )
 };
 
- configure<> const configure_ = {{}};
- configure<> const no_configure_ = {{}};
+ configure<> const configure_ = {{{}}};
+ configure<> const no_configure_ = {{{}}};
 
 struct BuildConfigure 
  : proto::make<
@@ -650,7 +704,7 @@ struct define_init
    )
 };
 
-define_init<> const init_ = {{}};
+define_init<> const init_ = {{{}}};
 struct BuildInit
    : proto::make<
        ::boost::mpl::pop_front<
@@ -668,12 +722,12 @@ inline
 func_state<
 StateNameTag,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type,
 typename boost::result_of<BuildAttributes(Attr)>::type,
 typename boost::result_of<BuildFlags(Configure)>::type,
@@ -682,8 +736,8 @@ BASE
 >
 build_state(Expr1 const& ,Expr2 const& , Attr const&, Configure const&, BASE )
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
     typedef typename boost::result_of<BuildAttributes(Attr)>::type attributes_type;
     typedef typename boost::result_of<BuildFlags(Configure)>::type flags_type;
     typedef typename boost::result_of<BuildDeferred(Configure)>::type deferred_type;
@@ -695,12 +749,12 @@ inline
 func_state<
 StateNameTag,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type,
 typename boost::result_of<BuildAttributes(Attr)>::type,
 typename boost::result_of<BuildFlags(Configure)>::type,
@@ -708,8 +762,8 @@ typename boost::result_of<BuildDeferred(Configure)>::type
 >
 build_state(Expr1 const& ,Expr2 const& ,Attr const&, Configure const&)
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
     typedef typename boost::result_of<BuildAttributes(Attr)>::type attributes_type;
     typedef typename boost::result_of<BuildFlags(Configure)>::type flags_type;
     typedef typename boost::result_of<BuildDeferred(Configure)>::type deferred_type;
@@ -721,19 +775,19 @@ inline
 func_state<
 StateNameTag,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type,
 typename boost::result_of<BuildAttributes(Attr)>::type
 >
 build_state(Expr1 const& ,Expr2 const& ,Attr const&)
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
     typedef typename boost::result_of<BuildAttributes(Attr)>::type attributes_type;
     return func_state<StateNameTag,entry_action,exit_action,attributes_type>();
 }
@@ -743,18 +797,18 @@ inline
 func_state<
 StateNameTag,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type
 >
 build_state(Expr1 const& ,Expr2 const& )
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
     return func_state<StateNameTag,entry_action,exit_action>();
 }
 
@@ -763,14 +817,14 @@ inline
 func_state<
 StateNameTag,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 NoAction
 >
 build_state(Expr1 const& )
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
     return func_state<StateNameTag,entry_action,NoAction>();
 }
 template<class StateNameTag>
@@ -799,7 +853,7 @@ template<class StateNameTag,
          class OnExceptionFunctor = NoAction,
          class BASE = ::boost::msm::front::default_base_state>
 struct func_state_machine :  public ::boost::msm::front::detail::state_base<BASE,Attributes>, 
-                             euml_state<func_state_machine<StateNameTag,STT,Init,EntryFunctor,ExitFunctor,Attributes,Flags,
+                             euml_state_intern<func_state_machine<StateNameTag,STT,Init,EntryFunctor,ExitFunctor,Attributes,Flags,
                                                         Defer,NoTransitionFunctor,OnExceptionFunctor,BASE> >
 {
     func_state_machine(){}
@@ -869,13 +923,13 @@ StateNameTag,
 STT,
 typename boost::result_of<BuildInit(Init)>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type
 >
 build_sm(STT ,Init , Expr1 const&)
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
     typedef typename boost::result_of<BuildInit(Init)>::type init_type;
     return func_state_machine<StateNameTag,STT,init_type,entry_action>();
 }
@@ -887,19 +941,19 @@ StateNameTag,
 STT,
 typename boost::result_of<BuildInit(Init)>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type
 >
 build_sm(STT ,Init , Expr1 const& ,Expr2 const& )
 {
     typedef typename boost::result_of<BuildInit(Init)>::type init_type;
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
     return func_state_machine<StateNameTag,STT,init_type,entry_action,exit_action>();
 }
 
@@ -910,20 +964,20 @@ StateNameTag,
 STT,
 typename boost::result_of<BuildInit(Init)>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type,
 typename boost::result_of<BuildAttributes(Attr)>::type
 >
 build_sm(STT ,Init , Expr1 const& ,Expr2 const& ,Attr const&)
 {
     typedef typename boost::result_of<BuildInit(Init)>::type init_type;
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
     typedef typename boost::result_of<BuildAttributes(Attr)>::type attributes_type;
     return func_state_machine<StateNameTag,STT,init_type,entry_action,exit_action,attributes_type>();
 }
@@ -935,12 +989,12 @@ StateNameTag,
 STT,
 typename boost::result_of<BuildInit(Init)>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type,
 typename boost::result_of<BuildAttributes(Attr)>::type,
 typename boost::result_of<BuildFlags(Configure)>::type,
@@ -950,8 +1004,8 @@ typename boost::result_of<BuildConfigure(Configure)>::type
 build_sm(STT ,Init , Expr1 const& ,Expr2 const& , Attr const&, Configure const& )
 {
     typedef typename boost::result_of<BuildInit(Init)>::type init_type;
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
     typedef typename boost::result_of<BuildAttributes(Attr)>::type attributes_type;
     typedef typename boost::result_of<BuildFlags(Configure)>::type flags_type;
     typedef typename boost::result_of<BuildDeferred(Configure)>::type deferred_type;
@@ -968,28 +1022,28 @@ StateNameTag,
 STT,
 typename boost::result_of<BuildInit(Init)>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type,
 typename boost::result_of<BuildAttributes(Attr)>::type,
 typename boost::result_of<BuildFlags(Configure)>::type,
 typename boost::result_of<BuildDeferred(Configure)>::type,
 typename boost::result_of<BuildConfigure(Configure)>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr3,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr3)>,
+    typename proto::matches<Expr3,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr3)>,
     make_invalid_type>::type
 >
 build_sm(STT ,Init , Expr1 const& ,Expr2 const& ,Attr const&, Configure const&, Expr3 const& )
 {
     typedef typename boost::result_of<BuildInit(Init)>::type init_type;
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr3)>::type no_transition_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr3)>::type no_transition_action;
     typedef typename boost::result_of<BuildAttributes(Attr)>::type attributes_type;
     typedef typename boost::result_of<BuildFlags(Configure)>::type flags_type;
     typedef typename boost::result_of<BuildDeferred(Configure)>::type deferred_type;
@@ -1005,36 +1059,36 @@ StateNameTag,
 STT,
 typename boost::result_of<BuildInit(Init)>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type,
 typename boost::result_of<BuildAttributes(Attr)>::type,
 typename boost::result_of<BuildFlags(Configure)>::type,
 typename boost::result_of<BuildDeferred(Configure)>::type,
 typename boost::result_of<BuildConfigure(Configure)>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr3,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr3)>,
+    typename proto::matches<Expr3,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr3)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr4,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr4)>,
+    typename proto::matches<Expr4,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr4)>,
     make_invalid_type>::type
 >
 build_sm(STT ,Init , Expr1 const& ,Expr2 const& , Attr const&, Configure const&, Expr3 const&, Expr4 const& )
 {
     typedef typename boost::result_of<BuildInit(Init)>::type init_type;
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
     typedef typename boost::result_of<BuildFlags(Configure)>::type flags_type;
     typedef typename boost::result_of<BuildDeferred(Configure)>::type deferred_type;
     typedef typename boost::result_of<BuildConfigure(Configure)>::type config_type;
-    typedef typename boost::result_of<BuildActionSequence(Expr3)>::type no_transition_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr4)>::type on_exception_action;
+    typedef typename boost::result_of<ActionGrammar(Expr3)>::type no_transition_action;
+    typedef typename boost::result_of<ActionGrammar(Expr4)>::type on_exception_action;
     typedef typename boost::result_of<BuildAttributes(Attr)>::type attributes_type;
     return func_state_machine<StateNameTag,STT,init_type,entry_action,exit_action,attributes_type,flags_type,deferred_type,
                               config_type,no_transition_action,on_exception_action>();
@@ -1047,37 +1101,37 @@ StateNameTag,
 STT,
 typename boost::result_of<BuildInit(Init)>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type,
 typename boost::result_of<BuildAttributes(Attr)>::type,
 typename boost::result_of<BuildFlags(Configure)>::type,
 typename boost::result_of<BuildDeferred(Configure)>::type,
 typename boost::result_of<BuildConfigure(Configure)>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr3,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr3)>,
+    typename proto::matches<Expr3,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr3)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr4,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr4)>,
+    typename proto::matches<Expr4,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr4)>,
     make_invalid_type>::type,
 BASE
 >
 build_sm(STT ,Init , Expr1 const& ,Expr2 const& ,Attr const& , Configure const&, Expr3 const&, Expr4 const& , BASE )
 {
     typedef typename boost::result_of<BuildInit(Init)>::type init_type;
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
     typedef typename boost::result_of<BuildFlags(Configure)>::type flags_type;
     typedef typename boost::result_of<BuildDeferred(Configure)>::type deferred_type;
     typedef typename boost::result_of<BuildConfigure(Configure)>::type config_type;
-    typedef typename boost::result_of<BuildActionSequence(Expr3)>::type no_transition_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr4)>::type on_exception_action;
+    typedef typename boost::result_of<ActionGrammar(Expr3)>::type no_transition_action;
+    typedef typename boost::result_of<ActionGrammar(Expr4)>::type on_exception_action;
     typedef typename boost::result_of<BuildAttributes(Attr)>::type attributes_type;
     return func_state_machine<StateNameTag,STT,init_type,entry_action,exit_action,attributes_type,flags_type,deferred_type,
                               config_type,no_transition_action,on_exception_action,BASE>();
@@ -1096,12 +1150,12 @@ inline
 func_state<
 StateNameTag,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type,
 typename boost::result_of<BuildAttributes(Attr)>::type,
 typename ::boost::mpl::push_back< typename boost::result_of<BuildFlags(Configure)>::type,
@@ -1111,8 +1165,8 @@ BASE
 >
 build_terminate_state(Expr1 const& ,Expr2 const& , Attr const&, Configure const&, BASE )
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
     typedef typename ::boost::mpl::push_back<
         typename boost::result_of<BuildFlags(Configure)>::type,
         ::boost::msm::TerminateFlag >::type flags_type;
@@ -1126,12 +1180,12 @@ inline
 func_state<
 StateNameTag,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type,
 typename boost::result_of<BuildAttributes(Attr)>::type,
 typename ::boost::mpl::push_back< typename boost::result_of<BuildFlags(Configure)>::type,
@@ -1140,8 +1194,8 @@ typename boost::result_of<BuildDeferred(Configure)>::type
 >
 build_terminate_state(Expr1 const& ,Expr2 const& ,Attr const&, Configure const&)
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
     typedef typename ::boost::mpl::push_back<
         typename boost::result_of<BuildFlags(Configure)>::type,
         ::boost::msm::TerminateFlag >::type flags_type;
@@ -1156,20 +1210,20 @@ inline
 func_state<
 StateNameTag,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type,
 typename boost::result_of<BuildAttributes(Attr)>::type,
 ::boost::mpl::vector<boost::msm::TerminateFlag> 
 >
 build_terminate_state(Expr1 const& ,Expr2 const& ,Attr const&)
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
     typedef typename boost::result_of<BuildAttributes(Attr)>::type attributes_type;
     return func_state<StateNameTag,entry_action,exit_action,attributes_type, ::boost::mpl::vector< ::boost::msm::TerminateFlag> >();
 }
@@ -1179,20 +1233,20 @@ inline
 func_state<
 StateNameTag,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type,
 ::boost::fusion::vector<>,
 ::boost::mpl::vector<boost::msm::TerminateFlag> 
 >
 build_terminate_state(Expr1 const& ,Expr2 const& )
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
     return func_state<StateNameTag,entry_action,exit_action,
                       ::boost::fusion::vector<>, ::boost::mpl::vector< ::boost::msm::TerminateFlag> >();
 }
@@ -1202,8 +1256,8 @@ inline
 func_state<
 StateNameTag,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 NoAction,
 ::boost::fusion::vector<>,
@@ -1211,7 +1265,7 @@ NoAction,
 >
 build_terminate_state(Expr1 const& )
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
     return func_state<StateNameTag,entry_action,NoAction,::boost::fusion::vector<>,::boost::mpl::vector<boost::msm::TerminateFlag> >();
 }
 template<class StateNameTag>
@@ -1233,12 +1287,12 @@ inline
 func_state<
 StateNameTag,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type,
 typename boost::result_of<BuildAttributes(Attr)>::type,
 typename ::boost::mpl::push_back<
@@ -1251,8 +1305,8 @@ BASE
 >
 build_interrupt_state(EndInterruptEvent const&,Expr1 const& ,Expr2 const& , Attr const&, Configure const&, BASE )
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
     typedef typename boost::result_of<BuildAttributes(Attr)>::type attributes_type;
     typedef typename ::boost::mpl::push_back<
                 typename ::boost::mpl::push_back< 
@@ -1269,12 +1323,12 @@ inline
 func_state<
 StateNameTag,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type,
 typename boost::result_of<BuildAttributes(Attr)>::type,
 typename ::boost::mpl::push_back<
@@ -1286,8 +1340,8 @@ typename boost::result_of<BuildDeferred(Configure)>::type
 >
 build_interrupt_state(EndInterruptEvent const&,Expr1 const& ,Expr2 const& ,Attr const&, Configure const&)
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
     typedef typename boost::result_of<BuildAttributes(Attr)>::type attributes_type;
 
     typedef typename ::boost::mpl::push_back<
@@ -1306,20 +1360,20 @@ inline
 func_state<
 StateNameTag,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type,
 typename boost::result_of<BuildAttributes(Attr)>::type,
 ::boost::mpl::vector<boost::msm::InterruptedFlag, boost::msm::EndInterruptFlag<EndInterruptEvent> > 
 >
 build_interrupt_state(EndInterruptEvent const&,Expr1 const& ,Expr2 const& ,Attr const&)
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
     typedef typename boost::result_of<BuildAttributes(Attr)>::type attributes_type;
     return func_state<StateNameTag,entry_action,exit_action,attributes_type, 
                      ::boost::mpl::vector< boost::msm::InterruptedFlag, boost::msm::EndInterruptFlag<EndInterruptEvent> > >();
@@ -1330,20 +1384,20 @@ inline
 func_state<
 StateNameTag,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type,
 ::boost::fusion::vector<>,
 ::boost::mpl::vector<boost::msm::InterruptedFlag, boost::msm::EndInterruptFlag<EndInterruptEvent> > 
 >
 build_interrupt_state(EndInterruptEvent const&,Expr1 const& ,Expr2 const& )
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
     return func_state<StateNameTag,entry_action,exit_action,
                       ::boost::fusion::vector<>, 
                       ::boost::mpl::vector< boost::msm::InterruptedFlag, boost::msm::EndInterruptFlag<EndInterruptEvent> > >();
@@ -1354,8 +1408,8 @@ inline
 func_state<
 StateNameTag,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 NoAction,
 ::boost::fusion::vector<>,
@@ -1363,7 +1417,7 @@ NoAction,
 >
 build_interrupt_state(EndInterruptEvent const&, Expr1 const&)
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
     return func_state<StateNameTag,entry_action,NoAction, ::boost::fusion::vector<>,
                      ::boost::mpl::vector<boost::msm::InterruptedFlag, boost::msm::EndInterruptFlag<EndInterruptEvent> > >();
 }
@@ -1389,12 +1443,12 @@ entry_func_state<
 StateNameTag,
 ZoneIndex,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type,
 typename boost::result_of<BuildAttributes(Attr)>::type,
 typename boost::result_of<BuildFlags(Configure)>::type,
@@ -1403,8 +1457,8 @@ BASE
 >
 build_entry_state(Expr1 const& ,Expr2 const& , Attr const&, Configure const&, BASE )
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
     typedef typename boost::result_of<BuildFlags(Configure)>::type flags_type;
     typedef typename boost::result_of<BuildDeferred(Configure)>::type deferred_type;
     typedef typename boost::result_of<BuildAttributes(Attr)>::type attributes_type;
@@ -1417,12 +1471,12 @@ entry_func_state<
 StateNameTag,
 ZoneIndex,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type,
 typename boost::result_of<BuildAttributes(Attr)>::type,
 typename boost::result_of<BuildFlags(Configure)>::type,
@@ -1430,8 +1484,8 @@ typename boost::result_of<BuildDeferred(Configure)>::type
 >
 build_entry_state(Expr1 const& ,Expr2 const& ,Attr const&, Configure const&)
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
     typedef typename boost::result_of<BuildFlags(Configure)>::type flags_type;
     typedef typename boost::result_of<BuildDeferred(Configure)>::type deferred_type;
     typedef typename boost::result_of<BuildAttributes(Attr)>::type attributes_type;
@@ -1444,19 +1498,19 @@ entry_func_state<
 StateNameTag,
 ZoneIndex,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type,
 typename boost::result_of<BuildAttributes(Attr)>::type
 >
 build_entry_state(Expr1 const& ,Expr2 const& ,Attr const&)
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
     typedef typename boost::result_of<BuildAttributes(Attr)>::type attributes_type;
     return entry_func_state<StateNameTag,ZoneIndex,entry_action,exit_action,attributes_type>();
 }
@@ -1467,18 +1521,18 @@ entry_func_state<
 StateNameTag,
 ZoneIndex,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type
 >
 build_entry_state(Expr1 const& ,Expr2 const& )
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
     return entry_func_state<StateNameTag,ZoneIndex,entry_action,exit_action>();
 }
 
@@ -1488,14 +1542,14 @@ entry_func_state<
 StateNameTag,
 ZoneIndex,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 NoAction
 >
 build_entry_state(Expr1 const& )
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
     return entry_func_state<StateNameTag,ZoneIndex,entry_action,NoAction>();
 }
 
@@ -1518,12 +1572,12 @@ exit_func_state<
 StateNameTag,
 Event,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type,
 typename boost::result_of<BuildAttributes(Attr)>::type,
 typename boost::result_of<BuildFlags(Configure)>::type,
@@ -1532,8 +1586,8 @@ BASE
 >
 build_exit_state(Event const&,Expr1 const& ,Expr2 const& , Attr const&, Configure const&, BASE )
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
     typedef typename boost::result_of<BuildFlags(Configure)>::type flags_type;
     typedef typename boost::result_of<BuildDeferred(Configure)>::type deferred_type;
     typedef typename boost::result_of<BuildAttributes(Attr)>::type attributes_type;
@@ -1546,12 +1600,12 @@ exit_func_state<
 StateNameTag,
 Event,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type,
 typename boost::result_of<BuildAttributes(Attr)>::type,
 typename boost::result_of<BuildFlags(Configure)>::type,
@@ -1559,8 +1613,8 @@ typename boost::result_of<BuildDeferred(Configure)>::type
 >
 build_exit_state(Event const&,Expr1 const& ,Expr2 const& ,Attr const&, Configure const&)
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
     typedef typename boost::result_of<BuildFlags(Configure)>::type flags_type;
     typedef typename boost::result_of<BuildDeferred(Configure)>::type deferred_type;
     typedef typename boost::result_of<BuildAttributes(Attr)>::type attributes_type;
@@ -1573,19 +1627,19 @@ exit_func_state<
 StateNameTag,
 Event,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type,
 typename boost::result_of<BuildAttributes(Attr)>::type
 >
 build_exit_state(Event const&,Expr1 const& ,Expr2 const& ,Attr const&)
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
     typedef typename boost::result_of<BuildAttributes(Attr)>::type attributes_type;
     return exit_func_state<StateNameTag,Event,entry_action,exit_action,attributes_type>();
 }
@@ -1596,18 +1650,18 @@ exit_func_state<
 StateNameTag,
 Event,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type
 >
 build_exit_state(Event const&,Expr1 const& ,Expr2 const& )
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
     return exit_func_state<StateNameTag,Event,entry_action,exit_action>();
 }
 
@@ -1617,14 +1671,14 @@ exit_func_state<
 StateNameTag,
 Event,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 NoAction
 >
 build_exit_state(Event const&, Expr1 const& )
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
     return exit_func_state<StateNameTag,Event,entry_action,NoAction>();
 }
 
@@ -1647,12 +1701,12 @@ explicit_entry_func_state<
 StateNameTag,
 ZoneIndex,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type,
 typename boost::result_of<BuildAttributes(Attr)>::type,
 typename boost::result_of<BuildFlags(Configure)>::type,
@@ -1661,8 +1715,8 @@ BASE
 >
 build_explicit_entry_state(Expr1 const& ,Expr2 const& , Attr const&, Configure const&, BASE )
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
     typedef typename boost::result_of<BuildFlags(Configure)>::type flags_type;
     typedef typename boost::result_of<BuildDeferred(Configure)>::type deferred_type;
     typedef typename boost::result_of<BuildAttributes(Attr)>::type attributes_type;
@@ -1675,12 +1729,12 @@ explicit_entry_func_state<
 StateNameTag,
 ZoneIndex,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type,
 typename boost::result_of<BuildAttributes(Attr)>::type,
 typename boost::result_of<BuildFlags(Configure)>::type,
@@ -1688,8 +1742,8 @@ typename boost::result_of<BuildDeferred(Configure)>::type
 >
 build_explicit_entry_state(Expr1 const& ,Expr2 const& ,Attr const&, Configure const&)
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
     typedef typename boost::result_of<BuildFlags(Configure)>::type flags_type;
     typedef typename boost::result_of<BuildDeferred(Configure)>::type deferred_type;
     typedef typename boost::result_of<BuildAttributes(Attr)>::type attributes_type;
@@ -1702,19 +1756,19 @@ explicit_entry_func_state<
 StateNameTag,
 ZoneIndex,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type,
 typename boost::result_of<BuildAttributes(Attr)>::type
 >
 build_explicit_entry_state(Expr1 const& ,Expr2 const& ,Attr const&)
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
     typedef typename boost::result_of<BuildAttributes(Attr)>::type attributes_type;
     return explicit_entry_func_state<StateNameTag,ZoneIndex,entry_action,exit_action,attributes_type>();
 }
@@ -1725,18 +1779,18 @@ explicit_entry_func_state<
 StateNameTag,
 ZoneIndex,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr2,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr2)>,
+    typename proto::matches<Expr2,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr2)>,
     make_invalid_type>::type
 >
 build_explicit_entry_state(Expr1 const& ,Expr2 const& )
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
-    typedef typename boost::result_of<BuildActionSequence(Expr2)>::type exit_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr2)>::type exit_action;
     return explicit_entry_func_state<StateNameTag,ZoneIndex,entry_action,exit_action>();
 }
 
@@ -1746,14 +1800,14 @@ explicit_entry_func_state<
 StateNameTag,
 ZoneIndex,
 typename ::boost::mpl::eval_if<
-    typename proto::matches<Expr1,BuildActionSequence>::type,
-    boost::result_of<BuildActionSequence(Expr1)>,
+    typename proto::matches<Expr1,ActionGrammar>::type,
+    boost::result_of<ActionGrammar(Expr1)>,
     make_invalid_type>::type,
 NoAction
 >
 build_explicit_entry_state(Expr1 const& )
 {
-    typedef typename boost::result_of<BuildActionSequence(Expr1)>::type entry_action;
+    typedef typename boost::result_of<ActionGrammar(Expr1)>::type entry_action;
     return explicit_entry_func_state<StateNameTag,ZoneIndex,entry_action,NoAction>();
 }
 

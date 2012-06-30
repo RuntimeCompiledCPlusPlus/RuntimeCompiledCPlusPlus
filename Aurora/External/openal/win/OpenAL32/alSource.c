@@ -108,7 +108,7 @@ ALAPI ALvoid ALAPIENTRY alGenSources(ALsizei n,ALuint *sources)
 
 			Context->Source->update1 |= CONEANGLES | FREQUENCY | POSITION | VELOCITY | ORIENTATION |
 				MINDIST | MAXDIST | LOOPED | VOLUME | CONEOUTSIDEVOLUME | STATE;
-
+/*
             Context->Source->eaxBP.lDirect = EAXBUFFER_DEFAULTDIRECT;
             Context->Source->eaxBP.lDirectHF = EAXBUFFER_DEFAULTDIRECTHF;
             Context->Source->eaxBP.lRoom = EAXBUFFER_DEFAULTROOM;
@@ -122,7 +122,7 @@ ALAPI ALvoid ALAPIENTRY alGenSources(ALsizei n,ALuint *sources)
             Context->Source->eaxBP.lOutsideVolumeHF = EAXBUFFER_DEFAULTOUTSIDEVOLUMEHF;
             Context->Source->eaxBP.flAirAbsorptionFactor = EAXBUFFER_DEFAULTAIRABSORPTIONFACTOR;
             Context->Source->eaxBP.dwFlags = EAXBUFFER_DEFAULTFLAGS;
-			
+*/			
 			Context->Source->update2 |= SALLPARAMS;
             Context->SourceCount++;
 			i++;
@@ -209,7 +209,7 @@ ALAPI ALvoid ALAPIENTRY alGenSources(ALsizei n,ALuint *sources)
 
 			Source->next->update1 |= CONEANGLES | FREQUENCY | POSITION | VELOCITY | ORIENTATION |
 				MINDIST | MAXDIST | LOOPED | VOLUME | CONEOUTSIDEVOLUME | STATE;
-
+/*
             Source->next->eaxBP.lDirect = EAXBUFFER_DEFAULTDIRECT;
             Source->next->eaxBP.lDirectHF = EAXBUFFER_DEFAULTDIRECTHF;
             Source->next->eaxBP.lRoom = EAXBUFFER_DEFAULTROOM;
@@ -223,7 +223,7 @@ ALAPI ALvoid ALAPIENTRY alGenSources(ALsizei n,ALuint *sources)
             Source->next->eaxBP.lOutsideVolumeHF = EAXBUFFER_DEFAULTOUTSIDEVOLUMEHF;
             Source->next->eaxBP.flAirAbsorptionFactor = EAXBUFFER_DEFAULTAIRABSORPTIONFACTOR;
             Source->next->eaxBP.dwFlags = EAXBUFFER_DEFAULTFLAGS;
-			
+*/			
 			Source->next->update2 |= SALLPARAMS;
 
 			Context->SourceCount++;

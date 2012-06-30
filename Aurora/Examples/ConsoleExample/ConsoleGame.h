@@ -46,13 +46,7 @@ public:
 
 private:
 
-
-	void InitObjects();
-	void DeleteObjects();
-	void ResetGame();
-
-
-	// Private Members
+	// Runtime Systems
 	ICompilerLogger*		m_pCompilerLogger;
 	IRuntimeObjectSystem*	m_pRuntimeObjectSystem;
 

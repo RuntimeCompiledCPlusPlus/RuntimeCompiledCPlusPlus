@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2011. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -35,25 +35,21 @@ namespace interprocess{
 namespace bi = boost::intrusive;
 }}
 
-namespace std {
-
-template <class T>
-class allocator;
-
-template <class T>
-struct less;
-
-template <class T1, class T2>
-struct pair;
-
-template <class CharType> 
-struct char_traits;
-
-}  //namespace std {
+#include <utility>
+#include <memory>
+#include <functional>
+#include <iosfwd>
+#include <string>
 
 /// @endcond
 
 namespace boost { namespace interprocess {
+
+//////////////////////////////////////////////////////////////////////////////
+//                            permissions
+//////////////////////////////////////////////////////////////////////////////
+
+class permissions;
 
 //////////////////////////////////////////////////////////////////////////////
 //                            shared_memory
@@ -61,7 +57,7 @@ namespace boost { namespace interprocess {
 
 class shared_memory_object;
 
-#if defined (BOOST_INTERPROCESS_WINDOWS)
+#if defined (BOOST_INTERPROCESS_WINDOWS) || defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
 class windows_shared_memory;
 #endif   //#if defined (BOOST_INTERPROCESS_WINDOWS)
 
@@ -152,7 +148,9 @@ class cached_adaptive_pool;
 //                            offset_ptr
 //////////////////////////////////////////////////////////////////////////////
 
-template <class T>
+static const std::size_t offset_type_alignment = 0;
+
+template <class T, class DifferenceType = std::ptrdiff_t, class OffsetType = std::size_t, std::size_t Alignment = offset_type_alignment>
 class offset_ptr;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -233,7 +231,7 @@ wmanaged_shared_memory;
 //                      Windows shared memory managed memory classes
 //////////////////////////////////////////////////////////////////////////////
 
-#if defined (BOOST_INTERPROCESS_WINDOWS)
+#if defined (BOOST_INTERPROCESS_WINDOWS) || defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
 
 template <class CharType
          ,class MemoryAlgorithm
@@ -252,9 +250,10 @@ typedef basic_managed_windows_shared_memory
    ,iset_index>
 wmanaged_windows_shared_memory;
 
-#else
+#endif   //#if defined (BOOST_INTERPROCESS_WINDOWS)
 
-#if defined(BOOST_INTERPROCESS_XSI_SHARED_MEMORY_OBJECTS)
+#if defined(BOOST_INTERPROCESS_XSI_SHARED_MEMORY_OBJECTS) || defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
+
 template <class CharType
          ,class MemoryAlgorithm
          ,template<class IndexConfig> class IndexType>
@@ -271,9 +270,8 @@ typedef basic_managed_xsi_shared_memory
    ,rbtree_best_fit<mutex_family>
    ,iset_index>
 wmanaged_xsi_shared_memory;
-#endif //#if defined(BOOST_INTERPROCESS_XSI_SHARED_MEMORY_OBJECTS)
 
-#endif   //#if defined (BOOST_INTERPROCESS_WINDOWS)
+#endif //#if defined(BOOST_INTERPROCESS_XSI_SHARED_MEMORY_OBJECTS)
 
 //////////////////////////////////////////////////////////////////////////////
 //                      Fixed address shared memory
@@ -404,7 +402,10 @@ class weak_ptr;
 //                                  IPC
 //////////////////////////////////////////////////////////////////////////////
 
-class message_queue;
+template<class VoidPointer>
+class message_queue_t;
+
+typedef message_queue_t<offset_ptr<void> > message_queue;
 
 }}  //namespace boost { namespace interprocess {
 

@@ -27,6 +27,9 @@ struct IAssetSystem
 {
 	virtual IAURenderableMesh* CreateRenderableMeshFromFile( const char* pFilename ) = 0;
 	virtual void DestroyRenderableMesh(IAURenderableMesh* pMesh) = 0; // needed so memory allocation and deletion happens in same DLL
+
+	virtual CalSound* CreateSoundFromFile( const char* pFilename, bool looping ) = 0;
+	virtual void DestroySound( CalSound* pSound ) = 0;
 };
 
 #endif //IASSETSYSTEM_INCLUDED

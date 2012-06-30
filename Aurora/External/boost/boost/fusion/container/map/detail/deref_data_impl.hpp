@@ -39,7 +39,7 @@ namespace boost { namespace fusion { namespace extension
             static type
             call(It const& it)
             {
-                return deref(it).second;
+                return fusion::deref(it).second;
             }
         };
     };

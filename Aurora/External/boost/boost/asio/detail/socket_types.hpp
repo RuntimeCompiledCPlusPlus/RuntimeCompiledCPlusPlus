@@ -2,7 +2,7 @@
 // detail/socket_types.hpp
 // ~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -52,9 +52,10 @@
 # include <sys/types.h>
 # include <sys/stat.h>
 # include <fcntl.h>
-# if defined(__hpux) && !defined(__HP_aCC)
+# if defined(__hpux)
 #  include <sys/time.h>
-# else
+# endif
+# if !defined(__hpux) || defined(__SELECT)
 #  include <sys/select.h>
 # endif
 # include <sys/socket.h>
@@ -112,6 +113,7 @@ const int shutdown_both = SD_BOTH;
 const int message_peek = MSG_PEEK;
 const int message_out_of_band = MSG_OOB;
 const int message_do_not_route = MSG_DONTROUTE;
+const int message_end_of_record = 0; // Not supported on Windows.
 # if defined (_WIN32_WINNT)
 const int max_iov_len = 64;
 # else
@@ -155,6 +157,7 @@ const int shutdown_both = SHUT_RDWR;
 const int message_peek = MSG_PEEK;
 const int message_out_of_band = MSG_OOB;
 const int message_do_not_route = MSG_DONTROUTE;
+const int message_end_of_record = MSG_EOR;
 # if defined(IOV_MAX)
 const int max_iov_len = IOV_MAX;
 # else

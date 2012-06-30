@@ -34,7 +34,7 @@
 namespace boost { namespace serialization {
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////8
-// valarray<T>
+// valarray< T >
 
 template<class Archive, class U>
 void save( Archive & ar, const STD::valarray<U> &t, const unsigned int /*file_version*/ )

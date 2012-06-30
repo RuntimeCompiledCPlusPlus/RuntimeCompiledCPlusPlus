@@ -15,6 +15,7 @@
 #include <boost/utility.hpp>
 #include <boost/detail/algorithm.hpp>
 #include <boost/pending/indirect_cmp.hpp> // for make_indirect_pmap
+#include <boost/concept/assert.hpp>
 
 #ifndef BOOST_GRAPH_ITERATION_MACROS_HPP
 #define BOOST_ISO_INCLUDED_ITER_MACROS // local macro, see bottom of file
@@ -153,7 +154,7 @@ namespace boost {
         {
           std::vector<size_type> multiplicity(max_invariant, 0);
           BGL_FORALL_VERTICES_T(v, G1, Graph1)
-            ++multiplicity[invariant1(v)];
+            ++multiplicity.at(invariant1(v));
           sort(V_mult, compare_multiplicity(invariant1, &multiplicity[0]));
         }
         
@@ -284,18 +285,30 @@ namespace boost {
     typedef size_type result_type;
 
     degree_vertex_invariant(const InDegreeMap& in_degree_map, const Graph& g)
-      : m_in_degree_map(in_degree_map), m_g(g) { }
+      : m_in_degree_map(in_degree_map),
+        m_max_vertex_in_degree(0),
+        m_max_vertex_out_degree(0),
+        m_g(g) {
+      BGL_FORALL_VERTICES_T(v, g, Graph) {
+        m_max_vertex_in_degree =
+          (std::max)(m_max_vertex_in_degree, get(m_in_degree_map, v));
+        m_max_vertex_out_degree =
+          (std::max)(m_max_vertex_out_degree, out_degree(v, g));
+      }
+    }
 
     size_type operator()(vertex_t v) const {
-      return (num_vertices(m_g) + 1) * out_degree(v, m_g)
+      return (m_max_vertex_in_degree + 1) * out_degree(v, m_g)
         + get(m_in_degree_map, v);
     }
     // The largest possible vertex invariant number
     size_type max BOOST_PREVENT_MACRO_SUBSTITUTION () const { 
-      return num_vertices(m_g) * num_vertices(m_g) + num_vertices(m_g);
+      return (m_max_vertex_in_degree + 1) * (m_max_vertex_out_degree + 1);
     }
   private:
     InDegreeMap m_in_degree_map;
+    size_type m_max_vertex_in_degree;
+    size_type m_max_vertex_out_degree;
     const Graph& m_g;
   };
 
@@ -310,31 +323,31 @@ namespace boost {
 
   {
     // Graph requirements
-    function_requires< VertexListGraphConcept<Graph1> >();
-    function_requires< EdgeListGraphConcept<Graph1> >();
-    function_requires< VertexListGraphConcept<Graph2> >();
-    function_requires< BidirectionalGraphConcept<Graph2> >();
+    BOOST_CONCEPT_ASSERT(( VertexListGraphConcept<Graph1> ));
+    BOOST_CONCEPT_ASSERT(( EdgeListGraphConcept<Graph1> ));
+    BOOST_CONCEPT_ASSERT(( VertexListGraphConcept<Graph2> ));
+    BOOST_CONCEPT_ASSERT(( BidirectionalGraphConcept<Graph2> ));
     
     typedef typename graph_traits<Graph1>::vertex_descriptor vertex1_t;
     typedef typename graph_traits<Graph2>::vertex_descriptor vertex2_t;
     typedef typename graph_traits<Graph1>::vertices_size_type size_type;
     
     // Vertex invariant requirement
-    function_requires< AdaptableUnaryFunctionConcept<Invariant1,
-      size_type, vertex1_t> >();
-    function_requires< AdaptableUnaryFunctionConcept<Invariant2,
-      size_type, vertex2_t> >();
+    BOOST_CONCEPT_ASSERT(( AdaptableUnaryFunctionConcept<Invariant1,
+      size_type, vertex1_t> ));
+    BOOST_CONCEPT_ASSERT(( AdaptableUnaryFunctionConcept<Invariant2,
+      size_type, vertex2_t> ));
     
     // Property map requirements
-    function_requires< ReadWritePropertyMapConcept<IsoMapping, vertex1_t> >();
+    BOOST_CONCEPT_ASSERT(( ReadWritePropertyMapConcept<IsoMapping, vertex1_t> ));
     typedef typename property_traits<IsoMapping>::value_type IsoMappingValue;
     BOOST_STATIC_ASSERT((is_same<IsoMappingValue, vertex2_t>::value));
     
-    function_requires< ReadablePropertyMapConcept<IndexMap1, vertex1_t> >();
+    BOOST_CONCEPT_ASSERT(( ReadablePropertyMapConcept<IndexMap1, vertex1_t> ));
     typedef typename property_traits<IndexMap1>::value_type IndexMap1Value;
     BOOST_STATIC_ASSERT((is_convertible<IndexMap1Value, size_type>::value));
     
-    function_requires< ReadablePropertyMapConcept<IndexMap2, vertex2_t> >();
+    BOOST_CONCEPT_ASSERT(( ReadablePropertyMapConcept<IndexMap2, vertex2_t> ));
     typedef typename property_traits<IndexMap2>::value_type IndexMap2Value;
     BOOST_STATIC_ASSERT((is_convertible<IndexMap2Value, size_type>::value));
     

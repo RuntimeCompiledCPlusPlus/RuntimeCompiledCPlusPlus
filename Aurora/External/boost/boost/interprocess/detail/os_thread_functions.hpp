@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2011. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -13,6 +13,8 @@
 
 #include <boost/interprocess/detail/config_begin.hpp>
 #include <boost/interprocess/detail/workaround.hpp>
+#include <boost/interprocess/streams/bufferstream.hpp>
+#include <boost/interprocess/detail/posix_time_types_wrk.hpp>
 
 #if (defined BOOST_INTERPROCESS_WINDOWS)
 #  include <boost/interprocess/detail/win32_api.hpp>
@@ -21,6 +23,7 @@
 #     include <pthread.h>
 #     include <unistd.h>
 #     include <sched.h>
+#     include <time.h>
 #  else
 #     error Unknown platform
 #  endif
@@ -28,7 +31,7 @@
 
 namespace boost {
 namespace interprocess {
-namespace detail{
+namespace ipcdetail{
 
 #if (defined BOOST_INTERPROCESS_WINDOWS)
 
@@ -56,6 +59,9 @@ inline bool equal_thread_id(OS_thread_id_t id1, OS_thread_id_t id2)
 inline void thread_yield()
 {  winapi::sched_yield();  }
 
+inline void thread_sleep(unsigned int ms)
+{  winapi::Sleep(ms);  }
+
 //systemwide thread
 inline OS_systemwide_thread_id_t get_current_systemwide_thread_id()
 {
@@ -77,6 +83,20 @@ inline OS_systemwide_thread_id_t get_invalid_systemwide_thread_id()
 {
    return get_invalid_thread_id();
 }
+
+inline long double get_current_process_creation_time()
+{
+   winapi::interprocess_filetime CreationTime, ExitTime, KernelTime, UserTime;
+
+   get_process_times
+      ( winapi::get_current_process(), &CreationTime, &ExitTime, &KernelTime, &UserTime);
+
+   typedef long double ldouble_t;
+   const ldouble_t resolution = (100.0l/1000000000.0l);
+   return CreationTime.dwHighDateTime*(ldouble_t(1u<<31u)*2.0l*resolution) +
+              CreationTime.dwLowDateTime*resolution;
+}
+
 
 #else    //#if (defined BOOST_INTERPROCESS_WINDOWS)
 
@@ -144,6 +164,12 @@ inline bool equal_thread_id(OS_thread_id_t id1, OS_thread_id_t id2)
 inline void thread_yield()
 {  ::sched_yield();  }
 
+inline void thread_sleep(unsigned int ms)
+{
+   const struct timespec rqt = { ms/1000u, (ms%1000u)*1000000u  };
+   ::nanosleep(&rqt, 0);
+}
+
 //systemwide thread
 inline OS_systemwide_thread_id_t get_current_systemwide_thread_id()
 {
@@ -160,9 +186,23 @@ inline OS_systemwide_thread_id_t get_invalid_systemwide_thread_id()
    return OS_systemwide_thread_id_t(get_invalid_process_id(), get_invalid_thread_id());
 }
 
+inline long double get_current_process_creation_time()
+{ return 0.0L; }
+
 #endif   //#if (defined BOOST_INTERPROCESS_WINDOWS)
 
-}  //namespace detail{
+typedef char pid_str_t[sizeof(OS_process_id_t)*3+1];
+
+inline void get_pid_str(pid_str_t &pid_str, OS_process_id_t pid)
+{
+   bufferstream bstream(pid_str, sizeof(pid_str));
+   bstream << pid << std::ends;
+}
+
+inline void get_pid_str(pid_str_t &pid_str)
+{  get_pid_str(pid_str, get_current_process_id());  }
+
+}  //namespace ipcdetail{
 }  //namespace interprocess {
 }  //namespace boost {
 

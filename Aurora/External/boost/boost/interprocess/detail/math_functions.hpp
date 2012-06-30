@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //
 // (C) Copyright Stephen Cleary 2000.
-// (C) Copyright Ion Gaztanaga 2007-2009.
+// (C) Copyright Ion Gaztanaga 2007-2011.
 //
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at 
@@ -21,7 +21,7 @@
 
 namespace boost {
 namespace interprocess {
-namespace detail {
+namespace ipcdetail {
 
 // Greatest common divisor and least common multiple
 
@@ -103,7 +103,7 @@ inline std::size_t floor_log2 (std::size_t x)
    return log2;
 }
 
-} // namespace detail
+} // namespace ipcdetail
 } // namespace interprocess
 } // namespace boost
 

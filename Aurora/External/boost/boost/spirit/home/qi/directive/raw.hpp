@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2010 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -20,6 +20,7 @@
 #include <boost/spirit/home/support/common_terminals.hpp>
 #include <boost/spirit/home/support/unused.hpp>
 #include <boost/spirit/home/support/has_semantic_action.hpp>
+#include <boost/spirit/home/support/handles_container.hpp>
 #include <boost/range/iterator_range.hpp>
 
 namespace boost { namespace spirit
@@ -34,7 +35,9 @@ namespace boost { namespace spirit
 
 namespace boost { namespace spirit { namespace qi
 {
+#ifndef BOOST_SPIRIT_NO_PREDEFINED_TERMINALS
     using spirit::raw;
+#endif
     using spirit::raw_type;
 
     template <typename Subject>
@@ -92,9 +95,17 @@ namespace boost { namespace spirit { namespace qi
 
 namespace boost { namespace spirit { namespace traits
 {
+    ///////////////////////////////////////////////////////////////////////////
     template <typename Subject>
     struct has_semantic_action<qi::raw_directive<Subject> >
       : unary_has_semantic_action<Subject> {};
+
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename Subject, typename Attribute, typename Context
+        , typename Iterator>
+    struct handles_container<qi::raw_directive<Subject>, Attribute
+        , Context, Iterator>
+      : unary_handles_container<Subject, Attribute, Context, Iterator> {};
 }}}
 
 #endif

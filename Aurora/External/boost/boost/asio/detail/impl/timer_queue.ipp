@@ -2,7 +2,7 @@
 // detail/impl/timer_queue.ipp
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2011 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -71,9 +71,9 @@ void timer_queue<time_traits<boost::posix_time::ptime> >::get_all_timers(
 }
 
 std::size_t timer_queue<time_traits<boost::posix_time::ptime> >::cancel_timer(
-    per_timer_data& timer, op_queue<operation>& ops)
+    per_timer_data& timer, op_queue<operation>& ops, std::size_t max_cancelled)
 {
-  return impl_.cancel_timer(timer, ops);
+  return impl_.cancel_timer(timer, ops, max_cancelled);
 }
 
 } // namespace detail

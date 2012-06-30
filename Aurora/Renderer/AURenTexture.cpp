@@ -41,7 +41,6 @@
 #include <windows.h>
 
 // OpenGL requirements
-#include <GL/glew.h>
 #include <GL/gl.h>
 #include <gl/GLU.h>
 
@@ -131,16 +130,9 @@ void AURenTexture::Construct(IImage& Image_, bool bMakeAlpha_, bool bEdgeClamped
 		}
 		else
 		{
-			if( GLEW_EXT_texture_edge_clamp )
-			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE_EXT);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE_EXT);
-			}
-			else
-			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-			}
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
 		}
 
 		// Set the filtering.

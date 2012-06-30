@@ -43,16 +43,6 @@ void PerModuleInterface::AddConstructor( IObjectConstructor* pConstructor )
 	m_ObjectConstructors.push_back( pConstructor );
 }
 
-void PerModuleInterface::SetNameOfModule( const char* name_ )
-{
-	m_Name = name_;
-}
-
-const char* PerModuleInterface::GetNameOfModule() const
-{
-	return m_Name.c_str();
-}
-
 std::vector<IObjectConstructor*>& PerModuleInterface::GetConstructors()
 {
 	return m_ObjectConstructors;
@@ -66,4 +56,16 @@ void PerModuleInterface::SetSystemTable( SystemTable* pSystemTable )
 PerModuleInterface::PerModuleInterface()
 	: m_pSystemTable( NULL )
 {
+	//ensure this file gets compiled
+	AddRequiredSourceFiles( __FILE__ );
+}
+
+const std::vector<const char*>& PerModuleInterface::GetRequiredSourceFiles() const
+{
+	return m_RequiredSourceFiles;
+}
+
+void PerModuleInterface::AddRequiredSourceFiles( const char* file_ )
+{
+	m_RequiredSourceFiles.push_back( file_ );
 }

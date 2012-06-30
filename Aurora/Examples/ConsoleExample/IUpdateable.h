@@ -20,7 +20,9 @@
 #ifndef IUPDATEABLE_INCLUDED
 #define IUPDATEABLE_INCLUDED
 
-struct IUpdateable
+#include "../../RuntimeObjectSystem/IObject.h"
+
+struct IUpdateable : public IObject
 {
 	virtual void Update( float deltaTime ) = 0;
 };

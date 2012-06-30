@@ -2,7 +2,7 @@
 // detail/impl/task_io_service.hpp
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -15,7 +15,6 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include <boost/asio/detail/call_stack.hpp>
 #include <boost/asio/detail/completion_handler.hpp>
 #include <boost/asio/detail/fenced_block.hpp>
 #include <boost/asio/detail/handler_alloc_helpers.hpp>
@@ -30,13 +29,25 @@ namespace detail {
 template <typename Handler>
 void task_io_service::dispatch(Handler handler)
 {
-  if (call_stack<task_io_service>::contains(this))
+  if (thread_call_stack::contains(this))
   {
-    boost::asio::detail::fenced_block b;
+    fenced_block b(fenced_block::full);
     boost_asio_handler_invoke_helpers::invoke(handler, handler);
   }
   else
-    post(handler);
+  {
+    // Allocate and construct an operation to wrap the handler.
+    typedef completion_handler<Handler> op;
+    typename op::ptr p = { boost::addressof(handler),
+      boost_asio_handler_alloc_helpers::allocate(
+        sizeof(op), handler), 0 };
+    p.p = new (p.v) op(handler);
+
+    BOOST_ASIO_HANDLER_CREATION((p.p, "io_service", this, "dispatch"));
+
+    post_immediate_completion(p.p);
+    p.v = p.p = 0;
+  }
 }
 
 template <typename Handler>
@@ -48,6 +59,8 @@ void task_io_service::post(Handler handler)
     boost_asio_handler_alloc_helpers::allocate(
       sizeof(op), handler), 0 };
   p.p = new (p.v) op(handler);
+
+  BOOST_ASIO_HANDLER_CREATION((p.p, "io_service", this, "post"));
 
   post_immediate_completion(p.p);
   p.v = p.p = 0;

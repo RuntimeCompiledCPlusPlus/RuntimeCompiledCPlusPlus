@@ -17,6 +17,11 @@
 #include <vector>
 #include <utility>
 
+#if defined(BOOST_MSVC)
+#   pragma warning (push)
+#   pragma warning (disable:4251) // class 'std::vector<_Ty>' needs to have dll-interface to be used by clients of class 'boost::program_options::basic_parsed_options<wchar_t>'
+#endif
+
 namespace boost { namespace program_options {
 
     class options_description;
@@ -95,7 +100,7 @@ namespace boost { namespace program_options {
         /** Creates a command line parser for the specified arguments
             list. The parameters should be the same as passed to 'main'.
         */
-        basic_command_line_parser(int argc, charT* argv[]);
+        basic_command_line_parser(int argc, const charT* const argv[]);
 
         /** Sets options descriptions to use. */
         basic_command_line_parser& options(const options_description& desc);
@@ -139,7 +144,7 @@ namespace boost { namespace program_options {
      */
     template<class charT>
     basic_parsed_options<charT>
-    parse_command_line(int argc, charT* argv[],
+    parse_command_line(int argc, const charT* const argv[],
                        const options_description&,
                        int style = 0,
                        function1<std::pair<std::string, std::string>, 

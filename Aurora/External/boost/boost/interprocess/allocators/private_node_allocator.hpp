@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2011. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -18,13 +18,13 @@
 #include <boost/interprocess/detail/config_begin.hpp>
 #include <boost/interprocess/detail/workaround.hpp>
 
-#include <boost/pointer_to_other.hpp>
+#include <boost/intrusive/pointer_traits.hpp>
 
 #include <boost/interprocess/interprocess_fwd.hpp>
 #include <boost/assert.hpp>
 #include <boost/utility/addressof.hpp>
 #include <boost/interprocess/allocators/detail/node_pool.hpp>
-#include <boost/interprocess/containers/container/detail/multiallocation_chain.hpp>
+#include <boost/container/detail/multiallocation_chain.hpp>
 #include <boost/interprocess/exceptions.hpp>
 #include <boost/interprocess/detail/utilities.hpp>
 #include <boost/interprocess/detail/workaround.hpp>
@@ -40,7 +40,7 @@ namespace interprocess {
 
 /// @cond
 
-namespace detail {
+namespace ipcdetail {
 
 template < unsigned int Version
          , class T
@@ -64,7 +64,7 @@ class private_node_allocator_base
    private:
    typedef private_node_allocator_base
       < Version, T, SegmentManager, NodesPerBlock>       self_t;
-   typedef detail::private_node_pool
+   typedef ipcdetail::private_node_pool
       <SegmentManager
       , sizeof_value<T>::value
       , NodesPerBlock
@@ -75,20 +75,23 @@ class private_node_allocator_base
    /// @endcond
 
    public:
-   typedef typename boost::
-      pointer_to_other<void_pointer, T>::type            pointer;
-   typedef typename boost::
-      pointer_to_other<void_pointer, const T>::type      const_pointer;
+
+   typedef typename boost::intrusive::
+      pointer_traits<void_pointer>::template
+         rebind_pointer<T>::type                         pointer;
+   typedef typename boost::intrusive::
+      pointer_traits<void_pointer>::template
+         rebind_pointer<const T>::type                   const_pointer;
    typedef T                                             value_type;
-   typedef typename detail::add_reference
+   typedef typename ipcdetail::add_reference
                      <value_type>::type                  reference;
-   typedef typename detail::add_reference
+   typedef typename ipcdetail::add_reference
                      <const value_type>::type            const_reference;
-   typedef std::size_t                                   size_type;
-   typedef std::ptrdiff_t                                difference_type;
+   typedef typename segment_manager::size_type           size_type;
+   typedef typename segment_manager::difference_type     difference_type;
    typedef boost::interprocess::version_type
       <private_node_allocator_base, Version>              version;
-   typedef boost::container::containers_detail::transform_multiallocation_chain
+   typedef boost::container::container_detail::transform_multiallocation_chain
       <typename SegmentManager::multiallocation_chain, T>multiallocation_chain;
 
    //!Obtains node_allocator from other node_allocator
@@ -103,7 +106,7 @@ class private_node_allocator_base
    template <int dummy>
    struct node_pool
    {
-      typedef detail::private_node_pool
+      typedef ipcdetail::private_node_pool
       <SegmentManager
       , sizeof_value<T>::value
       , NodesPerBlock
@@ -190,7 +193,7 @@ class private_node_allocator_v1
          >
 {
    public:
-   typedef detail::private_node_allocator_base
+   typedef ipcdetail::private_node_allocator_base
          < 1, T, SegmentManager, NodesPerBlock> base_t;
 
    template<class T2>
@@ -210,7 +213,7 @@ class private_node_allocator_v1
    {}
 };
 
-}  //namespace detail {
+}  //namespace ipcdetail {
 
 /// @endcond
 
@@ -226,7 +229,7 @@ template < class T
          >
 class private_node_allocator
    /// @cond
-   :  public detail::private_node_allocator_base
+   :  public ipcdetail::private_node_allocator_base
          < 2
          , T
          , SegmentManager
@@ -236,7 +239,7 @@ class private_node_allocator
 {
 
    #ifndef BOOST_INTERPROCESS_DOXYGEN_INVOKED
-   typedef detail::private_node_allocator_base
+   typedef ipcdetail::private_node_allocator_base
          < 2, T, SegmentManager, NodesPerBlock> base_t;
    public:
    typedef boost::interprocess::version_type<private_node_allocator, 2>   version;
@@ -265,12 +268,12 @@ class private_node_allocator
    typedef implementation_defined::pointer               pointer;
    typedef implementation_defined::const_pointer         const_pointer;
    typedef T                                             value_type;
-   typedef typename detail::add_reference
+   typedef typename ipcdetail::add_reference
                      <value_type>::type                  reference;
-   typedef typename detail::add_reference
+   typedef typename ipcdetail::add_reference
                      <const value_type>::type            const_reference;
-   typedef std::size_t                                   size_type;
-   typedef std::ptrdiff_t                                difference_type;
+   typedef typename segment_manager::size_type           size_type;
+   typedef typename segment_manage::difference_type      difference_type;
 
    //!Obtains private_node_allocator from 
    //!private_node_allocator
@@ -374,7 +377,7 @@ class private_node_allocator
    //!preferred_elements. The number of actually allocated elements is
    //!will be assigned to received_size. The elements must be deallocated
    //!with deallocate(...)
-   multiallocation_chain allocate_many(size_type elem_size, std::size_t num_elements);
+   multiallocation_chain allocate_many(size_type elem_size, size_type num_elements);
 
    //!Allocates n_elements elements, each one of size elem_sizes[i]in a
    //!contiguous block
@@ -400,7 +403,7 @@ class private_node_allocator
    //!preferred_elements. The number of actually allocated elements is
    //!will be assigned to received_size. Memory allocated with this function
    //!must be deallocated only with deallocate_one().
-   multiallocation_chain allocate_individual(std::size_t num_elements);
+   multiallocation_chain allocate_individual(size_type num_elements);
 
    //!Deallocates memory previously allocated with allocate_one().
    //!You should never use deallocate_one to deallocate memory allocated

@@ -43,7 +43,7 @@ struct use_array_optimization : boost::mpl::always<boost::mpl::false_> {};
 
 template<class T>
 class array :
-    public wrapper_traits<const array<T> >
+    public wrapper_traits<const array< T > >
 {
 public:    
     typedef T value_type;
@@ -99,7 +99,7 @@ public:
     {
       typedef BOOST_DEDUCED_TYPENAME 
           boost::serialization::use_array_optimization<Archive>::template apply<
-                    BOOST_DEDUCED_TYPENAME remove_const<T>::type 
+                    BOOST_DEDUCED_TYPENAME remove_const< T >::type 
                 >::type use_optimized;
       serialize_optimized(ar,version,use_optimized());
     }
@@ -124,8 +124,8 @@ inline
 #ifndef BOOST_NO_FUNCTION_TEMPLATE_ORDERING
 const
 #endif
-array<T> make_array( T* t, std::size_t s){
-    return array<T>(t, s);
+array< T > make_array( T* t, std::size_t s){
+    return array< T >(t, s);
 }
 
 template <class Archive, class T, std::size_t N>

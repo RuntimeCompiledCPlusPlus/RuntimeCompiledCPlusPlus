@@ -19,7 +19,7 @@
 #include <boost/intrusive/detail/any_node_and_algorithms.hpp>
 #include <boost/intrusive/options.hpp>
 #include <boost/intrusive/detail/generic_hook.hpp>
-#include <boost/intrusive/detail/pointer_to_other.hpp>
+#include <boost/intrusive/pointer_traits.hpp>
 
 namespace boost {
 namespace intrusive {
@@ -244,15 +244,15 @@ namespace detail{
 template<class ValueTraits>
 struct any_to_get_base_pointer_type
 {
-   typedef typename pointer_to_other
-      <typename ValueTraits::boost_intrusive_tags::node_traits::node_ptr, void>::type type;
+   typedef typename pointer_traits<typename ValueTraits::boost_intrusive_tags::node_traits::node_ptr>::template
+      rebind_pointer<void>::type type;
 };
 
 template<class ValueTraits>
 struct any_to_get_member_pointer_type
 {
-   typedef typename pointer_to_other
-      <typename ValueTraits::node_ptr, void>::type type;
+   typedef typename pointer_traits
+      <typename ValueTraits::node_ptr>::template rebind_pointer<void>::type type;
 };
 
 //!This option setter specifies that the container

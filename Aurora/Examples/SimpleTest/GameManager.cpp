@@ -488,7 +488,7 @@ private:
 
 		for (int i=0; i<EGO_COUNT; ++i)
 		{
-			std::string path = "..\\Assets\\Models\\";
+			std::string path = "/Models/"; //directories relative to asset dir
 			path += m_GlobalParameters.go[i].model;
 			IAURenderableMesh* pMesh = pAssetSystem->CreateRenderableMeshFromFile( path.c_str() );
 			if (pMesh)

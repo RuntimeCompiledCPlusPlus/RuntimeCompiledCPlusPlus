@@ -69,7 +69,7 @@ T cbrt_imp(T z, const Policy& pol)
       static_cast<T>(1.5874010519681994747517056392723),   // 2^2/3
    };
 
-   if(!boost::math::isfinite(z))
+   if(!(boost::math::isfinite)(z))
    {
       return policies::raise_domain_error("boost::math::cbrt<%1%>(%1%)", "Argument to function must be finite but got %1%.", z, pol);
    }
@@ -89,6 +89,8 @@ T cbrt_imp(T z, const Policy& pol)
    int i_exp3 = i_exp / 3;
 
    typedef typename largest_cbrt_int_type<T>::type shift_type;
+
+   BOOST_STATIC_ASSERT( ::std::numeric_limits<shift_type>::radix == 2);
 
    if(abs(i_exp3) < std::numeric_limits<shift_type>::digits)
    {

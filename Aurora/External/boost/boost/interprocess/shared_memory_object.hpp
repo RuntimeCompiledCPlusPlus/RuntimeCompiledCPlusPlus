@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2011. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -15,11 +15,12 @@
 #include <boost/interprocess/detail/workaround.hpp>
 #include <boost/interprocess/creation_tags.hpp>
 #include <boost/interprocess/exceptions.hpp>
-#include <boost/interprocess/detail/move.hpp>
+#include <boost/move/move.hpp>
 #include <boost/interprocess/interprocess_fwd.hpp>
 #include <boost/interprocess/exceptions.hpp>
 #include <boost/interprocess/detail/os_file_functions.hpp>
 #include <boost/interprocess/detail/tmp_dir_helpers.hpp>
+#include <boost/interprocess/permissions.hpp>
 #include <cstddef>
 #include <string>
 #include <algorithm>
@@ -31,6 +32,11 @@
 #  include <sys/mman.h>     //shm_xxx
 #  include <unistd.h>       //ftruncate, close
 #  include <sys/stat.h>     //mode_t, S_IRWXG, S_IRWXO, S_IRWXU,
+#  if defined(BOOST_INTERPROCESS_RUNTIME_FILESYSTEM_BASED_POSIX_SHARED_MEMORY)
+#     if defined(__FreeBSD__)
+#        include <sys/sysctl.h>
+#     endif
+#  endif
 #else
 //
 #endif
@@ -47,7 +53,7 @@ class shared_memory_object
 {
    /// @cond
    //Non-copyable and non-assignable
-   BOOST_INTERPROCESS_MOVABLE_BUT_NOT_COPYABLE(shared_memory_object)
+   BOOST_MOVABLE_BUT_NOT_COPYABLE(shared_memory_object)
    /// @endcond
 
    public:
@@ -56,33 +62,33 @@ class shared_memory_object
 
    //!Creates a shared memory object with name "name" and mode "mode", with the access mode "mode"
    //!If the file previously exists, throws an error.*/
-   shared_memory_object(create_only_t, const char *name, mode_t mode)
-   {  this->priv_open_or_create(detail::DoCreate, name, mode);  }
+   shared_memory_object(create_only_t, const char *name, mode_t mode, const permissions &perm = permissions())
+   {  this->priv_open_or_create(ipcdetail::DoCreate, name, mode, perm);  }
 
    //!Tries to create a shared memory object with name "name" and mode "mode", with the
    //!access mode "mode". If the file previously exists, it tries to open it with mode "mode".
    //!Otherwise throws an error.
-   shared_memory_object(open_or_create_t, const char *name, mode_t mode)
-   {  this->priv_open_or_create(detail::DoOpenOrCreate, name, mode);  }
+   shared_memory_object(open_or_create_t, const char *name, mode_t mode, const permissions &perm = permissions())
+   {  this->priv_open_or_create(ipcdetail::DoOpenOrCreate, name, mode, perm);  }
 
    //!Tries to open a shared memory object with name "name", with the access mode "mode". 
    //!If the file does not previously exist, it throws an error.
    shared_memory_object(open_only_t, const char *name, mode_t mode)
-   {  this->priv_open_or_create(detail::DoOpen, name, mode);  }
+   {  this->priv_open_or_create(ipcdetail::DoOpen, name, mode, permissions());  }
 
    //!Moves the ownership of "moved"'s shared memory object to *this. 
    //!After the call, "moved" does not represent any shared memory object. 
    //!Does not throw
-   shared_memory_object(BOOST_INTERPROCESS_RV_REF(shared_memory_object) moved)
-      :  m_handle(file_handle_t(detail::invalid_file()))
+   shared_memory_object(BOOST_RV_REF(shared_memory_object) moved)
+      :  m_handle(file_handle_t(ipcdetail::invalid_file()))
    {  this->swap(moved);   }
 
    //!Moves the ownership of "moved"'s shared memory to *this.
    //!After the call, "moved" does not represent any shared memory. 
    //!Does not throw
-   shared_memory_object &operator=(BOOST_INTERPROCESS_RV_REF(shared_memory_object) moved)
+   shared_memory_object &operator=(BOOST_RV_REF(shared_memory_object) moved)
    {  
-      shared_memory_object tmp(boost::interprocess::move(moved));
+      shared_memory_object tmp(boost::move(moved));
       this->swap(tmp);
       return *this;  
    }
@@ -126,7 +132,7 @@ class shared_memory_object
    void priv_close();
 
    //!Closes a previously opened file mapping. Never throws.
-   bool priv_open_or_create(detail::create_enum_t type, const char *filename, mode_t mode);
+   bool priv_open_or_create(ipcdetail::create_enum_t type, const char *filename, mode_t mode, const permissions &perm);
 
    file_handle_t  m_handle;
    mode_t         m_mode;
@@ -137,7 +143,7 @@ class shared_memory_object
 /// @cond
 
 inline shared_memory_object::shared_memory_object() 
-   :  m_handle(file_handle_t(detail::invalid_file()))
+   :  m_handle(file_handle_t(ipcdetail::invalid_file()))
 {}
 
 inline shared_memory_object::~shared_memory_object() 
@@ -148,7 +154,7 @@ inline const char *shared_memory_object::get_name() const
 {  return m_filename.c_str(); }
 
 inline bool shared_memory_object::get_size(offset_t &size) const
-{  return detail::get_file_size((file_handle_t)m_handle, size);  }
+{  return ipcdetail::get_file_size((file_handle_t)m_handle, size);  }
 
 inline void shared_memory_object::swap(shared_memory_object &other)
 {  
@@ -159,7 +165,7 @@ inline void shared_memory_object::swap(shared_memory_object &other)
 
 inline mapping_handle_t shared_memory_object::get_mapping_handle() const
 {
-   return detail::mapping_handle_from_file_handle(m_handle);
+   return ipcdetail::mapping_handle_from_file_handle(m_handle);
 }
 
 inline mode_t shared_memory_object::get_mode() const
@@ -168,11 +174,11 @@ inline mode_t shared_memory_object::get_mode() const
 #if !defined(BOOST_INTERPROCESS_POSIX_SHARED_MEMORY_OBJECTS)
 
 inline bool shared_memory_object::priv_open_or_create
-   (detail::create_enum_t type, const char *filename, mode_t mode)
+   (ipcdetail::create_enum_t type, const char *filename, mode_t mode, const permissions &perm)
 {
    m_filename = filename;
    std::string shmfile;
-   detail::create_tmp_dir_and_get_filename(filename, shmfile);
+   ipcdetail::create_tmp_and_clean_old_and_get_filename(filename, shmfile);
 
    //Set accesses
    if (mode != read_write && mode != read_only){
@@ -181,14 +187,14 @@ inline bool shared_memory_object::priv_open_or_create
    }
 
    switch(type){
-      case detail::DoOpen:
-         m_handle = detail::open_existing_file(shmfile.c_str(), mode, true);
+      case ipcdetail::DoOpen:
+         m_handle = ipcdetail::open_existing_file(shmfile.c_str(), mode, true);
       break;
-      case detail::DoCreate:
-         m_handle = detail::create_new_file(shmfile.c_str(), mode, true);
+      case ipcdetail::DoCreate:
+         m_handle = ipcdetail::create_new_file(shmfile.c_str(), mode, perm, true);
       break;
-      case detail::DoOpenOrCreate:
-         m_handle = detail::create_or_open_file(shmfile.c_str(), mode, true);
+      case ipcdetail::DoOpenOrCreate:
+         m_handle = ipcdetail::create_or_open_file(shmfile.c_str(), mode, perm, true);
       break;
       default:
          {
@@ -198,7 +204,7 @@ inline bool shared_memory_object::priv_open_or_create
    }
 
    //Check for error
-   if(m_handle == detail::invalid_file()){
+   if(m_handle == ipcdetail::invalid_file()){
       error_info err = system_error_code();
       this->priv_close();
       throw interprocess_exception(err);
@@ -213,8 +219,8 @@ inline bool shared_memory_object::remove(const char *filename)
    try{
       //Make sure a temporary path is created for shared memory
       std::string shmfile;
-      detail::tmp_filename(filename, shmfile);
-      return detail::delete_file(shmfile.c_str()) == 0;
+      ipcdetail::tmp_filename(filename, shmfile);
+      return ipcdetail::delete_file(shmfile.c_str());
    }
    catch(...){
       return false;
@@ -223,7 +229,7 @@ inline bool shared_memory_object::remove(const char *filename)
 
 inline void shared_memory_object::truncate(offset_t length)
 {
-   if(!detail::truncate_file(m_handle, length)){
+   if(!ipcdetail::truncate_file(m_handle, length)){
       error_info err = system_error_code();
       throw interprocess_exception(err);
    }
@@ -231,24 +237,54 @@ inline void shared_memory_object::truncate(offset_t length)
 
 inline void shared_memory_object::priv_close()
 {
-   if(m_handle != detail::invalid_file()){
-      detail::close_file(m_handle);
-      m_handle = detail::invalid_file();
+   if(m_handle != ipcdetail::invalid_file()){
+      ipcdetail::close_file(m_handle);
+      m_handle = ipcdetail::invalid_file();
    }
 }
 
 #else //!defined(BOOST_INTERPROCESS_POSIX_SHARED_MEMORY_OBJECTS)
 
-inline bool shared_memory_object::priv_open_or_create
-   (detail::create_enum_t type, 
-    const char *filename,
-    mode_t mode)
+namespace shared_memory_object_detail {
+
+#ifdef BOOST_INTERPROCESS_RUNTIME_FILESYSTEM_BASED_POSIX_SHARED_MEMORY
+
+#if defined(__FreeBSD__)
+
+inline bool use_filesystem_based_posix()
 {
-   #ifndef BOOST_INTERPROCESS_FILESYSTEM_BASED_POSIX_SHARED_MEMORY
-   detail::add_leading_slash(filename, m_filename);
+   int jailed = 0;
+   std::size_t len = sizeof(jailed);
+   ::sysctlbyname("security.jail.jailed", &jailed, &len, NULL, 0);
+   return jailed != 0;
+}
+
+#else
+#error "Not supported platform for BOOST_INTERPROCESS_RUNTIME_FILESYSTEM_BASED_POSIX_SHARED_MEMORY"
+#endif
+
+#endif
+
+}  //shared_memory_object_detail
+
+inline bool shared_memory_object::priv_open_or_create
+   (ipcdetail::create_enum_t type, 
+    const char *filename,
+    mode_t mode, const permissions &perm)
+{
+   #if defined(BOOST_INTERPROCESS_FILESYSTEM_BASED_POSIX_SHARED_MEMORY)
+   const bool add_leading_slash = false;
+   #elif defined(BOOST_INTERPROCESS_RUNTIME_FILESYSTEM_BASED_POSIX_SHARED_MEMORY)
+   const bool add_leading_slash = !shared_memory_object_detail::use_filesystem_based_posix();
    #else
-   detail::create_tmp_dir_and_get_filename(filename, m_filename);
+   const bool add_leading_slash = true;
    #endif
+   if(add_leading_slash){
+      ipcdetail::add_leading_slash(filename, m_filename);
+   }
+   else{
+      ipcdetail::create_tmp_and_clean_old_and_get_filename(filename, m_filename);
+   }
 
    //Create new mapping
    int oflag = 0;
@@ -262,26 +298,49 @@ inline bool shared_memory_object::priv_open_or_create
       error_info err(mode_error);
       throw interprocess_exception(err);
    }
+   int unix_perm = perm.get_permissions();
 
    switch(type){
-      case detail::DoOpen:
-         //No addition
+      case ipcdetail::DoOpen:
+      {
+         //No oflag addition
+         m_handle = shm_open(m_filename.c_str(), oflag, unix_perm);
+      }
       break;
-      case detail::DoCreate:
+      case ipcdetail::DoCreate:
+      {
          oflag |= (O_CREAT | O_EXCL);
+         m_handle = shm_open(m_filename.c_str(), oflag, unix_perm);
+         if(m_handle >= 0){
+            ::fchmod(m_handle, unix_perm);
+         }
+      }
       break;
-      case detail::DoOpenOrCreate:
+      case ipcdetail::DoOpenOrCreate:
+      {
          oflag |= O_CREAT;
+         //We need a loop to change permissions correctly using fchmod, since
+         //with "O_CREAT only" shm_open we don't know if we've created or opened the file.
+         while(1){
+            m_handle = shm_open(m_filename.c_str(), oflag, unix_perm);
+            if(m_handle >= 0){
+               ::fchmod(m_handle, unix_perm);
+               break;
+            }
+            else if(errno == EEXIST){
+               if((m_handle = shm_open(m_filename.c_str(), oflag, unix_perm)) >= 0 || errno != ENOENT){
+                  break;
+               }
+            }
+         }
+      }
       break;
       default:
-         {
-            error_info err = other_error;
-            throw interprocess_exception(err);
-         }
+      {
+         error_info err = other_error;
+         throw interprocess_exception(err);
+      }
    }
-
-   //Open file using POSIX API
-   m_handle = shm_open(m_filename.c_str(), oflag, S_IRWXO | S_IRWXG | S_IRWXU);
 
    //Check for error
    if(m_handle == -1){
@@ -299,11 +358,19 @@ inline bool shared_memory_object::remove(const char *filename)
 {
    try{
       std::string file_str;
-      #ifndef BOOST_INTERPROCESS_FILESYSTEM_BASED_POSIX_SHARED_MEMORY
-      detail::add_leading_slash(filename, file_str);
+      #if defined(BOOST_INTERPROCESS_FILESYSTEM_BASED_POSIX_SHARED_MEMORY)
+      const bool add_leading_slash = false;
+      #elif defined(BOOST_INTERPROCESS_RUNTIME_FILESYSTEM_BASED_POSIX_SHARED_MEMORY)
+      const bool add_leading_slash = !shared_memory_object_detail::use_filesystem_based_posix();
       #else
-      detail::tmp_filename(filename, file_str);
+      const bool add_leading_slash = true;
       #endif
+      if(add_leading_slash){
+         ipcdetail::add_leading_slash(filename, file_str);
+      }
+      else{
+         ipcdetail::tmp_filename(filename, file_str);
+      }
       return 0 == shm_unlink(file_str.c_str());
    }
    catch(...){

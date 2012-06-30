@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2008-2009. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2008-2011. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -22,7 +22,7 @@
 
 namespace boost {
 namespace interprocess { 
-namespace detail {
+namespace ipcdetail {
 
 template<typename... Values>
 class tuple;
@@ -146,7 +146,7 @@ struct build_number_seq<0, index_tuple<Indexes...> >
 {  typedef index_tuple<Indexes...> type;  };
 
 
-}}}   //namespace boost { namespace interprocess { namespace detail {
+}}}   //namespace boost { namespace interprocess { namespace ipcdetail {
 
 #include <boost/interprocess/detail/config_end.hpp>
 

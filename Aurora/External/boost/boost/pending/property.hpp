@@ -71,7 +71,7 @@ namespace boost {
 
   template <class Tag2>
   inline detail::error_property_not_found
-  get_property_value(const no_property& p, Tag2) {
+  get_property_value(const no_property&, Tag2) {
     return detail::error_property_not_found();
   }
 
@@ -150,7 +150,7 @@ namespace boost {
         typedef FinalType retagged;
     };
 
-    // A final base case of the retag_propert_list, this will terminate a
+    // A final base case of the retag_property_list, this will terminate a
     // properly structured list.
     template<typename FinalTag>
     struct retag_property_list<FinalTag, no_property>

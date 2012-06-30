@@ -16,12 +16,14 @@ namespace boost { namespace proto
     namespace detail
     {
         template<typename T>
+        BOOST_FORCEINLINE
         T &as_lvalue(T &t)
         {
             return t;
         }
 
         template<typename T>
+        BOOST_FORCEINLINE
         T const &as_lvalue(T const &t)
         {
             return t;

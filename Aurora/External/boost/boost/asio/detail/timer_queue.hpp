@@ -2,7 +2,7 @@
 // detail/timer_queue.hpp
 // ~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -20,15 +20,12 @@
 #include <vector>
 #include <boost/config.hpp>
 #include <boost/limits.hpp>
+#include <boost/cstdint.hpp>
+#include <boost/asio/detail/date_time_fwd.hpp>
 #include <boost/asio/detail/op_queue.hpp>
-#include <boost/asio/detail/timer_op.hpp>
 #include <boost/asio/detail/timer_queue_base.hpp>
+#include <boost/asio/detail/wait_op.hpp>
 #include <boost/asio/error.hpp>
-#include <boost/asio/time_traits.hpp>
-
-#include <boost/asio/detail/push_options.hpp>
-#include <boost/date_time/posix_time/posix_time_types.hpp>
-#include <boost/asio/detail/pop_options.hpp>
 
 #include <boost/asio/detail/push_options.hpp>
 
@@ -57,7 +54,7 @@ public:
     friend class timer_queue;
 
     // The operations waiting on the timer.
-    op_queue<timer_op> op_queue_;
+    op_queue<wait_op> op_queue_;
 
     // The index of the timer in the heap.
     std::size_t heap_index_;
@@ -77,38 +74,39 @@ public:
   // Add a new timer to the queue. Returns true if this is the timer that is
   // earliest in the queue, in which case the reactor's event demultiplexing
   // function call may need to be interrupted and restarted.
-  bool enqueue_timer(const time_type& time, per_timer_data& timer, timer_op* op)
+  bool enqueue_timer(const time_type& time, per_timer_data& timer, wait_op* op)
   {
-    // Ensure that there is space for the timer in the heap. We reserve here so
-    // that the push_back below will not throw due to a reallocation failure.
-    heap_.reserve(heap_.size() + 1);
-
-    timer.op_queue_.push(op);
+    // Enqueue the timer object.
     if (timer.prev_ == 0 && &timer != timers_)
     {
+      if (this->is_positive_infinity(time))
+      {
+        // No heap entry is required for timers that never expire.
+        timer.heap_index_ = (std::numeric_limits<std::size_t>::max)();
+      }
+      else
+      {
+        // Put the new timer at the correct position in the heap. This is done
+        // first since push_back() can throw due to allocation failure.
+        timer.heap_index_ = heap_.size();
+        heap_entry entry = { time, &timer };
+        heap_.push_back(entry);
+        up_heap(heap_.size() - 1);
+      }
+
       // Insert the new timer into the linked list of active timers.
       timer.next_ = timers_;
       timer.prev_ = 0;
       if (timers_)
         timers_->prev_ = &timer;
       timers_ = &timer;
-
-      // Put the new timer at the correct position in the heap.
-      if (this->is_positive_infinity(time))
-      {
-        timer.heap_index_ = (std::numeric_limits<std::size_t>::max)();
-        return false; // No need to interrupt reactor as timer never expires.
-      }
-      else
-      {
-        timer.heap_index_ = heap_.size();
-        heap_entry entry = { time, &timer };
-        heap_.push_back(entry);
-        up_heap(heap_.size() - 1);
-      }
     }
 
-    return (heap_[0].timer_ == &timer);
+    // Enqueue the individual timer operation.
+    timer.op_queue_.push(op);
+
+    // Interrupt reactor only if newly added timer is first to expire.
+    return timer.heap_index_ == 0 && timer.op_queue_.front() == op;
   }
 
   // Whether there are no timers in the queue.
@@ -123,17 +121,10 @@ public:
     if (heap_.empty())
       return max_duration;
 
-    boost::posix_time::time_duration duration = Time_Traits::to_posix_duration(
-        Time_Traits::subtract(heap_[0].time_, Time_Traits::now()));
-
-    if (duration > boost::posix_time::milliseconds(max_duration))
-      duration = boost::posix_time::milliseconds(max_duration);
-    else if (duration <= boost::posix_time::milliseconds(0))
-      duration = boost::posix_time::milliseconds(0);
-    else if (duration < boost::posix_time::milliseconds(1))
-      duration = boost::posix_time::milliseconds(1);
-
-    return duration.total_milliseconds();
+    return this->to_msec(
+        Time_Traits::to_posix_duration(
+          Time_Traits::subtract(heap_[0].time_, Time_Traits::now())),
+        max_duration);
   }
 
   // Get the time for the timer that is earliest in the queue.
@@ -142,28 +133,24 @@ public:
     if (heap_.empty())
       return max_duration;
 
-    boost::posix_time::time_duration duration = Time_Traits::to_posix_duration(
-        Time_Traits::subtract(heap_[0].time_, Time_Traits::now()));
-
-    if (duration > boost::posix_time::microseconds(max_duration))
-      duration = boost::posix_time::microseconds(max_duration);
-    else if (duration <= boost::posix_time::microseconds(0))
-      duration = boost::posix_time::microseconds(0);
-    else if (duration < boost::posix_time::microseconds(1))
-      duration = boost::posix_time::microseconds(1);
-
-    return duration.total_microseconds();
+    return this->to_usec(
+        Time_Traits::to_posix_duration(
+          Time_Traits::subtract(heap_[0].time_, Time_Traits::now())),
+        max_duration);
   }
 
   // Dequeue all timers not later than the current time.
   virtual void get_ready_timers(op_queue<operation>& ops)
   {
-    const time_type now = Time_Traits::now();
-    while (!heap_.empty() && !Time_Traits::less_than(now, heap_[0].time_))
+    if (!heap_.empty())
     {
-      per_timer_data* timer = heap_[0].timer_;
-      ops.push(timer->op_queue_);
-      remove_timer(*timer);
+      const time_type now = Time_Traits::now();
+      while (!heap_.empty() && !Time_Traits::less_than(now, heap_[0].time_))
+      {
+        per_timer_data* timer = heap_[0].timer_;
+        ops.push(timer->op_queue_);
+        remove_timer(*timer);
+      }
     }
   }
 
@@ -182,20 +169,23 @@ public:
     heap_.clear();
   }
 
-  // Cancel and dequeue the timers with the given token.
-  std::size_t cancel_timer(per_timer_data& timer, op_queue<operation>& ops)
+  // Cancel and dequeue operations for the given timer.
+  std::size_t cancel_timer(per_timer_data& timer, op_queue<operation>& ops,
+      std::size_t max_cancelled = (std::numeric_limits<std::size_t>::max)())
   {
     std::size_t num_cancelled = 0;
     if (timer.prev_ != 0 || &timer == timers_)
     {
-      while (timer_op* op = timer.op_queue_.front())
+      while (wait_op* op = (num_cancelled != max_cancelled)
+          ? timer.op_queue_.front() : 0)
       {
         op->ec_ = boost::asio::error::operation_aborted;
         timer.op_queue_.pop();
         ops.push(op);
         ++num_cancelled;
       }
-      remove_timer(timer);
+      if (timer.op_queue_.empty())
+        remove_timer(timer);
     }
     return num_cancelled;
   }
@@ -285,9 +275,39 @@ private:
   }
 
   // Determine if the specified absolute time is positive infinity.
-  static bool is_positive_infinity(const boost::posix_time::ptime& time)
+  template <typename T, typename TimeSystem>
+  static bool is_positive_infinity(
+      const boost::date_time::base_time<T, TimeSystem>& time)
   {
-    return time == boost::posix_time::pos_infin;
+    return time.is_pos_infinity();
+  }
+
+  // Helper function to convert a duration into milliseconds.
+  template <typename Duration>
+  long to_msec(const Duration& d, long max_duration) const
+  {
+    if (d.ticks() <= 0)
+      return 0;
+    boost::int64_t msec = d.total_milliseconds();
+    if (msec == 0)
+      return 1;
+    if (msec > max_duration)
+      return max_duration;
+    return static_cast<long>(msec);
+  }
+
+  // Helper function to convert a duration into microseconds.
+  template <typename Duration>
+  long to_usec(const Duration& d, long max_duration) const
+  {
+    if (d.ticks() <= 0)
+      return 0;
+    boost::int64_t usec = d.total_microseconds();
+    if (usec == 0)
+      return 1;
+    if (usec > max_duration)
+      return max_duration;
+    return static_cast<long>(usec);
   }
 
   // The head of a linked list of all active timers.
@@ -305,63 +325,6 @@ private:
   // The heap of timers, with the earliest timer at the front.
   std::vector<heap_entry> heap_;
 };
-
-#if !defined(BOOST_ASIO_HEADER_ONLY)
-
-struct forwarding_posix_time_traits : time_traits<boost::posix_time::ptime> {};
-
-// Template specialisation for the commonly used instantation.
-template <>
-class timer_queue<time_traits<boost::posix_time::ptime> >
-  : public timer_queue_base
-{
-public:
-  // The time type.
-  typedef boost::posix_time::ptime time_type;
-
-  // The duration type.
-  typedef boost::posix_time::time_duration duration_type;
-
-  // Per-timer data.
-  typedef timer_queue<forwarding_posix_time_traits>::per_timer_data
-    per_timer_data;
-
-  // Constructor.
-  BOOST_ASIO_DECL timer_queue();
-
-  // Destructor.
-  BOOST_ASIO_DECL virtual ~timer_queue();
-
-  // Add a new timer to the queue. Returns true if this is the timer that is
-  // earliest in the queue, in which case the reactor's event demultiplexing
-  // function call may need to be interrupted and restarted.
-  BOOST_ASIO_DECL bool enqueue_timer(const time_type& time,
-      per_timer_data& timer, timer_op* op);
-
-  // Whether there are no timers in the queue.
-  BOOST_ASIO_DECL virtual bool empty() const;
-
-  // Get the time for the timer that is earliest in the queue.
-  BOOST_ASIO_DECL virtual long wait_duration_msec(long max_duration) const;
-
-  // Get the time for the timer that is earliest in the queue.
-  BOOST_ASIO_DECL virtual long wait_duration_usec(long max_duration) const;
-
-  // Dequeue all timers not later than the current time.
-  BOOST_ASIO_DECL virtual void get_ready_timers(op_queue<operation>& ops);
-
-  // Dequeue all timers.
-  BOOST_ASIO_DECL virtual void get_all_timers(op_queue<operation>& ops);
-
-  // Cancel and dequeue the timers with the given token.
-  BOOST_ASIO_DECL std::size_t cancel_timer(
-      per_timer_data& timer, op_queue<operation>& ops);
-
-private:
-  timer_queue<forwarding_posix_time_traits> impl_;
-};
-
-#endif // !defined(BOOST_ASIO_HEADER_ONLY)
 
 } // namespace detail
 } // namespace asio

@@ -117,7 +117,7 @@ bool ConsoleGame::MainLoop()
 	//check status of any compile
 	if( m_pRuntimeObjectSystem->GetIsCompiledComplete() )
 	{
-		// load module when compile complete, and notify console - TODO replace with event system 
+		// load module when compile complete
 		m_pRuntimeObjectSystem->LoadCompiledModule();
 	}
 

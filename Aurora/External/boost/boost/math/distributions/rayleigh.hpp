@@ -89,7 +89,7 @@ inline const std::pair<RealType, RealType> support(const rayleigh_distribution<R
 { // Range of supported values for random variable x.
    // This is range where cdf rises from 0 to 1, and outside it, the pdf is zero.
    using boost::math::tools::max_value;
-   return std::pair<RealType, RealType>((0),  max_value<RealType>());
+   return std::pair<RealType, RealType>(static_cast<RealType>(0),  max_value<RealType>());
 }
 
 template <class RealType, class Policy>
@@ -98,7 +98,7 @@ inline RealType pdf(const rayleigh_distribution<RealType, Policy>& dist, const R
    BOOST_MATH_STD_USING // for ADL of std function exp.
 
    RealType sigma = dist.sigma();
-   RealType result;
+   RealType result = 0;
    static const char* function = "boost::math::pdf(const rayleigh_distribution<%1%>&, %1%)";
    if(false == detail::verify_sigma(function, sigma, &result, Policy()))
    {
@@ -109,7 +109,7 @@ inline RealType pdf(const rayleigh_distribution<RealType, Policy>& dist, const R
       return result;
    }
    RealType sigmasqr = sigma * sigma;
-   result = x * (exp(-(x * x) / ( 2 * sigmasqr))) / sigmasqr; 
+   result = x * (exp(-(x * x) / ( 2 * sigmasqr))) / sigmasqr;
    return result;
 } // pdf
 
@@ -118,7 +118,7 @@ inline RealType cdf(const rayleigh_distribution<RealType, Policy>& dist, const R
 {
    BOOST_MATH_STD_USING // for ADL of std functions
 
-   RealType result;
+   RealType result = 0;
    RealType sigma = dist.sigma();
    static const char* function = "boost::math::cdf(const rayleigh_distribution<%1%>&, %1%)";
    if(false == detail::verify_sigma(function, sigma, &result, Policy()))
@@ -138,7 +138,7 @@ inline RealType quantile(const rayleigh_distribution<RealType, Policy>& dist, co
 {
    BOOST_MATH_STD_USING // for ADL of std functions
 
-   RealType result;
+   RealType result = 0;
    RealType sigma = dist.sigma();
    static const char* function = "boost::math::quantile(const rayleigh_distribution<%1%>&, %1%)";
    if(false == detail::verify_sigma(function, sigma, &result, Policy()))
@@ -163,7 +163,7 @@ inline RealType cdf(const complemented2_type<rayleigh_distribution<RealType, Pol
 {
    BOOST_MATH_STD_USING // for ADL of std functions
 
-   RealType result;
+   RealType result = 0;
    RealType sigma = c.dist.sigma();
    static const char* function = "boost::math::cdf(const rayleigh_distribution<%1%>&, %1%)";
    if(false == detail::verify_sigma(function, sigma, &result, Policy()))
@@ -184,7 +184,7 @@ inline RealType quantile(const complemented2_type<rayleigh_distribution<RealType
 {
    BOOST_MATH_STD_USING // for ADL of std functions, log & sqrt.
 
-   RealType result;
+   RealType result = 0;
    RealType sigma = c.dist.sigma();
    static const char* function = "boost::math::quantile(const rayleigh_distribution<%1%>&, %1%)";
    if(false == detail::verify_sigma(function, sigma, &result, Policy()))
@@ -211,7 +211,7 @@ inline RealType quantile(const complemented2_type<rayleigh_distribution<RealType
 template <class RealType, class Policy>
 inline RealType mean(const rayleigh_distribution<RealType, Policy>& dist)
 {
-   RealType result;
+   RealType result = 0;
    RealType sigma = dist.sigma();
    static const char* function = "boost::math::mean(const rayleigh_distribution<%1%>&, %1%)";
    if(false == detail::verify_sigma(function, sigma, &result, Policy()))
@@ -225,7 +225,7 @@ inline RealType mean(const rayleigh_distribution<RealType, Policy>& dist)
 template <class RealType, class Policy>
 inline RealType variance(const rayleigh_distribution<RealType, Policy>& dist)
 {
-   RealType result;
+   RealType result = 0;
    RealType sigma = dist.sigma();
    static const char* function = "boost::math::variance(const rayleigh_distribution<%1%>&, %1%)";
    if(false == detail::verify_sigma(function, sigma, &result, Policy()))

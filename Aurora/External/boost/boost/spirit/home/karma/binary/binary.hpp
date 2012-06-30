@@ -1,4 +1,4 @@
-//  Copyright (c) 2001-2010 Hartmut Kaiser
+//  Copyright (c) 2001-2011 Hartmut Kaiser
 //
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -27,6 +27,7 @@
 #include <boost/mpl/or.hpp>
 #include <boost/type_traits/is_integral.hpp>
 #include <boost/type_traits/is_enum.hpp>
+#include <boost/type_traits/is_floating_point.hpp>
 #include <boost/config.hpp>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -41,6 +42,19 @@
       : mpl::or_<is_integral<A0>, is_enum<A0> > {};                           \
                                                                               \
     template <>                                                               \
+    struct use_lazy_terminal<karma::domain, tag::name, 1> : mpl::true_ {};    \
+                                                                              \
+/***/
+
+#define BOOST_SPIRIT_ENABLE_BINARY_IEEE754(name)                              \
+    template<>                                                                \
+    struct use_terminal<karma::domain, tag::name>: mpl::true_ {};             \
+                                                                              \
+    template<typename A0>                                                     \
+    struct use_terminal<karma::domain, terminal_ex<tag::name,                 \
+        fusion::vector1<A0> > >: is_floating_point<A0> {};                    \
+                                                                              \
+    template<>                                                                \
     struct use_lazy_terminal<karma::domain, tag::name, 1> : mpl::true_ {};    \
                                                                               \
 /***/
@@ -63,36 +77,59 @@ namespace boost { namespace spirit
     BOOST_SPIRIT_ENABLE_BINARY(big_qword)               // enables big_qword
     BOOST_SPIRIT_ENABLE_BINARY(little_qword)            // enables little_qword
 #endif
-
+    BOOST_SPIRIT_ENABLE_BINARY_IEEE754(bin_float)
+    BOOST_SPIRIT_ENABLE_BINARY_IEEE754(big_bin_float)
+    BOOST_SPIRIT_ENABLE_BINARY_IEEE754(little_bin_float)
+    BOOST_SPIRIT_ENABLE_BINARY_IEEE754(bin_double)
+    BOOST_SPIRIT_ENABLE_BINARY_IEEE754(big_bin_double)
+    BOOST_SPIRIT_ENABLE_BINARY_IEEE754(little_bin_double)
 }}
 
 #undef BOOST_SPIRIT_ENABLE_BINARY
+#undef BOOST_SPIRIT_ENABLE_BINARY_IEEE754
 
 ///////////////////////////////////////////////////////////////////////////////
 namespace boost { namespace spirit { namespace karma
 {
+#ifndef BOOST_SPIRIT_NO_PREDEFINED_TERMINALS
     using boost::spirit::byte_;
-    using boost::spirit::byte__type;
     using boost::spirit::word;
-    using boost::spirit::word_type;
     using boost::spirit::big_word;
-    using boost::spirit::big_word_type;
     using boost::spirit::little_word;
-    using boost::spirit::little_word_type;
     using boost::spirit::dword;
-    using boost::spirit::dword_type;
     using boost::spirit::big_dword;
-    using boost::spirit::big_dword_type;
     using boost::spirit::little_dword;
-    using boost::spirit::little_dword_type;
 #ifdef BOOST_HAS_LONG_LONG
     using boost::spirit::qword;
-    using boost::spirit::qword_type;
     using boost::spirit::big_qword;
-    using boost::spirit::big_qword_type;
     using boost::spirit::little_qword;
+#endif
+    using boost::spirit::bin_float;
+    using boost::spirit::big_bin_float;
+    using boost::spirit::little_bin_float;
+    using boost::spirit::bin_double;
+    using boost::spirit::big_bin_double;
+    using boost::spirit::little_bin_double;
+#endif
+
+    using boost::spirit::byte_type;
+    using boost::spirit::word_type;
+    using boost::spirit::big_word_type;
+    using boost::spirit::little_word_type;
+    using boost::spirit::dword_type;
+    using boost::spirit::big_dword_type;
+    using boost::spirit::little_dword_type;
+#ifdef BOOST_HAS_LONG_LONG
+    using boost::spirit::qword_type;
+    using boost::spirit::big_qword_type;
     using boost::spirit::little_qword_type;
 #endif
+    using boost::spirit::bin_float_type;
+    using boost::spirit::big_bin_float_type;
+    using boost::spirit::little_bin_float_type;
+    using boost::spirit::bin_double_type;
+    using boost::spirit::big_bin_double_type;
+    using boost::spirit::little_bin_double_type;
 
     namespace detail
     {
@@ -136,12 +173,32 @@ namespace boost { namespace spirit { namespace karma
         };
 #endif
 
+        template <int bits>
+        struct floating_point
+        {
+            BOOST_SPIRIT_ASSERT_MSG(
+                bits == 32 || bits == 64,
+                not_supported_binary_size, ());
+        };
+
+        template <>
+        struct floating_point<32>
+        {
+            typedef float type;
+        };
+
+        template <>
+        struct floating_point<64>
+        {
+            typedef double type;
+        };
+
         ///////////////////////////////////////////////////////////////////////
-        template <BOOST_SCOPED_ENUM(boost::integer::endianness) bits>
+        template <BOOST_SCOPED_ENUM(boost::endian::endianness) bits>
         struct what;
 
         template <>
-        struct what<boost::integer::endianness::native>
+        struct what<boost::endian::endianness::native>
         {
             static info is()
             {
@@ -150,7 +207,7 @@ namespace boost { namespace spirit { namespace karma
         };
 
         template <>
-        struct what<boost::integer::endianness::little>
+        struct what<boost::endian::endianness::little>
         {
             static info is()
             {
@@ -159,7 +216,7 @@ namespace boost { namespace spirit { namespace karma
         };
 
         template <>
-        struct what<boost::integer::endianness::big>
+        struct what<boost::endian::endianness::big>
         {
             static info is()
             {
@@ -169,14 +226,12 @@ namespace boost { namespace spirit { namespace karma
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    template <BOOST_SCOPED_ENUM(boost::integer::endianness) endian, int bits>
-    struct any_binary_generator 
-      : primitive_generator<any_binary_generator<endian, bits> >
+    template <typename T, BOOST_SCOPED_ENUM(boost::endian::endianness) endian, int bits>
+    struct any_binary_generator
+      : primitive_generator<any_binary_generator<T, endian, bits> >
     {
         template <typename Context, typename Unused = unused_type>
-        struct attribute 
-          : karma::detail::integer<bits>
-        {};
+        struct attribute: T {};
 
         template <
             typename OutputIterator, typename Context, typename Delimiter
@@ -190,16 +245,14 @@ namespace boost { namespace spirit { namespace karma
             // Even if the endian types are not pod's (at least not in the
             // definition of C++03) it seems to be safe to assume they are.
             // This allows us to treat them as a sequence of consecutive bytes.
-            boost::integer::endian<
-                endian, typename karma::detail::integer<bits>::type, bits
-            > p;
+            boost::endian::endian<endian, typename T::type, bits> p;
 
 #if defined(BOOST_MSVC)
 // warning C4244: 'argument' : conversion from 'const int' to 'foo', possible loss of data
 #pragma warning(push)
 #pragma warning(disable: 4244)
 #endif
-            typedef typename karma::detail::integer<bits>::type attribute_type;
+            typedef typename T::type attribute_type;
             p = traits::extract_from<attribute_type>(attr, context);
 #if defined(BOOST_MSVC)
 #pragma warning(pop)
@@ -208,7 +261,7 @@ namespace boost { namespace spirit { namespace karma
             unsigned char const* bytes =
                 reinterpret_cast<unsigned char const*>(&p);
 
-            for (unsigned int i = 0; i < sizeof(p); ++i) 
+            for (unsigned int i = 0; i < sizeof(p); ++i)
             {
                 if (!detail::generate_to(sink, *bytes++))
                     return false;
@@ -220,11 +273,11 @@ namespace boost { namespace spirit { namespace karma
         // been initialized from a direct literal
         template <
             typename OutputIterator, typename Context, typename Delimiter>
-        static bool generate(OutputIterator& sink, Context&, Delimiter const& d
+        static bool generate(OutputIterator&, Context&, Delimiter const&
           , unused_type)
         {
-            // It is not possible (doesn't make sense) to use binary generators 
-            // without providing any attribute, as the generator doesn't 'know' 
+            // It is not possible (doesn't make sense) to use binary generators
+            // without providing any attribute, as the generator doesn't 'know'
             // what to output. The following assertion fires if this situation
             // is detected in your code.
             BOOST_SPIRIT_ASSERT_MSG(false,
@@ -240,9 +293,9 @@ namespace boost { namespace spirit { namespace karma
     };
 
     ///////////////////////////////////////////////////////////////////////////
-    template <BOOST_SCOPED_ENUM(boost::integer::endianness) endian, int bits>
+    template <typename T, BOOST_SCOPED_ENUM(boost::endian::endianness) endian, int bits>
     struct literal_binary_generator
-      : primitive_generator<literal_binary_generator<endian, bits> >
+      : primitive_generator<literal_binary_generator<T, endian, bits> >
     {
         template <typename Context, typename Unused>
         struct attribute
@@ -250,15 +303,15 @@ namespace boost { namespace spirit { namespace karma
             typedef unused_type type;
         };
 
-        template <typename T>
-        literal_binary_generator(T const& t)
+        template <typename V>
+        literal_binary_generator(V const& v)
         {
 #if defined(BOOST_MSVC)
 // warning C4244: 'argument' : conversion from 'const int' to 'foo', possible loss of data
 #pragma warning(push)
 #pragma warning(disable: 4244)
 #endif
-            data_ = t;
+            data_ = v;
 #if defined(BOOST_MSVC)
 #pragma warning(pop)
 #endif
@@ -291,9 +344,8 @@ namespace boost { namespace spirit { namespace karma
             return karma::detail::what<endian>::is();
         }
 
-        typedef boost::integer::endian<
-            endian, typename karma::detail::integer<bits>::type, bits
-        > data_type;
+        typedef boost::endian::endian<endian, typename T::type,
+            bits> data_type;
 
         data_type data_;
     };
@@ -303,11 +355,11 @@ namespace boost { namespace spirit { namespace karma
     ///////////////////////////////////////////////////////////////////////////
     namespace detail
     {
-        template <BOOST_SCOPED_ENUM(boost::integer::endianness) endian
+        template <typename T, BOOST_SCOPED_ENUM(boost::endian::endianness) endian
           , int bits>
         struct basic_binary
         {
-            typedef any_binary_generator<endian, bits> result_type;
+            typedef any_binary_generator<T, endian, bits> result_type;
 
             result_type operator()(unused_type, unused_type) const
             {
@@ -315,11 +367,11 @@ namespace boost { namespace spirit { namespace karma
             }
         };
 
-        template <typename Modifiers
-          , BOOST_SCOPED_ENUM(boost::integer::endianness) endian, int bits>
+        template <typename Modifiers, typename T
+          , BOOST_SCOPED_ENUM(boost::endian::endianness) endian, int bits>
         struct basic_binary_literal
         {
-            typedef literal_binary_generator<endian, bits> result_type;
+            typedef literal_binary_generator<T, endian, bits> result_type;
 
             template <typename Terminal>
             result_type operator()(Terminal const& term, unused_type) const
@@ -329,16 +381,17 @@ namespace boost { namespace spirit { namespace karma
         };
     }
 
-#define BOOST_SPIRIT_MAKE_BINARY_PRIMITIVE(name, endian, bits)                \
+#define BOOST_SPIRIT_MAKE_BINARY_PRIMITIVE(name, endiantype, bits)            \
     template <typename Modifiers>                                             \
     struct make_primitive<tag::name, Modifiers>                               \
-      : detail::basic_binary<boost::integer::endianness::endian, bits> {};    \
+      : detail::basic_binary<detail::integer<bits>,                           \
+        boost::endian::endianness::endiantype, bits> {};                      \
                                                                               \
     template <typename Modifiers, typename A0>                                \
     struct make_primitive<terminal_ex<tag::name, fusion::vector1<A0> >        \
           , Modifiers>                                                        \
-      : detail::basic_binary_literal<Modifiers                                \
-        , boost::integer::endianness::endian, bits> {};                       \
+      : detail::basic_binary_literal<Modifiers, detail::integer<bits>         \
+        , boost::endian::endianness::endiantype, bits> {};                    \
                                                                               \
     /***/
 
@@ -356,6 +409,29 @@ namespace boost { namespace spirit { namespace karma
 #endif
 
 #undef BOOST_SPIRIT_MAKE_BINARY_PRIMITIVE
+
+#define BOOST_SPIRIT_MAKE_BINARY_IEEE754_PRIMITIVE(name, endiantype, bits)    \
+    template <typename Modifiers>                                             \
+    struct make_primitive<tag::name, Modifiers>                               \
+      : detail::basic_binary<detail::floating_point<bits>,                    \
+        boost::endian::endianness::endiantype, bits> {};                      \
+                                                                              \
+    template <typename Modifiers, typename A0>                                \
+    struct make_primitive<terminal_ex<tag::name, fusion::vector1<A0> >        \
+          , Modifiers>                                                        \
+      : detail::basic_binary_literal<Modifiers, detail::floating_point<bits>  \
+        , boost::endian::endianness::endiantype, bits> {};                    \
+                                                                              \
+    /***/
+
+    BOOST_SPIRIT_MAKE_BINARY_IEEE754_PRIMITIVE(bin_float, native, 32)
+    BOOST_SPIRIT_MAKE_BINARY_IEEE754_PRIMITIVE(big_bin_float, big, 32)
+    BOOST_SPIRIT_MAKE_BINARY_IEEE754_PRIMITIVE(little_bin_float, little, 32)
+    BOOST_SPIRIT_MAKE_BINARY_IEEE754_PRIMITIVE(bin_double, native, 64)
+    BOOST_SPIRIT_MAKE_BINARY_IEEE754_PRIMITIVE(big_bin_double, big, 64)
+    BOOST_SPIRIT_MAKE_BINARY_IEEE754_PRIMITIVE(little_bin_double, little, 64)
+
+#undef BOOST_SPIRIT_MAKE_BINARY_IEEE754_PRIMITIVE
 
 }}}
 

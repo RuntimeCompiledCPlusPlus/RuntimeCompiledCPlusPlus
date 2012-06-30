@@ -154,10 +154,17 @@ inline double relative_error<double>(double a, double b)
 template <class T>
 void set_output_precision(T)
 {
+#ifdef BOOST_MSVC
+#pragma warning(push)
+#pragma warning(disable:4127)
+#endif
    if(std::numeric_limits<T>::digits10)
    {
       std::cout << std::setprecision(std::numeric_limits<T>::digits10 + 2);
    }
+#ifdef BOOST_MSVC
+#pragma warning(pop)
+#endif
 }
 
 template <class Seq>

@@ -167,6 +167,7 @@ ALCAPI ALvoid ALCAPIENTRY alcInitContext(ALCcontext *context)
 		// Initialize update to set all the Listener parameters
 		context->Listener.update1 = LPOSITION | LVELOCITY | LORIENTATION | LDOPPLERFACTOR | LROLLOFFFACTOR;
 
+		/*
 		// Default Reverb settings, but set to -100db
 		context->Listener.eaxLP.lRoom = -10000;
 		context->Listener.eaxLP.lRoomHF = EAXLISTENER_DEFAULTROOMHF;
@@ -182,6 +183,7 @@ ALCAPI ALvoid ALCAPIENTRY alcInitContext(ALCcontext *context)
 		context->Listener.eaxLP.flEnvironmentDiffusion = EAXLISTENER_DEFAULTENVIRONMENTDIFFUSION;
 		context->Listener.eaxLP.flAirAbsorptionHF = EAXLISTENER_DEFAULTAIRABSORPTIONHF;
 		context->Listener.eaxLP.dwFlags = EAXLISTENER_DEFAULTFLAGS;
+		*/
 
 		context->Listener.update2 = LALLPARAMS;
 
@@ -1638,8 +1640,8 @@ void UpdateSourceEAXProperties(ALsource *ALSource)
 		if (ALSource->uservalue3)
 		{
 			property = DSPROPERTY_EAXBUFFER_ALLPARAMETERS | ((ALSource->update2 & SDEFERRED) ? DSPROPERTY_EAXBUFFER_DEFERRED : DSPROPERTY_EAXBUFFER_IMMEDIATE);
-			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
-				property,NULL,0,&(ALSource->eaxBP),sizeof(EAXBUFFERPROPERTIES));
+//			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
+//				property,NULL,0,&(ALSource->eaxBP),sizeof(EAXBUFFERPROPERTIES));
 			ALSource->update2 &= ~SALLPARAMS;
 			if (ALSource->update2 == 0)
 				return;
@@ -1651,8 +1653,8 @@ void UpdateSourceEAXProperties(ALsource *ALSource)
 		if (ALSource->uservalue3)
 		{
 			property = DSPROPERTY_EAXBUFFER_DIRECT | ((ALSource->update2 & SDEFERRED) ? DSPROPERTY_EAXBUFFER_DEFERRED : DSPROPERTY_EAXBUFFER_IMMEDIATE);
-			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
-				property,NULL,0,&(ALSource->eaxBP.lDirect),sizeof(ALint));
+//			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
+//				property,NULL,0,&(ALSource->eaxBP.lDirect),sizeof(ALint));
 			ALSource->update2 &= ~SDIRECT;
 			if (ALSource->update2 == 0)
 				return;
@@ -1664,8 +1666,8 @@ void UpdateSourceEAXProperties(ALsource *ALSource)
 		if (ALSource->uservalue3)
 		{
 			property = DSPROPERTY_EAXBUFFER_DIRECTHF | ((ALSource->update2 & SDEFERRED) ? DSPROPERTY_EAXBUFFER_DEFERRED : DSPROPERTY_EAXBUFFER_IMMEDIATE);
-			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
-				property,NULL,0,&(ALSource->eaxBP.lDirectHF),sizeof(ALint));
+//			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
+//				property,NULL,0,&(ALSource->eaxBP.lDirectHF),sizeof(ALint));
 			ALSource->update2 &= ~SDIRECTHF;
 			if (ALSource->update2 == 0)
 				return;
@@ -1677,8 +1679,8 @@ void UpdateSourceEAXProperties(ALsource *ALSource)
 		if (ALSource->uservalue3)
 		{
 			property = DSPROPERTY_EAXBUFFER_ROOM | ((ALSource->update2 & SDEFERRED) ? DSPROPERTY_EAXBUFFER_DEFERRED : DSPROPERTY_EAXBUFFER_IMMEDIATE);
-			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
-				property,NULL,0,&(ALSource->eaxBP.lRoom),sizeof(ALint));
+//			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
+//				property,NULL,0,&(ALSource->eaxBP.lRoom),sizeof(ALint));
 			ALSource->update2 &= ~SROOM;
 			if (ALSource->update2 == 0)
 				return;
@@ -1690,8 +1692,8 @@ void UpdateSourceEAXProperties(ALsource *ALSource)
 		if (ALSource->uservalue3)
 		{
 			property = DSPROPERTY_EAXBUFFER_ROOMHF | ((ALSource->update2 & SDEFERRED) ? DSPROPERTY_EAXBUFFER_DEFERRED : DSPROPERTY_EAXBUFFER_IMMEDIATE);
-			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
-				property,NULL,0,&(ALSource->eaxBP.lRoomHF),sizeof(ALint));
+//			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
+//				property,NULL,0,&(ALSource->eaxBP.lRoomHF),sizeof(ALint));
 			ALSource->update2 &= ~SROOMHF;
 			if (ALSource->update2 == 0)
 				return;
@@ -1703,8 +1705,8 @@ void UpdateSourceEAXProperties(ALsource *ALSource)
 		if (ALSource->uservalue3)
 		{
 			property = DSPROPERTY_EAXBUFFER_ROOMROLLOFFFACTOR | ((ALSource->update2 & SDEFERRED) ? DSPROPERTY_EAXBUFFER_DEFERRED : DSPROPERTY_EAXBUFFER_IMMEDIATE);
-			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
-				property,NULL,0,&(ALSource->eaxBP.flRoomRolloffFactor),sizeof(ALfloat));
+//			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
+//				property,NULL,0,&(ALSource->eaxBP.flRoomRolloffFactor),sizeof(ALfloat));
 			ALSource->update2 &= ~SROOMROLLOFFFACTOR;
 			if (ALSource->update2 == 0)
 				return;
@@ -1716,8 +1718,8 @@ void UpdateSourceEAXProperties(ALsource *ALSource)
 		if (ALSource->uservalue3)
 		{
 			property = DSPROPERTY_EAXBUFFER_OBSTRUCTION | ((ALSource->update2 & SDEFERRED) ? DSPROPERTY_EAXBUFFER_DEFERRED : DSPROPERTY_EAXBUFFER_IMMEDIATE);
-			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
-				property,NULL,0,&(ALSource->eaxBP.lObstruction),sizeof(ALint));
+//			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
+//				property,NULL,0,&(ALSource->eaxBP.lObstruction),sizeof(ALint));
 			ALSource->update2 &= ~SOBSTRUCTION;
 			if (ALSource->update2 == 0)
 				return;
@@ -1729,8 +1731,8 @@ void UpdateSourceEAXProperties(ALsource *ALSource)
 		if (ALSource->uservalue3)
 		{
 			property = DSPROPERTY_EAXBUFFER_OBSTRUCTIONLFRATIO | ((ALSource->update2 & SDEFERRED) ? DSPROPERTY_EAXBUFFER_DEFERRED : DSPROPERTY_EAXBUFFER_IMMEDIATE);
-			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
-				property,NULL,0,&(ALSource->eaxBP.flObstructionLFRatio),sizeof(ALfloat));
+//			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
+//				property,NULL,0,&(ALSource->eaxBP.flObstructionLFRatio),sizeof(ALfloat));
 			ALSource->update2 &= ~SOBSTRUCTIONLFRATIO;
 			if (ALSource->update2 == 0)
 				return;
@@ -1742,8 +1744,8 @@ void UpdateSourceEAXProperties(ALsource *ALSource)
 		if (ALSource->uservalue3)
 		{
 			property = DSPROPERTY_EAXBUFFER_OCCLUSION | ((ALSource->update2 & SDEFERRED) ? DSPROPERTY_EAXBUFFER_DEFERRED : DSPROPERTY_EAXBUFFER_IMMEDIATE);
-			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
-				property,NULL,0,&(ALSource->eaxBP.lOcclusion),sizeof(ALint));
+//			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
+//				property,NULL,0,&(ALSource->eaxBP.lOcclusion),sizeof(ALint));
 			ALSource->update2 &= ~SOCCLUSION;
 			if (ALSource->update2 == 0)
 				return;
@@ -1755,8 +1757,8 @@ void UpdateSourceEAXProperties(ALsource *ALSource)
 		if (ALSource->uservalue3)
 		{
 			property = DSPROPERTY_EAXBUFFER_OCCLUSIONLFRATIO | ((ALSource->update2 & SDEFERRED) ? DSPROPERTY_EAXBUFFER_DEFERRED : DSPROPERTY_EAXBUFFER_IMMEDIATE);
-			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
-				property,NULL,0,&(ALSource->eaxBP.flOcclusionLFRatio),sizeof(ALfloat));
+//			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
+//				property,NULL,0,&(ALSource->eaxBP.flOcclusionLFRatio),sizeof(ALfloat));
 			ALSource->update2 &= ~SOCCLUSIONLFRATIO;
 			if (ALSource->update2 == 0)
 				return;
@@ -1768,8 +1770,8 @@ void UpdateSourceEAXProperties(ALsource *ALSource)
 		if (ALSource->uservalue3)
 		{
 			property = DSPROPERTY_EAXBUFFER_OCCLUSIONROOMRATIO | ((ALSource->update2 & SDEFERRED) ? DSPROPERTY_EAXBUFFER_DEFERRED : DSPROPERTY_EAXBUFFER_IMMEDIATE);
-			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
-				property,NULL,0,&(ALSource->eaxBP.flOcclusionRoomRatio),sizeof(ALfloat));
+//			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
+//				property,NULL,0,&(ALSource->eaxBP.flOcclusionRoomRatio),sizeof(ALfloat));
 			ALSource->update2 &= ~SOCCLUSIONROOMRATIO;
 			if (ALSource->update2 == 0)
 				return;
@@ -1781,8 +1783,8 @@ void UpdateSourceEAXProperties(ALsource *ALSource)
 		if (ALSource->uservalue3)
 		{
 			property = DSPROPERTY_EAXBUFFER_OUTSIDEVOLUMEHF | ((ALSource->update2 & SDEFERRED) ? DSPROPERTY_EAXBUFFER_DEFERRED : DSPROPERTY_EAXBUFFER_IMMEDIATE);
-			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
-				property,NULL,0,&(ALSource->eaxBP.lOutsideVolumeHF),sizeof(ALint));
+//			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
+//				property,NULL,0,&(ALSource->eaxBP.lOutsideVolumeHF),sizeof(ALint));
 			ALSource->update2 &= ~SOUTSIDEVOLUMEHF;
 			if (ALSource->update2 == 0)
 				return;
@@ -1794,8 +1796,8 @@ void UpdateSourceEAXProperties(ALsource *ALSource)
 		if (ALSource->uservalue3)
 		{
 			property = DSPROPERTY_EAXBUFFER_AIRABSORPTIONFACTOR | ((ALSource->update2 & SDEFERRED) ? DSPROPERTY_EAXBUFFER_DEFERRED : DSPROPERTY_EAXBUFFER_IMMEDIATE);
-			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
-				property,NULL,0,&(ALSource->eaxBP.flAirAbsorptionFactor),sizeof(ALfloat));
+//			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
+//				property,NULL,0,&(ALSource->eaxBP.flAirAbsorptionFactor),sizeof(ALfloat));
 			ALSource->update2 &= ~SAIRABSORPTIONFACTOR;
 			if (ALSource->update2 == 0)
 				return;
@@ -1807,8 +1809,8 @@ void UpdateSourceEAXProperties(ALsource *ALSource)
 		if (ALSource->uservalue3)
 		{
 			property = DSPROPERTY_EAXBUFFER_FLAGS | ((ALSource->update2 & SDEFERRED) ? DSPROPERTY_EAXBUFFER_DEFERRED : DSPROPERTY_EAXBUFFER_IMMEDIATE);
-			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
-				property,NULL,0,&(ALSource->eaxBP.dwFlags),sizeof(ALuint));
+//			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
+//				property,NULL,0,&(ALSource->eaxBP.dwFlags),sizeof(ALuint));
 			ALSource->update2 &= ~SFLAGS;
 			if (ALSource->update2 == 0)
 				return;
@@ -1819,8 +1821,8 @@ void UpdateSourceEAXProperties(ALsource *ALSource)
 	{
 		if (ALSource->uservalue3)
 		{
-			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
-				DSPROPERTY_EAXBUFFER_COMMITDEFERREDSETTINGS, NULL, 0, NULL, 0);
+//			IKsPropertySet_Set((LPKSPROPERTYSET)ALSource->uservalue3, &DSPROPSETID_EAX_BufferProperties,
+//				DSPROPERTY_EAXBUFFER_COMMITDEFERREDSETTINGS, NULL, 0, NULL, 0);
 			ALSource->update2 &= ~SCOMMITSETTINGS;
 			if (ALSource->update2 == 0)
 				return;
@@ -1968,8 +1970,8 @@ void UpdateListenerEAXProperties(ALCcontext *ALContext)
 	if (ALContext->Listener.update2 & LALLPARAMS)
 	{
 		property = DSPROPERTY_EAXLISTENER_ALLPARAMETERS | ((ALContext->Listener.update2 & LDEFERRED) ? DSPROPERTY_EAXLISTENER_DEFERRED : DSPROPERTY_EAXLISTENER_IMMEDIATE);
-		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
-			property,NULL,0,&(ALContext->Listener.eaxLP),sizeof(EAXLISTENERPROPERTIES));
+//		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
+//			property,NULL,0,&(ALContext->Listener.eaxLP),sizeof(EAXLISTENERPROPERTIES));
 		ALContext->Listener.update2 &= ~LALLPARAMS;
 		if (ALContext->Listener.update2 == 0)
 			return;
@@ -1978,8 +1980,8 @@ void UpdateListenerEAXProperties(ALCcontext *ALContext)
 	if (ALContext->Listener.update2 & LROOM)
 	{
 		property = DSPROPERTY_EAXLISTENER_ROOM | ((ALContext->Listener.update2 & LDEFERRED) ? DSPROPERTY_EAXLISTENER_DEFERRED : DSPROPERTY_EAXLISTENER_IMMEDIATE);
-		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
-			property,NULL,0,&(ALContext->Listener.eaxLP.lRoom),sizeof(ALint));
+//		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
+//			property,NULL,0,&(ALContext->Listener.eaxLP.lRoom),sizeof(ALint));
 		ALContext->Listener.update2 &= ~LROOM;
 		if (ALContext->Listener.update2 == 0)
 			return;
@@ -1988,8 +1990,8 @@ void UpdateListenerEAXProperties(ALCcontext *ALContext)
 	if (ALContext->Listener.update2 & LROOMHF)
 	{
 		property = DSPROPERTY_EAXLISTENER_ROOMHF | ((ALContext->Listener.update2 & LDEFERRED) ? DSPROPERTY_EAXLISTENER_DEFERRED : DSPROPERTY_EAXLISTENER_IMMEDIATE);
-		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
-			property,NULL,0,&(ALContext->Listener.eaxLP.lRoomHF),sizeof(ALint));
+//		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
+//			property,NULL,0,&(ALContext->Listener.eaxLP.lRoomHF),sizeof(ALint));
 		ALContext->Listener.update2 &= ~LROOMHF;
 		if (ALContext->Listener.update2 == 0)
 			return;
@@ -1998,8 +2000,8 @@ void UpdateListenerEAXProperties(ALCcontext *ALContext)
 	if (ALContext->Listener.update2 & LROOMROLLOFFFACTOR)
 	{
 		property = DSPROPERTY_EAXLISTENER_ROOMROLLOFFFACTOR | ((ALContext->Listener.update2 & LDEFERRED) ? DSPROPERTY_EAXLISTENER_DEFERRED : DSPROPERTY_EAXLISTENER_IMMEDIATE);
-		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
-			property,NULL,0,&(ALContext->Listener.eaxLP.flRoomRolloffFactor),sizeof(ALfloat));
+//		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
+//			property,NULL,0,&(ALContext->Listener.eaxLP.flRoomRolloffFactor),sizeof(ALfloat));
 		ALContext->Listener.update2 &= ~LROOMROLLOFFFACTOR;
 		if (ALContext->Listener.update2 == 0)
 			return;
@@ -2008,8 +2010,8 @@ void UpdateListenerEAXProperties(ALCcontext *ALContext)
 	if (ALContext->Listener.update2 & LDECAYTIME)
 	{
 		property = DSPROPERTY_EAXLISTENER_DECAYTIME | ((ALContext->Listener.update2 & LDEFERRED) ? DSPROPERTY_EAXLISTENER_DEFERRED : DSPROPERTY_EAXLISTENER_IMMEDIATE);
-		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
-			property,NULL,0,&(ALContext->Listener.eaxLP.flDecayTime),sizeof(ALfloat));
+//		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
+//			property,NULL,0,&(ALContext->Listener.eaxLP.flDecayTime),sizeof(ALfloat));
 		ALContext->Listener.update2 &= ~LDECAYTIME;
 		if (ALContext->Listener.update2 == 0)
 			return;
@@ -2018,8 +2020,8 @@ void UpdateListenerEAXProperties(ALCcontext *ALContext)
 	if (ALContext->Listener.update2 & LDECAYHFRATIO)
 	{
 		property = DSPROPERTY_EAXLISTENER_DECAYHFRATIO | ((ALContext->Listener.update2 & LDEFERRED) ? DSPROPERTY_EAXLISTENER_DEFERRED : DSPROPERTY_EAXLISTENER_IMMEDIATE);
-		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
-			property,NULL,0,&(ALContext->Listener.eaxLP.flDecayHFRatio),sizeof(ALfloat));
+//		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
+//			property,NULL,0,&(ALContext->Listener.eaxLP.flDecayHFRatio),sizeof(ALfloat));
 		ALContext->Listener.update2 &= ~LDECAYHFRATIO;
 		if (ALContext->Listener.update2 == 0)
 			return;
@@ -2028,8 +2030,8 @@ void UpdateListenerEAXProperties(ALCcontext *ALContext)
 	if (ALContext->Listener.update2 & LREFLECTIONS)
 	{
 		property = DSPROPERTY_EAXLISTENER_REFLECTIONS | ((ALContext->Listener.update2 & LDEFERRED) ? DSPROPERTY_EAXLISTENER_DEFERRED : DSPROPERTY_EAXLISTENER_IMMEDIATE);
-		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
-			property,NULL,0,&(ALContext->Listener.eaxLP.lReflections),sizeof(ALint));
+//		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
+//			property,NULL,0,&(ALContext->Listener.eaxLP.lReflections),sizeof(ALint));
 		ALContext->Listener.update2 &= ~LREFLECTIONS;
 		if (ALContext->Listener.update2 == 0)
 			return;
@@ -2038,8 +2040,8 @@ void UpdateListenerEAXProperties(ALCcontext *ALContext)
 	if (ALContext->Listener.update2 & LREFLECTIONSDELAY)
 	{
 		property = DSPROPERTY_EAXLISTENER_REFLECTIONSDELAY | ((ALContext->Listener.update2 & LDEFERRED) ? DSPROPERTY_EAXLISTENER_DEFERRED : DSPROPERTY_EAXLISTENER_IMMEDIATE);
-		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
-			property,NULL,0,&(ALContext->Listener.eaxLP.flReflectionsDelay),sizeof(ALfloat));
+//		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
+//			property,NULL,0,&(ALContext->Listener.eaxLP.flReflectionsDelay),sizeof(ALfloat));
 		ALContext->Listener.update2 &= ~LREFLECTIONSDELAY;
 		if (ALContext->Listener.update2 == 0)
 			return;
@@ -2048,8 +2050,8 @@ void UpdateListenerEAXProperties(ALCcontext *ALContext)
 	if (ALContext->Listener.update2 & LREVERB)
 	{
 		property = DSPROPERTY_EAXLISTENER_REVERB | ((ALContext->Listener.update2 & LDEFERRED) ? DSPROPERTY_EAXLISTENER_DEFERRED : DSPROPERTY_EAXLISTENER_IMMEDIATE);
-		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
-			property,NULL,0,&(ALContext->Listener.eaxLP.lReverb),sizeof(ALint));
+//		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
+//			property,NULL,0,&(ALContext->Listener.eaxLP.lReverb),sizeof(ALint));
 		ALContext->Listener.update2 &= ~LREVERB;
 		if (ALContext->Listener.update2 == 0)
 			return;
@@ -2058,8 +2060,8 @@ void UpdateListenerEAXProperties(ALCcontext *ALContext)
 	if (ALContext->Listener.update2 & LREVERBDELAY)
 	{
 		property = DSPROPERTY_EAXLISTENER_REVERBDELAY | ((ALContext->Listener.update2 & LDEFERRED) ? DSPROPERTY_EAXLISTENER_DEFERRED : DSPROPERTY_EAXLISTENER_IMMEDIATE);
-		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
-			property,NULL,0,&(ALContext->Listener.eaxLP.flReverbDelay),sizeof(ALfloat));
+//		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
+//			property,NULL,0,&(ALContext->Listener.eaxLP.flReverbDelay),sizeof(ALfloat));
 		ALContext->Listener.update2 &= ~LREVERBDELAY;
 		if (ALContext->Listener.update2 == 0)
 			return;
@@ -2068,8 +2070,8 @@ void UpdateListenerEAXProperties(ALCcontext *ALContext)
 	if (ALContext->Listener.update2 & LENVIRONMENT)
 	{
 		property = DSPROPERTY_EAXLISTENER_ENVIRONMENT | ((ALContext->Listener.update2 & LDEFERRED) ? DSPROPERTY_EAXLISTENER_DEFERRED : DSPROPERTY_EAXLISTENER_IMMEDIATE);
-		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
-			property,NULL,0,&(ALContext->Listener.eaxLP.dwEnvironment),sizeof(ALuint));
+//		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
+//			property,NULL,0,&(ALContext->Listener.eaxLP.dwEnvironment),sizeof(ALuint));
 		ALContext->Listener.update2 &= ~LENVIRONMENT;
 		if (ALContext->Listener.update2 == 0)
 			return;
@@ -2078,8 +2080,8 @@ void UpdateListenerEAXProperties(ALCcontext *ALContext)
 	if (ALContext->Listener.update2 & LENVIRONMENTSIZE)
 	{
 		property = DSPROPERTY_EAXLISTENER_ENVIRONMENTSIZE | ((ALContext->Listener.update2 & LDEFERRED) ? DSPROPERTY_EAXLISTENER_DEFERRED : DSPROPERTY_EAXLISTENER_IMMEDIATE);
-		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
-			property,NULL,0,&(ALContext->Listener.eaxLP.flEnvironmentSize),sizeof(ALfloat));
+//		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
+//			property,NULL,0,&(ALContext->Listener.eaxLP.flEnvironmentSize),sizeof(ALfloat));
 		ALContext->Listener.update2 &= ~LENVIRONMENTSIZE;
 		if (ALContext->Listener.update2 == 0)
 			return;
@@ -2088,8 +2090,8 @@ void UpdateListenerEAXProperties(ALCcontext *ALContext)
 	if (ALContext->Listener.update2 & LENVIRONMENTDIFFUSION)
 	{
 		property = DSPROPERTY_EAXLISTENER_ENVIRONMENTDIFFUSION | ((ALContext->Listener.update2 & LDEFERRED) ? DSPROPERTY_EAXLISTENER_DEFERRED : DSPROPERTY_EAXLISTENER_IMMEDIATE);
-		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
-			property,NULL,0,&(ALContext->Listener.eaxLP.flEnvironmentDiffusion),sizeof(ALfloat));
+//		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
+//			property,NULL,0,&(ALContext->Listener.eaxLP.flEnvironmentDiffusion),sizeof(ALfloat));
 		ALContext->Listener.update2 &= ~LENVIRONMENTDIFFUSION;
 		if (ALContext->Listener.update2 == 0)
 			return;
@@ -2098,8 +2100,8 @@ void UpdateListenerEAXProperties(ALCcontext *ALContext)
 	if (ALContext->Listener.update2 & LAIRABSORPTIONHF)
 	{
 		property = DSPROPERTY_EAXLISTENER_AIRABSORPTIONHF | ((ALContext->Listener.update2 & LDEFERRED) ? DSPROPERTY_EAXLISTENER_DEFERRED : DSPROPERTY_EAXLISTENER_IMMEDIATE);
-		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
-			property,NULL,0,&(ALContext->Listener.eaxLP.flAirAbsorptionHF),sizeof(ALfloat));
+//		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
+//			property,NULL,0,&(ALContext->Listener.eaxLP.flAirAbsorptionHF),sizeof(ALfloat));
 		ALContext->Listener.update2 &= ~LAIRABSORPTIONHF;
 		if (ALContext->Listener.update2 == 0)
 			return;
@@ -2108,8 +2110,8 @@ void UpdateListenerEAXProperties(ALCcontext *ALContext)
 	if (ALContext->Listener.update2 & LFLAGS)
 	{
 		property = DSPROPERTY_EAXLISTENER_FLAGS | ((ALContext->Listener.update2 & LDEFERRED) ? DSPROPERTY_EAXLISTENER_DEFERRED : DSPROPERTY_EAXLISTENER_IMMEDIATE);
-		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
-			property,NULL,0,&(ALContext->Listener.eaxLP.dwFlags),sizeof(ALuint));
+//		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
+//			property,NULL,0,&(ALContext->Listener.eaxLP.dwFlags),sizeof(ALuint));
 		ALContext->Listener.update2 &= ~LFLAGS;
 		if (ALContext->Listener.update2 == 0)
 			return;
@@ -2117,8 +2119,8 @@ void UpdateListenerEAXProperties(ALCcontext *ALContext)
 
 	if (ALContext->Listener.update2 & LCOMMITSETTINGS)
 	{
-		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
-			DSPROPERTY_EAXLISTENER_COMMITDEFERREDSETTINGS, NULL, 0, NULL, 0);
+//		IKsPropertySet_Set(lpPropertySet, &DSPROPSETID_EAX_ListenerProperties,
+//			DSPROPERTY_EAXLISTENER_COMMITDEFERREDSETTINGS, NULL, 0, NULL, 0);
 		ALContext->Listener.update2 &= ~LCOMMITSETTINGS;
 		if (ALContext->Listener.update2 == 0)
 			return;

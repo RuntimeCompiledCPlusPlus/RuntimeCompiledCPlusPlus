@@ -1,4 +1,4 @@
-//  Copyright (c) 2001-2010 Hartmut Kaiser
+//  Copyright (c) 2001-2011 Hartmut Kaiser
 // 
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying 
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -114,7 +114,6 @@ namespace boost { namespace spirit { namespace karma
         return format_manip<Expr, mpl::false_, mpl::true_, Delimiter, vector_type>(
             xpr, d, delimit_flag::dont_predelimit, attr);
     }
-
 }}}
 
 #undef BOOST_SPIRIT_KARMA_ATTRIBUTE_REFERENCE

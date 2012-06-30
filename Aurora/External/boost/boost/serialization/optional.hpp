@@ -34,13 +34,13 @@ namespace serialization {
 template<class Archive, class T>
 void save(
     Archive & ar, 
-    const boost::optional<T> & t, 
+    const boost::optional< T > & t, 
     const unsigned int /*version*/
 ){
     const bool tflag = t.is_initialized();
     ar << boost::serialization::make_nvp("initialized", tflag);
     if (tflag){
-        const boost::serialization::item_version_type item_version(version<T>::value);
+        const boost::serialization::item_version_type item_version(version< T >::value);
         #if 0
         const boost::archive::library_version_type library_version(
             ar.get_library_version()
@@ -58,7 +58,7 @@ void save(
 template<class Archive, class T>
 void load(
     Archive & ar, 
-    boost::optional<T> & t, 
+    boost::optional< T > & t, 
     const unsigned int /*version*/
 ){
     bool tflag;
@@ -84,7 +84,7 @@ void load(
 template<class Archive, class T>
 void serialize(
     Archive & ar, 
-    boost::optional<T> & t, 
+    boost::optional< T > & t, 
     const unsigned int version
 ){
     boost::serialization::split_free(ar, t, version);
@@ -98,7 +98,7 @@ void serialize(
 #if 0
 
 template <class T>
-struct implementation_level<optional<T> >
+struct implementation_level<optional< T > >
 {
     typedef mpl::integral_c_tag tag;
     typedef mpl::int_<boost::serialization::object_serializable> type;
@@ -109,7 +109,7 @@ struct implementation_level<optional<T> >
 };
 
 template<class T>
-struct tracking_level<optional<T> >
+struct tracking_level<optional< T > >
 {
     typedef mpl::integral_c_tag tag;
     typedef mpl::int_<boost::serialization::track_never> type;

@@ -26,7 +26,7 @@
 #include "../../RuntimeCompiler/FileChangeNotifier.h"
 #include "../IObjectFactorySystem.h"
 #include "../ObjectFactorySystem/ObjectFactorySystem.h"
-
+#include "../ObjectInterfacePerModule.h"
 
 #include "../IObject.h"
 
@@ -192,8 +192,24 @@ void RuntimeObjectSystem::StartRecompile( const std::vector<BuildTool::FileToBui
 	GetModuleFileNameW( NULL, CurrentModuleFileName, MAX_PATH ); //get filename of current module (full path?)
 	path currModuleFileName(CurrentModuleFileName);
 	path currModuleFullPath = currModuleFileName.parent_path();
+
+	//Add required source files
+	const std::vector<const char*> vecRequiredFiles = PerModuleInterface::GetInstance()->GetRequiredSourceFiles();
+	for( size_t i = 0; i < vecRequiredFiles.size(); ++i )
+	{
+		BuildTool::FileToBuild reqFile( vecRequiredFiles[i], false );	//don't force compile of these
+		ourBuildFileList.push_back( reqFile );
+	}
+/*
+#ifndef _WIN64
 	ourBuildFileList.push_back( currModuleFullPath / path(L"/../RuntimeObjectSystem/ObjectInterfacePerModuleSource.cpp") );
 	ourBuildFileList.push_back( currModuleFullPath / path(L"/../RuntimeObjectSystem/ObjectInterfacePerModuleSource_PlatformWindows.cpp") );
+#else
+	//x64 builds have an extra directory
+	ourBuildFileList.push_back( currModuleFullPath / path(L"/../../RuntimeObjectSystem/ObjectInterfacePerModuleSource.cpp") );
+	ourBuildFileList.push_back( currModuleFullPath / path(L"/../../RuntimeObjectSystem/ObjectInterfacePerModuleSource_PlatformWindows.cpp") );
+#endif
+	*/
 
 	m_pBuildTool->BuildModule( ourBuildFileList, includeDirList, m_CurrentlyCompilingModuleName );
 }

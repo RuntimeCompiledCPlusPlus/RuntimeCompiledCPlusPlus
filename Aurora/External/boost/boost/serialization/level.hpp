@@ -52,18 +52,18 @@ struct implementation_level_impl {
     typedef
         BOOST_DEDUCED_TYPENAME mpl::eval_if<
             is_base_and_derived<boost::serialization::basic_traits, T>,
-            traits_class_level<T>,
+            traits_class_level< T >,
         //else
         BOOST_DEDUCED_TYPENAME mpl::eval_if<
-            is_fundamental<T>,
+            is_fundamental< T >,
             mpl::int_<primitive_type>,
         //else
         BOOST_DEDUCED_TYPENAME mpl::eval_if<
-            is_class<T>,
+            is_class< T >,
             mpl::int_<object_class_info>,
         //else
         BOOST_DEDUCED_TYPENAME mpl::eval_if<
-            is_array<T>,
+            is_array< T >,
             #if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x560))
                 mpl::int_<not_serializable>,
             #else
@@ -71,7 +71,7 @@ struct implementation_level_impl {
             #endif
         //else
         BOOST_DEDUCED_TYPENAME mpl::eval_if<
-            is_enum<T>,
+            is_enum< T >,
             //#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x560))
             //    mpl::int_<not_serializable>,
             //#else
@@ -95,7 +95,7 @@ struct implementation_level :
 };
 
 template<class T, BOOST_MPL_AUX_NTTP_DECL(int, L) >
-inline bool operator>=(implementation_level<T> t, enum level_type l)
+inline bool operator>=(implementation_level< T > t, enum level_type l)
 {
     return t.value >= (int)l;
 }

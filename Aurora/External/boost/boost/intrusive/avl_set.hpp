@@ -16,6 +16,7 @@
 #include <boost/intrusive/intrusive_fwd.hpp>
 #include <boost/intrusive/avltree.hpp>
 #include <boost/intrusive/detail/mpl.hpp>
+#include <boost/move/move.hpp>
 #include <iterator>
 
 namespace boost {
@@ -42,12 +43,8 @@ class avl_set_impl
    /// @cond
    typedef avltree_impl<Config> tree_type;
    //! This class is
-   //! non-copyable
-   avl_set_impl (const avl_set_impl&);
-
-   //! This class is
-   //! non-assignable
-   avl_set_impl &operator =(const avl_set_impl&);
+   //! movable
+   BOOST_MOVABLE_BUT_NOT_COPYABLE(avl_set_impl)
 
    typedef tree_type implementation_defined;
    /// @endcond
@@ -73,6 +70,8 @@ class avl_set_impl
    typedef typename implementation_defined::node_ptr                 node_ptr;
    typedef typename implementation_defined::const_node_ptr           const_node_ptr;
    typedef typename implementation_defined::node_algorithms          node_algorithms;
+
+   static const bool constant_time_size = Config::constant_time_size;
 
    /// @cond
    private:
@@ -110,6 +109,17 @@ class avl_set_impl
            , const value_traits &v_traits = value_traits())
       : tree_(true, b, e, cmp, v_traits)
    {}
+
+   //! <b>Effects</b>: to-do
+   //!   
+   avl_set_impl(BOOST_RV_REF(avl_set_impl) x) 
+      :  tree_(::boost::move(x.tree_))
+   {}
+
+   //! <b>Effects</b>: to-do
+   //!   
+   avl_set_impl& operator=(BOOST_RV_REF(avl_set_impl) x) 
+   {  tree_ = ::boost::move(x.tree_);  return *this;  }
 
    //! <b>Effects</b>: Detaches all elements from this. The objects in the avl_set 
    //!   are not deleted (i.e. no destructors are called).
@@ -1179,6 +1189,7 @@ class avl_set
       #endif
       ::type   Base;
 
+   BOOST_MOVABLE_BUT_NOT_COPYABLE(avl_set)
    public:
    typedef typename Base::value_compare      value_compare;
    typedef typename Base::value_traits       value_traits;
@@ -1199,6 +1210,13 @@ class avl_set
       , const value_traits &v_traits = value_traits())
       :  Base(b, e, cmp, v_traits)
    {}
+
+   avl_set(BOOST_RV_REF(avl_set) x)
+      :  Base(::boost::move(static_cast<Base&>(x)))
+   {}
+
+   avl_set& operator=(BOOST_RV_REF(avl_set) x)
+   {  this->Base::operator=(::boost::move(static_cast<Base&>(x))); return *this;  }
 
    static avl_set &container_from_end_iterator(iterator end_iterator)
    {  return static_cast<avl_set &>(Base::container_from_end_iterator(end_iterator));   }
@@ -1236,9 +1254,8 @@ class avl_multiset_impl
    /// @cond
    typedef avltree_impl<Config> tree_type;
 
-   //Non-copyable and non-assignable
-   avl_multiset_impl (const avl_multiset_impl&);
-   avl_multiset_impl &operator =(const avl_multiset_impl&);
+   //Movable
+   BOOST_MOVABLE_BUT_NOT_COPYABLE(avl_multiset_impl)
    typedef tree_type implementation_defined;
    /// @endcond
 
@@ -1263,6 +1280,8 @@ class avl_multiset_impl
    typedef typename implementation_defined::node_ptr                 node_ptr;
    typedef typename implementation_defined::const_node_ptr           const_node_ptr;
    typedef typename implementation_defined::node_algorithms          node_algorithms;
+
+   static const bool constant_time_size = Config::constant_time_size;
 
    /// @cond
    private:
@@ -1300,6 +1319,17 @@ class avl_multiset_impl
                 , const value_traits &v_traits = value_traits())
       : tree_(false, b, e, cmp, v_traits)
    {}
+
+   //! <b>Effects</b>: to-do
+   //!   
+   avl_multiset_impl(BOOST_RV_REF(avl_multiset_impl) x) 
+      :  tree_(::boost::move(x.tree_))
+   {}
+
+   //! <b>Effects</b>: to-do
+   //!   
+   avl_multiset_impl& operator=(BOOST_RV_REF(avl_multiset_impl) x) 
+   {  tree_ = ::boost::move(x.tree_);  return *this;  }
 
    //! <b>Effects</b>: Detaches all elements from this. The objects in the avl_multiset 
    //!   are not deleted (i.e. no destructors are called).
@@ -2276,6 +2306,7 @@ class avl_multiset
       #endif
       ::type   Base;
 
+   BOOST_MOVABLE_BUT_NOT_COPYABLE(avl_multiset)
    public:
    typedef typename Base::value_compare      value_compare;
    typedef typename Base::value_traits       value_traits;
@@ -2296,6 +2327,13 @@ class avl_multiset
            , const value_traits &v_traits = value_traits())
       :  Base(b, e, cmp, v_traits)
    {}
+
+   avl_multiset(BOOST_RV_REF(avl_multiset) x)
+      :  Base(::boost::move(static_cast<Base&>(x)))
+   {}
+
+   avl_multiset& operator=(BOOST_RV_REF(avl_multiset) x)
+   {  this->Base::operator=(::boost::move(static_cast<Base&>(x))); return *this;  }
 
    static avl_multiset &container_from_end_iterator(iterator end_iterator)
    {  return static_cast<avl_multiset &>(Base::container_from_end_iterator(end_iterator));   }
