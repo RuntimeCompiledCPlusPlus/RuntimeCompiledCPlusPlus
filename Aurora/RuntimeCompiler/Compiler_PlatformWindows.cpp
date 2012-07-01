@@ -291,19 +291,19 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
 		flags += pCompileOptions;
 	}
 
-	std::string linkFlags;
+	std::string linkOptions;
 	bool bHaveLinkOptions = pLinkOptions && strlen( pLinkOptions );
 	if( libraryDirList.size() ||  bHaveLinkOptions )
 	{
-		linkFlags = "/link ";
+		linkOptions = " /link ";
 		for( size_t i = 0; i < libraryDirList.size(); ++i )
 		{
-			linkFlags += " /LIBPATH \"" + libraryDirList[i].string() + "\"";
+			linkOptions += " /LIBPATH:\"" + libraryDirList[i].string() + "\"";
 		}
 
 		if( bHaveLinkOptions )
 		{
-			linkFlags += pLinkOptions;
+			linkOptions += pLinkOptions;
 		}
 	}
 
@@ -359,8 +359,9 @@ char* pCharTypeFlags = "";
 	std::string cmdToSend = "cl " + flags + pCharTypeFlags
 		+ " /MP /Fo\"" + intermediate + "\\\\\" "
 		+ "/D WIN32 /EHa /Fe" + outputFile.string();
-	cmdToSend += " " + strIncludeFiles + " " + strFilesToCompile + "\necho " + c_CompletionToken + "\n";
-    
+	cmdToSend += " " + strIncludeFiles + " " + strFilesToCompile + linkOptions
+		+ "\necho " + c_CompletionToken + "\n";
+	OutputDebugStringA( cmdToSend.c_str() );
 	WriteInput( m_pImplData->m_CmdProcessInputWrite, cmdToSend );
 }
 
