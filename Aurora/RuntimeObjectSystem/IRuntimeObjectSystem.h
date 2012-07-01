@@ -43,7 +43,10 @@ public:
 	virtual void CompileAll( bool bForceRecompile ) = 0;
 	virtual void AddToRuntimeFileList( const char* filename ) = 0;
 	virtual void RemoveFromRuntimeFileList( const char* filename ) = 0;
-	virtual void AddIncludeDir( const char *path ) = 0;
+	virtual void AddIncludeDir( const char *path_ ) = 0;
+	virtual void AddLibraryDir( const char *path_ ) = 0;
+	virtual void SetAdditionalCompileOptions( const char *options ) = 0;
+	virtual void SetAdditionalLinkOptions( const char *options ) = 0;
 
 	virtual void SetAutoCompile( bool autoCompile ) = 0;
 	virtual bool GetAutoCompile() const = 0;

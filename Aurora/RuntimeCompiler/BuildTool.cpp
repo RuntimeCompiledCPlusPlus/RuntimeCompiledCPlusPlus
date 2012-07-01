@@ -41,6 +41,9 @@ void BuildTool::Initialise( ICompilerLogger * pLogger )
 
 void BuildTool::BuildModule( const std::vector<FileToBuild>& buildFileList,
 							 const std::vector<boost::filesystem::path>& includeDirList,
+							 const std::vector<boost::filesystem::path>& libraryDirList,
+							 const char* pCompileOptions,
+							 const char* pLinkOptions,
 							 const boost::filesystem::path& moduleName )
 {
 	// Initial version is very basic, simply compiles them.
@@ -100,5 +103,5 @@ void BuildTool::BuildModule( const std::vector<FileToBuild>& buildFileList,
 		}
 	}
 
-	m_Compiler.RunCompile( compileFileList, includeDirList, moduleName );
+	m_Compiler.RunCompile( compileFileList, includeDirList, libraryDirList, pCompileOptions, pLinkOptions, moduleName );
 }

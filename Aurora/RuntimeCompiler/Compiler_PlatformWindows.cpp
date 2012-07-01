@@ -269,18 +269,42 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
 
 void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCompile,
 					 const std::vector<boost::filesystem::path>& includeDirList,
+					 const std::vector<boost::filesystem::path>& libraryDirList,
+					 const char* pCompileOptions,
+					 const char* pLinkOptions,
 					 const boost::filesystem::path& outputFile )
 {
 	m_pImplData->m_bCompileIsComplete = false;
 	//optimization and c runtime
 #ifdef _DEBUG
-	std::string flags = "/Od /Zi /FC /LDd ";
+	std::string flags = "/nologo /Od /Zi /FC /LDd ";
 #else
-	std::string flags = "/O2 /LD /Zi";	//also need debug information in release
+	std::string flags = "/nologo /O2 /LD /Zi";	//also need debug information in release
 #endif
 	if( NULL == m_pImplData->m_CmdProcessInfo.hProcess )
 	{
 		m_pImplData->InitialiseProcess();
+	}
+
+	if( pCompileOptions )
+	{
+		flags += pCompileOptions;
+	}
+
+	std::string linkFlags;
+	bool bHaveLinkOptions = pLinkOptions && strlen( pLinkOptions );
+	if( libraryDirList.size() ||  bHaveLinkOptions )
+	{
+		linkFlags = "/link ";
+		for( size_t i = 0; i < libraryDirList.size(); ++i )
+		{
+			linkFlags += " /LIBPATH \"" + libraryDirList[i].string() + "\"";
+		}
+
+		if( bHaveLinkOptions )
+		{
+			linkFlags += pLinkOptions;
+		}
 	}
 
 	// Check for intermediate directory, create it if required
