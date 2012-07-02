@@ -36,6 +36,9 @@ public:
 	const std::wstring GetObjectFileExtension() const;
 	void RunCompile( const std::vector<boost::filesystem::path>& filesToCompile,
 					 const std::vector<boost::filesystem::path>& includeDirList,
+					 const std::vector<boost::filesystem::path>& libraryDirList,
+					 const char* pCompileOptions,
+					 const char* pLinkOptions,
 					 const boost::filesystem::path& outputFile );
 	bool GetIsComplete() const;
 private:

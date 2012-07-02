@@ -41,13 +41,17 @@ void BuildTool::Initialise( ICompilerLogger * pLogger )
 
 void BuildTool::BuildModule( const std::vector<FileToBuild>& buildFileList,
 							 const std::vector<boost::filesystem::path>& includeDirList,
+							 const std::vector<boost::filesystem::path>& libraryDirList,
+							 const char* pCompileOptions,
+							 const char* pLinkOptions,
 							 const boost::filesystem::path& moduleName )
 {
 	// Initial version is very basic, simply compiles them.
 	path objectFileExtension = m_Compiler.GetObjectFileExtension();
-	vector<path> compileFileList( buildFileList.size() );			// List of files we pass to the compiler
-	vector<path> forcedCompileFileList;								// List of files which must be compiled even if object file exists
-	vector<path> nonForcedCompileFileList;							// List of files which can be linked if already compiled
+	vector<path> compileFileList;			// List of files we pass to the compiler
+	compileFileList.reserve( buildFileList.size() );
+	vector<path> forcedCompileFileList;		// List of files which must be compiled even if object file exists
+	vector<path> nonForcedCompileFileList;	// List of files which can be linked if already compiled
 
 	path current = boost::filesystem::current_path();
 
@@ -99,5 +103,5 @@ void BuildTool::BuildModule( const std::vector<FileToBuild>& buildFileList,
 		}
 	}
 
-	m_Compiler.RunCompile( compileFileList, includeDirList, moduleName );
+	m_Compiler.RunCompile( compileFileList, includeDirList, libraryDirList, pCompileOptions, pLinkOptions, moduleName );
 }
