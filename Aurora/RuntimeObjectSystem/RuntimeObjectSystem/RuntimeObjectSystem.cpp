@@ -200,7 +200,12 @@ void RuntimeObjectSystem::StartRecompile( const std::vector<BuildTool::FileToBui
 		ourBuildFileList.push_back( reqFile );
 	}
 
-	m_pBuildTool->BuildModule( ourBuildFileList, m_IncludeDirList, m_CurrentlyCompilingModuleName );
+	m_pBuildTool->BuildModule(	ourBuildFileList,
+								m_IncludeDirList,
+								m_LibraryDirList,
+								m_CompileOptions.c_str(),
+								m_LinkOptions.c_str(),
+								m_CurrentlyCompilingModuleName );
 }
 
 bool RuntimeObjectSystem::LoadCompiledModule()
@@ -272,4 +277,10 @@ void RuntimeObjectSystem::SetupObjectConstructors(GETPerModuleInterface_PROC pPe
 void RuntimeObjectSystem::AddIncludeDir( const char *path_ )
 {
 	m_IncludeDirList.push_back(path(path_));
+}
+
+
+void RuntimeObjectSystem::AddLibraryDir( const char *path_ )
+{
+	m_LibraryDirList.push_back(path(path_));
 }

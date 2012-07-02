@@ -269,18 +269,42 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
 
 void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCompile,
 					 const std::vector<boost::filesystem::path>& includeDirList,
+					 const std::vector<boost::filesystem::path>& libraryDirList,
+					 const char* pCompileOptions,
+					 const char* pLinkOptions,
 					 const boost::filesystem::path& outputFile )
 {
 	m_pImplData->m_bCompileIsComplete = false;
 	//optimization and c runtime
 #ifdef _DEBUG
-	std::string flags = "/Od /Zi /FC /LDd ";
+	std::string flags = "/nologo /Od /Zi /FC /LDd ";
 #else
-	std::string flags = "/O2 /LD /Zi";	//also need debug information in release
+	std::string flags = "/nologo /O2 /LD /Zi";	//also need debug information in release
 #endif
 	if( NULL == m_pImplData->m_CmdProcessInfo.hProcess )
 	{
 		m_pImplData->InitialiseProcess();
+	}
+
+	if( pCompileOptions )
+	{
+		flags += pCompileOptions;
+	}
+
+	std::string linkOptions;
+	bool bHaveLinkOptions = pLinkOptions && strlen( pLinkOptions );
+	if( libraryDirList.size() ||  bHaveLinkOptions )
+	{
+		linkOptions = " /link ";
+		for( size_t i = 0; i < libraryDirList.size(); ++i )
+		{
+			linkOptions += " /LIBPATH:\"" + libraryDirList[i].string() + "\"";
+		}
+
+		if( bHaveLinkOptions )
+		{
+			linkOptions += pLinkOptions;
+		}
 	}
 
 	// Check for intermediate directory, create it if required
@@ -298,7 +322,7 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
 	std::string strIncludeFiles;
 	for( size_t i = 0; i < includeDirList.size(); ++i )
 	{
-		strIncludeFiles += " /I " + includeDirList[i].string();
+		strIncludeFiles += " /I \"" + includeDirList[i].string() + "\"";
 	}
 
 
@@ -319,7 +343,7 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
 		std::set<std::string>::const_iterator it = filteredPaths.find(strPath);
 		if (it == filteredPaths.end())
 		{
-			strFilesToCompile += " " + strPath;
+			strFilesToCompile += " \"" + strPath + "\"";
 			filteredPaths.insert(strPath);
 		}
 	}
@@ -335,8 +359,9 @@ char* pCharTypeFlags = "";
 	std::string cmdToSend = "cl " + flags + pCharTypeFlags
 		+ " /MP /Fo\"" + intermediate + "\\\\\" "
 		+ "/D WIN32 /EHa /Fe" + outputFile.string();
-	cmdToSend += " " + strIncludeFiles + " " + strFilesToCompile + "\necho " + c_CompletionToken + "\n";
-    
+	cmdToSend += " " + strIncludeFiles + " " + strFilesToCompile + linkOptions
+		+ "\necho " + c_CompletionToken + "\n";
+	OutputDebugStringA( cmdToSend.c_str() );
 	WriteInput( m_pImplData->m_CmdProcessInputWrite, cmdToSend );
 }
 
