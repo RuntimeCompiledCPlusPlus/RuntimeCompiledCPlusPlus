@@ -82,18 +82,6 @@ public:
 		m_fWorldCenteringDist.SetZ( height * height * 0.25f );
 	}
 
-/*	virtual void GetInterface( InterfaceID iid, void** pReturn )
-	{
-		switch( iid )
-		{
-		case IID_IPHYSICSMANAGER:
-			*pReturn = static_cast<IPhysicsManager*>( this );
-			break;
-		default:
-			IObject::GetInterface( iid, pReturn );
-		}
-	}
-*/
 	// ~IObject
 
 	// IGameEventListener
