@@ -81,6 +81,11 @@ struct IObject
 		}
 	}
 
+	template< typename T> void GetInterface( T** pReturn )
+	{
+		GetInterface( T::s_interfaceID, (void**)pReturn );
+	}
+
 
 	IObject() : _isRuntimeDelete(false) {}
 	virtual ~IObject()

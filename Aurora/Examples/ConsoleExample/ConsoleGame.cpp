@@ -81,7 +81,7 @@ bool ConsoleGame::Init()
 	if( pCtor )
 	{
 		IObject* pObj = pCtor->Construct();
-		pObj->GetInterface( IID_IUPDATEABLE, (void**)&m_pUpdateable );
+		pObj->GetInterface( &m_pUpdateable );
 		if( 0 == m_pUpdateable )
 		{
 			delete pObj;
@@ -101,7 +101,7 @@ void ConsoleGame::OnConstructorsAdded()
 	if( m_pUpdateable )
 	{
 		IObject* pObj = m_pRuntimeObjectSystem->GetObjectFactorySystem()->GetObject( m_ObjectId );
-		pObj->GetInterface( IID_IUPDATEABLE, (void**)&m_pUpdateable );
+		pObj->GetInterface( &m_pUpdateable );
 		if( 0 == m_pUpdateable )
 		{
 			delete pObj;
