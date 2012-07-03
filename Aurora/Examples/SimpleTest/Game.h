@@ -111,6 +111,7 @@ private:
 
 	bool				m_bHaveProgramError;
 	double				m_fLastUpdateSessionTime;
+	double				m_CompileStartedTime;
 
 	CalSound*			m_pLoopingBackgroundSound;
 	CalBuffer*			m_pLoopingBackgroundSoundBuffer;

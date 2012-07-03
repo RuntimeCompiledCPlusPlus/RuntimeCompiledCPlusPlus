@@ -94,6 +94,7 @@ Game::Game()
 	, m_pLoopingBackgroundSound(0)
 	, m_pLoopingBackgroundSoundBuffer(0)
 	, m_GameSpeed(1.0f)
+	, m_CompileStartedTime(0.0)
 {
 	AU_ASSERT(g_pGame == NULL);
 	g_pGame = this;
@@ -250,6 +251,11 @@ void Game::MainLoop()
 
 	m_pEnv->sys->pFileChangeNotifier->Update(fSessionTimeDelta);
 
+	if( m_pEnv->sys->pRuntimeObjectSystem->GetIsCompiling() && m_CompileStartedTime == 0.0 )
+	{
+		m_CompileStartedTime = pTimeSystem->GetSessionTimeNow();
+	}
+
 	//check status of any compile
 	bool bLoadModule = false;
 	if( m_pEnv->sys->pRuntimeObjectSystem->GetIsCompiledComplete() )
@@ -296,8 +302,12 @@ void Game::MainLoop()
 		if( bSuccess )
 		{
 			// reset program error status
-			m_bHaveProgramError = false; 
+			m_bHaveProgramError = false;
+			double compileAndLoadTime = pTimeSystem->GetSessionTimeNow() - m_CompileStartedTime;
+			m_pEnv->sys->pLogSystem->Log(eLV_COMMENTS, "Compile and Module Reload Time: %.1f s\n", compileAndLoadTime);
+
 		}
+		m_CompileStartedTime = 0.0;
 	}
 
 	// Limit frame rate
