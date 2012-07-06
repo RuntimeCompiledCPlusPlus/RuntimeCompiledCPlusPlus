@@ -208,16 +208,12 @@ public:
 		SetColor( AUColor(r, g, b, a) );
 	}
 
-	virtual void SetBehavior( const char* behavior )
+	virtual void SetBehavior( ConstructorId constructor )
 	{
-		if (!m_pBehavior || _stricmp(behavior, m_pBehavior->GetTypeName()))
+		if (!m_pBehavior || m_pBehavior->GetObjectId().m_ConstructorId != constructor )
 		{
 			IBehavior* pBehavior = 0;
-			IObject* pObj = IObjectUtils::CreateObject( behavior );
-			if (pObj)
-			{
-				IObjectUtils::GetObject( &pBehavior, pObj->GetObjectId() );
-			}
+			IObjectUtils::CreateObject(  &pBehavior, constructor );
 			
 			// Only destroy and replace existing behavior if we successfully created new one
 			if (pBehavior)
@@ -234,6 +230,7 @@ public:
 			}
 		}
 	}
+
 
 	virtual void OnSelect()
 	{

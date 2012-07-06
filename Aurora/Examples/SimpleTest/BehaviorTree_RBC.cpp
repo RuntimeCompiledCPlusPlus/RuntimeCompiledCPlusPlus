@@ -51,32 +51,40 @@ public:
 
 		if ( pBBCommon->enemy_collision_objectid.IsValid() )
 		{
-			pGameObject->SetBehavior( "Behavior_RBC_Combat" );
+			pGameObject->SetBehavior( m_Behavior_RBC_Combat );
 		}
 		else if ( !pBBCommon->target_position.IsInfinite() )
 		{
-			pGameObject->SetBehavior( "Behavior_RBC_Approach" );
+			pGameObject->SetBehavior( m_Behavior_RBC_Approach );
 		}
 		/* Demo [Tutorial03]
 		else if ( pBBIndividual->visible_dangerous.Size() > 0 )
 		{
-			pGameObject->SetBehavior( "Behavior_RBC_Evade" );
+			pGameObject->SetBehavior( m_Behavior_RBC_Evade );
 		} 
 		//*/
 		else
 		{
-			pGameObject->SetBehavior( "Behavior_RBC_Idle" );
+			pGameObject->SetBehavior( m_Behavior_RBC_Idle );
 		}	
 	}
 
 	virtual void Init( bool isFirstInit )
 	{
 		m_pBBManager = (IBlackboardManager*)IObjectUtils::GetUniqueInterface( "BlackboardManager", IID_IBLACKBOARDMANAGER );
+		m_Behavior_RBC_Combat	= IObjectUtils::GetConstructor( "Behavior_RBC_Combat" )->GetConstructorId();
+		m_Behavior_RBC_Approach	= IObjectUtils::GetConstructor( "Behavior_RBC_Approach" )->GetConstructorId();
+		// m_Behavior_RBC_Evade		= IObjectUtils::GetConstructor( "Behavior_RBC_Evade" )->GetConstructorId(); /// Demo [Tutorial03]
+		m_Behavior_RBC_Idle		= IObjectUtils::GetConstructor( "Behavior_RBC_Idle" )->GetConstructorId();
 	}
 
 private:
 
 	IBlackboardManager* m_pBBManager;
+	ConstructorId		m_Behavior_RBC_Combat;
+	ConstructorId		m_Behavior_RBC_Approach;
+	// ConstructorId		m_Behavior_RBC_Evade; /// Demo [Tutorial03] 
+	ConstructorId		m_Behavior_RBC_Idle;
 };
 
 REGISTERCLASS(BehaviorTree_RBC);
