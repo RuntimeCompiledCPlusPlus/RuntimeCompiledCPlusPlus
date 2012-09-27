@@ -138,7 +138,7 @@ void FileMonitor::ClearChanges()
 
 void FileMonitor::StartWatchingDir( WatchedDir& dirEntry )
 {
-	m_pFileWatcher->addWatch( dirEntry.dir.string(), this );
+	m_pFileWatcher->addWatch( dirEntry.dir, this );
 }
 
 

@@ -189,8 +189,12 @@ namespace FW
 	WatchID FileWatcherWin32::addWatch(const String& directory, FileWatchListener* watcher, bool recursive)
 	{
 		WatchID watchid = ++mLastWatchID;
-
-		WatchStruct* watch = CreateWatch(directory.wstring().c_str(), recursive,
+#ifdef UNICODE
+		std::wstring dirName = directory.wstring();
+#else
+		std::string dirName = directory.string();
+#endif
+		WatchStruct* watch = CreateWatch(dirName.c_str(), recursive,
 			FILE_NOTIFY_CHANGE_CREATION | FILE_NOTIFY_CHANGE_SIZE | FILE_NOTIFY_CHANGE_FILE_NAME);
 
 		if(!watch)
