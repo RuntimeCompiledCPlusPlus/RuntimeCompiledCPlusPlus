@@ -102,9 +102,9 @@ namespace FW
 			
 			++mChangeListCount;
 			
-			char* namecopy = new char[name.length() + 1];
-			strncpy(namecopy, name.c_str(), name.length());
-			namecopy[name.length()] = 0;
+			char* namecopy = new char[name.string().length() + 1];
+			strncpy(namecopy, name.c_str(), name.string().length());
+			namecopy[name.string().length()] = 0;
 			EntryStruct* entry = new EntryStruct(namecopy, attrib.st_mtime);
 			
 			// set the event data at the end of the list
@@ -170,7 +170,7 @@ namespace FW
 			
 			while((dentry = readdir(dir)) != NULL)
 			{
-				String fname = mDirName + "/" + dentry->d_name;
+                std::string fname = mDirName.string() + "/" + dentry->d_name;
 				stat(fname.c_str(), &attrib);
 				if(!S_ISREG(attrib.st_mode))
 					continue;
@@ -241,7 +241,7 @@ namespace FW
 			struct stat attrib;
 			while((entry = readdir(dir)) != NULL)
 			{
-				String fname = (mDirName + "/" + String(entry->d_name));
+                std::string fname = (mDirName.string() + "/" + std::string(entry->d_name));
 				stat(fname.c_str(), &attrib);
 				if(S_ISREG(attrib.st_mode))
 					addFile(fname, false);
