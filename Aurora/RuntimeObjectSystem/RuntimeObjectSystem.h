@@ -20,14 +20,18 @@
 #ifndef RUNTIMEOBJECTSYSTEM_INCLUDED
 #define RUNTIMEOBJECTSYSTEM_INCLUDED
 
-#include "../../RuntimeCompiler/IFileChangeNotifier.h"
-#include "../../RunTimeCompiler/BuildTool.h"
-#include "../../Common/AUArray.inl"
-#include "../ObjectInterface.h"
-#include "../IRuntimeObjectSystem.h"
+#include "../RuntimeCompiler/IFileChangeNotifier.h"
+#include "../RunTimeCompiler/BuildTool.h"
+#include "../Common/AUArray.inl"
+#include "ObjectInterface.h"
+#include "IRuntimeObjectSystem.h"
 
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
+#ifdef WIN32
+    #define WIN32_LEAN_AND_MEAN
+    #include <Windows.h>
+#else
+    typedef int HMODULE;
+#endif
 #include <vector>
 #include <map>
 

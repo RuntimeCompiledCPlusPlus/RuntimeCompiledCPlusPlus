@@ -18,6 +18,21 @@
 
 #pragma once
 
+#ifdef WIN32
+#define AUTRY_RETURN( X )                 \
+__try                              \
+{                                   \
+    X;                              \
+}                                   \
+__except( RuntimeExceptionFilter() ) \
+{                                   \
+    return false;                   \
+}                                   \
+return true;
+#else
+#define AUTRY_RETURN( X )  X; return true;
+#endif
+
 
 // We might handle div by 0, stack overflow, etc
 enum ESimpleExceptions

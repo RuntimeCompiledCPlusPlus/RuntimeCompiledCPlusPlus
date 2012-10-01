@@ -24,7 +24,7 @@
 #include "../../RuntimeCompiler/FileChangeNotifier.h"
 #include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
 #include "../../RuntimeObjectSystem/ObjectFactorySystem/ObjectFactorySystem.h"
-#include "../../RuntimeObjectSystem/RuntimeObjectSystem/RuntimeObjectSystem.h"
+#include "../../RuntimeObjectSystem/RuntimeObjectSystem.h"
 
 #include "StdioLogSystem.h"
 

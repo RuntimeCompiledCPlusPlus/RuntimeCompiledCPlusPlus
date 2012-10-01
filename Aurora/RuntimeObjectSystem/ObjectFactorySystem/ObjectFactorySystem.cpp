@@ -55,41 +55,17 @@ IObjectConstructor* ObjectFactorySystem::GetConstructor( ConstructorId id ) cons
 
 bool ProtectedConstruct( IObjectConstructor* pConstructor )
 {
-	__try
-	{
-		pConstructor->Construct();
-	}
-	__except( RuntimeExceptionFilter() )
-	{
-		return false;
-	}
-	return true;
+	AUTRY_RETURN( pConstructor->Construct() );
 }
 
 bool ProtectedSerialize( IObject* pObject, SimpleSerializer& serializer )
 {
-	__try
-	{
-		serializer.Serialize( pObject );
-	}
-	__except( RuntimeExceptionFilter() )
-	{
-		return false;
-	}
-	return true;
+	AUTRY_RETURN( serializer.Serialize( pObject ) );
 }
 
 bool ProtectedInit( IObject* pObject )
 {
-	__try
-	{
-		pObject->Init(false);
-	}
-	__except( RuntimeExceptionFilter() )
-	{
-		return false;
-	}
-	return true;
+	AUTRY_RETURN( pObject->Init(false) );
 }
 
 void ObjectFactorySystem::AddConstructors( IAUDynArray<IObjectConstructor*> &constructors )

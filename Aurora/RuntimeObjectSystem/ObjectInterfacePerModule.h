@@ -61,10 +61,12 @@ private:
 	SystemTable*						m_pSystemTable;
 };
 
+template<typename T> class TActual;
+
 template<typename T> class TObjectConstructorConcrete: public IObjectConstructor
 {
 public:
-	friend typename T;
+	friend class TActual<T>;
 	TObjectConstructorConcrete( const char* Filename, IRuntimeIncludeFileList* pIncludeFileList_ )
 		: m_FileName( Filename )
 		, m_pIncludeFileList( pIncludeFileList_ )

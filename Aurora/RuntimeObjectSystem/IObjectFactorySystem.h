@@ -30,7 +30,8 @@ struct IObjectFactoryListener
 	// Called after a full serialization of objects is done when a new
 	// object constructor is added, so listeners can update any object
 	// pointers they're holding
-	virtual void OnConstructorsAdded() = 0; 
+	virtual void OnConstructorsAdded() = 0;
+    virtual ~IObjectFactoryListener() {}
 };
 
 struct IObjectFactorySystem
@@ -45,6 +46,7 @@ struct IObjectFactorySystem
 	virtual void AddListener(IObjectFactoryListener* pListener) = 0;
 	virtual void RemoveListener(IObjectFactoryListener* pListener) = 0;
 	virtual void SetLogger( ICompilerLogger * pLogger ) = 0;
+    virtual ~IObjectFactorySystem() {}
 
 };
 

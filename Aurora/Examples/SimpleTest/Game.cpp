@@ -44,7 +44,7 @@
 #include "../../Systems/ITimeSystem.h"
 #include "../../Systems/IUpdateable.h"
 #include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
-#include "../../RuntimeObjectSystem/RuntimeObjectSystem/RuntimeObjectSystem.h"
+#include "../../RuntimeObjectSystem/RuntimeObjectSystem.h"
 #include "../../Systems/IGUISystem.h"
 #include "../../Systems/SystemTable.h"
 #include "../../Systems/IAssetSystem.h"
