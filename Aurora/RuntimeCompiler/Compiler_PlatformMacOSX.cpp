@@ -49,6 +49,7 @@ class PlatformCompilerImplData
 public:
 	PlatformCompilerImplData()
 		: m_bCompileIsComplete( false )
+        , m_pLogger( 0 )
 	{
 	}
 
@@ -83,6 +84,8 @@ bool Compiler::GetIsComplete() const
 void Compiler::Initialise( ICompilerLogger * pLogger )
 {
 
+    m_pImplData = new PlatformCompilerImplData;
+    m_pImplData->m_pLogger = pLogger;
 	m_pImplData->m_intermediatePath = "Runtime";
 
 	// Remove any existing intermediate directory

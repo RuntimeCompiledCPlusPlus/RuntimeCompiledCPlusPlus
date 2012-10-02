@@ -22,13 +22,6 @@
 #include <iostream>
 #ifdef _WIN32
 #include <conio.h>
-#else
-int _getche()
-{
-    int ret = getchar();
-    putchar( ret );
-    return ret;
-}
 #endif
 
 
@@ -47,5 +40,6 @@ int main(int argc, char* argv[])
 		_getche();
 	}
 
+    std::cout << "Exiting...\n";
 	return 0;
 }

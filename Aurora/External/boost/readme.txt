@@ -8,6 +8,7 @@ Folders:
  - boost         	- header files
  - stage\lib     	- compiled libraries for windows x86
  - stage\libx64     - compiled libraries for windows x64
+ - stage\libOSX     - compiled libraries for Mac OS X (64bit 10.8)
  
 The paths used are the default paths produces by bjam.
 If we later decide to check in the rest of boost and all its libraries, these paths will make that simpler.

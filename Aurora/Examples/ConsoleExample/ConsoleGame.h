@@ -24,6 +24,11 @@
 #include "../../RuntimeObjectSystem/ObjectInterface.h"
 #include "../../Common/AUArray.inl"
 
+#ifndef _WIN32
+int _getche();
+#endif
+
+
 struct IUpdateable;
 struct IRuntimeObjectSystem;
 

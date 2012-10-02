@@ -41,7 +41,6 @@
 int _getche()
 {
     int ret = getchar();
-    putchar( ret );
     return ret;
 }
 int _kbhit()
@@ -76,11 +75,14 @@ ConsoleGame::ConsoleGame()
 
 ConsoleGame::~ConsoleGame()
 {
-	m_pRuntimeObjectSystem->GetObjectFactorySystem()->RemoveListener(this);
+    if( m_pRuntimeObjectSystem && m_pRuntimeObjectSystem->GetObjectFactorySystem() )
+    {
+        m_pRuntimeObjectSystem->GetObjectFactorySystem()->RemoveListener(this);
 
-	// delete object via correct interface
-	IObject* pObj = m_pRuntimeObjectSystem->GetObjectFactorySystem()->GetObject( m_ObjectId );
-	delete pObj;
+        // delete object via correct interface
+        IObject* pObj = m_pRuntimeObjectSystem->GetObjectFactorySystem()->GetObject( m_ObjectId );
+        delete pObj;
+    }
 
 	delete m_pRuntimeObjectSystem;
 	delete m_pCompilerLogger;
@@ -92,7 +94,11 @@ bool ConsoleGame::Init()
 	//Initialise the RuntimeObjectSystem
 	m_pRuntimeObjectSystem = new RuntimeObjectSystem;
 	m_pCompilerLogger = new StdioLogSystem();
-	m_pRuntimeObjectSystem->Initialise(m_pCompilerLogger, 0);
+	if( !m_pRuntimeObjectSystem->Initialise(m_pCompilerLogger, 0) )
+    {
+        m_pRuntimeObjectSystem = 0;
+        return false;
+    }
 	m_pRuntimeObjectSystem->GetObjectFactorySystem()->AddListener(this);
 
 
