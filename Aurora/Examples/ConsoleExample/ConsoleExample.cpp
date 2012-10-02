@@ -20,7 +20,16 @@
 
 #include "ConsoleGame.h"
 #include <iostream>
+#ifdef _WIN32
 #include <conio.h>
+#else
+int _getche()
+{
+    int ret = getchar();
+    putchar( ret );
+    return ret;
+}
+#endif
 
 
 int main(int argc, char* argv[])
@@ -35,7 +44,7 @@ int main(int argc, char* argv[])
 	else
 	{
 		std::cout << "\nFailed Initialisation, press a key to exit.\n";
-		int ret = _getche();
+		_getche();
 	}
 
 	return 0;

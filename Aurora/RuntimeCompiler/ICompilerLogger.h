@@ -28,6 +28,7 @@ struct ICompilerLogger
 	virtual void LogError(const char * format, ...) = 0;
 	virtual void LogWarning(const char * format, ...) = 0;
     virtual void LogInfo(const char * format, ...) = 0;
+    virtual ~ICompilerLogger() {}
 };
 
 #endif // ICOMPILERLOGGER_INCLUDED

@@ -30,6 +30,11 @@
 
 #include "IObject.h"
 
+#ifndef _WIN32
+//TODO: fix below in a better generic fashion.
+#define MAX_PATH 256
+#endif
+
 using boost::filesystem::path;
 
 RuntimeObjectSystem::RuntimeObjectSystem()
@@ -73,10 +78,12 @@ bool RuntimeObjectSystem::Initialise( ICompilerLogger * pLogger, SystemTable* pS
 	m_pBuildTool->Initialise(m_pCompilerLogger);
 
 	// We start by using the code in the current module
+	GETPerModuleInterface_PROC pPerModuleInterfaceProcAdd = NULL;
+#ifdef _WIN32
 	HMODULE module = GetModuleHandle(NULL);
 
-	GETPerModuleInterface_PROC pPerModuleInterfaceProcAdd = NULL;
 	pPerModuleInterfaceProcAdd = (GETPerModuleInterface_PROC) GetProcAddress(module, "GetPerModuleInterface");
+#endif
 	if (!pPerModuleInterfaceProcAdd)
 	{
 		m_pCompilerLogger->LogError( "Failed GetProcAddress for GetPerModuleInterface in current module\n" );
@@ -176,19 +183,23 @@ void RuntimeObjectSystem::StartRecompile( const std::vector<BuildTool::FileToBui
 	m_pCompilerLogger->LogInfo( "Compiling...\n");
 
 	//Use a temporary filename for the dll
+#ifdef _WIN32
 	wchar_t tempPath[MAX_PATH];
 	GetTempPath( MAX_PATH, tempPath );
 	wchar_t tempFileName[MAX_PATH]; 
 	GetTempFileName( tempPath, L"", 0, tempFileName );
 	std::wstring strTempFileName( tempFileName );
 	m_CurrentlyCompilingModuleName= strTempFileName;
+#endif
 
 
 	std::vector<BuildTool::FileToBuild> ourBuildFileList( buildFileList );
 
 	//Need currentmodule path
 	wchar_t CurrentModuleFileName[MAX_PATH];
+#ifdef _WIN32
 	GetModuleFileNameW( NULL, CurrentModuleFileName, MAX_PATH ); //get filename of current module (full path?)
+#endif
 	path currModuleFileName(CurrentModuleFileName);
 	path currModuleFullPath = currModuleFileName.parent_path();
 
@@ -222,7 +233,9 @@ bool RuntimeObjectSystem::LoadCompiledModule()
 	HMODULE module = 0;
 	if( sizeOfModule )
 	{
+#ifdef _WIN32
 		module = LoadLibraryW( m_CurrentlyCompilingModuleName.c_str() );
+#endif
 	}
 
 	if (!module)
@@ -231,7 +244,10 @@ bool RuntimeObjectSystem::LoadCompiledModule()
 		return false;
 	}
 
-	GETPerModuleInterface_PROC pPerModuleInterfaceProcAdd = (GETPerModuleInterface_PROC) GetProcAddress(module, "GetPerModuleInterface");
+    GETPerModuleInterface_PROC pPerModuleInterfaceProcAdd = 0;
+#ifdef _WIN32
+    pPerModuleInterfaceProcAdd = (GETPerModuleInterface_PROC) GetProcAddress(module, "GetPerModuleInterface");
+#endif
 	if (!pPerModuleInterfaceProcAdd)
 	{
 		m_pCompilerLogger->LogError( "Failed GetProcAddress\n");

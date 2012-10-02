@@ -18,7 +18,7 @@
 
 #pragma once
 
-#ifdef WIN32
+#ifdef _WIN32
 #define AUTRY_RETURN( X )                 \
 __try                              \
 {                                   \

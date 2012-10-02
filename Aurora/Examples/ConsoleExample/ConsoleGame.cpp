@@ -33,8 +33,28 @@
 #include "InterfaceIds.h"
 
 #include <iostream>
-#include <tchar.h>
+#ifdef WIN32
 #include <conio.h>
+#include <tchar.h>
+#else
+#include <unistd.h>
+int _getche()
+{
+    int ret = getchar();
+    putchar( ret );
+    return ret;
+}
+int _kbhit()
+{
+    std::cout << "This port needs a fix, CTRL-C to quit\n";
+    return 0;
+}
+
+int Sleep( int msecs )
+{
+    return usleep( msecs * 1000);
+}
+#endif
 #include <strstream>
 #include <vector>
 #include <algorithm>

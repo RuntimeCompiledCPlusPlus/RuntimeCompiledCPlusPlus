@@ -61,12 +61,9 @@ private:
 	SystemTable*						m_pSystemTable;
 };
 
-template<typename T> class TActual;
-
 template<typename T> class TObjectConstructorConcrete: public IObjectConstructor
 {
 public:
-	friend class TActual<T>;
 	TObjectConstructorConcrete( const char* Filename, IRuntimeIncludeFileList* pIncludeFileList_ )
 		: m_FileName( Filename )
 		, m_pIncludeFileList( pIncludeFileList_ )
@@ -145,8 +142,6 @@ public:
 		}
 	}
 
-
-private:
 	void DeRegister( PerTypeObjectId id )
 	{
 		//remove from constructed objects.
@@ -162,6 +157,7 @@ private:
 			m_ConstructedObjects[ id ] = 0;
 		}
 	}
+private:
 	std::string				m_FileName;
 	std::vector<T*>			m_ConstructedObjects;
 	std::vector<PerTypeObjectId>	m_FreeIds;
@@ -190,10 +186,10 @@ private:
 
 //NOTE: the file macro will only emit the full path if /FC option is used in visual studio or /ZI (Which forces /FC)
 #define REGISTERCLASS( T )	\
-	template class TActual<##T##>; \
 	static RuntimeIncludeFiles< __COUNTER__ > g_includeFileList_##T; \
-	TObjectConstructorConcrete<TActual<##T##>> TActual<##T##>::m_Constructor( __FILE__, &g_includeFileList_##T ); \
-	const char* TActual<##T##>::GetTypeNameStatic() { return #T; } \
+template<> TObjectConstructorConcrete<TActual< T >> TActual< T >::m_Constructor( __FILE__, &g_includeFileList_##T );\
+template<> const char* TActual< T >::GetTypeNameStatic() { return #T; } \
+template class TActual< T >; \
 
 
 #endif OBJECTINTERFACEPERMODULE_INCLUDED
