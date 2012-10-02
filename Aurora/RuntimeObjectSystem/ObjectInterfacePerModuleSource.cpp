@@ -23,6 +23,8 @@ PerModuleInterface* PerModuleInterface::ms_pObjectManager = NULL;
 extern "C" 
 #ifdef _WIN32
 	__declspec(dllexport)	//should create file with export import macros etc.
+#else
+__attribute__((visibility("default")))
 #endif
 IPerModuleInterface* GetPerModuleInterface()
 {

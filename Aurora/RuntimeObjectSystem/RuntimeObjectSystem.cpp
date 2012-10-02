@@ -33,6 +33,7 @@
 #ifndef _WIN32
 //TODO: fix below in a better generic fashion.
 #define MAX_PATH 256
+#include <dlfcn.h>
 #endif
 
 using boost::filesystem::path;
@@ -83,7 +84,12 @@ bool RuntimeObjectSystem::Initialise( ICompilerLogger * pLogger, SystemTable* pS
 	HMODULE module = GetModuleHandle(NULL);
 
 	pPerModuleInterfaceProcAdd = (GETPerModuleInterface_PROC) GetProcAddress(module, "GetPerModuleInterface");
+#else
+    void* this_process = dlopen(NULL,0);
+    pPerModuleInterfaceProcAdd = (GETPerModuleInterface_PROC) dlsym(this_process,"GetPerModuleInterface");
+    
 #endif
+
 	if (!pPerModuleInterfaceProcAdd)
 	{
 		m_pCompilerLogger->LogError( "Failed GetProcAddress for GetPerModuleInterface in current module\n" );
