@@ -114,8 +114,12 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
 					 const char* pLinkOptions,
 					 const boost::filesystem::path& outputFile )
 {
-	m_pImplData->m_bCompileIsComplete = false;
+	m_pImplData->m_bCompileIsComplete = true;
 
+    for( size_t i = 0; i < filesToCompile.size(); ++i )
+	{
+        std::cout << filesToCompile[i].string() << std::endl;
+    }
 	//WriteInput( m_pImplData->m_CmdProcessInputWrite, cmdToSend );
 }
 

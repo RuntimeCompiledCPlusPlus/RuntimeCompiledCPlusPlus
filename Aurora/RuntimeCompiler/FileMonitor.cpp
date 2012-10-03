@@ -202,8 +202,12 @@ void FileMonitor::handleFileAction(FW::WatchID watchid, const FW::String& dir, c
 		break;
 	case FW::Actions::Modified:
 		{
+#ifdef _WIN32
 			boost::filesystem::path filePath(dir);
 			filePath /= filename;
+#else
+  			boost::filesystem::path filePath(filename);
+#endif
 			m_changeNotifications.push_back(filePath.make_preferred());
 		}
 		break;
