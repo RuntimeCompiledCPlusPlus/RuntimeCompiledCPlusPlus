@@ -30,7 +30,7 @@
     #define WIN32_LEAN_AND_MEAN
     #include <Windows.h>
 #else
-    typedef int HMODULE;
+    typedef void* HMODULE;
 #endif
 #include <vector>
 #include <map>

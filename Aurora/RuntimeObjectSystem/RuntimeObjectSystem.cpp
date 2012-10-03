@@ -196,18 +196,18 @@ void RuntimeObjectSystem::StartRecompile( const std::vector<BuildTool::FileToBui
 	GetTempFileName( tempPath, L"", 0, tempFileName );
 	std::wstring strTempFileName( tempFileName );
 	m_CurrentlyCompilingModuleName= strTempFileName;
+#else
+    char tempPath[] = "/tmp/RCCppTempDylibXXXXXX";
+    int fileDesc = mkstemp(tempPath);
+    assert( fileDesc != -1 ); //TODO: should really handle the error
+    close( fileDesc ); //we don't actually want to make the file as yet
+    m_CurrentlyCompilingModuleName = tempPath;
+    
 #endif
 
 
 	std::vector<BuildTool::FileToBuild> ourBuildFileList( buildFileList );
 
-	//Need currentmodule path
-	wchar_t CurrentModuleFileName[MAX_PATH];
-#ifdef _WIN32
-	GetModuleFileNameW( NULL, CurrentModuleFileName, MAX_PATH ); //get filename of current module (full path?)
-#endif
-	path currModuleFileName(CurrentModuleFileName);
-	path currModuleFullPath = currModuleFileName.parent_path();
 
 	//Add required source files
 	const std::vector<const char*> vecRequiredFiles = PerModuleInterface::GetInstance()->GetRequiredSourceFiles();
@@ -241,18 +241,23 @@ bool RuntimeObjectSystem::LoadCompiledModule()
 	{
 #ifdef _WIN32
 		module = LoadLibraryW( m_CurrentlyCompilingModuleName.c_str() );
+#else
+        module = dlopen( m_CurrentlyCompilingModuleName.c_str(), RTLD_LAZY );
 #endif
 	}
 
 	if (!module)
 	{
-		m_pCompilerLogger->LogError( "Failed to load module %ls\n",m_CurrentlyCompilingModuleName.c_str());
+		m_pCompilerLogger->LogError( "Failed to load module %ls\n",m_CurrentlyCompilingModuleName.wstring().c_str());
 		return false;
 	}
 
     GETPerModuleInterface_PROC pPerModuleInterfaceProcAdd = 0;
 #ifdef _WIN32
     pPerModuleInterfaceProcAdd = (GETPerModuleInterface_PROC) GetProcAddress(module, "GetPerModuleInterface");
+#else
+    pPerModuleInterfaceProcAdd = (GETPerModuleInterface_PROC) dlsym(module,"GetPerModuleInterface");
+    
 #endif
 	if (!pPerModuleInterfaceProcAdd)
 	{
