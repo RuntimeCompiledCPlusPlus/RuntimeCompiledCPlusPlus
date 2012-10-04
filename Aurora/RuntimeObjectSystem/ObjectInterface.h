@@ -82,10 +82,14 @@ struct IPerModuleInterface
 	virtual void SetSystemTable( SystemTable* pSystemTable ) = 0;
 	virtual const std::vector<const char*>& GetRequiredSourceFiles() const = 0;
 	virtual void AddRequiredSourceFiles( const char* file_ ) = 0;
+    virtual void SetModuleFileName( const char* name ) = 0;
 };
 
-
+#ifdef _WIN32
 typedef IPerModuleInterface* (__cdecl *GETPerModuleInterface_PROC)(void);
+#else
+typedef IPerModuleInterface* ( *GETPerModuleInterface_PROC)(void);
+#endif
 
 
 #endif //OBJECTINTERFACE_INCLUDED

@@ -160,7 +160,7 @@ void FileChangeNotifier::TriggerNotificationIfPossible()
 
 void FileChangeNotifier::NotifyListeners()
 {
-	std::map<IFileChangeListener*, AUDynArray<const char*>> interestedListenersMap;
+	std::map<IFileChangeListener*, AUDynArray<const char*> > interestedListenersMap;
 
 	// Determine which listeners are interested in which changed files
 	TPathNameList::const_iterator fileIt = m_changedFileList.begin();
@@ -180,8 +180,8 @@ void FileChangeNotifier::NotifyListeners()
 	}
 
 	// Notify each listener with an appropriate file list
-	std::map<IFileChangeListener*, AUDynArray<const char*>>::iterator finalIt = interestedListenersMap.begin();
-	std::map<IFileChangeListener*, AUDynArray<const char*>>::iterator finalItEnd = interestedListenersMap.end();
+	std::map<IFileChangeListener*, AUDynArray<const char*> >::iterator finalIt = interestedListenersMap.begin();
+	std::map<IFileChangeListener*, AUDynArray<const char*> >::iterator finalItEnd = interestedListenersMap.end();
 	while (finalIt != finalItEnd)
 	{
 		finalIt->first->OnFileChange(finalIt->second);	

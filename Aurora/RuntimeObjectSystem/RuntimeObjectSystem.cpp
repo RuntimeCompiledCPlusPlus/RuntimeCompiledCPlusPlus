@@ -95,6 +95,7 @@ bool RuntimeObjectSystem::Initialise( ICompilerLogger * pLogger, SystemTable* pS
 		m_pCompilerLogger->LogError( "Failed GetProcAddress for GetPerModuleInterface in current module\n" );
 		return false;
 	}
+    pPerModuleInterfaceProcAdd()->SetModuleFileName( "Main Exe" );
 	pPerModuleInterfaceProcAdd()->SetSystemTable( m_pSystemTable );
 
 	m_pObjectFactorySystem = new ObjectFactorySystem();
@@ -242,7 +243,7 @@ bool RuntimeObjectSystem::LoadCompiledModule()
 #ifdef _WIN32
 		module = LoadLibraryW( m_CurrentlyCompilingModuleName.c_str() );
 #else
-        module = dlopen( m_CurrentlyCompilingModuleName.c_str(), RTLD_LAZY );
+        module = dlopen( m_CurrentlyCompilingModuleName.c_str(), RTLD_NOW );
 #endif
 	}
 
@@ -265,6 +266,7 @@ bool RuntimeObjectSystem::LoadCompiledModule()
 		return false;
 	}
 
+    pPerModuleInterfaceProcAdd()->SetModuleFileName( m_CurrentlyCompilingModuleName.string().c_str() );
 	pPerModuleInterfaceProcAdd()->SetSystemTable( m_pSystemTable );
 	m_Modules.push_back( module );
 

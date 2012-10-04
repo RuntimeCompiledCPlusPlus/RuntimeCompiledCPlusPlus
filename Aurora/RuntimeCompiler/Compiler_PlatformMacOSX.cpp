@@ -56,7 +56,6 @@ public:
 	void InitialiseProcess()
 	{
 	}
-	std::wstring		m_VSPath;
 	std::string			m_intermediatePath;
 	volatile bool		m_bCompileIsComplete;
 	ICompilerLogger*	m_pLogger;
@@ -116,11 +115,18 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
 {
 	m_pImplData->m_bCompileIsComplete = true;
 
+
+    std::string compileString = "clang++ -g -O0 -fvisibility=hidden -Xlinker -dylib -Xlinker -prebind ";
+    
+    compileString += "-o " + outputFile.string() + " ";
+    
     for( size_t i = 0; i < filesToCompile.size(); ++i )
 	{
-        std::cout << filesToCompile[i].string() << std::endl;
+        compileString += filesToCompile[i].string() + " ";
     }
-	//WriteInput( m_pImplData->m_CmdProcessInputWrite, cmdToSend );
+    
+    system( compileString.c_str() );
+  
 }
 
 
