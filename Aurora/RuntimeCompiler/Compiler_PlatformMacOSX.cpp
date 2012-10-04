@@ -118,13 +118,26 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
 
     std::string compileString = "clang++ -g -O0 -fvisibility=hidden -Xlinker -dylib -Xlinker -prebind ";
     
-    compileString += "-o " + outputFile.string() + " ";
-    
-    for( size_t i = 0; i < filesToCompile.size(); ++i )
+    // include directories
+    for( size_t i = 0; i < includeDirList.size(); ++i )
 	{
-        compileString += filesToCompile[i].string() + " ";
+        compileString += "-I\"" + includeDirList[i].string() + "\" ";
     }
     
+    // library directories
+    for( size_t i = 0; i < libraryDirList.size(); ++i )
+	{
+        compileString += "-L\"" + libraryDirList[i].string() + "\" ";
+    }
+    
+    // output file
+    compileString += "-o " + outputFile.string() + " ";
+
+    // files to compile
+    for( size_t i = 0; i < filesToCompile.size(); ++i )
+	{
+        compileString += "\"" + filesToCompile[i].string() + "\" ";
+    }
     system( compileString.c_str() );
   
 }
