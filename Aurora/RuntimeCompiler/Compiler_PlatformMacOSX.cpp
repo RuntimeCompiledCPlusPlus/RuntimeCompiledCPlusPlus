@@ -194,9 +194,8 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
 	{
         compileString += "\"" + filesToCompile[i].string() + "\" ";
     }
+    
+    cout << compileString << endl << endl;
 
-    //system( compileString.c_str() ); //see http://man7.org/tlpi/code/online/diff/procexec/system.c.html for system.c code, http://linux.die.net/man/3/system for man.
- 
-    //exit(0);
     execl("/bin/sh", "sh", "-c", compileString.c_str(), (const char*)NULL);
 }
