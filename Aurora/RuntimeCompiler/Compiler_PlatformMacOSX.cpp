@@ -26,10 +26,7 @@
 #include "Compiler.h"
 
 #include <string>
-#include <sstream>
 #include <vector>
-#include <set>
-#include "boost/algorithm/string.hpp"
 
 #include "assert.h"
 
@@ -37,12 +34,6 @@
 
 using namespace std;
 
-
-const std::string	c_CompletionToken( "_COMPLETION_TOKEN_" );
-
-
-void ReadAndHandleOutputThread( void* arg );
-void WriteInput( int hPipeWrite, std::string& input  );
 
 class PlatformCompilerImplData
 {
@@ -53,9 +44,6 @@ public:
 	{
 	}
 
-	void InitialiseProcess()
-	{
-	}
 	std::string			m_intermediatePath;
 	volatile bool		m_bCompileIsComplete;
 	ICompilerLogger*	m_pLogger;
@@ -113,10 +101,10 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
 					 const char* pLinkOptions,
 					 const boost::filesystem::path& outputFile )
 {
-	m_pImplData->m_bCompileIsComplete = true;
+	m_pImplData->m_bCompileIsComplete = true; //current version is synchronous
 
 
-    std::string compileString = "clang++ -g -O0 -fvisibility=hidden -Xlinker -dylib -Xlinker -prebind ";
+    std::string compileString = "clang++ -g -O0 -fvisibility=hidden -Xlinker -dylib ";
     
     // include directories
     for( size_t i = 0; i < includeDirList.size(); ++i )
@@ -138,18 +126,6 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
 	{
         compileString += "\"" + filesToCompile[i].string() + "\" ";
     }
-    system( compileString.c_str() );
+    system( compileString.c_str() ); //see http://man7.org/tlpi/code/online/diff/procexec/system.c.html for system.c code, http://linux.die.net/man/3/system for man.
   
-}
-
-
-
-
-
-void ReadAndHandleOutputThread( void* arg )
-{
-}
-
-void WriteInput( int hPipeWrite, std::string& input  )
-{
 }
