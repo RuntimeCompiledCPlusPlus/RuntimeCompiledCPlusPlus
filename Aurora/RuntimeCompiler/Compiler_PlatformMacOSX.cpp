@@ -192,8 +192,11 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
     close( m_pImplData->m_PipeStdErr[0] );
     m_pImplData->m_PipeStdErr[0] = 0;
    
-
+#ifdef DEBUG
     std::string compileString = "clang++ -g -O0 -fvisibility=hidden -Xlinker -dylib ";
+#else
+    std::string compileString = "clang++ -g -Os -fvisibility=hidden -Xlinker -dylib ";   
+#endif
     
     // include directories
     for( size_t i = 0; i < includeDirList.size(); ++i )
