@@ -142,7 +142,7 @@ namespace FW
 			tempEntry.mFilename = 0;
 			
 			// delete
-			close(ke->ident);
+			close((int)ke->ident);
 			delete((EntryStruct*)ke->udata);
 			memset(ke, 0, sizeof(KEvent));
 			
@@ -325,7 +325,7 @@ namespace FW
 			{
 				ke = &mChangeList[i];
 				// delete
-				close(ke->ident);
+				close((int)ke->ident);
 				delete((EntryStruct*)ke->udata);
 			}
             mChangeListCount = 0;

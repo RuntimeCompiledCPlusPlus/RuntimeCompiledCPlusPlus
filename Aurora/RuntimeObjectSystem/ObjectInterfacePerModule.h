@@ -26,7 +26,7 @@
 #include <vector>
 #include <assert.h>
 
-#define AU_ASSERT( statement )  do { if (!(statement)) { int a = *((int*)(0)); } } while(0) 
+#define AU_ASSERT( statement )  do { if (!(statement)) { volatile int* p = 0; int a = *p; if(a) {} } } while(0) 
 
 class PerModuleInterface : public IPerModuleInterface
 {
@@ -198,4 +198,4 @@ template<> TObjectConstructorConcrete< TActual< T > > TActual< T >::m_Constructo
 template<> const char* TActual< T >::GetTypeNameStatic() { return #T; } \
 template class TActual< T >; \
 
-#endif OBJECTINTERFACEPERMODULE_INCLUDED
+#endif // OBJECTINTERFACEPERMODULE_INCLUDED

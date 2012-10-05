@@ -54,7 +54,7 @@ int Sleep( int msecs )
     return usleep( msecs * 1000);
 }
 #endif
-#include <strstream>
+#include <sstream>
 #include <vector>
 #include <algorithm>
 #include <string>
