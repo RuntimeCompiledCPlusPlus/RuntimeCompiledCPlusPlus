@@ -36,7 +36,6 @@
 
 #include "../../Renderer/AURenMesh.h"
 #include "../../Renderer/AURenderContext.h"
-#include "../../Renderer/RenderWindow.h"
 #include "../../RunTimeCompiler/BuildTool.h"
 #include "../../RuntimeCompiler/ICompilerLogger.h"
 #include "../../Systems/ILogSystem.h"
