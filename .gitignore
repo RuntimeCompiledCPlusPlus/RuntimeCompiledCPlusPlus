@@ -65,12 +65,6 @@ profile
 *~.nib
 
 
-####
-# Xcode build files -
-DerivedData/
-build/
-
-
 #####
 # Xcode private settings (window sizes, bookmarks, breakpoints, custom executables, smart groups)
 *.pbxuser
