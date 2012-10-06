@@ -28,7 +28,7 @@
 #include "RocketLibSystem.h"
 #include <Rocket/Core.h>
 #include "RocketLibSystemFileInterface.h"
-#include "macosx/InputMacOSX.h"
+#include "InputMacOSX.h"
 #include <Carbon/Carbon.h>
 #include <AGL/agl.h>
 #include <sys/time.h>

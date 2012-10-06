@@ -37,7 +37,12 @@ public:
 		{
 			m_Event.GetParameters()->GetInto( parameter, strvalue );
 		}
+        
+#ifdef _WIN32
 		strcpy_s( buffer, buffer_size, strvalue.CString() );
+#else
+        strncpy( buffer, strvalue.CString(), buffer_size); //not quite the same, but similar safe effect.
+#endif
 	}
 private:
 	Rocket::Core::Event& m_Event;
@@ -156,7 +161,11 @@ void GUIElement::GetAttribute(const char* attribute, char* buffer, size_t buffer
 		{
 			Rocket::Core::String strvalue;
 			pVar->GetInto( strvalue );
+#ifdef _WIN32
 			strcpy_s( buffer, buffer_size, strvalue.CString() );
+#else
+            strncpy( buffer, strvalue.CString(), buffer_size); //not quite the same, but similar safe effect.
+#endif
 		}
 	}
 }

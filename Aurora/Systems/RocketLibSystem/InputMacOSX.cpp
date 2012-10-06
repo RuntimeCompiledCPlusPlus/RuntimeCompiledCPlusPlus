@@ -25,7 +25,7 @@
  *
  */
 
-#include <macosx/InputMacOSX.h>
+#include <InputMacOSX.h>
 #include <Rocket/Core/Context.h>
 #include <Rocket/Core/Input.h>
 #include <Rocket/Debugger.h>
@@ -85,7 +85,7 @@ OSStatus InputMacOSX::EventHandler(EventHandlerCallRef next_handler, EventRef ev
 					SInt32 delta;
 
 					if (GetEventParameter(event, kEventParamMouseWheelAxis, typeMouseWheelAxis, NULL, sizeof(EventMouseWheelAxis), NULL, &axis) == noErr &&
-						GetEventParameter(event, kEventParamMouseWheelDelta, typeLongInteger, NULL, sizeof(SInt32), NULL, &delta) == noErr)
+						GetEventParameter(event, kEventParamMouseWheelDelta, cLongInteger, NULL, sizeof(SInt32), NULL, &delta) == noErr)
 					{
 						if (axis == kEventMouseWheelAxisY)
 							context->ProcessMouseWheel(-delta, GetKeyModifierState(event));
@@ -128,7 +128,7 @@ OSStatus InputMacOSX::EventHandler(EventHandlerCallRef next_handler, EventRef ev
 						if (key_identifier != Rocket::Core::Input::KI_UNKNOWN)
 							context->ProcessKeyDown(key_identifier, key_modifier_state);
 
-						EMP::Core::word character = GetCharacterCode(key_identifier, key_modifier_state);
+						Rocket::Core::word character = GetCharacterCode(key_identifier, key_modifier_state);
 						if (character > 0)
 							context->ProcessTextInput(character);
 					}

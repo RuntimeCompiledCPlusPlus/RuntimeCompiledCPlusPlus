@@ -19,8 +19,6 @@
 
 #include <vector>
 #include "../libRocket/Include/Rocket/Core.h"
-#include <Windows.h>
-#include <concrt.h>
 #include <stdarg.h>
 #include <assert.h>
 
@@ -31,14 +29,12 @@
 
 struct RocketLogSystem::RLSPlatformImpl
 {
-	CRITICAL_SECTION critSec;
 	std::vector<Rocket::Core::Log::Type> messageTypes;
 };
 
 RocketLogSystem::RocketLogSystem(void)
 {
 	m_pImpl = new RLSPlatformImpl();
-	InitializeCriticalSection(&(m_pImpl->critSec));
 
 	m_buffIndex = 0;  // Start at 0 messages, start of buffer
 	m_buff[0] = '\0';
@@ -48,15 +44,13 @@ RocketLogSystem::RocketLogSystem(void)
 
 RocketLogSystem::~RocketLogSystem(void)
 {
-	DeleteCriticalSection(&(m_pImpl->critSec));
 	delete m_pImpl;
 }
 
 void RocketLogSystem::Push(void)
 {
-	EnterCriticalSection(&(m_pImpl->critSec));
 
-	int count = m_pImpl->messageTypes.size();
+	int count = (int)m_pImpl->messageTypes.size();
 
 	// Make sure there's a limit to the amount of rubbish we can output
 	m_buff[BUFF_SIZE-1] = '\0';
@@ -64,34 +58,34 @@ void RocketLogSystem::Push(void)
 	Rocket::Core::SystemInterface *pRocketSystemInterface = Rocket::Core::GetSystemInterface();
 	if (!pRocketSystemInterface)
 		goto Cleanup;
-		
-	int msgStart=0;
-	int msgEnd=0;
-	for (int i=0; i<count; ++i)
-	{
-		// Find the first logging substring
-		while (m_buff[msgEnd] && msgEnd<BUFF_SIZE)
-		{
-			++msgEnd;
-		}
+	
+    {
+        int msgStart=0;
+        int msgEnd=0;
+        for (int i=0; i<count; ++i)
+        {
+            // Find the first logging substring
+            while (m_buff[msgEnd] && msgEnd<BUFF_SIZE)
+            {
+                ++msgEnd;
+            }
 
-		if (m_buff[msgEnd])
-		{
-			// Corrupted buffer
-			goto Cleanup;
-		}
+            if (m_buff[msgEnd])
+            {
+                // Corrupted buffer
+                goto Cleanup;
+            }
 
-		pRocketSystemInterface->LogMessage(m_pImpl->messageTypes[i], &m_buff[msgStart]);
-		msgEnd++;
-		msgStart = msgEnd;
-	}
-
+            pRocketSystemInterface->LogMessage(m_pImpl->messageTypes[i], &m_buff[msgStart]);
+            msgEnd++;
+            msgStart = msgEnd;
+        }
+    }
 
 Cleanup:
 	m_buffIndex = 0;
 	m_buff[0] = '\0';
 	m_pImpl->messageTypes.clear();
-	LeaveCriticalSection(&(m_pImpl->critSec));
 }
 
 
@@ -130,8 +124,6 @@ void RocketLogSystem::LogInternal(ELogVerbosity eVerbosity, const char * format,
 	// If there may not be space - throw away this message
 	if (BUFF_SIZE - m_buffIndex < LOGSYSTEM_MAX_BUFFER) return;
 
-	EnterCriticalSection(&(m_pImpl->critSec));
-
 	Rocket::Core::Log::Type rocketVerbosity;
 	switch (eVerbosity)
 	{
@@ -148,6 +140,4 @@ void RocketLogSystem::LogInternal(ELogVerbosity eVerbosity, const char * format,
 
 	m_buffIndex += result + 1;
 	m_pImpl->messageTypes.push_back(rocketVerbosity);
-
-	LeaveCriticalSection(&(m_pImpl->critSec));
 }

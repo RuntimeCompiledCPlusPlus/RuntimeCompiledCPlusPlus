@@ -65,6 +65,8 @@ struct IAUEntity
 		virtual AUOrientation3D& GetOrientation() = 0;
 		virtual void SetOrientation(const AUOrientation3D& vOrientation) = 0;
 		virtual void SetOrientation(float xForward, float yForward, float zForward, float xUp, float yUp, float zUp) = 0;
+    
+        virtual ~IAUEntity() {}
 };
 
 #endif // IAUENTITY_INCLUDED

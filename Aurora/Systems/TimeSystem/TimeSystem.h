@@ -49,7 +49,6 @@ public:
 	double GetSmoothFrameDuration() const;
 
 private:
-	typedef __int64 INT64;
 
 	void Reset();
 	double GetRawTime() const;
@@ -65,6 +64,9 @@ private:
 
 	bool m_bWithinSession, m_bWithinFrame;
 	bool m_bPaused, m_bPausedNextFrame;
-
+    
+#ifdef _WIN32
+	typedef __int64 INT64;
 	INT64 m_iPerformanceFreq;   // Divisor for performance frequency values
+#endif
 };
