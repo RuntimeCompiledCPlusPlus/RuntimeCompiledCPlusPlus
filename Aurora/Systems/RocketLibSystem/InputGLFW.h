@@ -24,31 +24,27 @@
  * THE SOFTWARE.
  *
  */
+#pragma once
 
-#ifndef ROCKETINPUTWIN32_H
-#define ROCKETINPUTWIN32_H
+#ifndef ROCKETINPUTGLFW_H
+#define ROCKETINPUTGLFW_H
 
 #include "Input.h"
-#if !defined _WIN32_WINNT || _WIN32_WINNT < 0x0500
-#undef _WIN32_WINNT
-#define _WIN32_WINNT 0x0500
-#endif
-#include <windows.h>
+
 
 /**
 	Processes Windows input events and passes them through to Rocket. Feel free to take this class and integrate it
 	with your project.
 	@author Lloyd Weehuizen
+
+	Modified to move to GLFW by Doug Binks
  */
 
-class InputWin32 : public Input
+class InputGLFW : public Input
 {
 public:
 	static bool Initialise();
-	static void Shutdown();
 
-	/// Process the Windows message.
-	static void ProcessWindowsEvent(UINT message, WPARAM w_param, LPARAM l_param);
 private:
 };
 

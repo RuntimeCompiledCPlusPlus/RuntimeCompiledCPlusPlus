@@ -60,12 +60,9 @@ public:
 	/// Open a platform specific window, optionally initialising an OpenGL context on it.
 	/// @param[in] title Title of the window.
 	/// @param[in] attach_opengl Attach and opengl context to the window.
-	static bool OpenWindow(const wchar_t* title, bool attach_opengl);
+	static bool OpenWindow(const char* title, bool attach_opengl);
 	/// Close the active window.
 	static void CloseWindow();
-
-	/// Returns a platform-dependent handle to the window.
-	static void* GetWindowHandle();
 
 	/// Flips the OpenGL buffers.
 	static void FlipBuffers();

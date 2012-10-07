@@ -421,7 +421,7 @@ void Game::RocketLibInit()
 	char* path = "../../";
 #endif
 	if (!RocketLibSystem::Initialise(path) ||
-	    !RocketLibSystem::OpenWindow(L"Pulse", true))
+	    !RocketLibSystem::OpenWindow("Pulse", true))
 	{
 		RocketLibSystem::Shutdown();
 		return;
