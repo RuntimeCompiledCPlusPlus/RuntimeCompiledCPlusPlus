@@ -120,8 +120,9 @@ void GLFWCALL MousePosCallback( int x, int y )
 void GLFWCALL MouseWheelCallback( int pos )
 {
 	if( 0 == Input::GetContext() ) { return; }
-
-	Input::GetContext()->ProcessMouseWheel(pos, GetKeyModifierState());
+	static int pos0 = 0;
+	Input::GetContext()->ProcessMouseWheel(pos0-pos, GetKeyModifierState());
+	pos0 = pos;
 }
 
 

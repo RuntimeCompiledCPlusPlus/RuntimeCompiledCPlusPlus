@@ -100,7 +100,6 @@ void RocketLibSystem::CloseWindow()
 void RocketLibSystem::FlipBuffers()
 {
 	glfwSwapBuffers();
-	glfwPollEvents();
 }
 
 void RocketLibSystem::EventLoop(RocketLibSystemIdleFunction idle_function)
