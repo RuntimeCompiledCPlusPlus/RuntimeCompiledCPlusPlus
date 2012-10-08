@@ -18,6 +18,12 @@
 
 #include "AURenMesh.h"
 
+
+#ifndef _WIN32
+    #define NO_ASSIMP //Currently not adding assimp support to other platforms
+#endif
+
+
 #include "../Common/AUVec3f.inl" //for cross product used in calculateing normals
 
 // Windows Requirements
@@ -26,12 +32,27 @@
 	#include <windows.h>
 #endif //_WIN32
 
+
+#ifdef __MACH__
+#include <OpenGL/gl.h>
+#else
 // OpenGL requirements
 #include <GL/gl.h>
+#endif //__MACH__
 
-#include <assimp.hpp>
-#include <aiScene.h>
-#include <aiPostProcess.h>
+#ifndef NO_ASSIMP
+    #include <assimp.hpp>
+    #include <aiScene.h>
+    #include <aiPostProcess.h>
+#endif //NO_ASSIMP
+
+#ifndef _WIN32
+#include <string.h>
+int _stricmp( const char* pS1, const char* pS2 )
+{
+    return strcasecmp( pS1, pS2 );
+}
+#endif
 
 #include <fstream>
 #include <assert.h>
@@ -64,7 +85,7 @@ bool AURenMesh::LoadFromFile( const std::string& strFilename )
 	// Safely delete any existing data before loading new mesh
 	Clear();
 
-	size_t index = strFilename.size() - 3;
+	int index = (int)strFilename.size() - 3;
 	std::string extension = index >= 0 ? strFilename.substr(index, 3) : "";
 	if (!_stricmp(extension.c_str(), "aml"))
 	{
@@ -139,6 +160,7 @@ bool AURenMesh::LoadFromFileAML( const std::string& strFilename_ )
 
 bool AURenMesh::LoadFromFileImport( const std::string& strFilename )
 {
+#ifndef NO_ASSIMP
 	Assimp::Importer importer;
 
 	const aiScene* pScene = importer.ReadFile( strFilename, aiProcessPreset_TargetRealtime_Fast );
@@ -151,10 +173,15 @@ bool AURenMesh::LoadFromFileImport( const std::string& strFilename )
 	ProcessScene(pScene);
 	
 	return true;
+#else
+    assert( false );
+    return false;
+#endif
 }
 
 void AURenMesh::ProcessScene( const aiScene* pScene )
 {
+#ifndef NO_ASSIMP
 	// Calculate total number of verts and tris across all meshes in scene
 	m_uiNumVertices = 0;
 	m_uiNumTriangles = 0;
@@ -223,6 +250,7 @@ void AURenMesh::ProcessScene( const aiScene* pScene )
 			triIndex += 3;
 		}
 	}
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
