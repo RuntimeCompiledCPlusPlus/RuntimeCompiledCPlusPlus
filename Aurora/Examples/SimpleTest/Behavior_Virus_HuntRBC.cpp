@@ -16,7 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "Behavior_Virus_Base.h"
-
+#include <float.h>
 
 class Behavior_Virus_HuntRBC : public Behavior_Virus_Base
 {

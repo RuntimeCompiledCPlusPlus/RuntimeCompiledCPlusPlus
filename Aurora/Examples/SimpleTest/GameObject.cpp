@@ -286,7 +286,7 @@ public:
 		const AUVec3f& pos = pBB->current_position;
 		const AUVec3f& vel = pBB->current_velocity;
 
-		sprintf_s( outputBuffer, bufferLen,
+		_snprintf_s( outputBuffer, bufferLen,
 			"ID: %d\n"
 			"Name: %s\n"
 			"Position: (%0.2f, %0.2f, %0.2f)\n"

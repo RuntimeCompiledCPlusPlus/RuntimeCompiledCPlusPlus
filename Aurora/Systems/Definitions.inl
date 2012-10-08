@@ -20,7 +20,12 @@
 #ifndef DEFINITIONS_DEFINED
 #define DEFINITIONS_DEFINED
 
+#ifndef _WIN32
+    #define _snprintf_s(...) snprintf(__VA_ARGS__)
+#endif
+
 // All typedefs, defines and macros start AU_ to avoid conflicts
+
 
 typedef int AUEntityId;           // (Will be a) salted id for uniquely identifying entities
 

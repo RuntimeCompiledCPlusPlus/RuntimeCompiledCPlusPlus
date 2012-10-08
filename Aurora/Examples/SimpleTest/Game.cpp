@@ -54,8 +54,10 @@
 
 
 #include <stdio.h>
-#include <tchar.h>
-#include <conio.h>
+#ifdef _WIN32
+    #include <tchar.h>
+    #include <conio.h>
+#endif
 #include <strstream>
 #include <vector>
 #include <algorithm>
@@ -65,6 +67,8 @@
 #include <Rocket/Debugger.h>
 #include "../../Systems/RocketLibSystem/RocketLibSystem.h"
 #include "../../Systems/RocketLibSystem/Input.h"
+
+#include <GL/glfw.h>
 
 using boost::filesystem::path;
 
@@ -113,6 +117,7 @@ Game::~Game()
 bool Game::Init()
 {
 	// We Set Dir here so logs go to bin directory
+#ifdef _WIN32
 	DWORD size = MAX_PATH;
 	wchar_t filename[MAX_PATH];
 	GetModuleFileName( NULL, filename, size );
@@ -120,7 +125,7 @@ bool Game::Init()
 	path launchPath( strTempFileName );
 	launchPath = launchPath.parent_path();
 	SetCurrentDirectory( launchPath.wstring().c_str() );
-
+#endif
 
 	m_pEnv = new Environment( this );
 	m_pSystemInterface = new RocketLibSystemSystemInterface();
@@ -188,14 +193,18 @@ void Game::Exit()
 
 void Game::SetVolume( float volume )
 {
+#ifndef NOALSOUND
 	CalManager::GetInstance().SetVolume( volume );
+#endif
 }
 
 void Game::SetSpeed( float speed )
 {
 	m_GameSpeed = speed;
+#ifndef NOALSOUND
 	float pitch = 1.0f + 0.1f*(speed-1.0f);//fake, but works.
 	CalManager::GetInstance().SetGlobalPitch( pitch );
+#endif
 }
 
 void Game::GetWindowSize( float& width, float& height ) const
@@ -211,8 +220,10 @@ bool Game::ProtectedUpdate(AUDynArray<AUEntityId> &entities, float fDeltaTime)
 	bool bSuccess = true;
 	assert(!m_bHaveProgramError);
 
-	__try {
-
+#ifdef _WIN32
+	__try
+#endif
+    {
 		for (size_t i=0; i<entities.Size(); ++i)
 		{
 			IAUEntity* pEnt = m_pEnv->sys->pEntitySystem->Get(entities[i]);
@@ -228,10 +239,12 @@ bool Game::ProtectedUpdate(AUDynArray<AUEntityId> &entities, float fDeltaTime)
 			}		
 		}
 	}
+#ifdef _WIN32
 	__except( RuntimeExceptionFilter() )
 	{
 		bSuccess = false;
 	}
+#endif
 	return bSuccess;
 }
 
@@ -314,7 +327,7 @@ void Game::MainLoop()
 	const double dIdealTime = 1.0 / 60.0; 
 	if ( dTimeTaken < dIdealTime)
 	{
-		Sleep( (DWORD) ((dIdealTime - dTimeTaken) * 1000.0) );
+        glfwSleep( dIdealTime - dTimeTaken );
 	}
 
 	pTimeSystem->EndFrame();
@@ -362,13 +375,14 @@ void Game::RenderWorld()
 		-viewPos.y,
 		-viewPos.z );
 
+#ifndef NOALSOUND
 	//set sound position
 	AUVec3f velocity(0.0f, 0.0f, 0.0f);
 	CalManager::GetInstance().SetListener(	viewPos, velocity, viewOrientation );
 
 	//play audio
 	CalManager::GetInstance().PlayRequestedSounds();
-
+#endif
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glShadeModel(GL_SMOOTH);
 	glDisable(GL_POLYGON_SMOOTH);
@@ -461,8 +475,6 @@ void Game::RocketLibInit()
 		pElement->SetProperty("font-size", "18pt");
 		pElement->RemoveReference();
 	}
-
-	Rocket::Core::GetSystemInterface()->LogMessage(Rocket::Core::Log::LT_INFO, "Hello");
 	
 }
 
@@ -535,17 +547,21 @@ void Game::InitStoredObjectPointers()
 
 void Game::InitSound()
 {
+#ifndef NOALSOUND
 	AUVec3f pos, vel;
 	AUOrientation3D orientation;
 	CalManager::GetInstance().SetListener(	pos, vel, orientation );
 	m_pLoopingBackgroundSound = m_pEnv->sys->pAssetSystem->CreateSoundFromFile( "/Sounds/62912_Benboncan_Heartbeat_Mono_shortloop.wav", true );
 	m_pLoopingBackgroundSound->SetReferenceDistance( 1000.0f );	//since this is ambient it doesn't fade
 	m_pLoopingBackgroundSound->Play( pos );
+#endif
 }
 
 void Game::ShutdownSound()
 {
+#ifndef NOALSOUND
 	m_pEnv->sys->pAssetSystem->DestroySound( m_pLoopingBackgroundSound );
 	CalManager::CleanUp();
 	CalManager::GetInstance().SetIsEnabled( false );
+#endif
 }

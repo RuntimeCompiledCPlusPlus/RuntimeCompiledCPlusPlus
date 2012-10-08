@@ -32,6 +32,7 @@
 #include "../../Systems/IGUISystem.h"
 #include "../../Systems/IGame.h"
 
+#include <float.h>
 #include <assert.h>
 #include <limits>
 #include <algorithm>
@@ -311,9 +312,9 @@ private:
 			char buff[16];
 			float windowWidth, windowHeight;
 			PerModuleInterface::GetInstance()->GetSystemTable()->pGame->GetWindowSize( windowWidth, windowHeight );
-			_itoa_s( (int)windowWidth, buff, 10 );
+            _snprintf_s(buff, sizeof(buff), "%d",(int)windowWidth);
 			m_pInputElement->SetProperty( "width", buff );
-			_itoa_s( (int)windowHeight, buff, 10 );
+            _snprintf_s(buff, sizeof(buff), "%d",(int)windowHeight);
 			m_pInputElement->SetProperty( "height", buff );
 			
 			// Set up info element in the bottom right corner

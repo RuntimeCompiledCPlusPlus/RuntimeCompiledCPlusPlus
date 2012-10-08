@@ -341,7 +341,7 @@ private:
 		{
 			std::string name = m_GlobalParameters.go[type].base_name;
 			char buff[16];
-			_itoa_s( ++(m_NextGameObjectNumber[type]), buff, 10 );
+            _snprintf_s(buff, sizeof(buff), "%d",++(m_NextGameObjectNumber[type]));
 			name += buff;
 
 			IObject* pObj = IObjectUtils::CreateObjectAndEntity( "GameObject", name.c_str() );

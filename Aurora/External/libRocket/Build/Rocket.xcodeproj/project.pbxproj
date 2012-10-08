@@ -2079,7 +2079,7 @@
 				INSTALL_PATH = "$(HOME)/Library/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../../support/lib\"",
+					"\"$(SRCROOT)/../../support/lib/MacOSX\"",
 				);
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -2111,7 +2111,7 @@
 				INSTALL_PATH = "$(HOME)/Library/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../../support/lib\"",
+					"\"$(SRCROOT)/../../support/lib/MacOSX\"",
 				);
 				OTHER_LDFLAGS = (
 					"-framework",

@@ -38,6 +38,10 @@ public:
 
 	virtual CalSound* CreateSoundFromFile( const char* pFilename, bool looping );
 	virtual void DestroySound( CalSound* pSound );
+    virtual const char* GetAssetDirectory() const
+    {
+        return m_AssetDirectory.c_str();
+    }
 
 private:
 	bool FindFile( std::string& filename );

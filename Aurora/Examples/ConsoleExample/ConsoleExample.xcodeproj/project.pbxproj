@@ -36,8 +36,6 @@
 /* Begin PBXFileReference section */
 		914B6D00161B5D65001F4606 /* libboost_filesystem.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_filesystem.a; path = ../../External/boost/stage/libOSX/libboost_filesystem.a; sourceTree = "<group>"; };
 		914B6D01161B5D65001F4606 /* libboost_system.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_system.a; path = ../../External/boost/stage/libOSX/libboost_system.a; sourceTree = "<group>"; };
-		914B6D05161B5E6A001F4606 /* libboost_filesystem.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_filesystem.dylib; path = ../../External/boost/stage/libOSX/libboost_filesystem.dylib; sourceTree = "<group>"; };
-		914B6D06161B5E6A001F4606 /* libboost_system.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_system.dylib; path = ../../External/boost/stage/libOSX/libboost_system.dylib; sourceTree = "<group>"; };
 		914B6D09161B6018001F4606 /* libboost_filesystem.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_filesystem.dylib; path = ../../External/boost/stage/libOSX/libboost_filesystem.dylib; sourceTree = "<group>"; };
 		914B6D0A161B6018001F4606 /* libboost_system.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_system.dylib; path = ../../External/boost/stage/libOSX/libboost_system.dylib; sourceTree = "<group>"; };
 		91A171CE161B175E004B5954 /* ConsoleExample */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ConsoleExample; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -73,8 +71,6 @@
 			children = (
 				914B6D09161B6018001F4606 /* libboost_filesystem.dylib */,
 				914B6D0A161B6018001F4606 /* libboost_system.dylib */,
-				914B6D05161B5E6A001F4606 /* libboost_filesystem.dylib */,
-				914B6D06161B5E6A001F4606 /* libboost_system.dylib */,
 				914B6D00161B5D65001F4606 /* libboost_filesystem.a */,
 				914B6D01161B5D65001F4606 /* libboost_system.a */,
 				91DE4207161B2E2600BE0D16 /* libRuntimeCompiler.a */,
@@ -220,6 +216,7 @@
 		91A171D9161B175E004B5954 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = ../../External/boost;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../../External/boost/stage/libOSX\"",
@@ -231,6 +228,7 @@
 		91A171DA161B175E004B5954 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = ../../External/boost;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../../External/boost/stage/libOSX\"",

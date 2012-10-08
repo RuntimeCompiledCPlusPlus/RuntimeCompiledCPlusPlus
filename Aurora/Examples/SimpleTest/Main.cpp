@@ -20,9 +20,13 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "Game.h"
+#ifdef _WIN32
 #include <Windows.h>
 
 int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow )
+#else
+int main( void )
+#endif
 {
 	Game game;
 	
