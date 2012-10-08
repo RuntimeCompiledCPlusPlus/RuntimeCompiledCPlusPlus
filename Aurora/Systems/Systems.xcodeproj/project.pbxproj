@@ -55,6 +55,9 @@
 		911907191620614900BE48ED /* SystemTable.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906DF1620614900BE48ED /* SystemTable.h */; };
 		9119071A1620614900BE48ED /* TimeSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 911906E11620614900BE48ED /* TimeSystem.cpp */; };
 		9119071B1620614900BE48ED /* TimeSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906E21620614900BE48ED /* TimeSystem.h */; };
+		9170EAE71622E32E00273B92 /* InputGLFW.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9170EAE41622E32E00273B92 /* InputGLFW.cpp */; };
+		9170EAE81622E32E00273B92 /* InputGLFW.h in Headers */ = {isa = PBXBuildFile; fileRef = 9170EAE51622E32E00273B92 /* InputGLFW.h */; };
+		9170EAE91622E32E00273B92 /* RocketLibSystemGLFW.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9170EAE61622E32E00273B92 /* RocketLibSystemGLFW.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -108,6 +111,9 @@
 		911906DF1620614900BE48ED /* SystemTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SystemTable.h; sourceTree = "<group>"; };
 		911906E11620614900BE48ED /* TimeSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TimeSystem.cpp; sourceTree = "<group>"; };
 		911906E21620614900BE48ED /* TimeSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeSystem.h; sourceTree = "<group>"; };
+		9170EAE41622E32E00273B92 /* InputGLFW.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InputGLFW.cpp; sourceTree = "<group>"; };
+		9170EAE51622E32E00273B92 /* InputGLFW.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InputGLFW.h; sourceTree = "<group>"; };
+		9170EAE61622E32E00273B92 /* RocketLibSystemGLFW.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RocketLibSystemGLFW.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -241,6 +247,9 @@
 		911906C81620614900BE48ED /* RocketLibSystem */ = {
 			isa = PBXGroup;
 			children = (
+				9170EAE41622E32E00273B92 /* InputGLFW.cpp */,
+				9170EAE51622E32E00273B92 /* InputGLFW.h */,
+				9170EAE61622E32E00273B92 /* RocketLibSystemGLFW.cpp */,
 				911906C91620614900BE48ED /* Input.cpp */,
 				911906CA1620614900BE48ED /* Input.h */,
 				911906D11620614900BE48ED /* RocketLibSystem.cpp */,
@@ -303,6 +312,7 @@
 				911907181620614900BE48ED /* Systems.h in Headers */,
 				911907191620614900BE48ED /* SystemTable.h in Headers */,
 				9119071B1620614900BE48ED /* TimeSystem.h in Headers */,
+				9170EAE81622E32E00273B92 /* InputGLFW.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -374,6 +384,8 @@
 				911907131620614900BE48ED /* RocketLibSystemSystemInterface.cpp in Sources */,
 				911907171620614900BE48ED /* Systems.cpp in Sources */,
 				9119071A1620614900BE48ED /* TimeSystem.cpp in Sources */,
+				9170EAE71622E32E00273B92 /* InputGLFW.cpp in Sources */,
+				9170EAE91622E32E00273B92 /* RocketLibSystemGLFW.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -434,6 +446,7 @@
 				HEADER_SEARCH_PATHS = (
 					../External/libRocket/Include,
 					../External/boost/,
+					../External/glfw/include,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -446,6 +459,7 @@
 				HEADER_SEARCH_PATHS = (
 					../External/libRocket/Include,
 					../External/boost/,
+					../External/glfw/include,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
