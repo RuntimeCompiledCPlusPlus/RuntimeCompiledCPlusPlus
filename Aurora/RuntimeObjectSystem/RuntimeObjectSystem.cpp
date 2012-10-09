@@ -66,15 +66,6 @@ bool RuntimeObjectSystem::Initialise( ICompilerLogger * pLogger, SystemTable* pS
 	m_pCompilerLogger = pLogger;
 	m_pSystemTable = pSystemTable;
 
-/*	// We need the current directory to be the process dir
-	DWORD size = MAX_PATH;
-	wchar_t filename[MAX_PATH];
-	GetModuleFileName( NULL, filename, size );
-	std::wstring strTempFileName( filename );
-	path launchPath( strTempFileName );
-	launchPath = launchPath.parent_path();
-	SetCurrentDirectory( launchPath.wstring().c_str() ); */
-
 	m_pBuildTool = new BuildTool();
 	m_pBuildTool->Initialise(m_pCompilerLogger);
 

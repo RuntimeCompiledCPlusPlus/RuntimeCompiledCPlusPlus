@@ -194,35 +194,6 @@
 		910A9E92162328550032E310 /* libboost_filesystem.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_filesystem.dylib; path = ../../External/boost/stage/libOSX/libboost_filesystem.dylib; sourceTree = "<group>"; };
 		910A9E93162328550032E310 /* libboost_system.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_system.dylib; path = ../../External/boost/stage/libOSX/libboost_system.dylib; sourceTree = "<group>"; };
 		910A9EF516232E2A0032E310 /* SimpleTest-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "SimpleTest-Info.plist"; sourceTree = "<group>"; };
-		910A9F1016233CE70032E310 /* Anonymous.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Anonymous.ttf; sourceTree = "<group>"; };
-		910A9F1116233CE70032E310 /* compiling-notification.rcss */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "compiling-notification.rcss"; sourceTree = "<group>"; };
-		910A9F1216233CE70032E310 /* compiling-notification.rml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "compiling-notification.rml"; sourceTree = "<group>"; };
-		910A9F1316233CE70032E310 /* console.rcss */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = console.rcss; sourceTree = "<group>"; };
-		910A9F1416233CE70032E310 /* console.rml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = console.rml; sourceTree = "<group>"; };
-		910A9F1516233CE70032E310 /* console.tga */ = {isa = PBXFileReference; lastKnownFileType = file; path = console.tga; sourceTree = "<group>"; };
-		910A9F1616233CE70032E310 /* default.rcss */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = default.rcss; sourceTree = "<group>"; };
-		910A9F1716233CE70032E310 /* Delicious-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Delicious-Bold.otf"; sourceTree = "<group>"; };
-		910A9F1816233CE70032E310 /* Delicious-BoldItalic.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Delicious-BoldItalic.otf"; sourceTree = "<group>"; };
-		910A9F1916233CE70032E310 /* Delicious-Italic.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Delicious-Italic.otf"; sourceTree = "<group>"; };
-		910A9F1A16233CE70032E310 /* Delicious-Roman.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Delicious-Roman.otf"; sourceTree = "<group>"; };
-		910A9F1B16233CE70032E310 /* fps-counter.rcss */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "fps-counter.rcss"; sourceTree = "<group>"; };
-		910A9F1C16233CE70032E310 /* fps-counter.rml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "fps-counter.rml"; sourceTree = "<group>"; };
-		910A9F1D16233CE70032E310 /* immunewin.tga */ = {isa = PBXFileReference; lastKnownFileType = file; path = immunewin.tga; sourceTree = "<group>"; };
-		910A9F1E16233CE70032E310 /* infectionwin.tga */ = {isa = PBXFileReference; lastKnownFileType = file; path = infectionwin.tga; sourceTree = "<group>"; };
-		910A9F1F16233CE70032E310 /* input.rcss */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = input.rcss; sourceTree = "<group>"; };
-		910A9F2016233CE70032E310 /* input.rml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = input.rml; sourceTree = "<group>"; };
-		910A9F2116233CE70032E310 /* invader.tga */ = {isa = PBXFileReference; lastKnownFileType = file; path = invader.tga; sourceTree = "<group>"; };
-		910A9F2216233CE70032E310 /* menu.rcss */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = menu.rcss; sourceTree = "<group>"; };
-		910A9F2316233CE70032E310 /* menu.rml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = menu.rml; sourceTree = "<group>"; };
-		910A9F2416233CE70032E310 /* splashscreen.rcss */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = splashscreen.rcss; sourceTree = "<group>"; };
-		910A9F2516233CE70032E310 /* splashscreen.rml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = splashscreen.rml; sourceTree = "<group>"; };
-		910A9F2616233CE70032E310 /* title.tga */ = {isa = PBXFileReference; lastKnownFileType = file; path = title.tga; sourceTree = "<group>"; };
-		910A9F2816233CE70032E310 /* infected_cell.aml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = infected_cell.aml; sourceTree = "<group>"; };
-		910A9F2916233CE70032E310 /* red_blood_cell.aml */ = {isa = PBXFileReference; lastKnownFileType = file; path = red_blood_cell.aml; sourceTree = "<group>"; };
-		910A9F2A16233CE70032E310 /* virus.aml */ = {isa = PBXFileReference; lastKnownFileType = file; path = virus.aml; sourceTree = "<group>"; };
-		910A9F2B16233CE70032E310 /* white_blood_cell.aml */ = {isa = PBXFileReference; lastKnownFileType = file; path = white_blood_cell.aml; sourceTree = "<group>"; };
-		910A9F2D16233CE70032E310 /* 62912_Benboncan_Heartbeat_Mono_shortloop.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = 62912_Benboncan_Heartbeat_Mono_shortloop.wav; sourceTree = "<group>"; };
-		910A9F2E16233CE70032E310 /* SoundFileAttributions.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SoundFileAttributions.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -255,18 +226,75 @@
 		910A9D9316230A370032E310 = {
 			isa = PBXGroup;
 			children = (
-				910A9F0E16233CE70032E310 /* Assets */,
-				910A9E92162328550032E310 /* libboost_filesystem.dylib */,
-				910A9E93162328550032E310 /* libboost_system.dylib */,
-				910A9E901623284B0032E310 /* libfreetype.6.dylib */,
-				910A9E8D162327B60032E310 /* libfreetype.6.dylib */,
-				910A9E861623233E0032E310 /* RocketControlsOSX.framework */,
-				910A9E871623233F0032E310 /* RocketCoreOSX.framework */,
-				910A9E881623233F0032E310 /* RocketDebuggerOSX.framework */,
-				910A9E821623231E0032E310 /* libboost_filesystem.dylib */,
-				910A9E831623231E0032E310 /* libboost_system.dylib */,
-				910A9E7E162323120032E310 /* libboost_filesystem.a */,
-				910A9E7F162323120032E310 /* libboost_system.a */,
+				91D8765316242E4E00A588D8 /* Dependancies */,
+				91D8765216242DF000A588D8 /* RuntimeModifiableSource */,
+				910A9E28162313EF0032E310 /* CompilerLogger.cpp */,
+				910A9E29162313EF0032E310 /* CompilerLogger.h */,
+				910A9E2B162313EF0032E310 /* Console.cpp */,
+				910A9E2C162313EF0032E310 /* Console.h */,
+				910A9E2D162313EF0032E310 /* Console.txt */,
+				910A9E2E162313EF0032E310 /* ConsoleContext.h */,
+				910A9E2F162313EF0032E310 /* Environment.cpp */,
+				910A9E30162313EF0032E310 /* Environment.h */,
+				910A9E32162313EF0032E310 /* Game.cpp */,
+				910A9E33162313EF0032E310 /* Game.h */,
+				910A9E44162313EF0032E310 /* InterfaceIds.h */,
+				910A9E45162313EF0032E310 /* IObjectUtils.h */,
+				910A9E4A162313EF0032E310 /* Main.cpp */,
+				910A9DA816230A370032E310 /* SimpleTestBundle */,
+				910A9DA116230A370032E310 /* Frameworks */,
+				910A9D9F16230A370032E310 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		910A9D9F16230A370032E310 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				910A9D9E16230A370032E310 /* SimpleTest.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		910A9DA116230A370032E310 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				910A9DFC162313D40032E310 /* libglfw.a */,
+				910A9DF41623134E0032E310 /* libRenderer.a */,
+				910A9DF51623134E0032E310 /* libRuntimeCompiler.a */,
+				910A9DF61623134E0032E310 /* libRuntimeObjectSystem.a */,
+				910A9DF71623134E0032E310 /* libSystems.a */,
+				910A9DF2162313440032E310 /* IOKit.framework */,
+				910A9DCD162310BB0032E310 /* IOKit.framework */,
+				910A9DC616230BE50032E310 /* libglfw.a */,
+				910A9DC816230D880032E310 /* OpenGL.framework */,
+				910A9DA216230A370032E310 /* Cocoa.framework */,
+				910A9DA416230A370032E310 /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		910A9DA416230A370032E310 /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				910A9DA516230A370032E310 /* AppKit.framework */,
+				910A9DA616230A370032E310 /* CoreData.framework */,
+				910A9DA716230A370032E310 /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		910A9DA816230A370032E310 /* SimpleTestBundle */ = {
+			isa = PBXGroup;
+			children = (
+				910A9EF516232E2A0032E310 /* SimpleTest-Info.plist */,
+			);
+			name = SimpleTestBundle;
+			path = SimpleTest;
+			sourceTree = "<group>";
+		};
+		91D8765216242DF000A588D8 /* RuntimeModifiableSource */ = {
+			isa = PBXGroup;
+			children = (
 				910A9DFE162313EF0032E310 /* BB_Global.h */,
 				910A9DFF162313EF0032E310 /* BB_Group_Infected.h */,
 				910A9E00162313EF0032E310 /* BB_Group_RBC.h */,
@@ -309,18 +337,8 @@
 				910A9E25162313EF0032E310 /* BehaviorTreeManager.cpp */,
 				910A9E26162313EF0032E310 /* BlackboardManager.cpp */,
 				910A9E27162313EF0032E310 /* CameraControl.cpp */,
-				910A9E28162313EF0032E310 /* CompilerLogger.cpp */,
-				910A9E29162313EF0032E310 /* CompilerLogger.h */,
 				910A9E2A162313EF0032E310 /* CompilingNotification.cpp */,
-				910A9E2B162313EF0032E310 /* Console.cpp */,
-				910A9E2C162313EF0032E310 /* Console.h */,
-				910A9E2D162313EF0032E310 /* Console.txt */,
-				910A9E2E162313EF0032E310 /* ConsoleContext.h */,
-				910A9E2F162313EF0032E310 /* Environment.cpp */,
-				910A9E30162313EF0032E310 /* Environment.h */,
 				910A9E31162313EF0032E310 /* FPSCounter.cpp */,
-				910A9E32162313EF0032E310 /* Game.cpp */,
-				910A9E33162313EF0032E310 /* Game.h */,
 				910A9E34162313EF0032E310 /* GameManager.cpp */,
 				910A9E35162313EF0032E310 /* GameObject.cpp */,
 				910A9E36162313EF0032E310 /* GlobalParameters.h */,
@@ -337,127 +355,35 @@
 				910A9E41162313EF0032E310 /* IInputManager.h */,
 				910A9E42162313EF0032E310 /* ILightingControl.h */,
 				910A9E43162313EF0032E310 /* InputManager.cpp */,
-				910A9E44162313EF0032E310 /* InterfaceIds.h */,
-				910A9E45162313EF0032E310 /* IObjectUtils.h */,
 				910A9E46162313EF0032E310 /* IPerceptionManager.h */,
 				910A9E47162313EF0032E310 /* IPhysicsManager.h */,
 				910A9E48162313EF0032E310 /* ISplashScreen.h */,
 				910A9E49162313EF0032E310 /* LightingControl.cpp */,
-				910A9E4A162313EF0032E310 /* Main.cpp */,
 				910A9E4B162313EF0032E310 /* MainMenu.cpp */,
 				910A9E4C162313EF0032E310 /* MainObject.cpp */,
 				910A9E4D162313EF0032E310 /* PerceptionManager.cpp */,
 				910A9E4E162313EF0032E310 /* PhysicsManager.cpp */,
 				910A9E4F162313EF0032E310 /* SplashScreen.cpp */,
-				910A9DA816230A370032E310 /* SimpleTest */,
-				910A9DA116230A370032E310 /* Frameworks */,
-				910A9D9F16230A370032E310 /* Products */,
 			);
+			name = RuntimeModifiableSource;
 			sourceTree = "<group>";
 		};
-		910A9D9F16230A370032E310 /* Products */ = {
+		91D8765316242E4E00A588D8 /* Dependancies */ = {
 			isa = PBXGroup;
 			children = (
-				910A9D9E16230A370032E310 /* SimpleTest.app */,
+				910A9E92162328550032E310 /* libboost_filesystem.dylib */,
+				910A9E93162328550032E310 /* libboost_system.dylib */,
+				910A9E901623284B0032E310 /* libfreetype.6.dylib */,
+				910A9E8D162327B60032E310 /* libfreetype.6.dylib */,
+				910A9E861623233E0032E310 /* RocketControlsOSX.framework */,
+				910A9E871623233F0032E310 /* RocketCoreOSX.framework */,
+				910A9E881623233F0032E310 /* RocketDebuggerOSX.framework */,
+				910A9E821623231E0032E310 /* libboost_filesystem.dylib */,
+				910A9E831623231E0032E310 /* libboost_system.dylib */,
+				910A9E7E162323120032E310 /* libboost_filesystem.a */,
+				910A9E7F162323120032E310 /* libboost_system.a */,
 			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		910A9DA116230A370032E310 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				910A9DFC162313D40032E310 /* libglfw.a */,
-				910A9DF41623134E0032E310 /* libRenderer.a */,
-				910A9DF51623134E0032E310 /* libRuntimeCompiler.a */,
-				910A9DF61623134E0032E310 /* libRuntimeObjectSystem.a */,
-				910A9DF71623134E0032E310 /* libSystems.a */,
-				910A9DF2162313440032E310 /* IOKit.framework */,
-				910A9DCD162310BB0032E310 /* IOKit.framework */,
-				910A9DC616230BE50032E310 /* libglfw.a */,
-				910A9DC816230D880032E310 /* OpenGL.framework */,
-				910A9DA216230A370032E310 /* Cocoa.framework */,
-				910A9DA416230A370032E310 /* Other Frameworks */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		910A9DA416230A370032E310 /* Other Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				910A9DA516230A370032E310 /* AppKit.framework */,
-				910A9DA616230A370032E310 /* CoreData.framework */,
-				910A9DA716230A370032E310 /* Foundation.framework */,
-			);
-			name = "Other Frameworks";
-			sourceTree = "<group>";
-		};
-		910A9DA816230A370032E310 /* SimpleTest */ = {
-			isa = PBXGroup;
-			children = (
-				910A9EF516232E2A0032E310 /* SimpleTest-Info.plist */,
-			);
-			path = SimpleTest;
-			sourceTree = "<group>";
-		};
-		910A9F0E16233CE70032E310 /* Assets */ = {
-			isa = PBXGroup;
-			children = (
-				910A9F0F16233CE70032E310 /* GUI */,
-				910A9F2716233CE70032E310 /* Models */,
-				910A9F2C16233CE70032E310 /* Sounds */,
-			);
-			name = Assets;
-			path = ../../Assets;
-			sourceTree = "<group>";
-		};
-		910A9F0F16233CE70032E310 /* GUI */ = {
-			isa = PBXGroup;
-			children = (
-				910A9F1016233CE70032E310 /* Anonymous.ttf */,
-				910A9F1116233CE70032E310 /* compiling-notification.rcss */,
-				910A9F1216233CE70032E310 /* compiling-notification.rml */,
-				910A9F1316233CE70032E310 /* console.rcss */,
-				910A9F1416233CE70032E310 /* console.rml */,
-				910A9F1516233CE70032E310 /* console.tga */,
-				910A9F1616233CE70032E310 /* default.rcss */,
-				910A9F1716233CE70032E310 /* Delicious-Bold.otf */,
-				910A9F1816233CE70032E310 /* Delicious-BoldItalic.otf */,
-				910A9F1916233CE70032E310 /* Delicious-Italic.otf */,
-				910A9F1A16233CE70032E310 /* Delicious-Roman.otf */,
-				910A9F1B16233CE70032E310 /* fps-counter.rcss */,
-				910A9F1C16233CE70032E310 /* fps-counter.rml */,
-				910A9F1D16233CE70032E310 /* immunewin.tga */,
-				910A9F1E16233CE70032E310 /* infectionwin.tga */,
-				910A9F1F16233CE70032E310 /* input.rcss */,
-				910A9F2016233CE70032E310 /* input.rml */,
-				910A9F2116233CE70032E310 /* invader.tga */,
-				910A9F2216233CE70032E310 /* menu.rcss */,
-				910A9F2316233CE70032E310 /* menu.rml */,
-				910A9F2416233CE70032E310 /* splashscreen.rcss */,
-				910A9F2516233CE70032E310 /* splashscreen.rml */,
-				910A9F2616233CE70032E310 /* title.tga */,
-			);
-			path = GUI;
-			sourceTree = "<group>";
-		};
-		910A9F2716233CE70032E310 /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				910A9F2816233CE70032E310 /* infected_cell.aml */,
-				910A9F2916233CE70032E310 /* red_blood_cell.aml */,
-				910A9F2A16233CE70032E310 /* virus.aml */,
-				910A9F2B16233CE70032E310 /* white_blood_cell.aml */,
-			);
-			path = Models;
-			sourceTree = "<group>";
-		};
-		910A9F2C16233CE70032E310 /* Sounds */ = {
-			isa = PBXGroup;
-			children = (
-				910A9F2D16233CE70032E310 /* 62912_Benboncan_Heartbeat_Mono_shortloop.wav */,
-				910A9F2E16233CE70032E310 /* SoundFileAttributions.txt */,
-			);
-			path = Sounds;
+			name = Dependancies;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

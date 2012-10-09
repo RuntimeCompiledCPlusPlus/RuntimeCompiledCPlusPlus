@@ -48,7 +48,7 @@ static int g_WindowSize[4];
 
 static RocketLibSystemFileInterface* file_interface = NULL;
 
-bool RocketLibSystem::Initialise(const Rocket::Core::String& path)
+bool RocketLibSystem::Initialise()
 {
 	if( GL_FALSE == glfwInit() )
 	{
@@ -56,33 +56,8 @@ bool RocketLibSystem::Initialise(const Rocket::Core::String& path)
 	}
 	glfwSetTime(0.0);
 
-#ifdef _WIN32
-	// Fetch the path of the executable, append the path onto that.
-	char executable_file_name[MAX_PATH];
-	if (GetModuleFileNameA(0, executable_file_name, MAX_PATH) >= MAX_PATH &&
-		GetLastError() == ERROR_INSUFFICIENT_BUFFER)
-    {
-        executable_file_name[0] = 0;
-    }
-#else
-    int ret;
-    pid_t pid;
-    char executable_file_name[PROC_PIDPATHINFO_MAXSIZE];
-    
-    pid = getpid();
-    ret = proc_pidpath (pid, executable_file_name, sizeof(executable_file_name));
-    if ( ret <= 0 )
-    {
-        executable_file_name[0] = 0;
-    }
-#endif
-	executable_path = Rocket::Core::String(executable_file_name);
-	executable_path = executable_path.Substring(0, executable_path.RFind("\\") + 1);
-    
-    //file_interface = new RocketLibSystemFileInterface(executable_path + path);
     const char* pathToAssets = gSys->pAssetSystem->GetAssetDirectory();
-    executable_path = Rocket::Core::String(pathToAssets);
-    file_interface = new RocketLibSystemFileInterface(executable_path);
+    file_interface = new RocketLibSystemFileInterface(Rocket::Core::String(pathToAssets));
     
 	Rocket::Core::SetFileInterface(file_interface);
 

@@ -116,8 +116,8 @@ Game::~Game()
 
 bool Game::Init()
 {
-	// We Set Dir here so logs go to bin directory
 #ifdef _WIN32
+	// We Set Dir here so logs go to bin directory, useful for debugging as dir can be set anywhere.
 	DWORD size = MAX_PATH;
 	wchar_t filename[MAX_PATH];
 	GetModuleFileName( NULL, filename, size );
@@ -324,7 +324,7 @@ void Game::MainLoop()
 
 	// Limit frame rate
 	double dTimeTaken = pTimeSystem->GetFrameTimeNow();
-	const double dIdealTime = 1.0 / 60.0; 
+	const double dIdealTime = 1.0 / 70.0; //ideal time is actually 1/60, but we want some leeway 
 	if ( dTimeTaken < dIdealTime)
 	{
         glfwSleep( dIdealTime - dTimeTaken );
@@ -429,12 +429,7 @@ void Game::RocketLibUpdate()
 void Game::RocketLibInit()
 {
 	// Generic OS initialisation, creates a window and attaches OpenGL.
-#ifndef _WIN64 //TODO: Improve paths
-	char* path = "../";
-#else
-	char* path = "../../";
-#endif
-	if (!RocketLibSystem::Initialise(path) ||
+	if (!RocketLibSystem::Initialise() ||
 	    !RocketLibSystem::OpenWindow("Pulse", true))
 	{
 		RocketLibSystem::Shutdown();

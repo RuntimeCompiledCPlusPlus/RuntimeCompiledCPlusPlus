@@ -84,7 +84,7 @@ public:
 
 				if (fSmoothFrameTime < 0.0001)
 					fSmoothFrameTime = 0.0001;
-				int nFPS = (int)(1.0f / fSmoothFrameTime);
+				int nFPS = (int)ceil(1.0f / fSmoothFrameTime);
 				char text[16];
 				_snprintf_s(text, sizeof(text), "%d", nFPS);
 				m_pCounterElement->SetInnerRML(text);
