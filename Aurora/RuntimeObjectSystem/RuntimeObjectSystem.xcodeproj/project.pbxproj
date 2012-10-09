@@ -239,6 +239,7 @@
 				EXECUTABLE_PREFIX = lib;
 				HEADER_SEARCH_PATHS = ../External/boost/;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = "";
 			};
 			name = Debug;
 		};
@@ -248,6 +249,7 @@
 				EXECUTABLE_PREFIX = lib;
 				HEADER_SEARCH_PATHS = ../External/boost/;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = "";
 			};
 			name = Release;
 		};

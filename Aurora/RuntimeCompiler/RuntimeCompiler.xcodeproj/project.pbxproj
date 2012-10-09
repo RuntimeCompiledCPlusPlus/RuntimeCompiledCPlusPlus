@@ -232,6 +232,7 @@
 			buildSettings = {
 				EXECUTABLE_PREFIX = lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = "";
 			};
 			name = Debug;
 		};
@@ -240,6 +241,7 @@
 			buildSettings = {
 				EXECUTABLE_PREFIX = lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = "";
 			};
 			name = Release;
 		};

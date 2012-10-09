@@ -67,7 +67,6 @@
 		910A9E911623284B0032E310 /* libfreetype.6.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 910A9E901623284B0032E310 /* libfreetype.6.dylib */; };
 		910A9E94162328550032E310 /* libboost_filesystem.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 910A9E92162328550032E310 /* libboost_filesystem.dylib */; };
 		910A9E95162328550032E310 /* libboost_system.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 910A9E93162328550032E310 /* libboost_system.dylib */; };
-		910A9EF616232E2A0032E310 /* SimpleTest-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 910A9EF516232E2A0032E310 /* SimpleTest-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -438,7 +437,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				910A9EF616232E2A0032E310 /* SimpleTest-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -564,6 +562,7 @@
 					"\"$(SRCROOT)/../../External/support/lib/MacOSX\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = "";
 				SYMROOT = build;
 				WRAPPER_EXTENSION = app;
 			};
@@ -588,6 +587,7 @@
 					"\"$(SRCROOT)/../../External/support/lib/MacOSX\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = "";
 				SYMROOT = build;
 				WRAPPER_EXTENSION = app;
 			};

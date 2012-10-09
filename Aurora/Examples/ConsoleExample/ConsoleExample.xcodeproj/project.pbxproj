@@ -222,6 +222,7 @@
 					"\"$(SRCROOT)/../../External/boost/stage/libOSX\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = "";
 			};
 			name = Debug;
 		};
@@ -234,6 +235,7 @@
 					"\"$(SRCROOT)/../../External/boost/stage/libOSX\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = "";
 			};
 			name = Release;
 		};
