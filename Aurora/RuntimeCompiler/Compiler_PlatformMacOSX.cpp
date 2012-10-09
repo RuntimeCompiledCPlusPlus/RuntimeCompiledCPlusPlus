@@ -75,30 +75,34 @@ bool Compiler::GetIsComplete() const
 {
     if( !m_pImplData->m_bCompileIsComplete && m_pImplData->m_ChildForCompilationPID )
     {
-        // compiling process is running, so see if we have any data for logging
-        if( m_pImplData->m_pLogger )
-        {
-            const size_t buffSize = 2048;
-            char buffer[buffSize];
-            while( read( m_pImplData->m_PipeStdOut[0], buffer, buffSize ) > 0 )
-            {
-                m_pImplData->m_pLogger->LogInfo( buffer );
-            }
- 
-            while( read( m_pImplData->m_PipeStdErr[0], buffer, buffSize ) > 0 )
-            {
-                m_pImplData->m_pLogger->LogError( buffer );    //TODO: seperate warnings from errors.       
-            }
-        }
-
+        
         // check for wether process is closed
         int procStatus;
-        waitpid( m_pImplData->m_ChildForCompilationPID, &procStatus, WNOHANG);
-        if( WIFEXITED(procStatus) || WIFSIGNALED(procStatus) )
+        pid_t ret = waitpid( m_pImplData->m_ChildForCompilationPID, &procStatus, WNOHANG);
+        if( ret && ( WIFEXITED(procStatus) || WIFSIGNALED(procStatus) ) )
         {
             m_pImplData->m_bCompileIsComplete = true;
             m_pImplData->m_ChildForCompilationPID = 0;
  
+            // get output and log
+            if( m_pImplData->m_pLogger )
+            {
+                const size_t buffSize = 256 * 80; //should allow for a few lines...
+                char buffer[buffSize];
+                ssize_t numread = 0;
+                while( ( numread = read( m_pImplData->m_PipeStdOut[0], buffer, buffSize-1 ) ) > 0 )
+                {
+                    buffer[numread] = 0;
+                    m_pImplData->m_pLogger->LogInfo( buffer );
+                }
+                
+                while( ( numread = read( m_pImplData->m_PipeStdErr[0], buffer, buffSize-1 ) )> 0 )
+                {
+                    buffer[numread] = 0;
+                    m_pImplData->m_pLogger->LogError( buffer );    //TODO: seperate warnings from errors.
+                }
+            }
+
             // close the pipes as this process no longer needs them.
             close( m_pImplData->m_PipeStdOut[0] );
             m_pImplData->m_PipeStdOut[0] = 0;

@@ -122,7 +122,10 @@ void RocketLogSystem::LogInternal(ELogVerbosity eVerbosity, const char * format,
 	// Possible bug here in all loggers - should also check against "compile out" value
 
 	// If there may not be space - throw away this message
-	if (BUFF_SIZE - m_buffIndex < LOGSYSTEM_MAX_BUFFER) return;
+	if (BUFF_SIZE - m_buffIndex < LOGSYSTEM_MAX_BUFFER)
+    {
+        return;
+    }
 
 	Rocket::Core::Log::Type rocketVerbosity;
 	switch (eVerbosity)
