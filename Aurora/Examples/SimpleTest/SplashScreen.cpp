@@ -131,12 +131,12 @@ public:
 
 				int left;
 				left = (int)( (m_WindowSize[0] - m_pSplashElement->GetClientWidth()) * 0.5f );
-                _snprintf_s(buff, sizeof(buff), "%d",left);
+                _snprintf_s(buff, sizeof(buff), _TRUNCATE, "%d",left);
 				m_pSplashElement->SetProperty("left", buff);
 
 				int top;
 				top = (int)( (m_WindowSize[1] - m_pSplashElement->GetClientHeight()) * 0.5f );
-                _snprintf_s(buff, sizeof(buff), "%d",top);
+                _snprintf_s(buff, sizeof(buff), _TRUNCATE, "%d",top);
 				m_pSplashElement->SetProperty("top", buff);
 			}
 
@@ -146,7 +146,7 @@ public:
 			{
 				// Fade In
 				float t = m_fTimeDisplayed / m_fFadeInTime;
-				_snprintf_s( buff, sizeof(buff), "rgba(255,255,255,%d)", (int)(255 * t) );
+				_snprintf_s( buff, sizeof(buff), _TRUNCATE, "rgba(255,255,255,%d)", (int)(255 * t) );
 				m_pSplashElement->SetProperty( "color", buff );
 			}
 			else if (m_fTimeDisplayed < (m_fFadeInTime + m_fMinViewTime) || 
@@ -208,12 +208,12 @@ public:
 			char buff[16];
 			int left;
 			left = (int)( (m_WindowSize[0] - m_pSplashElement->GetClientWidth()) * 0.5f );
-            _snprintf_s(buff, sizeof(buff), "%d",left);
+            _snprintf_s(buff, sizeof(buff), _TRUNCATE, "%d",left);
 			m_pSplashElement->SetProperty("left", buff);
 
 			int top;
 			top = (int)( (m_WindowSize[1] - m_pSplashElement->GetClientHeight()) * 0.5f );
-            _snprintf_s(buff, sizeof(buff), "%d",top);
+            _snprintf_s(buff, sizeof(buff), _TRUNCATE, "%d",top);
 			m_pSplashElement->SetProperty("top", buff);
 		}
 	}

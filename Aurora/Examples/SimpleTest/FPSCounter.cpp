@@ -87,7 +87,7 @@ public:
 					fSmoothFrameTime = 0.0001;
 				int nFPS = (int)(1.0 / fSmoothFrameTime);
 				char text[16];
-				_snprintf_s(text, sizeof(text), "%d", nFPS);
+				_snprintf_s(text, sizeof(text), _TRUNCATE, "%d", nFPS);
 				m_pCounterElement->SetInnerRML(text);
 			}		
 		}

@@ -312,9 +312,9 @@ private:
 			char buff[16];
 			float windowWidth, windowHeight;
 			PerModuleInterface::GetInstance()->GetSystemTable()->pGame->GetWindowSize( windowWidth, windowHeight );
-            _snprintf_s(buff, sizeof(buff), "%d",(int)windowWidth);
+            _snprintf_s(buff, sizeof(buff), _TRUNCATE, "%d",(int)windowWidth);
 			m_pInputElement->SetProperty( "width", buff );
-            _snprintf_s(buff, sizeof(buff), "%d",(int)windowHeight);
+            _snprintf_s(buff, sizeof(buff), _TRUNCATE, "%d",(int)windowHeight);
 			m_pInputElement->SetProperty( "height", buff );
 			
 			// Set up info element in the bottom right corner
