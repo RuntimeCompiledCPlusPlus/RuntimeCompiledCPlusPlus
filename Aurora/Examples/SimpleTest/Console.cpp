@@ -44,6 +44,14 @@ int stricmp( const char* pS1, const char* pS2 )
 {
     return strcasecmp( pS1, pS2 );
 }
+#ifndef max
+#define max(a,b)            (((a) > (b)) ? (a) : (b))
+#endif
+
+#ifndef min
+#define min(a,b)            (((a) < (b)) ? (a) : (b))
+#endif
+
 #endif
 
 #define CONSOLE_INPUT_FILE "Console.txt"
@@ -339,7 +347,7 @@ void Console::ProcessEvent(Rocket::Core::Event& event)
 			}
 
 			params.position--;
-			params.position = std::max(0, params.position);
+			params.position = max(0, params.position);
 
 			ApplyGUIHistoryPosition();
 			FocusOnTextArea();
@@ -356,7 +364,7 @@ void Console::ProcessEvent(Rocket::Core::Event& event)
 		{
 			STextAreaParams& params = m_textAreaParams[m_bGUIViewMulti ? ETAT_MULTI : ETAT_SINGLE];
 			params.position++;
-			params.position = std::min((int)params.history.size(), params.position);
+			params.position = min((int)params.history.size(), params.position);
 
 			ApplyGUIHistoryPosition();
 			FocusOnTextArea();

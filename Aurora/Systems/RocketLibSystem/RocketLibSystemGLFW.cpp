@@ -32,8 +32,8 @@
 #include <stdio.h>
 #include <GL/glfw.h>
 
-#include "Systems.h"
-#include "IAssetSystem.h"
+#include "../Systems.h"
+#include "../IAssetSystem.h"
 
 #ifndef _WIN32
 #include <libproc.h>

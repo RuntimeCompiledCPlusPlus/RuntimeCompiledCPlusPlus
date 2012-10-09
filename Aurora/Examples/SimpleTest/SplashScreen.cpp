@@ -26,6 +26,7 @@
 #include "../../RuntimeObjectSystem/ISimpleSerializer.h"
 #include "../../Systems/IGUISystem.h"
 #include "../../Systems/IGame.h"
+#include "../../Systems/IAssetSystem.h"
 
 #include <assert.h>
 
@@ -130,12 +131,12 @@ public:
 
 				int left;
 				left = (int)( (m_WindowSize[0] - m_pSplashElement->GetClientWidth()) * 0.5f );
-                _snprintf_s(buff, sizeof(buff), "%d",left);
+                _snprintf_s(buff, sizeof(buff), _TRUNCATE, "%d",left);
 				m_pSplashElement->SetProperty("left", buff);
 
 				int top;
 				top = (int)( (m_WindowSize[1] - m_pSplashElement->GetClientHeight()) * 0.5f );
-                _snprintf_s(buff, sizeof(buff), "%d",top);
+                _snprintf_s(buff, sizeof(buff), _TRUNCATE, "%d",top);
 				m_pSplashElement->SetProperty("top", buff);
 			}
 
@@ -145,7 +146,7 @@ public:
 			{
 				// Fade In
 				float t = m_fTimeDisplayed / m_fFadeInTime;
-				_snprintf_s( buff, sizeof(buff), "rgba(255,255,255,%d)", (int)(255 * t) );
+				_snprintf_s( buff, sizeof(buff), _TRUNCATE, "rgba(255,255,255,%d)", (int)(255 * t) );
 				m_pSplashElement->SetProperty( "color", buff );
 			}
 			else if (m_fTimeDisplayed < (m_fFadeInTime + m_fMinViewTime) || 
@@ -159,7 +160,7 @@ public:
 			{
 				// Fade Out
 				float t = (m_fFadeOutStartTime + m_fFadeOutTime - m_fTimeDisplayed) / m_fFadeOutTime;
-				_snprintf_s( buff, sizeof(buff), "rgba(255,255,255,%d)", (int)(255 * t) );
+				_snprintf_s( buff, sizeof(buff),_TRUNCATE , "rgba(255,255,255,%d)", (int)(255 * t) );
 				m_pSplashElement->SetProperty( "color", buff );
 			}
 			else 
@@ -207,12 +208,12 @@ public:
 			char buff[16];
 			int left;
 			left = (int)( (m_WindowSize[0] - m_pSplashElement->GetClientWidth()) * 0.5f );
-            _snprintf_s(buff, sizeof(buff), "%d",left);
+            _snprintf_s(buff, sizeof(buff), _TRUNCATE, "%d",left);
 			m_pSplashElement->SetProperty("left", buff);
 
 			int top;
 			top = (int)( (m_WindowSize[1] - m_pSplashElement->GetClientHeight()) * 0.5f );
-            _snprintf_s(buff, sizeof(buff), "%d",top);
+            _snprintf_s(buff, sizeof(buff), _TRUNCATE, "%d",top);
 			m_pSplashElement->SetProperty("top", buff);
 		}
 	}
@@ -253,13 +254,12 @@ private:
 		IFileChangeNotifier* pFileChangeNotifier = pSystemTable->pFileChangeNotifier;
 
 		// Set watches on the data files we rely on for drawing GUI
-		// Note that the path will get correctly normalized by FileChangeNotifier
-		// An extra level of /.. has been added so that the filename in __FILE__ will get removed on normalizing
-		char path[256]; 
-		_snprintf_s(path, sizeof(path), "%s/../../../Assets/GUI/splashscreen.rml", __FILE__);
-		pFileChangeNotifier->Watch(path, this);
-		_snprintf_s(path, sizeof(path), "%s/../../../Assets/GUI/splashscreen.rcss", __FILE__);
-		pFileChangeNotifier->Watch(path, this);
+		std::string path = pSystemTable->pAssetSystem->GetAssetDirectory();
+		path += "/GUI/splashscreen.rml";
+		pFileChangeNotifier->Watch(path.c_str(), this);
+		path = pSystemTable->pAssetSystem->GetAssetDirectory();
+		path += "/GUI/splashscreen.rcss";
+		pFileChangeNotifier->Watch(path.c_str(), this);
 	}
 
 	void InitDocument(bool forceLoad)

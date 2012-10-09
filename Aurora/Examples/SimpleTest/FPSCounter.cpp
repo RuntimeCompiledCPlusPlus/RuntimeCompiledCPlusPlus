@@ -27,10 +27,11 @@
 #include "../../Systems/IUpdateable.h"
 #include "../../Systems/IEntitySystem.h"
 #include "../../Systems/ITimeSystem.h"
+#include "../../Systems/IAssetSystem.h"
 
 #include "IEntityObject.h"
 
-#define UPDATE_INTERVAL 1.0f/25.0f // Update display this often (in seconds)
+#define UPDATE_INTERVAL 1.0/25.0 // Update display this often (in seconds)
 
 
 class FPSCounter: public IEntityObject, public IAUUpdateable, public IFileChangeListener
@@ -84,9 +85,9 @@ public:
 
 				if (fSmoothFrameTime < 0.0001)
 					fSmoothFrameTime = 0.0001;
-				int nFPS = (int)ceil(1.0f / fSmoothFrameTime);
+				int nFPS = (int)(1.0 / fSmoothFrameTime);
 				char text[16];
-				_snprintf_s(text, sizeof(text), "%d", nFPS);
+				_snprintf_s(text, sizeof(text), _TRUNCATE, "%d", nFPS);
 				m_pCounterElement->SetInnerRML(text);
 			}		
 		}
@@ -113,13 +114,12 @@ private:
 		IFileChangeNotifier* pFileChangeNotifier = pSystemTable->pFileChangeNotifier;
 
 		// Set watches on the data files we rely on for drawing GUI
-		// Note that the path will get correctly normalized by FileChangeNotifier
-		// An extra level of /.. has been added so that the filename in __FILE__ will get removed on normalizing
-		char path[256]; 
-		_snprintf_s(path, sizeof(path), "%s/../../../Assets/GUI/fps-counter.rml", __FILE__);
-		pFileChangeNotifier->Watch(path, this);
-		_snprintf_s(path, sizeof(path), "%s/../../../Assets/GUI/fps-counter.rcss", __FILE__);
-		pFileChangeNotifier->Watch(path, this);
+		std::string path = pSystemTable->pAssetSystem->GetAssetDirectory();
+		path += "/GUI/fps-counter.rml";
+		pFileChangeNotifier->Watch(path.c_str(), this);
+		path = pSystemTable->pAssetSystem->GetAssetDirectory();
+		path += "/GUI/fps-counter.rcss";
+		pFileChangeNotifier->Watch(path.c_str(), this);
 	}
 
 	void InitDocument(bool forceLoad)
@@ -161,7 +161,7 @@ private:
 	// Private Members
 
 	IGUIElement* m_pCounterElement;
-	float m_fTimeToNextUpdate;
+	double m_fTimeToNextUpdate;
 };
 
 REGISTERCLASS(FPSCounter);

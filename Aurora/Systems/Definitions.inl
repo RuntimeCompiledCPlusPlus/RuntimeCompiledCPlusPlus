@@ -21,7 +21,8 @@
 #define DEFINITIONS_DEFINED
 
 #ifndef _WIN32
-    #define _snprintf_s(...) snprintf(__VA_ARGS__)
+	//the following won't work with the templated variety
+    #define _snprintf_s(a,b,c,...) snprintf(a,b,__VA_ARGS__)
 #endif
 
 // All typedefs, defines and macros start AU_ to avoid conflicts

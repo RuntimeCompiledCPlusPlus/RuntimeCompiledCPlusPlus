@@ -31,6 +31,7 @@
 #include "../../RuntimeObjectSystem/ISimpleSerializer.h"
 #include "../../Systems/IGUISystem.h"
 #include "../../Systems/IGame.h"
+#include "../../Systems/IAssetSystem.h"
 
 #include <float.h>
 #include <assert.h>
@@ -261,13 +262,12 @@ private:
 		IFileChangeNotifier* pFileChangeNotifier = pSystemTable->pFileChangeNotifier;
 
 		// Set watches on the data files we rely on for drawing GUI
-		// Note that the path will get correctly normalized by FileChangeNotifier
-		// An extra level of /.. has been added so that the filename in __FILE__ will get removed on normalizing
-		char path[256]; 
-		_snprintf_s(path, sizeof(path), "%s/../../../Assets/GUI/input.rml", __FILE__);
-		pFileChangeNotifier->Watch(path, this);
-		_snprintf_s(path, sizeof(path), "%s/../../../Assets/GUI/input.rcss", __FILE__);
-		pFileChangeNotifier->Watch(path, this);
+		std::string path = pSystemTable->pAssetSystem->GetAssetDirectory();
+		path += "/GUI/input.rml";
+		pFileChangeNotifier->Watch(path.c_str(), this);
+		path = pSystemTable->pAssetSystem->GetAssetDirectory();
+		path += "/GUI/input.rcss";
+		pFileChangeNotifier->Watch(path.c_str(), this);
 	}
 
 	void InitDocument(bool forceLoad)
@@ -312,9 +312,9 @@ private:
 			char buff[16];
 			float windowWidth, windowHeight;
 			PerModuleInterface::GetInstance()->GetSystemTable()->pGame->GetWindowSize( windowWidth, windowHeight );
-            _snprintf_s(buff, sizeof(buff), "%d",(int)windowWidth);
+            _snprintf_s(buff, sizeof(buff), _TRUNCATE, "%d",(int)windowWidth);
 			m_pInputElement->SetProperty( "width", buff );
-            _snprintf_s(buff, sizeof(buff), "%d",(int)windowHeight);
+            _snprintf_s(buff, sizeof(buff), _TRUNCATE, "%d",(int)windowHeight);
 			m_pInputElement->SetProperty( "height", buff );
 			
 			// Set up info element in the bottom right corner

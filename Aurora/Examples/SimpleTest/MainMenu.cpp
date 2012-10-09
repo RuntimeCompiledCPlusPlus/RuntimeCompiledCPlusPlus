@@ -29,7 +29,7 @@
 #include "../../Systems/IUpdateable.h"
 #include "../../Systems/IEntitySystem.h"
 #include "../../Systems/IGame.h"
-
+#include "../../Systems/IAssetSystem.h"
 
 class OnClickCompile : public IGUIEventListener
 {
@@ -372,13 +372,12 @@ public:
 		IFileChangeNotifier* pFileChangeNotifier = pSystemTable->pFileChangeNotifier;
 
 		// Set watches on the data files we rely on for drawing GUI
-		// Note that the path will get correctly normalized by FileChangeNotifier
-		// An extra level of /.. has been added so that the filename in __FILE__ will get removed on normalizing
-		char path[256]; 
-		_snprintf_s(path, sizeof(path), "%s/../../../Assets/GUI/menu.rml", __FILE__);
-		pFileChangeNotifier->Watch(path, this);
-		_snprintf_s(path, sizeof(path), "%s/../../../Assets/GUI/menu.rcss", __FILE__);
-		pFileChangeNotifier->Watch(path, this);
+		std::string path = pSystemTable->pAssetSystem->GetAssetDirectory();
+		path += "/GUI/menu.rml";
+		pFileChangeNotifier->Watch(path.c_str(), this);
+		path = pSystemTable->pAssetSystem->GetAssetDirectory();
+		path += "/GUI/menu.rcss";
+		pFileChangeNotifier->Watch(path.c_str(), this);
 	}
 
 
