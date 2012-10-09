@@ -93,5 +93,14 @@ void MultiLogSystem::LogInternal(ELogVerbosity eVerbosity, const char * format, 
 	// Possible bug here in all loggers - should also check against "compile out" value
 
 	for (unsigned int i=0; i<m_logSystems.size(); ++i)
+    {
+#ifdef _WIN32
 		m_logSystems[i]->LogVa(args, eVerbosity, format);
+#else
+        // May need to use a copy
+        va_list copyArgs;
+        va_copy(copyArgs, args);
+ 		m_logSystems[i]->LogVa(copyArgs, eVerbosity, format);
+#endif
+    }
 }
