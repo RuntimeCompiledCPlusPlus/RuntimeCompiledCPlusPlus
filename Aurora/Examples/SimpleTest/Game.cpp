@@ -315,7 +315,7 @@ void Game::MainLoop()
 		{
 			// reset program error status
 			m_bHaveProgramError = false;
-			double compileAndLoadTime = pTimeSystem->GetSessionTimeNow() - m_CompileStartedTime;
+			float compileAndLoadTime = (float)( pTimeSystem->GetSessionTimeNow() - m_CompileStartedTime );
 			m_pEnv->sys->pLogSystem->Log(eLV_COMMENTS, "Compile and Module Reload Time: %.1f s\n", compileAndLoadTime);
 
 		}
@@ -466,7 +466,7 @@ void Game::RocketLibInit()
 	Rocket::Debugger::Initialise(m_pRocketContext);
 	Input::SetContext(m_pRocketContext);
 
-	RocketLibSystem::LoadFonts("/Assets/GUI/");
+	RocketLibSystem::LoadFonts("/GUI/");
 
 	// Set the Rocketlib logger font size
 	IGUIElement* pElement = m_pEnv->sys->pGUISystem->GetLogElement();

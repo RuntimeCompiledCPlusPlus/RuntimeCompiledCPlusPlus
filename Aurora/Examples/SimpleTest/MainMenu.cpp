@@ -400,7 +400,7 @@ public:
 		IGUIDocument* pDocument = forceLoad ? NULL : pGUI->GetDocument("MainDocument");
 		if (pDocument == NULL)
 		{
-			pDocument = pGUI->LoadDocument( "/Assets/GUI/menu.rml", "MainDocument");
+			pDocument = pGUI->LoadDocument( "/GUI/menu.rml", "MainDocument");
 			bHaveLoadedDoc = true;
 		}
 

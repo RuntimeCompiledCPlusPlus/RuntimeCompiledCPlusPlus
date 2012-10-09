@@ -30,18 +30,40 @@ AssetSystem::AssetSystem(const char* AssetDirName_)
 	//search for asset directory
 	path currPath;
 	currPath = current_path();
-
+    bool bAssetDirFound = false;
+    
 	//test root and downwards for directory
 	while( currPath.has_parent_path() )
 	{
 		path testPath = currPath / AssetDirName_;
 		if( exists( testPath ) )
 		{
+            bAssetDirFound = true;
 			m_AssetDirectory = testPath.string();
 			break;
 		}
 		currPath = currPath.parent_path();
 	}
+    
+    if( !bAssetDirFound )
+    {
+        //could be a development build, so test location of this source file and down
+        currPath = __FILE__;
+        if( exists( currPath ))
+        {
+            while( currPath.has_parent_path() )
+            {
+                path testPath = currPath / AssetDirName_;
+                if( exists( testPath ) )
+                {
+                    bAssetDirFound = true;
+                    m_AssetDirectory = testPath.string();
+                    break;
+                }
+                currPath = currPath.parent_path();
+            }           
+        }
+    }
 }
 
 

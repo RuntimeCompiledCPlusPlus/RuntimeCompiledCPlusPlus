@@ -43,7 +43,6 @@
 		910A9E69162313EF0032E310 /* CompilerLogger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 910A9E28162313EF0032E310 /* CompilerLogger.cpp */; };
 		910A9E6A162313EF0032E310 /* CompilingNotification.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 910A9E2A162313EF0032E310 /* CompilingNotification.cpp */; };
 		910A9E6B162313EF0032E310 /* Console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 910A9E2B162313EF0032E310 /* Console.cpp */; };
-		910A9E6C162313EF0032E310 /* Console.txt in Resources */ = {isa = PBXBuildFile; fileRef = 910A9E2D162313EF0032E310 /* Console.txt */; };
 		910A9E6D162313EF0032E310 /* Environment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 910A9E2F162313EF0032E310 /* Environment.cpp */; };
 		910A9E6E162313EF0032E310 /* FPSCounter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 910A9E31162313EF0032E310 /* FPSCounter.cpp */; };
 		910A9E6F162313EF0032E310 /* Game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 910A9E32162313EF0032E310 /* Game.cpp */; };
@@ -96,10 +95,10 @@
 		910A9DC816230D880032E310 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		910A9DCD162310BB0032E310 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = ../../../../../System/Library/Frameworks/IOKit.framework; sourceTree = "<group>"; };
 		910A9DF2162313440032E310 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
-		910A9DF41623134E0032E310 /* libRenderer.a */ = {isa = PBXFileReference; lastKnownFileType = file; name = libRenderer.a; path = ../../Renderer/build/Release/libRenderer.a; sourceTree = "<group>"; };
+		910A9DF41623134E0032E310 /* libRenderer.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRenderer.a; path = ../../Renderer/build/Release/libRenderer.a; sourceTree = "<group>"; };
 		910A9DF51623134E0032E310 /* libRuntimeCompiler.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRuntimeCompiler.a; path = "../../../../../../../Library/Developer/Xcode/DerivedData/Aurora-amgiihqkoasuvzdugsovjupxbfdk/Build/Products/Debug/libRuntimeCompiler.a"; sourceTree = "<group>"; };
 		910A9DF61623134E0032E310 /* libRuntimeObjectSystem.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRuntimeObjectSystem.a; path = "../../../../../../../Library/Developer/Xcode/DerivedData/Aurora-amgiihqkoasuvzdugsovjupxbfdk/Build/Products/Debug/libRuntimeObjectSystem.a"; sourceTree = "<group>"; };
-		910A9DF71623134E0032E310 /* libSystems.a */ = {isa = PBXFileReference; lastKnownFileType = file; name = libSystems.a; path = ../../Systems/build/Release/libSystems.a; sourceTree = "<group>"; };
+		910A9DF71623134E0032E310 /* libSystems.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSystems.a; path = ../../Systems/build/Release/libSystems.a; sourceTree = "<group>"; };
 		910A9DFC162313D40032E310 /* libglfw.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libglfw.a; path = ../../External/glfw/libOSX/libglfw.a; sourceTree = "<group>"; };
 		910A9DFE162313EF0032E310 /* BB_Global.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BB_Global.h; sourceTree = "<group>"; };
 		910A9DFF162313EF0032E310 /* BB_Group_Infected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BB_Group_Infected.h; sourceTree = "<group>"; };
@@ -187,14 +186,43 @@
 		910A9E7F162323120032E310 /* libboost_system.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_system.a; path = ../../External/boost/stage/libOSX/libboost_system.a; sourceTree = "<group>"; };
 		910A9E821623231E0032E310 /* libboost_filesystem.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_filesystem.dylib; path = ../../External/boost/stage/libOSX/libboost_filesystem.dylib; sourceTree = "<group>"; };
 		910A9E831623231E0032E310 /* libboost_system.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_system.dylib; path = ../../External/boost/stage/libOSX/libboost_system.dylib; sourceTree = "<group>"; };
-		910A9E861623233E0032E310 /* RocketControlsOSX.framework */ = {isa = PBXFileReference; lastKnownFileType = file; name = RocketControlsOSX.framework; path = ../../External/libRocket/Build/build/Release/RocketControlsOSX.framework; sourceTree = "<group>"; };
-		910A9E871623233F0032E310 /* RocketCoreOSX.framework */ = {isa = PBXFileReference; lastKnownFileType = file; name = RocketCoreOSX.framework; path = ../../External/libRocket/Build/build/Release/RocketCoreOSX.framework; sourceTree = "<group>"; };
-		910A9E881623233F0032E310 /* RocketDebuggerOSX.framework */ = {isa = PBXFileReference; lastKnownFileType = file; name = RocketDebuggerOSX.framework; path = ../../External/libRocket/Build/build/Release/RocketDebuggerOSX.framework; sourceTree = "<group>"; };
+		910A9E861623233E0032E310 /* RocketControlsOSX.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RocketControlsOSX.framework; path = ../../External/libRocket/Build/build/Release/RocketControlsOSX.framework; sourceTree = "<group>"; };
+		910A9E871623233F0032E310 /* RocketCoreOSX.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RocketCoreOSX.framework; path = ../../External/libRocket/Build/build/Release/RocketCoreOSX.framework; sourceTree = "<group>"; };
+		910A9E881623233F0032E310 /* RocketDebuggerOSX.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RocketDebuggerOSX.framework; path = ../../External/libRocket/Build/build/Release/RocketDebuggerOSX.framework; sourceTree = "<group>"; };
 		910A9E8D162327B60032E310 /* libfreetype.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfreetype.6.dylib; path = ../../External/support/lib/MacOSX/libfreetype.6.dylib; sourceTree = "<group>"; };
 		910A9E901623284B0032E310 /* libfreetype.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfreetype.6.dylib; path = ../../External/support/lib/MacOSX/libfreetype.6.dylib; sourceTree = "<group>"; };
 		910A9E92162328550032E310 /* libboost_filesystem.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_filesystem.dylib; path = ../../External/boost/stage/libOSX/libboost_filesystem.dylib; sourceTree = "<group>"; };
 		910A9E93162328550032E310 /* libboost_system.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_system.dylib; path = ../../External/boost/stage/libOSX/libboost_system.dylib; sourceTree = "<group>"; };
 		910A9EF516232E2A0032E310 /* SimpleTest-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "SimpleTest-Info.plist"; sourceTree = "<group>"; };
+		910A9F1016233CE70032E310 /* Anonymous.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Anonymous.ttf; sourceTree = "<group>"; };
+		910A9F1116233CE70032E310 /* compiling-notification.rcss */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "compiling-notification.rcss"; sourceTree = "<group>"; };
+		910A9F1216233CE70032E310 /* compiling-notification.rml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "compiling-notification.rml"; sourceTree = "<group>"; };
+		910A9F1316233CE70032E310 /* console.rcss */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = console.rcss; sourceTree = "<group>"; };
+		910A9F1416233CE70032E310 /* console.rml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = console.rml; sourceTree = "<group>"; };
+		910A9F1516233CE70032E310 /* console.tga */ = {isa = PBXFileReference; lastKnownFileType = file; path = console.tga; sourceTree = "<group>"; };
+		910A9F1616233CE70032E310 /* default.rcss */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = default.rcss; sourceTree = "<group>"; };
+		910A9F1716233CE70032E310 /* Delicious-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Delicious-Bold.otf"; sourceTree = "<group>"; };
+		910A9F1816233CE70032E310 /* Delicious-BoldItalic.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Delicious-BoldItalic.otf"; sourceTree = "<group>"; };
+		910A9F1916233CE70032E310 /* Delicious-Italic.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Delicious-Italic.otf"; sourceTree = "<group>"; };
+		910A9F1A16233CE70032E310 /* Delicious-Roman.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Delicious-Roman.otf"; sourceTree = "<group>"; };
+		910A9F1B16233CE70032E310 /* fps-counter.rcss */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "fps-counter.rcss"; sourceTree = "<group>"; };
+		910A9F1C16233CE70032E310 /* fps-counter.rml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "fps-counter.rml"; sourceTree = "<group>"; };
+		910A9F1D16233CE70032E310 /* immunewin.tga */ = {isa = PBXFileReference; lastKnownFileType = file; path = immunewin.tga; sourceTree = "<group>"; };
+		910A9F1E16233CE70032E310 /* infectionwin.tga */ = {isa = PBXFileReference; lastKnownFileType = file; path = infectionwin.tga; sourceTree = "<group>"; };
+		910A9F1F16233CE70032E310 /* input.rcss */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = input.rcss; sourceTree = "<group>"; };
+		910A9F2016233CE70032E310 /* input.rml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = input.rml; sourceTree = "<group>"; };
+		910A9F2116233CE70032E310 /* invader.tga */ = {isa = PBXFileReference; lastKnownFileType = file; path = invader.tga; sourceTree = "<group>"; };
+		910A9F2216233CE70032E310 /* menu.rcss */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = menu.rcss; sourceTree = "<group>"; };
+		910A9F2316233CE70032E310 /* menu.rml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = menu.rml; sourceTree = "<group>"; };
+		910A9F2416233CE70032E310 /* splashscreen.rcss */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = splashscreen.rcss; sourceTree = "<group>"; };
+		910A9F2516233CE70032E310 /* splashscreen.rml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = splashscreen.rml; sourceTree = "<group>"; };
+		910A9F2616233CE70032E310 /* title.tga */ = {isa = PBXFileReference; lastKnownFileType = file; path = title.tga; sourceTree = "<group>"; };
+		910A9F2816233CE70032E310 /* infected_cell.aml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = infected_cell.aml; sourceTree = "<group>"; };
+		910A9F2916233CE70032E310 /* red_blood_cell.aml */ = {isa = PBXFileReference; lastKnownFileType = file; path = red_blood_cell.aml; sourceTree = "<group>"; };
+		910A9F2A16233CE70032E310 /* virus.aml */ = {isa = PBXFileReference; lastKnownFileType = file; path = virus.aml; sourceTree = "<group>"; };
+		910A9F2B16233CE70032E310 /* white_blood_cell.aml */ = {isa = PBXFileReference; lastKnownFileType = file; path = white_blood_cell.aml; sourceTree = "<group>"; };
+		910A9F2D16233CE70032E310 /* 62912_Benboncan_Heartbeat_Mono_shortloop.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = 62912_Benboncan_Heartbeat_Mono_shortloop.wav; sourceTree = "<group>"; };
+		910A9F2E16233CE70032E310 /* SoundFileAttributions.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SoundFileAttributions.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -227,6 +255,7 @@
 		910A9D9316230A370032E310 = {
 			isa = PBXGroup;
 			children = (
+				910A9F0E16233CE70032E310 /* Assets */,
 				910A9E92162328550032E310 /* libboost_filesystem.dylib */,
 				910A9E93162328550032E310 /* libboost_system.dylib */,
 				910A9E901623284B0032E310 /* libfreetype.6.dylib */,
@@ -370,6 +399,67 @@
 			path = SimpleTest;
 			sourceTree = "<group>";
 		};
+		910A9F0E16233CE70032E310 /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				910A9F0F16233CE70032E310 /* GUI */,
+				910A9F2716233CE70032E310 /* Models */,
+				910A9F2C16233CE70032E310 /* Sounds */,
+			);
+			name = Assets;
+			path = ../../Assets;
+			sourceTree = "<group>";
+		};
+		910A9F0F16233CE70032E310 /* GUI */ = {
+			isa = PBXGroup;
+			children = (
+				910A9F1016233CE70032E310 /* Anonymous.ttf */,
+				910A9F1116233CE70032E310 /* compiling-notification.rcss */,
+				910A9F1216233CE70032E310 /* compiling-notification.rml */,
+				910A9F1316233CE70032E310 /* console.rcss */,
+				910A9F1416233CE70032E310 /* console.rml */,
+				910A9F1516233CE70032E310 /* console.tga */,
+				910A9F1616233CE70032E310 /* default.rcss */,
+				910A9F1716233CE70032E310 /* Delicious-Bold.otf */,
+				910A9F1816233CE70032E310 /* Delicious-BoldItalic.otf */,
+				910A9F1916233CE70032E310 /* Delicious-Italic.otf */,
+				910A9F1A16233CE70032E310 /* Delicious-Roman.otf */,
+				910A9F1B16233CE70032E310 /* fps-counter.rcss */,
+				910A9F1C16233CE70032E310 /* fps-counter.rml */,
+				910A9F1D16233CE70032E310 /* immunewin.tga */,
+				910A9F1E16233CE70032E310 /* infectionwin.tga */,
+				910A9F1F16233CE70032E310 /* input.rcss */,
+				910A9F2016233CE70032E310 /* input.rml */,
+				910A9F2116233CE70032E310 /* invader.tga */,
+				910A9F2216233CE70032E310 /* menu.rcss */,
+				910A9F2316233CE70032E310 /* menu.rml */,
+				910A9F2416233CE70032E310 /* splashscreen.rcss */,
+				910A9F2516233CE70032E310 /* splashscreen.rml */,
+				910A9F2616233CE70032E310 /* title.tga */,
+			);
+			path = GUI;
+			sourceTree = "<group>";
+		};
+		910A9F2716233CE70032E310 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				910A9F2816233CE70032E310 /* infected_cell.aml */,
+				910A9F2916233CE70032E310 /* red_blood_cell.aml */,
+				910A9F2A16233CE70032E310 /* virus.aml */,
+				910A9F2B16233CE70032E310 /* white_blood_cell.aml */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		910A9F2C16233CE70032E310 /* Sounds */ = {
+			isa = PBXGroup;
+			children = (
+				910A9F2D16233CE70032E310 /* 62912_Benboncan_Heartbeat_Mono_shortloop.wav */,
+				910A9F2E16233CE70032E310 /* SoundFileAttributions.txt */,
+			);
+			path = Sounds;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -422,7 +512,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				910A9E6C162313EF0032E310 /* Console.txt in Resources */,
 				910A9EF616232E2A0032E310 /* SimpleTest-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

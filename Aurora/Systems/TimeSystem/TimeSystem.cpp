@@ -24,6 +24,7 @@
 #include <unistd.h>
 #endif
 #include "assert.h"
+#include <GL/glfw.h>
 
 /*
 	I'm not certain if I'm using the best datatype here for storing the time, and I suspect the divisions could be put off.
@@ -154,18 +155,8 @@ double TimeSystem::GetSmoothFrameDuration() const
 
 double TimeSystem::GetRawTime() const
 {
-#ifdef _WIN32
-	INT64 count;
-	QueryPerformanceCounter( (LARGE_INTEGER *) & count );
-	// This line fixes us at an accuracy of 1/10 millisecond, for which doubles should be up to the task
-	double seconds = ((10000 * count) / m_iPerformanceFreq) / ((double)10000);
-#else
-    struct timezone tz;
-	struct timeval LinuxTime;
-	gettimeofday(&LinuxTime, &tz);
-	double seconds = static_cast<double>(LinuxTime.tv_sec)
-                    +1e6*static_cast<double>(LinuxTime.tv_usec);
-#endif
+
+    double seconds = glfwGetTime();
     
 	return seconds;
 }

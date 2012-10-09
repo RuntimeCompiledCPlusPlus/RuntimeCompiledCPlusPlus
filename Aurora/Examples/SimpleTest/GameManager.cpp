@@ -110,7 +110,7 @@ public:
 		{
 			PreloadModels();
 
-			CreateSplashScreen( "/Assets/GUI/title.tga", 1.0f, 0.0f, 0.5f, false );
+			CreateSplashScreen( "//GUI/title.tga", 1.0f, 0.0f, 0.5f, false );
 		}
 		
 		m_pEntity->SetUpdateable( this );
@@ -409,12 +409,12 @@ private:
 			if (m_GameObjects[EGO_WBC].size() == 0)
 			{
 				SetGameState(EGS_INFECTIONWON);
-				CreateSplashScreen( "/Assets/GUI/infectionwin.tga", 1.0f, 0.5f, 0.0f, false );
+				CreateSplashScreen( "//GUI/infectionwin.tga", 1.0f, 0.5f, 0.0f, false );
 			}
 			else if (m_GameObjects[EGO_VIRUS].size() == 0 && m_GameObjects[EGO_INFECTED].size() == 0)
 			{
 				SetGameState(EGS_IMMUNEWON);
-				CreateSplashScreen( "/Assets/GUI/immunewin.tga", 1.0f, 0.5f, 0.0f, false );
+				CreateSplashScreen( "//GUI/immunewin.tga", 1.0f, 0.5f, 0.0f, false );
 			}
 
 			break;

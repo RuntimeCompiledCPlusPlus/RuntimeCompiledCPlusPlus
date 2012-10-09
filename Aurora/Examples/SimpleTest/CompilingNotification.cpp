@@ -309,7 +309,7 @@ private:
 		IGUIDocument* pDocument = forceLoad ? NULL : pGUI->GetDocument("CompilingNotification");
 		if (pDocument == NULL)
 		{
-			pDocument = pGUI->LoadDocument("/Assets/GUI/compiling-notification.rml", "CompilingNotification");
+			pDocument = pGUI->LoadDocument("/GUI/compiling-notification.rml", "CompilingNotification");
 		}
 
 		if (pDocument != NULL)

@@ -32,6 +32,9 @@
 #include <stdio.h>
 #include <GL/glfw.h>
 
+#include "Systems.h"
+#include "IAssetSystem.h"
+
 #ifndef _WIN32
 #include <libproc.h>
 #endif
@@ -75,7 +78,12 @@ bool RocketLibSystem::Initialise(const Rocket::Core::String& path)
 #endif
 	executable_path = Rocket::Core::String(executable_file_name);
 	executable_path = executable_path.Substring(0, executable_path.RFind("\\") + 1);
-	file_interface = new RocketLibSystemFileInterface(executable_path + path);
+    
+    //file_interface = new RocketLibSystemFileInterface(executable_path + path);
+    const char* pathToAssets = gSys->pAssetSystem->GetAssetDirectory();
+    executable_path = Rocket::Core::String(pathToAssets);
+    file_interface = new RocketLibSystemFileInterface(executable_path);
+    
 	Rocket::Core::SetFileInterface(file_interface);
 
 	return true;
@@ -132,7 +140,7 @@ void RocketLibSystem::EventLoop(RocketLibSystemIdleFunction idle_function)
 
 		if( !glfwGetWindowParam( GLFW_ACTIVE ) )
 		{
-			glfwSleep( 0.1 );
+            glfwSleep( 0.1 );
 		}
 	}
 }

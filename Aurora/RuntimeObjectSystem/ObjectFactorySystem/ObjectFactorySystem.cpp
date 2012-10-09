@@ -73,7 +73,7 @@ void ObjectFactorySystem::AddConstructors( IAUDynArray<IObjectConstructor*> &con
 	//serialize all out
 	SimpleSerializer serializer;
 
-	if( m_pLogger ) m_pLogger->LogInfo( "Serializing out from %d old constructors\n", m_Constructors.size());
+	if( m_pLogger ) m_pLogger->LogInfo( "Serializing out from %d old constructors\n", (int)m_Constructors.size());
 
 	//currently we don't protect the serialize out... should perhaps do so.
 	serializer.SetIsLoading( false );
@@ -91,7 +91,7 @@ void ObjectFactorySystem::AddConstructors( IAUDynArray<IObjectConstructor*> &con
 		}
 	}
 
-	if( m_pLogger ) m_pLogger->LogInfo( "Swapping in and creating objects for %d new constructors\n", constructors.Size());
+	if( m_pLogger ) m_pLogger->LogInfo( "Swapping in and creating objects for %d new constructors\n", (int)constructors.Size());
 
 	std::vector<IObjectConstructor*> oldConstructors( m_Constructors );
 

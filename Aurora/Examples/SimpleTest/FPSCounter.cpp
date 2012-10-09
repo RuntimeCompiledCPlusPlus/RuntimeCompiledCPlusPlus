@@ -145,7 +145,7 @@ private:
 		IGUIDocument* pDocument = forceLoad ? NULL : pGUI->GetDocument("FPSCounter");
 		if (pDocument == NULL)
 		{
-			pDocument = pGUI->LoadDocument("/Assets/GUI/fps-counter.rml", "FPSCounter");
+			pDocument = pGUI->LoadDocument("/GUI/fps-counter.rml", "FPSCounter");
 		}
 
 		if (pDocument != NULL)

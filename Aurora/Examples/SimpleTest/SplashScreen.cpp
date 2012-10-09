@@ -289,7 +289,7 @@ private:
 		}
 
 		//Always load document in order to reset its state correctly
-		m_pDocument = pGUI->LoadDocument("/Assets/GUI/splashscreen.rml", "Splashscreen");
+		m_pDocument = pGUI->LoadDocument("/GUI/splashscreen.rml", "Splashscreen");
 
 
 		if (m_pDocument != NULL)

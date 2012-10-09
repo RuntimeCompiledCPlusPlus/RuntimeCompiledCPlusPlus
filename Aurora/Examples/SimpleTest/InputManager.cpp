@@ -299,7 +299,7 @@ private:
 		IGUIDocument* pDocument = forceLoad ? NULL : pGUI->GetDocument("Input");
 		if (pDocument == NULL)
 		{
-			pDocument = pGUI->LoadDocument("/Assets/GUI/input.rml", "Input");
+			pDocument = pGUI->LoadDocument("/GUI/input.rml", "Input");
 		}
 
 		if (pDocument != NULL)

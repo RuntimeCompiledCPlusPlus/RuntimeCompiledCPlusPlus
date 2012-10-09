@@ -40,6 +40,9 @@ Environment::Environment( IGame* pGame )
 	gSys = sys;
 
 	sys->pGame = pGame;
+    
+    // init AssetSystem first as this establishes the Asset dir used by many systems
+	sys->pAssetSystem = new AssetSystem("Assets");
 
 	FileLogSystem *pFileLog = new FileLogSystem();
 	pFileLog->SetLogPath("Log.txt");
@@ -74,8 +77,6 @@ Environment::Environment( IGame* pGame )
 	sys->pTimeSystem->StartSession();
 
 	sys->pEntitySystem = new EntitySystem();
-
-	sys->pAssetSystem = new AssetSystem("Assets");
 
 	sys->pGUISystem = new GUISystem();
 

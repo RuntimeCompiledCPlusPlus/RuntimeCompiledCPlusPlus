@@ -206,7 +206,7 @@ void Console::InitFileChangeNotifier()
 void Console::InitGUI()
 {
 	// Load document but don't show it yet
-	Rocket::Core::ElementDocument* pDocument = m_pRocketContext->LoadDocument("/Assets/GUI/console.rml");
+	Rocket::Core::ElementDocument* pDocument = m_pRocketContext->LoadDocument("/GUI/console.rml");
 	if (pDocument != NULL)
 	{
 		pDocument->SetId( "Console" );
@@ -223,7 +223,7 @@ void Console::ReloadGUI()
 	// Clear style sheet cache so any changes to RCSS files will be applied
 	Rocket::Core::Factory::ClearStyleSheetCache();
 	
-	Rocket::Core::ElementDocument* pDocument = m_pRocketContext->LoadDocument("/Assets/GUI/console.rml");
+	Rocket::Core::ElementDocument* pDocument = m_pRocketContext->LoadDocument("/GUI/console.rml");
 	if (pDocument != NULL)
 	{
 		pDocument->SetId( "Console" );
