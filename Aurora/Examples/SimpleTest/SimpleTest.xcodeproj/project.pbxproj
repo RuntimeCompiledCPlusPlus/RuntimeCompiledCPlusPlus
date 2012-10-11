@@ -63,10 +63,9 @@
 		910A9E891623233F0032E310 /* RocketControlsOSX.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 910A9E861623233E0032E310 /* RocketControlsOSX.framework */; };
 		910A9E8A1623233F0032E310 /* RocketCoreOSX.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 910A9E871623233F0032E310 /* RocketCoreOSX.framework */; };
 		910A9E8B1623233F0032E310 /* RocketDebuggerOSX.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 910A9E881623233F0032E310 /* RocketDebuggerOSX.framework */; };
-		910A9E8E162327B60032E310 /* libfreetype.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 910A9E8D162327B60032E310 /* libfreetype.6.dylib */; };
-		910A9E911623284B0032E310 /* libfreetype.6.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 910A9E901623284B0032E310 /* libfreetype.6.dylib */; };
-		910A9E94162328550032E310 /* libboost_filesystem.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 910A9E92162328550032E310 /* libboost_filesystem.dylib */; };
-		910A9E95162328550032E310 /* libboost_system.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 910A9E93162328550032E310 /* libboost_system.dylib */; };
+		91D03E3916248B120044DC3F /* libboost_filesystem.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 910A9E92162328550032E310 /* libboost_filesystem.dylib */; };
+		91D03E3A16248B120044DC3F /* libboost_system.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 910A9E93162328550032E310 /* libboost_system.dylib */; };
+		91D03E3B16248B120044DC3F /* libfreetype.6.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 910A9E901623284B0032E310 /* libfreetype.6.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -76,9 +75,9 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
-				910A9E911623284B0032E310 /* libfreetype.6.dylib in CopyFiles */,
-				910A9E94162328550032E310 /* libboost_filesystem.dylib in CopyFiles */,
-				910A9E95162328550032E310 /* libboost_system.dylib in CopyFiles */,
+				91D03E3916248B120044DC3F /* libboost_filesystem.dylib in CopyFiles */,
+				91D03E3A16248B120044DC3F /* libboost_system.dylib in CopyFiles */,
+				91D03E3B16248B120044DC3F /* libfreetype.6.dylib in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -188,7 +187,6 @@
 		910A9E861623233E0032E310 /* RocketControlsOSX.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RocketControlsOSX.framework; path = ../../External/libRocket/Build/build/Release/RocketControlsOSX.framework; sourceTree = "<group>"; };
 		910A9E871623233F0032E310 /* RocketCoreOSX.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RocketCoreOSX.framework; path = ../../External/libRocket/Build/build/Release/RocketCoreOSX.framework; sourceTree = "<group>"; };
 		910A9E881623233F0032E310 /* RocketDebuggerOSX.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RocketDebuggerOSX.framework; path = ../../External/libRocket/Build/build/Release/RocketDebuggerOSX.framework; sourceTree = "<group>"; };
-		910A9E8D162327B60032E310 /* libfreetype.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfreetype.6.dylib; path = ../../External/support/lib/MacOSX/libfreetype.6.dylib; sourceTree = "<group>"; };
 		910A9E901623284B0032E310 /* libfreetype.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfreetype.6.dylib; path = ../../External/support/lib/MacOSX/libfreetype.6.dylib; sourceTree = "<group>"; };
 		910A9E92162328550032E310 /* libboost_filesystem.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_filesystem.dylib; path = ../../External/boost/stage/libOSX/libboost_filesystem.dylib; sourceTree = "<group>"; };
 		910A9E93162328550032E310 /* libboost_system.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_system.dylib; path = ../../External/boost/stage/libOSX/libboost_system.dylib; sourceTree = "<group>"; };
@@ -213,7 +211,6 @@
 				910A9DF3162313440032E310 /* IOKit.framework in Frameworks */,
 				910A9DA316230A370032E310 /* Cocoa.framework in Frameworks */,
 				910A9DC916230D880032E310 /* OpenGL.framework in Frameworks */,
-				910A9E8E162327B60032E310 /* libfreetype.6.dylib in Frameworks */,
 				910A9E841623231E0032E310 /* libboost_filesystem.dylib in Frameworks */,
 				910A9E851623231E0032E310 /* libboost_system.dylib in Frameworks */,
 			);
@@ -225,7 +222,7 @@
 		910A9D9316230A370032E310 = {
 			isa = PBXGroup;
 			children = (
-				91D8765316242E4E00A588D8 /* Dependancies */,
+				91D03E3C16249DFB0044DC3F /* RuntimeModifiableInterfaces */,
 				91D8765216242DF000A588D8 /* RuntimeModifiableSource */,
 				910A9E28162313EF0032E310 /* CompilerLogger.cpp */,
 				910A9E29162313EF0032E310 /* CompilerLogger.h */,
@@ -257,6 +254,16 @@
 		910A9DA116230A370032E310 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				910A9E92162328550032E310 /* libboost_filesystem.dylib */,
+				910A9E93162328550032E310 /* libboost_system.dylib */,
+				910A9E901623284B0032E310 /* libfreetype.6.dylib */,
+				910A9E861623233E0032E310 /* RocketControlsOSX.framework */,
+				910A9E871623233F0032E310 /* RocketCoreOSX.framework */,
+				910A9E881623233F0032E310 /* RocketDebuggerOSX.framework */,
+				910A9E821623231E0032E310 /* libboost_filesystem.dylib */,
+				910A9E831623231E0032E310 /* libboost_system.dylib */,
+				910A9E7E162323120032E310 /* libboost_filesystem.a */,
+				910A9E7F162323120032E310 /* libboost_system.a */,
 				910A9DFC162313D40032E310 /* libglfw.a */,
 				910A9DF41623134E0032E310 /* libRenderer.a */,
 				910A9DF51623134E0032E310 /* libRuntimeCompiler.a */,
@@ -289,6 +296,28 @@
 			);
 			name = SimpleTestBundle;
 			path = SimpleTest;
+			sourceTree = "<group>";
+		};
+		91D03E3C16249DFB0044DC3F /* RuntimeModifiableInterfaces */ = {
+			isa = PBXGroup;
+			children = (
+				910A9E37162313EF0032E310 /* IBehavior.h */,
+				910A9E38162313EF0032E310 /* IBehaviorTree.h */,
+				910A9E39162313EF0032E310 /* IBehaviorTreeManager.h */,
+				910A9E3A162313EF0032E310 /* IBlackboard.h */,
+				910A9E3B162313EF0032E310 /* IBlackboardManager.h */,
+				910A9E3C162313EF0032E310 /* ICameraControl.h */,
+				910A9E3D162313EF0032E310 /* IConsoleContext.h */,
+				910A9E3E162313EF0032E310 /* IEntityObject.h */,
+				910A9E3F162313EF0032E310 /* IGameManager.h */,
+				910A9E40162313EF0032E310 /* IGameObject.h */,
+				910A9E41162313EF0032E310 /* IInputManager.h */,
+				910A9E42162313EF0032E310 /* ILightingControl.h */,
+				910A9E46162313EF0032E310 /* IPerceptionManager.h */,
+				910A9E47162313EF0032E310 /* IPhysicsManager.h */,
+				910A9E48162313EF0032E310 /* ISplashScreen.h */,
+			);
+			name = RuntimeModifiableInterfaces;
 			sourceTree = "<group>";
 		};
 		91D8765216242DF000A588D8 /* RuntimeModifiableSource */ = {
@@ -341,22 +370,7 @@
 				910A9E34162313EF0032E310 /* GameManager.cpp */,
 				910A9E35162313EF0032E310 /* GameObject.cpp */,
 				910A9E36162313EF0032E310 /* GlobalParameters.h */,
-				910A9E37162313EF0032E310 /* IBehavior.h */,
-				910A9E38162313EF0032E310 /* IBehaviorTree.h */,
-				910A9E39162313EF0032E310 /* IBehaviorTreeManager.h */,
-				910A9E3A162313EF0032E310 /* IBlackboard.h */,
-				910A9E3B162313EF0032E310 /* IBlackboardManager.h */,
-				910A9E3C162313EF0032E310 /* ICameraControl.h */,
-				910A9E3D162313EF0032E310 /* IConsoleContext.h */,
-				910A9E3E162313EF0032E310 /* IEntityObject.h */,
-				910A9E3F162313EF0032E310 /* IGameManager.h */,
-				910A9E40162313EF0032E310 /* IGameObject.h */,
-				910A9E41162313EF0032E310 /* IInputManager.h */,
-				910A9E42162313EF0032E310 /* ILightingControl.h */,
 				910A9E43162313EF0032E310 /* InputManager.cpp */,
-				910A9E46162313EF0032E310 /* IPerceptionManager.h */,
-				910A9E47162313EF0032E310 /* IPhysicsManager.h */,
-				910A9E48162313EF0032E310 /* ISplashScreen.h */,
 				910A9E49162313EF0032E310 /* LightingControl.cpp */,
 				910A9E4B162313EF0032E310 /* MainMenu.cpp */,
 				910A9E4C162313EF0032E310 /* MainObject.cpp */,
@@ -365,24 +379,6 @@
 				910A9E4F162313EF0032E310 /* SplashScreen.cpp */,
 			);
 			name = RuntimeModifiableSource;
-			sourceTree = "<group>";
-		};
-		91D8765316242E4E00A588D8 /* Dependancies */ = {
-			isa = PBXGroup;
-			children = (
-				910A9E92162328550032E310 /* libboost_filesystem.dylib */,
-				910A9E93162328550032E310 /* libboost_system.dylib */,
-				910A9E901623284B0032E310 /* libfreetype.6.dylib */,
-				910A9E8D162327B60032E310 /* libfreetype.6.dylib */,
-				910A9E861623233E0032E310 /* RocketControlsOSX.framework */,
-				910A9E871623233F0032E310 /* RocketCoreOSX.framework */,
-				910A9E881623233F0032E310 /* RocketDebuggerOSX.framework */,
-				910A9E821623231E0032E310 /* libboost_filesystem.dylib */,
-				910A9E831623231E0032E310 /* libboost_system.dylib */,
-				910A9E7E162323120032E310 /* libboost_filesystem.a */,
-				910A9E7F162323120032E310 /* libboost_system.a */,
-			);
-			name = Dependancies;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -555,6 +551,7 @@
 					../../External/libRocket/include/,
 				);
 				INFOPLIST_FILE = "SimpleTest/SimpleTest-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "";
 				LIBRARY_SEARCH_PATHS = (
 					"\"$(SRCROOT)/../../External/glfw/libOSX\"",
 					"\"$(SRCROOT)/../../../../../../../Library/Developer/Xcode/DerivedData/Aurora-amgiihqkoasuvzdugsovjupxbfdk/Build/Products/Debug\"",
@@ -580,6 +577,7 @@
 					../../External/libRocket/include/,
 				);
 				INFOPLIST_FILE = "SimpleTest/SimpleTest-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "";
 				LIBRARY_SEARCH_PATHS = (
 					"\"$(SRCROOT)/../../External/glfw/libOSX\"",
 					"\"$(SRCROOT)/../../../../../../../Library/Developer/Xcode/DerivedData/Aurora-amgiihqkoasuvzdugsovjupxbfdk/Build/Products/Debug\"",
