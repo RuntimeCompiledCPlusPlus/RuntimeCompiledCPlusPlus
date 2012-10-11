@@ -287,7 +287,7 @@ void Console::ProcessEvent(Rocket::Core::Event& event)
 		if (character == '\n')
 		{
 			STextAreaParams& params = m_textAreaParams[m_bGUIViewMulti ? ETAT_MULTI : ETAT_SINGLE];
-			params.position = params.history.size() - 1;
+			params.position = (int)params.history.size() - 1;
 
 			StoreGUITextInHistory();
 			ApplyGUIExecute();
@@ -299,7 +299,7 @@ void Console::ProcessEvent(Rocket::Core::Event& event)
 		if (!m_pExecuteButton->IsDisabled())
 		{
 			STextAreaParams& params = m_textAreaParams[m_bGUIViewMulti ? ETAT_MULTI : ETAT_SINGLE];
-			params.position = params.history.size() - 1;
+			params.position = (int)params.history.size() - 1;
 
 			StoreGUITextInHistory();
 			ApplyGUIExecute();
@@ -315,7 +315,7 @@ void Console::ProcessEvent(Rocket::Core::Event& event)
 		m_bGUIViewMulti = !m_bGUIViewMulti;
 
 		STextAreaParams& params = m_textAreaParams[m_bGUIViewMulti ? ETAT_MULTI : ETAT_SINGLE];
-		if (params.position == params.history.size() - 1)
+		if (params.position == (int)params.history.size() - 1)
 		{
 			StoreGUITextInHistory(); // save text in latest history before changing views so we don't lose it
 		}
@@ -526,7 +526,7 @@ void Console::ApplyGUIFinishExecute()
 	STextAreaParams& params = m_textAreaParams[m_bGUIViewMulti ? ETAT_MULTI : ETAT_SINGLE];
 	params.pElement->Focus();
 	params.history.push_back(""); // add new history element which corresponds to current input
-	params.position = params.history.size() - 1;
+	params.position = (int)params.history.size() - 1;
 
 	ApplyGUIHistoryPosition();
 }
@@ -602,7 +602,6 @@ void Console::WriteConsoleContext(const std::string& text)
 
 void Console::ExecuteConsoleContext()
 {
-	IObjectFactorySystem* pFactorySystem = m_pEnv->sys->pObjectFactorySystem;
 	ILogSystem *pLog = m_pEnv->sys->pLogSystem;
 
 	IConsoleContext* pContext;

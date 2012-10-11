@@ -44,9 +44,7 @@ public:
 	virtual void Execute( IGameObject* pGameObject )
 	{
 		BB_Global* pBBGlobal = (BB_Global*)m_pBBManager->GetBlackboardGlobal();
-		BB_Team_Infection* pBBTeam = (BB_Team_Infection*)m_pBBManager->GetBlackboardTeam( pGameObject->GetGameTeam() );
 		BB_Group_Infected* pBBGroup = (BB_Group_Infected*)m_pBBManager->GetBlackboardGroup( pGameObject->GetGameObjectType() );
-		BB_Individual_Infected* pBBIndividual = (BB_Individual_Infected*)m_pBBManager->GetBlackboardIndividual( pGameObject );
 		BB_Individual_Common* pBBCommon = (BB_Individual_Common*)m_pBBManager->GetBlackboardIndividualCommon( pGameObject );
 
 		if ( pBBCommon->enemy_collision_objectid.IsValid() )

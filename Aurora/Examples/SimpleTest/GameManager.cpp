@@ -452,8 +452,6 @@ private:
 
 	void DestroyGameObjects()
 	{
-		IObjectFactorySystem* pFactory = PerModuleInterface::GetInstance()->GetSystemTable()->pObjectFactorySystem;
-
 		for (size_t i=0; i<m_GameObjects.size(); ++i)
 		{
 			TGameObjects& objects = m_GameObjects[i];
@@ -571,7 +569,6 @@ private:
 		{
 			// Rebuild m_objects pointer collection
 
-			IEntitySystem* pEntitySystem = PerModuleInterface::GetInstance()->GetSystemTable()->pEntitySystem;
 			for (int i=0; i<EGO_COUNT; ++i)
 			{
 				m_GameObjects[i].clear();

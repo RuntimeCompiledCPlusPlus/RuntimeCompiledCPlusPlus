@@ -360,8 +360,6 @@ private:
 		if ( pSerializer->IsLoading() )
 		{
 			// Rebuild m_objects pointer collection
-
-			IEntitySystem* pEntitySystem = PerModuleInterface::GetInstance()->GetSystemTable()->pEntitySystem;
 			
 			size_t count = m_ObjectIds.size();
 			m_Objects.clear();

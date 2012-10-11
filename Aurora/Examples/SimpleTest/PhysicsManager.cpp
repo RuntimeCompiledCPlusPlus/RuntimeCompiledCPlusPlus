@@ -156,8 +156,6 @@ private:
 		const float refDist = pGameObject->GetCollisionRadius();
 		const float forceStartMultiplier = 1.5f;
 
-		EGameObject type = pGameObject->GetGameObjectType();
-
 		TGameObjects& data = m_Objects[pGameObject->GetGameTeam()];
 		TGameObjects::iterator it = data.begin();
 		TGameObjects::iterator itEnd = data.end();
@@ -243,7 +241,6 @@ private:
 		{
 			// Rebuild m_objects pointer collection
 
-			IEntitySystem* pEntitySystem = PerModuleInterface::GetInstance()->GetSystemTable()->pEntitySystem;
 			for (int i=0; i<EGT_COUNT; ++i)
 			{
 				size_t count = m_ObjectIds[i].size();

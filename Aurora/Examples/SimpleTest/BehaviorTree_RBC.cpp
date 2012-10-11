@@ -43,9 +43,6 @@ public:
 
 	virtual void Execute( IGameObject* pGameObject )
 	{
-		BB_Global* pBBGlobal = (BB_Global*)m_pBBManager->GetBlackboardGlobal();
-		BB_Team_Immune* pBBTeam = (BB_Team_Immune*)m_pBBManager->GetBlackboardTeam( pGameObject->GetGameTeam() );
-		BB_Group_RBC* pBBGroup = (BB_Group_RBC*)m_pBBManager->GetBlackboardGroup( pGameObject->GetGameObjectType() );
 		BB_Individual_RBC* pBBIndividual = (BB_Individual_RBC*)m_pBBManager->GetBlackboardIndividual( pGameObject );
 		BB_Individual_Common* pBBCommon = (BB_Individual_Common*)m_pBBManager->GetBlackboardIndividualCommon( pGameObject );
 

@@ -104,8 +104,7 @@ public:
 
 	virtual void OnEvent( int event_id, const IGUIEvent& event_info )
 	{
-		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
-		m_bVisible = (event_id == 0) ? !m_bVisible : false; // Toggle or force close	
+		m_bVisible = (event_id == 0) ? !m_bVisible : false; // Toggle or force close
 		SetVisibility();
 
 		if ( !m_bVisible && m_pChildClose )
@@ -144,7 +143,7 @@ public:
 		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
 		char AutoCompile[100];
 		event_info.GetParameter( "value", AutoCompile, sizeof( AutoCompile ) );
-		int length = strlen( AutoCompile );
+		size_t length = strlen( AutoCompile );
 		if ( 0 == length )
 		{
 			g_bAutoCompile = false;
@@ -186,7 +185,7 @@ public:
 		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
 		char Mute[100];
 		event_info.GetParameter( "value", Mute, sizeof( Mute ) );
-		int length = strlen( Mute );
+		size_t length = strlen( Mute );
 		if ( length == 0 )
 		{
 			g_Muted = false;
@@ -232,7 +231,7 @@ public:
 		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
 		char Pause[100];
 		event_info.GetParameter( "value", Pause, sizeof( Pause ) );
-		int length = strlen( Pause );
+		size_t length = strlen( Pause );
 		if ( length == 0 )
 		{
 			g_Paused = false;

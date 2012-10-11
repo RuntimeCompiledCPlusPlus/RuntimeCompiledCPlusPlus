@@ -259,8 +259,6 @@ void Game::MainLoop()
 	float fClampedDelta = (std::min)( fSessionTimeDelta*m_GameSpeed, 0.1f ); // used for IObject updates
 	m_fLastUpdateSessionTime = fSessionTimeNow;
 
-	float fFrameTimeDelta = (float)pTimeSystem->GetSmoothFrameDuration();
-
 	m_pEnv->sys->pFileChangeNotifier->Update(fSessionTimeDelta);
 
 	if( m_pEnv->sys->pRuntimeObjectSystem->GetIsCompiling() && m_CompileStartedTime == 0.0 )

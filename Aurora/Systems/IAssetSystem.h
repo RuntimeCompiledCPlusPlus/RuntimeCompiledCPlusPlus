@@ -31,6 +31,7 @@ struct IAssetSystem
 	virtual CalSound* CreateSoundFromFile( const char* pFilename, bool looping ) = 0;
 	virtual void DestroySound( CalSound* pSound ) = 0;
     virtual const char* GetAssetDirectory() const = 0;
+    virtual ~IAssetSystem() {}
 };
 
 #endif //IASSETSYSTEM_INCLUDED
