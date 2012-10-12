@@ -59,3 +59,4 @@ int SimpleExceptionFilter( void * nativeExceptionInfo, AuroraExceptionInfo *auro
 	// Otherwise fall back
 	return RuntimeExceptionFilter();
 }
+

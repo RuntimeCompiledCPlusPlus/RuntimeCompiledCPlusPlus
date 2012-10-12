@@ -126,6 +126,7 @@ bool Game::Init()
 	launchPath = launchPath.parent_path();
 	SetCurrentDirectory( launchPath.wstring().c_str() );
 #endif
+    
 
 	m_pEnv = new Environment( this );
 	m_pSystemInterface = new RocketLibSystemSystemInterface();
@@ -215,6 +216,14 @@ void Game::GetWindowSize( float& width, float& height ) const
 	height = (float)WindowSize[3];
 }
 
+static jmp_buf env;
+
+void signal_handler( int sig )
+{
+    longjmp(env, sig );
+}
+
+
 bool Game::ProtectedUpdate(AUDynArray<AUEntityId> &entities, float fDeltaTime)
 {
 	bool bSuccess = true;
@@ -222,8 +231,23 @@ bool Game::ProtectedUpdate(AUDynArray<AUEntityId> &entities, float fDeltaTime)
 
 #ifdef _WIN32
 	__try
-#endif
     {
+#else
+    
+    if( setjmp(env) )
+    {
+        bSuccess = false;
+    }
+    else
+    {
+        struct sigaction new_action;
+        memset( &new_action, 0, sizeof( new_action ));
+        new_action.sa_handler = signal_handler;
+        sigaction(SIGBUS, &new_action, NULL );
+        sigaction(SIGFPE, &new_action, NULL );
+        sigaction(SIGSEGV, &new_action, NULL );
+    
+#endif
 		for (size_t i=0; i<entities.Size(); ++i)
 		{
 			IAUEntity* pEnt = m_pEnv->sys->pEntitySystem->Get(entities[i]);
@@ -244,6 +268,11 @@ bool Game::ProtectedUpdate(AUDynArray<AUEntityId> &entities, float fDeltaTime)
 	{
 		bSuccess = false;
 	}
+#else
+    //restore signals
+    signal(SIGBUS, SIG_DFL );
+    signal(SIGFPE, SIG_DFL );
+    signal(SIGSEGV, SIG_DFL );
 #endif
 	return bSuccess;
 }

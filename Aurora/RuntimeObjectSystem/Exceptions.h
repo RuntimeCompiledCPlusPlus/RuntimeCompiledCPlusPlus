@@ -31,6 +31,8 @@ __except( RuntimeExceptionFilter() ) \
 return true;
 #else
 #define AUTRY_RETURN( X )  X; return true;
+#include <setjmp.h>
+#include <signal.h>
 #endif
 
 

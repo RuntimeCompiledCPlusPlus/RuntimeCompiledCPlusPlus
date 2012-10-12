@@ -84,6 +84,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		9107152E162740B00069C8C5 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = ../../../../../../../../../System/Library/Frameworks/Foundation.framework; sourceTree = "<group>"; };
+		91071531162740B80069C8C5 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = ../../../../../../../../../System/Library/Frameworks/AppKit.framework; sourceTree = "<group>"; };
+		91071533162740CD0069C8C5 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = ../../../../../../../../../System/Library/Frameworks/Cocoa.framework; sourceTree = "<group>"; };
+		91071535162740FD0069C8C5 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = ../../../../../../../../../System/Library/Frameworks/SystemConfiguration.framework; sourceTree = "<group>"; };
 		910A9D9E16230A370032E310 /* SimpleTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		910A9DA216230A370032E310 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		910A9DA516230A370032E310 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -191,6 +195,9 @@
 		910A9E92162328550032E310 /* libboost_filesystem.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_filesystem.dylib; path = ../../External/boost/stage/libOSX/libboost_filesystem.dylib; sourceTree = "<group>"; };
 		910A9E93162328550032E310 /* libboost_system.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_system.dylib; path = ../../External/boost/stage/libOSX/libboost_system.dylib; sourceTree = "<group>"; };
 		910A9EF516232E2A0032E310 /* SimpleTest-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "SimpleTest-Info.plist"; sourceTree = "<group>"; };
+		91448C03162731940026BFC8 /* libmacho.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmacho.dylib; path = ../../../../../../../../../usr/lib/system/libmacho.dylib; sourceTree = "<group>"; };
+		91448C06162731B20026BFC8 /* Kernel.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Kernel.framework; path = ../../../../../../../../../System/Library/Frameworks/Kernel.framework; sourceTree = "<group>"; };
+		91448C08162732840026BFC8 /* System.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = System.framework; path = ../../../../../../../../../System/Library/Frameworks/System.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -222,6 +229,13 @@
 		910A9D9316230A370032E310 = {
 			isa = PBXGroup;
 			children = (
+				91071535162740FD0069C8C5 /* SystemConfiguration.framework */,
+				91071533162740CD0069C8C5 /* Cocoa.framework */,
+				91071531162740B80069C8C5 /* AppKit.framework */,
+				9107152E162740B00069C8C5 /* Foundation.framework */,
+				91448C08162732840026BFC8 /* System.framework */,
+				91448C06162731B20026BFC8 /* Kernel.framework */,
+				91448C03162731940026BFC8 /* libmacho.dylib */,
 				91D03E3C16249DFB0044DC3F /* RuntimeModifiableInterfaces */,
 				91D8765216242DF000A588D8 /* RuntimeModifiableSource */,
 				910A9E28162313EF0032E310 /* CompilerLogger.cpp */,
@@ -557,6 +571,7 @@
 					"\"$(SRCROOT)/../../../../../../../Library/Developer/Xcode/DerivedData/Aurora-amgiihqkoasuvzdugsovjupxbfdk/Build/Products/Debug\"",
 					"\"$(SRCROOT)/../../External/boost/stage/libOSX\"",
 					"\"$(SRCROOT)/../../External/support/lib/MacOSX\"",
+					/usr/lib/system,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = "";
@@ -583,6 +598,7 @@
 					"\"$(SRCROOT)/../../../../../../../Library/Developer/Xcode/DerivedData/Aurora-amgiihqkoasuvzdugsovjupxbfdk/Build/Products/Debug\"",
 					"\"$(SRCROOT)/../../External/boost/stage/libOSX\"",
 					"\"$(SRCROOT)/../../External/support/lib/MacOSX\"",
+					/usr/lib/system,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = "";
