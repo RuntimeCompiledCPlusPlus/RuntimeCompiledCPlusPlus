@@ -134,7 +134,7 @@ public:
 		m_pBehaviorTree->Execute(this);
 		
 		AU_ASSERT(m_pBehavior);
-		IBehavior* pBehavior = 0;//m_pBehavior; // Demo [Tutorial02] >>> NULL;//
+		IBehavior* pBehavior = m_pBehavior; // Demo [Tutorial02] >>> NULL;//
 		
 		pBehavior->Update(deltaTime);
 
