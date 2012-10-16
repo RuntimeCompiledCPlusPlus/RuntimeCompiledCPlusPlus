@@ -216,11 +216,23 @@ void Game::GetWindowSize( float& width, float& height ) const
 	height = (float)WindowSize[3];
 }
 
+
+static pthread_t mainThreadId = 0;
 static jmp_buf env;
+
 
 void signal_handler( int sig )
 {
-    longjmp(env, sig );
+    pthread_t threadId = pthread_self();
+    if( threadId == mainThreadId )
+    {
+        longjmp(env, sig );
+    }
+    else
+    {
+        //ensure the main thread gets the signal...
+        pthread_kill(threadId, sig );
+    }
 }
 
 
@@ -240,6 +252,7 @@ bool Game::ProtectedUpdate(AUDynArray<AUEntityId> &entities, float fDeltaTime)
     }
     else
     {
+        mainThreadId = pthread_self();
         struct sigaction new_action;
         memset( &new_action, 0, sizeof( new_action ));
         new_action.sa_handler = signal_handler;
