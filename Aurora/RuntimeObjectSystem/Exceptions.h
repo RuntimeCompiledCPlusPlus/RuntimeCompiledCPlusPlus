@@ -73,47 +73,4 @@ private:
 };
 
 
-
-
-#ifdef _WIN32
-#define AUTRY_RETURN( X )                 \
-__try                              \
-{                                   \
-    X;                              \
-}                                   \
-__except( RuntimeExceptionFilter() ) \
-{                                   \
-    return false;                   \
-}                                   \
-return true;
-#else
 #define AUTRY_RETURN( X )  X; return true;
-#include <setjmp.h>
-#include <signal.h>
-#endif
-
-
-// We might handle div by 0, stack overflow, etc
-enum ESimpleExceptions
-{
-	ESE_Unknown,
-	ESE_AccessViolationRead,
-	ESE_AccessViolationWrite,
-};
-
-struct AuroraExceptionInfo
-{
-	ESimpleExceptions exceptionType;
-	unsigned int xAddress;
-};
-
-
-// For handling failures in runtime exceptions
-// Might move into a DebugSystem for more better API with more control
-int RuntimeExceptionFilter(void);
-
-// For catching simple errors that we understand and falling back to
-// RuntimeExceptionFilter behaviour for others. Intended for situations
-// where we expect simple errors like null pointers in simple code
-// and so try to provide simple feedback rather than going to the debugger
-int SimpleExceptionFilter( void * nativeExceptionInfo, AuroraExceptionInfo *auroraExceptionInfo );

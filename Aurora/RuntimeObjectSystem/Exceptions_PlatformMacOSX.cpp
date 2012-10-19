@@ -21,6 +21,8 @@
 #include <pthread.h>
 #include <mach/mach.h>
 #include <assert.h>
+#include <setjmp.h>
+#include <signal.h>
 
 
 struct RuntimeProtector::Impl
@@ -85,15 +87,15 @@ void signalHandler(int sig, siginfo_t *info, void *context)
 
 bool RuntimeProtector::TryProtectedFunc()
 {
-    assert(!m_bHashadException);
-    
+   
     // allow cascading by storing prev and current impl
     m_pImpl->m_pPrevImpl         = Impl::m_pCurrImpl;
     Impl::m_pCurrImpl            = m_pImpl;
  
     struct sigaction oldAction[3]; // we need to store old actions, could remove for optimization
 
-    if( setjmp(m_pImpl->m_env) )
+ 	m_bHashadException = false;
+	if( setjmp(m_pImpl->m_env) )
     {
         m_bHashadException = true;
     }

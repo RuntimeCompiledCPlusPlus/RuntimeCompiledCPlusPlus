@@ -616,14 +616,14 @@ void Console::ExecuteConsoleContext()
 		// null pointers on occaision. So lets deal with those simple cases cleanly.
 		bool bSuccess = true;
 
+#ifdef NOTDEFINED
 		AuroraExceptionInfo exceptionInfo;
-#ifdef _WIN32
 		__try
 #endif
         {
 			pContext->Execute(m_pEnv->sys);
 		}
-#ifdef _WIN32
+#ifdef NOTDEFINED
         __except( SimpleExceptionFilter( GetExceptionInformation(), &exceptionInfo ) )
 		{
 			// If we hit any structured exception, exceptionInfo will be initialized
@@ -631,7 +631,6 @@ void Console::ExecuteConsoleContext()
 			// If not we'll go to debugger first, then here
 			bSuccess = false;
 		}
-#endif
 		if (bSuccess)
 		{
 		}
@@ -660,6 +659,8 @@ void Console::ExecuteConsoleContext()
 				break;
 			}
 		}
+#endif
+
 	}
 	else
 	{

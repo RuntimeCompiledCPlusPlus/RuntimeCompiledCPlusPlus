@@ -22,73 +22,113 @@
 #include "excpt.h"
 
 
-// All of this could move into a DebugSystem API
-
-enum ExceptionState
+struct RuntimeProtector::Impl
 {
-	ES_PASS,
-	ES_CATCH,
-	ES_CONTINUE,
-};
 
-static ExceptionState s_exceptionState = ES_PASS;
-
-int RuntimeExceptionFilter()
-{
-	int result;
-	switch (s_exceptionState)
+	enum ExceptionState
 	{
-	case ES_PASS:
-		// Let pass to debugger once, then catch it
-		result = EXCEPTION_CONTINUE_SEARCH;
-		s_exceptionState = ES_CATCH;
-		break;
-	case ES_CATCH:
-		// Catch it now. Reset to catch in debugger again next time.
-		result = EXCEPTION_EXECUTE_HANDLER;
-		s_exceptionState = ES_PASS;
-		break;
-	case ES_CONTINUE:
-		// Expand this to cope with edit-and-continue case
-		break;
+		ES_PASS,
+		ES_CATCH,
+	};
+
+	ExceptionState s_exceptionState;
+
+	Impl()
+		: s_exceptionState( ES_PASS )
+	{
 	}
 
-	return result;
-}
+	int RuntimeExceptionFilter()
+	{
+		int result;
+		switch (s_exceptionState)
+		{
+		case ES_PASS:
+			// Let pass to debugger once, then catch it
+			result = EXCEPTION_CONTINUE_SEARCH;
+			s_exceptionState = ES_CATCH;
+			break;
+		case ES_CATCH:
+			// Catch it now. Reset to catch in debugger again next time.
+			result = EXCEPTION_EXECUTE_HANDLER;
+			s_exceptionState = ES_PASS;
+			break;
+		default:;
+		}
+
+		return result;
+	}
 
 
-int SimpleExceptionFilter( void * nativeExceptionInfo, AuroraExceptionInfo *auroraExceptionInfo )
-{	
-	EXCEPTION_RECORD *pRecord = ((LPEXCEPTION_POINTERS) nativeExceptionInfo)->ExceptionRecord;
-	int nCode = pRecord->ExceptionCode;
-	auroraExceptionInfo->exceptionType = ESE_Unknown;
-	auroraExceptionInfo->xAddress = 0;
+	int SimpleExceptionFilter( void * nativeExceptionInfo, RuntimeProtector* pRuntimeProtector )
+	{	
+		EXCEPTION_RECORD *pRecord = ((LPEXCEPTION_POINTERS) nativeExceptionInfo)->ExceptionRecord;
+		int nCode = pRecord->ExceptionCode;
+		pRuntimeProtector->ExceptionInfo.Type = RuntimeProtector::ESE_Unknown;
+		pRuntimeProtector->ExceptionInfo.Addr = 0;
 	
 
-	if (nCode == EXCEPTION_ACCESS_VIOLATION)
-	{
-		int flavour = pRecord->ExceptionInformation[0];
-		switch( flavour )
+		if (nCode == EXCEPTION_ACCESS_VIOLATION)
 		{
-		case 0: 
-			auroraExceptionInfo->exceptionType = ESE_AccessViolationRead;
-			auroraExceptionInfo->xAddress = pRecord->ExceptionInformation[1];
-			break;
-		case 1:
-			auroraExceptionInfo->exceptionType = ESE_AccessViolationWrite;
-			auroraExceptionInfo->xAddress = pRecord->ExceptionInformation[1];
-			break;
-		default:
-			break;
+			int flavour = pRecord->ExceptionInformation[0];
+			switch( flavour )
+			{
+			case 0: 
+				pRuntimeProtector->ExceptionInfo.Type = RuntimeProtector::ESE_AccessViolationRead;
+				pRuntimeProtector->ExceptionInfo.Addr = (void*)pRecord->ExceptionInformation[1];
+				break;
+			case 1:
+				pRuntimeProtector->ExceptionInfo.Type = RuntimeProtector::ESE_AccessViolationWrite;
+				pRuntimeProtector->ExceptionInfo.Addr = (void*)pRecord->ExceptionInformation[1];
+				break;
+			default:
+				break;
+			}
 		}
-	}
+		else if( nCode == EXCEPTION_ILLEGAL_INSTRUCTION )
+		{
+			pRuntimeProtector->ExceptionInfo.Type = RuntimeProtector::ESE_InvalidInstruction;
+			pRuntimeProtector->ExceptionInfo.Addr = pRecord->ExceptionAddress;
+		}
 
-	if (auroraExceptionInfo->exceptionType != ESE_Unknown)
-	{
-		// We recognised it and so should catch it
-		return EXCEPTION_EXECUTE_HANDLER;
-	}
+		/* TODO implement 'through' handling where no debugger catches exception.
+		if (auroraExceptionInfo->exceptionType != ESE_Unknown)
+		{
+			// We recognised it and so should catch it
+			return EXCEPTION_EXECUTE_HANDLER;
+		}
+		*/
 
-	// Otherwise fall back
-	return RuntimeExceptionFilter();
+		// Otherwise fall back
+		return RuntimeExceptionFilter();
+	}
+};
+
+RuntimeProtector::RuntimeProtector()
+    : m_pImpl( new Impl() )
+	, m_bHashadException( false )
+{
 }
+
+RuntimeProtector::~RuntimeProtector()
+{
+    delete m_pImpl;
+}
+
+bool RuntimeProtector::TryProtectedFunc()
+{
+	m_bHashadException = false;
+	__try
+    {
+		ProtectedFunc();
+	}
+    __except( m_pImpl->SimpleExceptionFilter( GetExceptionInformation(), this ) )
+	{
+		// If we hit any structured exception, exceptionInfo will be initialized
+		// If it's one we recognise, we'll go straight here, with info filled out
+		// If not we'll go to debugger first, then here
+		m_bHashadException = true;
+	}
+	return !m_bHashadException;
+}
+
