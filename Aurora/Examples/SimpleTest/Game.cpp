@@ -221,18 +221,18 @@ static pthread_t mainThreadId = 0;
 static jmp_buf env;
 
 
-void signal_handler( int sig )
+void signal_handler(int sig, siginfo_t *info, void *context)
 {
     pthread_t threadId = pthread_self();
     if( threadId == mainThreadId )
     {
         longjmp(env, sig );
     }
-    else
-    {
-        //ensure the main thread gets the signal...
-        pthread_kill(threadId, sig );
-    }
+    
+
+    // TODO: add threaded handling and demo
+    signal( sig, SIG_DFL ); //set handling for this thread to be default so the next occurance gets caught by system.
+    
 }
 
 
@@ -255,7 +255,8 @@ bool Game::ProtectedUpdate(AUDynArray<AUEntityId> &entities, float fDeltaTime)
         mainThreadId = pthread_self();
         struct sigaction new_action;
         memset( &new_action, 0, sizeof( new_action ));
-        new_action.sa_handler = signal_handler;
+        new_action.sa_sigaction = signal_handler;
+        new_action.sa_flags = SA_SIGINFO; //use complex signal hander function sa_sigaction not sa_handler
         sigaction(SIGBUS, &new_action, NULL );
         sigaction(SIGFPE, &new_action, NULL );
         sigaction(SIGSEGV, &new_action, NULL );
@@ -290,6 +291,35 @@ bool Game::ProtectedUpdate(AUDynArray<AUEntityId> &entities, float fDeltaTime)
 	return bSuccess;
 }
 
+// Local class definition for handling protected update
+class EntityUpdateProtector : public RuntimeProtector
+{
+public:
+    AUDynArray<AUEntityId>  entities;
+    float                   fDeltaTime;
+    IEntitySystem*          pEntitySystem;
+    
+private:
+    virtual void ProtectedFunc()
+    {
+		for (size_t i=0; i<entities.Size(); ++i)
+		{
+			IAUEntity* pEnt = pEntitySystem->Get(entities[i]);
+			if (pEnt) // Safety check in case entity was deleted during this update by another object
+			{
+				IAUUpdateable* pUpdateable = pEnt->GetUpdateable();
+				if (pUpdateable)
+				{
+					// If dropped here after a runtime failure, your crash was likely
+					// somewhere directly in the pUpdatable object's Update method
+					pUpdateable->Update(fDeltaTime);
+				}
+			}
+		}
+    }
+
+};
+
 void Game::MainLoop()
 {
 	ITimeSystem *pTimeSystem = m_pEnv->sys->pTimeSystem;
@@ -319,11 +349,13 @@ void Game::MainLoop()
 
 	if( !m_bHaveProgramError )
 	{
+        EntityUpdateProtector entityUpdateProtector;
 		AUDynArray<AUEntityId> entities;
-		IEntitySystem* pEntitySystem = m_pEnv->sys->pEntitySystem;
-		pEntitySystem->GetAll(entities);
+		entityUpdateProtector.pEntitySystem = m_pEnv->sys->pEntitySystem;
+		entityUpdateProtector.pEntitySystem->GetAll(entityUpdateProtector.entities);
+        entityUpdateProtector.fDeltaTime = fClampedDelta;
 		
-		if (!ProtectedUpdate(entities, fClampedDelta))
+		if (!entityUpdateProtector.TryProtectedFunc())
 		{
 			m_bHaveProgramError = true;
 			m_pEnv->sys->pLogSystem->Log(eLV_ERRORS, "Have caught an exception in main entity Update loop, code will not be run until new compile - please fix.\n");
