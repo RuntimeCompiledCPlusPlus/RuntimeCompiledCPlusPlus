@@ -600,6 +600,19 @@ void Console::WriteConsoleContext(const std::string& text)
 	outFile << CONTEXT_FOOTER;
 }
 
+// local class for console execution
+class ConsoleExecuteProtector : public RuntimeProtector
+{
+public:
+ 	IConsoleContext*	pContext;
+    SystemTable*		pSys;
+private:
+    virtual void ProtectedFunc()
+    {
+		pContext->Execute( pSys );
+    }
+
+};
 void Console::ExecuteConsoleContext()
 {
 	ILogSystem *pLog = m_pEnv->sys->pLogSystem;
@@ -614,53 +627,47 @@ void Console::ExecuteConsoleContext()
 
 		// Console should execute Safe-C, but for some things we really do want to return
 		// null pointers on occaision. So lets deal with those simple cases cleanly.
-		bool bSuccess = true;
+		ConsoleExecuteProtector consoleProtectedExecutor;
+		consoleProtectedExecutor.m_bHintAllowDebug = false;
+		consoleProtectedExecutor.pContext = pContext;
+		consoleProtectedExecutor.pSys = m_pEnv->sys;
+		consoleProtectedExecutor.TryProtectedFunc();
 
-#ifdef NOTDEFINED
-		AuroraExceptionInfo exceptionInfo;
-		__try
-#endif
-        {
-			pContext->Execute(m_pEnv->sys);
-		}
-#ifdef NOTDEFINED
-        __except( SimpleExceptionFilter( GetExceptionInformation(), &exceptionInfo ) )
+		if( consoleProtectedExecutor.HasHadException() )
 		{
-			// If we hit any structured exception, exceptionInfo will be initialized
-			// If it's one we recognise, we'll go straight here, with info filled out
-			// If not we'll go to debugger first, then here
-			bSuccess = false;
-		}
-		if (bSuccess)
-		{
-		}
-		else
-		{
-			switch (exceptionInfo.exceptionType)
+			switch (consoleProtectedExecutor.ExceptionInfo.Type)
 			{
-			case ESE_Unknown:
+			case RuntimeProtector::ESE_Unknown:
 				pLog->Log(eLV_ERRORS, "Console command caused an unknown error\n");
 				break;
-			case ESE_AccessViolationRead:
-				if (exceptionInfo.xAddress == 0)
+			case RuntimeProtector::ESE_AccessViolation:
+				// Note that in practice, writing to pointers it not something that should often be needed in a console command
+				if (consoleProtectedExecutor.ExceptionInfo.Addr == 0)
+					pLog->Log(eLV_ERRORS, "Console command tried to access a null pointer\n");
+				else
+					pLog->Log(eLV_ERRORS, "Console command tried to access an invalid pointer (address 0x%p)\n", consoleProtectedExecutor.ExceptionInfo.Addr);
+				break;
+			case RuntimeProtector::ESE_AccessViolationRead:
+				if (consoleProtectedExecutor.ExceptionInfo.Addr == 0)
 					pLog->Log(eLV_ERRORS, "Console command tried to read from a null pointer\n");
 				else
-					pLog->Log(eLV_ERRORS, "Console command tried to read from an invalid pointer (address 0x%p)\n", exceptionInfo.xAddress);
+					pLog->Log(eLV_ERRORS, "Console command tried to read from an invalid pointer (address 0x%p)\n", consoleProtectedExecutor.ExceptionInfo.Addr);
 				break;
-			case ESE_AccessViolationWrite:
+			case RuntimeProtector::ESE_AccessViolationWrite:
 				// Note that in practice, writing to pointers it not something that should often be needed in a console command
-				if (exceptionInfo.xAddress == 0)
+				if (consoleProtectedExecutor.ExceptionInfo.Addr == 0)
 					pLog->Log(eLV_ERRORS, "Console command tried to write to a null pointer\n");
 				else
-					pLog->Log(eLV_ERRORS, "Console command tried to write to an invalid pointer (address 0x%p)\n", exceptionInfo.xAddress);
+					pLog->Log(eLV_ERRORS, "Console command tried to write to an invalid pointer (address 0x%p)\n", consoleProtectedExecutor.ExceptionInfo.Addr);
+				break;
+			case RuntimeProtector::ESE_InvalidInstruction:
+					pLog->Log(eLV_ERRORS, "Console command tried to execute an invalid instruction at (address 0x%p)\n", consoleProtectedExecutor.ExceptionInfo.Addr);
 				break;
 			default:
 				AU_ASSERT(false);
 				break;
 			}
 		}
-#endif
-
 	}
 	else
 	{

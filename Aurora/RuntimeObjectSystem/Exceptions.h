@@ -28,7 +28,8 @@
 class RuntimeProtector
 {
 public:
-    RuntimeProtector();
+	// consctructor, hint allow debug may be ignored when true if on an OS which has not had this implemented
+    RuntimeProtector( bool bHintAllowDebug = true );
     virtual ~RuntimeProtector();
 
     // TryProtectedFunc() calls ProtectedFunc() and if it gets an exception sets m_bHashadException
@@ -63,13 +64,13 @@ public:
     
     struct Impl;
     Impl*                   m_pImpl;
+	bool					m_bHintAllowDebug;
 
 protected:
     // don't call this directly, derive a class and implement it for your protected func
     virtual void ProtectedFunc() = 0;
 private:
     bool                    m_bHashadException;
-   
 };
 
 

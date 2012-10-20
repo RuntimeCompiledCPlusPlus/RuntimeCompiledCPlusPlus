@@ -91,22 +91,21 @@ struct RuntimeProtector::Impl
 			pRuntimeProtector->ExceptionInfo.Addr = pRecord->ExceptionAddress;
 		}
 
-		/* TODO implement 'through' handling where no debugger catches exception.
-		if (auroraExceptionInfo->exceptionType != ESE_Unknown)
+		if( !pRuntimeProtector->m_bHintAllowDebug )
 		{
-			// We recognised it and so should catch it
+			// We don't want debugging to catch this
 			return EXCEPTION_EXECUTE_HANDLER;
 		}
-		*/
 
 		// Otherwise fall back
 		return RuntimeExceptionFilter();
 	}
 };
 
-RuntimeProtector::RuntimeProtector()
+RuntimeProtector::RuntimeProtector(  bool bHintAllowDebug  )
     : m_pImpl( new Impl() )
 	, m_bHashadException( false )
+	, m_bHintAllowDebug( bHintAllowDebug )
 {
 }
 
@@ -125,7 +124,7 @@ bool RuntimeProtector::TryProtectedFunc()
     __except( m_pImpl->SimpleExceptionFilter( GetExceptionInformation(), this ) )
 	{
 		// If we hit any structured exception, exceptionInfo will be initialized
-		// If it's one we recognise, we'll go straight here, with info filled out
+		// If it's one we recognise and we hinted for no debugging, we'll go straight here, with info filled out
 		// If not we'll go to debugger first, then here
 		m_bHashadException = true;
 	}
