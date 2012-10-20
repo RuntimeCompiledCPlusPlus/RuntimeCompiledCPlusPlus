@@ -102,10 +102,10 @@ struct RuntimeProtector::Impl
 	}
 };
 
-RuntimeProtector::RuntimeProtector(  bool bHintAllowDebug  )
+RuntimeProtector::RuntimeProtector()
     : m_pImpl( new Impl() )
 	, m_bHashadException( false )
-	, m_bHintAllowDebug( bHintAllowDebug )
+	, m_bHintAllowDebug( true )
 {
 }
 

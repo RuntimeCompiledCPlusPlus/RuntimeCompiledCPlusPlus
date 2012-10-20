@@ -29,7 +29,7 @@ class RuntimeProtector
 {
 public:
 	// consctructor, hint allow debug may be ignored when true if on an OS which has not had this implemented
-    RuntimeProtector( bool bHintAllowDebug = true );
+    RuntimeProtector();
     virtual ~RuntimeProtector();
 
     // TryProtectedFunc() calls ProtectedFunc() and if it gets an exception sets m_bHashadException
