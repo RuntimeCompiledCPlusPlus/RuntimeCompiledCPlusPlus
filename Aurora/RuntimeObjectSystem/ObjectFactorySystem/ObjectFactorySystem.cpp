@@ -20,8 +20,7 @@
 #include "../ObjectInterface.h"
 #include "../ObjectInterfacePerModule.h"
 #include "../IObject.h"
-#include "../SimpleSerializer/SimpleSerializer.h"
-#include "../Exceptions.h"
+
 
 
 IObjectConstructor* ObjectFactorySystem::GetConstructor( const char* type ) const
@@ -53,30 +52,18 @@ IObjectConstructor* ObjectFactorySystem::GetConstructor( ConstructorId id ) cons
 	return 0;
 }
 
-bool ProtectedConstruct( IObjectConstructor* pConstructor )
+void ObjectFactorySystem::ProtectedFunc()
 {
-	AUTRY_RETURN( pConstructor->Construct() );
-}
+	m_ProtectedPhase = PHASE_SERIALIZEOUT;
+	IAUDynArray<IObjectConstructor*>& constructors = *m_pNewConstructors;
 
-bool ProtectedSerialize( IObject* pObject, SimpleSerializer& serializer )
-{
-	AUTRY_RETURN( serializer.Serialize( pObject ) );
-}
+	// serialize all out
+	if( m_pLogger ) m_pLogger->LogInfo( "Serializing out from %d old constructors...\n", (int)m_Constructors.size());
 
-bool ProtectedInit( IObject* pObject )
-{
-	AUTRY_RETURN( pObject->Init(false) );
-}
-
-void ObjectFactorySystem::AddConstructors( IAUDynArray<IObjectConstructor*> &constructors )
-{
-	//serialize all out
-	SimpleSerializer serializer;
-
-	if( m_pLogger ) m_pLogger->LogInfo( "Serializing out from %d old constructors\n", (int)m_Constructors.size());
-
-	//currently we don't protect the serialize out... should perhaps do so.
-	serializer.SetIsLoading( false );
+	// use a temporary serializer in case there is an exception, so preserving any old state (if there is any)
+	SimpleSerializer* pSerializer = new SimpleSerializer;
+	// currently we don't protect the serialize out... should perhaps do so.
+	pSerializer->SetIsLoading( false );
 	for( size_t i = 0; i < m_Constructors.size(); ++i )
 	{
 		IObjectConstructor* pOldConstructor = m_Constructors[i];
@@ -86,14 +73,17 @@ void ObjectFactorySystem::AddConstructors( IAUDynArray<IObjectConstructor*> &con
 			IObject* pOldObject = pOldConstructor->GetConstructedObject( j );
 			if (pOldObject)
 			{
-				serializer.Serialize( pOldObject );
+				pSerializer->Serialize( pOldObject );
 			}		
 		}
 	}
+	// swap serializer
+	delete m_pSerializer;
+	m_pSerializer = pSerializer;
+	if( m_pLogger ) m_pLogger->LogInfo( "Swapping in and creating objects for %d new constructors...\n", (int)constructors.Size());
 
-	if( m_pLogger ) m_pLogger->LogInfo( "Swapping in and creating objects for %d new constructors\n", (int)constructors.Size());
-
-	std::vector<IObjectConstructor*> oldConstructors( m_Constructors );
+	m_ProtectedPhase = PHASE_CONSTRUCTNEW;
+	m_PrevConstructors = m_Constructors;
 
 	bool bConstructionOK = true;
 	//swap old constructors with new ones and create new objects
@@ -113,18 +103,13 @@ void ObjectFactorySystem::AddConstructors( IAUDynArray<IObjectConstructor*> &con
 				// create new object
 				if( pOldConstructor->GetConstructedObject( objId ) )
 				{
-					if( !ProtectedConstruct( pConstructor ) )
-					{
-						bConstructionOK = false;
-						break;
-					}
+					pConstructor->Construct();
 				}
 				else
 				{
 					pConstructor->ConstructNull();
 				}
 			}
-
 		}
 		else
 		{
@@ -135,39 +120,125 @@ void ObjectFactorySystem::AddConstructors( IAUDynArray<IObjectConstructor*> &con
 		}
 	}
 
-	bool bSerializeOK = true;
-	bool bInitOk = true;
-	if( bConstructionOK )
-	{
-		if( m_pLogger ) m_pLogger->LogInfo( "Serialising in...\n");
+	if( m_pLogger ) m_pLogger->LogInfo( "Serialising in...\n");
 
-		//serialize back
-		serializer.SetIsLoading( true );
-		for( size_t i = 0; i < m_Constructors.size() && bSerializeOK == true; ++i )
+	//serialize back
+	m_ProtectedPhase = PHASE_SERIALIZEIN;
+	m_pSerializer->SetIsLoading( true );
+	for( size_t i = 0; i < m_Constructors.size(); ++i )
+	{
+		IObjectConstructor* pConstructor = m_Constructors[i];
+		for( PerTypeObjectId objId = 0; objId < pConstructor->GetNumberConstructedObjects(); ++ objId )
 		{
-			IObjectConstructor* pConstructor = m_Constructors[i];
-			for( PerTypeObjectId objId = 0; objId < pConstructor->GetNumberConstructedObjects(); ++ objId )
+			// Serialize new object
+			IObject* pObject = pConstructor->GetConstructedObject( objId );
+			if (pObject)
 			{
-				// Serialize new object
-				IObject* pObject = pConstructor->GetConstructedObject( objId );
-				if (pObject)
+				m_pSerializer->Serialize( pObject );
+			}
+		}
+	}
+
+	// Do a second pass, initializing objects now that they've all been serialized
+	m_ProtectedPhase = PHASE_SERIALIZEOUTTEST;
+	if( m_pLogger ) m_pLogger->LogInfo( "Initialising and testing new serialisation...\n");
+
+	for( size_t i = 0; i < m_Constructors.size(); ++i )
+	{
+		IObjectConstructor* pConstructor = m_Constructors[i];
+		for( PerTypeObjectId objId = 0; objId < pConstructor->GetNumberConstructedObjects(); ++ objId )
+		{
+			IObject* pObject = pConstructor->GetConstructedObject( objId );
+			if (pObject)
+			{
+				pObject->Init(false);
+
+				if( m_PrevConstructors.size() <= i || m_PrevConstructors[ i ] != m_Constructors[ i ] )
 				{
-					if( !ProtectedSerialize( pObject, serializer ) )
-					{
-						serializer.SetIsLoading( true );//reset object pointer to prevent assert (ugly, TODO remove)
-						bSerializeOK = false;
-						break;
-					}
+					//test serialize out for all new objects, we assume old objects are OK.
+					SimpleSerializer tempSerializer;
+					tempSerializer.SetIsLoading( false );
+					tempSerializer.Serialize( pObject );
 				}
 			}
 		}
+	}
 
-		// Do a second pass, initializing objects now that they've all been serialized
-		if ( bSerializeOK )
+	m_ProtectedPhase = PHASE_DELETEOLD;
+	//delete old objects which have been replaced
+	for( size_t i = 0; i < m_PrevConstructors.size(); ++i )
+	{
+		if( m_PrevConstructors[i] != m_Constructors[i] )
 		{
-			if( m_pLogger ) m_pLogger->LogInfo( "Initialising and testing new serialisation...\n");
+			//TODO: could put a constructor around this.
+			//constructor has been replaced
+			IObjectConstructor* pOldConstructor = m_PrevConstructors[i];
+			size_t numObjects = pOldConstructor->GetNumberConstructedObjects();
+			for( size_t j = 0; j < numObjects; ++j )
+			{
+				IObject* pOldObject = pOldConstructor->GetConstructedObject( j );
+				if( pOldObject )
+				{
+					pOldObject->_isRuntimeDelete = true;
+					delete pOldObject;
+				}
+			}
+		}
+	}
+}
 
-			for( size_t i = 0; i < m_Constructors.size() && bSerializeOK == true; ++i )
+void ObjectFactorySystem::AddConstructors( IAUDynArray<IObjectConstructor*> &constructors )
+{
+	m_ProtectedPhase = PHASE_NONE;
+	m_pNewConstructors = &constructors;
+	// we use the protected function to do all serialization
+	TryProtectedFunc();
+
+	if( HasHadException() && PHASE_DELETEOLD != m_ProtectedPhase )
+	{
+		if( m_pLogger )
+		{
+			m_pLogger->LogError( "Exception during object swapping, switching back to previous objects.\n" );
+			switch( m_ProtectedPhase  )
+			{
+			case PHASE_SERIALIZEOUT:
+				m_pLogger->LogError( "\tError occured during serialize out old objects phase.\n" );
+				break;
+			case PHASE_CONSTRUCTNEW:
+				m_pLogger->LogError( "\tError occured during constructing new objects phase.\n" );
+				break;
+			case PHASE_SERIALIZEIN:
+				m_pLogger->LogError( "\tError occured during serialize into the new objects phase.\n" );
+				break;
+			case PHASE_SERIALIZEOUTTEST:
+				m_pLogger->LogError( "\tError occured during serialize test of new objects phase.\n" );
+				break;
+			}
+		}
+
+		//swap back to new constructors before everything is serialized back in
+		m_Constructors = m_PrevConstructors;
+
+		if( m_pSerializer && PHASE_SERIALIZEOUT != m_ProtectedPhase )
+		{
+			//serialize back with old objects - could cause exception which isn't handled, but hopefully not.
+			m_pSerializer->SetIsLoading( true );
+			for( size_t i = 0; i < m_Constructors.size(); ++i )
+			{
+				IObjectConstructor* pConstructor = m_Constructors[i];
+				for( PerTypeObjectId objId = 0; objId < pConstructor->GetNumberConstructedObjects(); ++ objId )
+				{
+					// Iserialize new object
+					IObject* pObject = pConstructor->GetConstructedObject( objId );
+					if (pObject)
+					{
+						m_pSerializer->Serialize( pObject );
+					}			
+				}
+			}
+
+			// Do a second pass, initializing objects now that they've all been serialized
+			for( size_t i = 0; i < m_Constructors.size(); ++i )
 			{
 				IObjectConstructor* pConstructor = m_Constructors[i];
 				for( PerTypeObjectId objId = 0; objId < pConstructor->GetNumberConstructedObjects(); ++ objId )
@@ -175,106 +246,24 @@ void ObjectFactorySystem::AddConstructors( IAUDynArray<IObjectConstructor*> &con
 					IObject* pObject = pConstructor->GetConstructedObject( objId );
 					if (pObject)
 					{
-						if( !ProtectedInit( pObject ) )
-						{
-							bInitOk = false;
-							break;
-						}
-
-						if( oldConstructors.size() <= i || oldConstructors[ i ] != m_Constructors[ i ] )
-						{
-							//test serialize out for all new objects, we assume old objects are OK.
-							SimpleSerializer tempSerializer;
-							tempSerializer.SetIsLoading( false );
-							if( !ProtectedSerialize( pObject, tempSerializer ) )
-							{
-								bSerializeOK = false;
-								break;
-							}
-						}
-					}
+						pObject->Init(false);
+					}			
 				}
-			}
-		}
-	}
-	
-	if( !bSerializeOK || !bConstructionOK || !bInitOk )
-	{
-		if( !bSerializeOK )
-		{
-			if( m_pLogger ) m_pLogger->LogError( "Exception during object serialization, switching back to previous objects" );
-		}
-		else
-		{
-			if( m_pLogger ) m_pLogger->LogError( "Exception during object construction, switching back to previous objects" );
-		}
-
-		//swap back to new constructors before everything is serialized back in
-		m_Constructors = oldConstructors;
-
-		//serialize back with old objects - could cause exception which isn't handled, but hopefully not.
-		serializer.SetIsLoading( true );
-		for( size_t i = 0; i < m_Constructors.size(); ++i )
-		{
-			IObjectConstructor* pConstructor = m_Constructors[i];
-			for( PerTypeObjectId objId = 0; objId < pConstructor->GetNumberConstructedObjects(); ++ objId )
-			{
-				// Iserialize new object
-				IObject* pObject = pConstructor->GetConstructedObject( objId );
-				if (pObject)
-				{
-					serializer.Serialize( pObject );
-				}			
-			}
-		}
-
-		// Do a second pass, initializing objects now that they've all been serialized
-		for( size_t i = 0; i < m_Constructors.size(); ++i )
-		{
-			IObjectConstructor* pConstructor = m_Constructors[i];
-			for( PerTypeObjectId objId = 0; objId < pConstructor->GetNumberConstructedObjects(); ++ objId )
-			{
-				IObject* pObject = pConstructor->GetConstructedObject( objId );
-				if (pObject)
-				{
-					pObject->Init(false);
-				}			
 			}
 		}
 	}
 	else
 	{
 		if( m_pLogger ) m_pLogger->LogInfo( "Object swap completed\n");
-	}
-
-	try
-	{
-		//delete old objects which have been replaced
-		for( size_t i = 0; i < oldConstructors.size(); ++i )
+		if( HasHadException() && PHASE_DELETEOLD == m_ProtectedPhase )
 		{
-			if( oldConstructors[i] != m_Constructors[i] )
-			{
-				//TODO: could put a constructor around this.
-				//constructor has been replaced
-				IObjectConstructor* pOldConstructor = oldConstructors[i];
-				size_t numObjects = pOldConstructor->GetNumberConstructedObjects();
-				for( size_t j = 0; j < numObjects; ++j )
-				{
-					IObject* pOldObject = pOldConstructor->GetConstructedObject( j );
-					if( pOldObject )
-					{
-						pOldObject->_isRuntimeDelete = true;
-						delete pOldObject;
-					}
-				}
-			}
+			if( m_pLogger ) m_pLogger->LogError( "Exception during object destruction of old objects, leaking.\n" );
 		}
 	}
-	catch(...)
-	{
-		//do nothing.
-		if( m_pLogger ) m_pLogger->LogError( "Exception during object destruction of old objects, leaking." );
-	}
+	m_ProtectedPhase = PHASE_NONE;
+	ClearExceptions();
+	delete m_pSerializer;
+	m_pSerializer = 0;
 
 	// Notify any listeners that constructors have changed
 	TObjectFactoryListeners::iterator it = m_Listeners.begin();
