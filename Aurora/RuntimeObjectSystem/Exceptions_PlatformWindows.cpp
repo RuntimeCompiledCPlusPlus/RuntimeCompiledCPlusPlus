@@ -20,7 +20,7 @@
 #include "Windows.h"
 #include "WinBase.h"
 #include "excpt.h"
-
+#include <assert.h>
 
 struct RuntimeProtector::Impl
 {
@@ -40,6 +40,14 @@ struct RuntimeProtector::Impl
 
 	int RuntimeExceptionFilter()
 	{
+		if( !AmBeingDebugged() )
+		{
+			// if there's no debugger, we simply continue operating.
+			// TODO: Should implement a method to ensure this can be
+			// disabled so process crashes on end user machines
+			return EXCEPTION_EXECUTE_HANDLER;
+		}
+
 		int result;
 		switch (s_exceptionState)
 		{
@@ -54,11 +62,21 @@ struct RuntimeProtector::Impl
 			s_exceptionState = ES_PASS;
 			break;
 		default:;
+			assert(false);
 		}
 
 		return result;
 	}
 
+	bool AmBeingDebugged()
+	{
+		if( IsDebuggerPresent() )
+		{
+			return true;
+		}
+		BOOL bRDebugPresent = FALSE;
+		CheckRemoteDebuggerPresent( GetModuleHandle(NULL), &bRDebugPresent );
+	}
 
 	int SimpleExceptionFilter( void * nativeExceptionInfo, RuntimeProtector* pRuntimeProtector )
 	{	
