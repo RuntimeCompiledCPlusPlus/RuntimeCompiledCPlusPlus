@@ -20,10 +20,8 @@
 #ifndef FILECHANGENOTIFIER_INCLUDED
 #define FILECHANGENOTIFIER_INCLUDED
 
-#include "../RuntimeObjectSystem/ObjectInterface.h"
 #include "IFileChangeNotifier.h"
 #include "IFileMonitor.h"
-#include <windows.h>
 #include <vector>
 #include <map>
 #include <set>

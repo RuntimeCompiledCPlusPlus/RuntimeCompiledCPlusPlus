@@ -42,6 +42,10 @@
 #ifndef alManagerDEF
 #define alManagerDEF
 
+#ifndef _WIN32
+    #define NOALSOUND //for now no sound on non win platforms
+#endif
+
 
 #include "../Common/AUOrientation3D.inl"
 #include "../Common/AUVec3f.inl"

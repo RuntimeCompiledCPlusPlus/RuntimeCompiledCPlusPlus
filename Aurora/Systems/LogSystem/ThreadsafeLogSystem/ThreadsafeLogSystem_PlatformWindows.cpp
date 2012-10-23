@@ -17,8 +17,37 @@
 
 #include "ThreadsafeLogSystem.h"
 
-#include <Windows.h>
-#include <concrt.h>
+#ifdef _WIN32
+    #include <Windows.h>
+    #include <concrt.h>
+#else
+#include <pthread.h>
+
+// Linux / Mac OS X implementation of critical sections
+// Not as efficient as a spin lock might be for this purpose, should probably move to one of those at some point
+typedef pthread_mutex_t CRITICAL_SECTION;
+
+void InitializeCriticalSection( CRITICAL_SECTION* pCrit )
+{
+    *pCrit = PTHREAD_MUTEX_INITIALIZER;
+}
+
+void DeleteCriticalSection( CRITICAL_SECTION* pCrit )
+{
+   //do nothing
+}
+
+void EnterCriticalSection( CRITICAL_SECTION* pCrit )
+{
+    pthread_mutex_lock( pCrit );
+}
+
+void LeaveCriticalSection( CRITICAL_SECTION* pCrit )
+{
+    pthread_mutex_unlock( pCrit );
+}
+
+#endif
 
 #include <stdarg.h>
 #include <assert.h>

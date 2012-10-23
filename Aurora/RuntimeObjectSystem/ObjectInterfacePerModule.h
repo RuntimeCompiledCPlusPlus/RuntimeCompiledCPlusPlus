@@ -26,8 +26,7 @@
 #include <vector>
 #include <assert.h>
 
-#define AU_ASSERT( statement )  do { if (!(statement)) { int a = *((int*)(0)); } } while(0) 
-
+#define AU_ASSERT( statement )  do { if (!(statement)) { volatile int* p = 0; int a = *p; if(a) {} } } while(0) 
 
 class PerModuleInterface : public IPerModuleInterface
 {
@@ -46,6 +45,10 @@ public:
 
 	virtual const std::vector<const char*>& GetRequiredSourceFiles() const;
 	virtual void AddRequiredSourceFiles( const char* file_ );
+    virtual void SetModuleFileName( const char* name )
+    {
+        m_ModuleFilename = name;
+    }
 
 private:
 	PerModuleInterface();
@@ -59,17 +62,19 @@ private:
 	std::vector<IObjectConstructor*>	m_ObjectConstructors;
 	std::vector<const char*>			m_RequiredSourceFiles;
 	SystemTable*						m_pSystemTable;
+    std::string                         m_ModuleFilename;
 };
 
 template<typename T> class TObjectConstructorConcrete: public IObjectConstructor
 {
 public:
-	friend typename T;
 	TObjectConstructorConcrete( const char* Filename, IRuntimeIncludeFileList* pIncludeFileList_ )
 		: m_FileName( Filename )
 		, m_pIncludeFileList( pIncludeFileList_ )
+        , m_pModuleInterface(0)
 	{
 		PerModuleInterface::GetInstance()->AddConstructor( this );
+        m_pModuleInterface = PerModuleInterface::GetInstance();
 		m_Id = InvalidId;
 	}
 
@@ -143,8 +148,6 @@ public:
 		}
 	}
 
-
-private:
 	void DeRegister( PerTypeObjectId id )
 	{
 		//remove from constructed objects.
@@ -160,11 +163,13 @@ private:
 			m_ConstructedObjects[ id ] = 0;
 		}
 	}
+private:
 	std::string				m_FileName;
 	std::vector<T*>			m_ConstructedObjects;
 	std::vector<PerTypeObjectId>	m_FreeIds;
 	ConstructorId			m_Id;
 	IRuntimeIncludeFileList* m_pIncludeFileList;
+    PerModuleInterface*      m_pModuleInterface;
 };
 
 
@@ -188,10 +193,9 @@ private:
 
 //NOTE: the file macro will only emit the full path if /FC option is used in visual studio or /ZI (Which forces /FC)
 #define REGISTERCLASS( T )	\
-	template class TActual<##T##>; \
 	static RuntimeIncludeFiles< __COUNTER__ > g_includeFileList_##T; \
-	TObjectConstructorConcrete<TActual<##T##>> TActual<##T##>::m_Constructor( __FILE__, &g_includeFileList_##T ); \
-	const char* TActual<##T##>::GetTypeNameStatic() { return #T; } \
+template<> TObjectConstructorConcrete< TActual< T > > TActual< T >::m_Constructor( __FILE__, &g_includeFileList_##T );\
+template<> const char* TActual< T >::GetTypeNameStatic() { return #T; } \
+template class TActual< T >; \
 
-
-#endif OBJECTINTERFACEPERMODULE_INCLUDED
+#endif // OBJECTINTERFACEPERMODULE_INCLUDED

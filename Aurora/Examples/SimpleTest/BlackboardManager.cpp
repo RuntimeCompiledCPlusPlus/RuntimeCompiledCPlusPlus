@@ -225,6 +225,7 @@ private:
 			case EGO_RBC: text = "BB_Individual_RBC"; break;
 			case EGO_VIRUS: text = "BB_Individual_Virus"; break;
 			case EGO_INFECTED: text = "BB_Individual_Infected"; break;
+            default: AU_ASSERT(false);
 			}
 
 			m_BlackboardIndividual[id] = IObjectUtils::CreateObject( text )->GetObjectId();
@@ -316,6 +317,7 @@ private:
 		{
 		case EGT_IMMUNE: ((BB_Team_Immune*)pTeam)->team_size += delta; break;
 		case EGT_INFECTION: ((BB_Team_Infection*)pTeam)->team_size += delta; break;
+        default: AU_ASSERT(false);
 		}
 	}
 
@@ -329,6 +331,7 @@ private:
 		case EGO_RBC: ((BB_Group_RBC*)pGroup)->group_size += delta; break;
 		case EGO_VIRUS: ((BB_Group_Virus*)pGroup)->group_size += delta; break;
 		case EGO_INFECTED: ((BB_Group_Infected*)pGroup)->group_size += delta; break;
+        default: AU_ASSERT(false);
 		}
 	}
 

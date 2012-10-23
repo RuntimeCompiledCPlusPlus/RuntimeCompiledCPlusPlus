@@ -35,7 +35,7 @@
 	#if defined (__MINGW32__)
 		#define ROCKET_BREAK asm("int $0x03")
 	#else
-		#define ROCKET_BREAK { int a = *((int*)(0)); }
+		#define ROCKET_BREAK __debugbreak();
 		//_asm { int 0x03 } //Fix for x64 compile... should likely propogate to others
 	#endif
 #elif defined (ROCKET_PLATFORM_LINUX)

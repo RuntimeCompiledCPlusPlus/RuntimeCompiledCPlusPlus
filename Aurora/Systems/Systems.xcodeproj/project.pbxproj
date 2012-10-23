@@ -1,0 +1,494 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		911906E31620614900BE48ED /* AssetSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 911906A01620614900BE48ED /* AssetSystem.cpp */; };
+		911906E41620614900BE48ED /* AssetSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906A11620614900BE48ED /* AssetSystem.h */; };
+		911906E51620614900BE48ED /* EntitySystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 911906A41620614900BE48ED /* EntitySystem.cpp */; };
+		911906E61620614900BE48ED /* EntitySystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906A51620614900BE48ED /* EntitySystem.h */; };
+		911906E71620614900BE48ED /* GUIDocument.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 911906A71620614900BE48ED /* GUIDocument.cpp */; };
+		911906E81620614900BE48ED /* GUIDocument.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906A81620614900BE48ED /* GUIDocument.h */; };
+		911906E91620614900BE48ED /* GUIElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 911906A91620614900BE48ED /* GUIElement.cpp */; };
+		911906EA1620614900BE48ED /* GUIElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906AA1620614900BE48ED /* GUIElement.h */; };
+		911906EB1620614900BE48ED /* GUISystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 911906AB1620614900BE48ED /* GUISystem.cpp */; };
+		911906EC1620614900BE48ED /* GUISystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906AC1620614900BE48ED /* GUISystem.h */; };
+		911906ED1620614900BE48ED /* IGUIInstancer.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906AD1620614900BE48ED /* IGUIInstancer.h */; };
+		911906EE1620614900BE48ED /* ReferenceCountable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 911906AE1620614900BE48ED /* ReferenceCountable.cpp */; };
+		911906EF1620614900BE48ED /* ReferenceCountable.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906AF1620614900BE48ED /* ReferenceCountable.h */; };
+		911906F01620614900BE48ED /* IAssetSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906B01620614900BE48ED /* IAssetSystem.h */; };
+		911906F11620614900BE48ED /* IEntity.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906B11620614900BE48ED /* IEntity.h */; };
+		911906F21620614900BE48ED /* IEntitySystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906B21620614900BE48ED /* IEntitySystem.h */; };
+		911906F31620614900BE48ED /* IGame.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906B31620614900BE48ED /* IGame.h */; };
+		911906F41620614900BE48ED /* IGUIDocument.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906B41620614900BE48ED /* IGUIDocument.h */; };
+		911906F51620614900BE48ED /* IGUIElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906B51620614900BE48ED /* IGUIElement.h */; };
+		911906F61620614900BE48ED /* IGUISystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906B61620614900BE48ED /* IGUISystem.h */; };
+		911906F71620614900BE48ED /* ILogSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906B71620614900BE48ED /* ILogSystem.h */; };
+		911906F81620614900BE48ED /* ISystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906B81620614900BE48ED /* ISystem.h */; };
+		911906F91620614900BE48ED /* ITimeSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906B91620614900BE48ED /* ITimeSystem.h */; };
+		911906FA1620614900BE48ED /* IUpdateable.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906BA1620614900BE48ED /* IUpdateable.h */; };
+		911906FB1620614900BE48ED /* FileLogSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 911906BD1620614900BE48ED /* FileLogSystem.cpp */; };
+		911906FC1620614900BE48ED /* FileLogSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906BE1620614900BE48ED /* FileLogSystem.h */; };
+		911906FD1620614900BE48ED /* MultiLogSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 911906C01620614900BE48ED /* MultiLogSystem.cpp */; };
+		911906FE1620614900BE48ED /* MultiLogSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906C11620614900BE48ED /* MultiLogSystem.h */; };
+		911906FF1620614900BE48ED /* RocketLogSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 911906C31620614900BE48ED /* RocketLogSystem.cpp */; };
+		911907001620614900BE48ED /* RocketLogSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906C41620614900BE48ED /* RocketLogSystem.h */; };
+		911907011620614900BE48ED /* ThreadsafeLogSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906C61620614900BE48ED /* ThreadsafeLogSystem.h */; };
+		911907021620614900BE48ED /* ThreadsafeLogSystem_PlatformWindows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 911906C71620614900BE48ED /* ThreadsafeLogSystem_PlatformWindows.cpp */; };
+		911907031620614900BE48ED /* Input.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 911906C91620614900BE48ED /* Input.cpp */; };
+		911907041620614900BE48ED /* Input.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906CA1620614900BE48ED /* Input.h */; };
+		9119070B1620614900BE48ED /* RocketLibSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 911906D11620614900BE48ED /* RocketLibSystem.cpp */; };
+		9119070C1620614900BE48ED /* RocketLibSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906D21620614900BE48ED /* RocketLibSystem.h */; };
+		9119070D1620614900BE48ED /* RocketLibSystemFileInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 911906D31620614900BE48ED /* RocketLibSystemFileInterface.cpp */; };
+		9119070E1620614900BE48ED /* RocketLibSystemFileInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906D41620614900BE48ED /* RocketLibSystemFileInterface.h */; };
+		911907101620614900BE48ED /* RocketLibSystemOpenGL.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906D61620614900BE48ED /* RocketLibSystemOpenGL.h */; };
+		911907111620614900BE48ED /* RocketLibSystemRenderInterfaceOpenGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 911906D71620614900BE48ED /* RocketLibSystemRenderInterfaceOpenGL.cpp */; };
+		911907121620614900BE48ED /* RocketLibSystemRenderInterfaceOpenGL.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906D81620614900BE48ED /* RocketLibSystemRenderInterfaceOpenGL.h */; };
+		911907131620614900BE48ED /* RocketLibSystemSystemInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 911906D91620614900BE48ED /* RocketLibSystemSystemInterface.cpp */; };
+		911907141620614900BE48ED /* RocketLibSystemSystemInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906DA1620614900BE48ED /* RocketLibSystemSystemInterface.h */; };
+		911907171620614900BE48ED /* Systems.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 911906DD1620614900BE48ED /* Systems.cpp */; };
+		911907181620614900BE48ED /* Systems.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906DE1620614900BE48ED /* Systems.h */; };
+		911907191620614900BE48ED /* SystemTable.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906DF1620614900BE48ED /* SystemTable.h */; };
+		9119071A1620614900BE48ED /* TimeSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 911906E11620614900BE48ED /* TimeSystem.cpp */; };
+		9119071B1620614900BE48ED /* TimeSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 911906E21620614900BE48ED /* TimeSystem.h */; };
+		9170EAE71622E32E00273B92 /* InputGLFW.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9170EAE41622E32E00273B92 /* InputGLFW.cpp */; };
+		9170EAE81622E32E00273B92 /* InputGLFW.h in Headers */ = {isa = PBXBuildFile; fileRef = 9170EAE51622E32E00273B92 /* InputGLFW.h */; };
+		9170EAE91622E32E00273B92 /* RocketLibSystemGLFW.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9170EAE61622E32E00273B92 /* RocketLibSystemGLFW.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		91045332162060F40068AA25 /* libSystems.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libSystems.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		911906A01620614900BE48ED /* AssetSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AssetSystem.cpp; sourceTree = "<group>"; };
+		911906A11620614900BE48ED /* AssetSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetSystem.h; sourceTree = "<group>"; };
+		911906A21620614900BE48ED /* Definitions.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Definitions.inl; sourceTree = "<group>"; };
+		911906A41620614900BE48ED /* EntitySystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntitySystem.cpp; sourceTree = "<group>"; };
+		911906A51620614900BE48ED /* EntitySystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntitySystem.h; sourceTree = "<group>"; };
+		911906A71620614900BE48ED /* GUIDocument.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GUIDocument.cpp; sourceTree = "<group>"; };
+		911906A81620614900BE48ED /* GUIDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GUIDocument.h; sourceTree = "<group>"; };
+		911906A91620614900BE48ED /* GUIElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GUIElement.cpp; sourceTree = "<group>"; };
+		911906AA1620614900BE48ED /* GUIElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GUIElement.h; sourceTree = "<group>"; };
+		911906AB1620614900BE48ED /* GUISystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GUISystem.cpp; sourceTree = "<group>"; };
+		911906AC1620614900BE48ED /* GUISystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GUISystem.h; sourceTree = "<group>"; };
+		911906AD1620614900BE48ED /* IGUIInstancer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGUIInstancer.h; sourceTree = "<group>"; };
+		911906AE1620614900BE48ED /* ReferenceCountable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReferenceCountable.cpp; sourceTree = "<group>"; };
+		911906AF1620614900BE48ED /* ReferenceCountable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReferenceCountable.h; sourceTree = "<group>"; };
+		911906B01620614900BE48ED /* IAssetSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IAssetSystem.h; sourceTree = "<group>"; };
+		911906B11620614900BE48ED /* IEntity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IEntity.h; sourceTree = "<group>"; };
+		911906B21620614900BE48ED /* IEntitySystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IEntitySystem.h; sourceTree = "<group>"; };
+		911906B31620614900BE48ED /* IGame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGame.h; sourceTree = "<group>"; };
+		911906B41620614900BE48ED /* IGUIDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGUIDocument.h; sourceTree = "<group>"; };
+		911906B51620614900BE48ED /* IGUIElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGUIElement.h; sourceTree = "<group>"; };
+		911906B61620614900BE48ED /* IGUISystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGUISystem.h; sourceTree = "<group>"; };
+		911906B71620614900BE48ED /* ILogSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ILogSystem.h; sourceTree = "<group>"; };
+		911906B81620614900BE48ED /* ISystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISystem.h; sourceTree = "<group>"; };
+		911906B91620614900BE48ED /* ITimeSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ITimeSystem.h; sourceTree = "<group>"; };
+		911906BA1620614900BE48ED /* IUpdateable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IUpdateable.h; sourceTree = "<group>"; };
+		911906BD1620614900BE48ED /* FileLogSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileLogSystem.cpp; sourceTree = "<group>"; };
+		911906BE1620614900BE48ED /* FileLogSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileLogSystem.h; sourceTree = "<group>"; };
+		911906C01620614900BE48ED /* MultiLogSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MultiLogSystem.cpp; sourceTree = "<group>"; };
+		911906C11620614900BE48ED /* MultiLogSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MultiLogSystem.h; sourceTree = "<group>"; };
+		911906C31620614900BE48ED /* RocketLogSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RocketLogSystem.cpp; sourceTree = "<group>"; };
+		911906C41620614900BE48ED /* RocketLogSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RocketLogSystem.h; sourceTree = "<group>"; };
+		911906C61620614900BE48ED /* ThreadsafeLogSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadsafeLogSystem.h; sourceTree = "<group>"; };
+		911906C71620614900BE48ED /* ThreadsafeLogSystem_PlatformWindows.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ThreadsafeLogSystem_PlatformWindows.cpp; sourceTree = "<group>"; };
+		911906C91620614900BE48ED /* Input.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Input.cpp; sourceTree = "<group>"; };
+		911906CA1620614900BE48ED /* Input.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Input.h; sourceTree = "<group>"; };
+		911906D11620614900BE48ED /* RocketLibSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RocketLibSystem.cpp; sourceTree = "<group>"; };
+		911906D21620614900BE48ED /* RocketLibSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RocketLibSystem.h; sourceTree = "<group>"; };
+		911906D31620614900BE48ED /* RocketLibSystemFileInterface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RocketLibSystemFileInterface.cpp; sourceTree = "<group>"; };
+		911906D41620614900BE48ED /* RocketLibSystemFileInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RocketLibSystemFileInterface.h; sourceTree = "<group>"; };
+		911906D61620614900BE48ED /* RocketLibSystemOpenGL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RocketLibSystemOpenGL.h; sourceTree = "<group>"; };
+		911906D71620614900BE48ED /* RocketLibSystemRenderInterfaceOpenGL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RocketLibSystemRenderInterfaceOpenGL.cpp; sourceTree = "<group>"; };
+		911906D81620614900BE48ED /* RocketLibSystemRenderInterfaceOpenGL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RocketLibSystemRenderInterfaceOpenGL.h; sourceTree = "<group>"; };
+		911906D91620614900BE48ED /* RocketLibSystemSystemInterface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RocketLibSystemSystemInterface.cpp; sourceTree = "<group>"; };
+		911906DA1620614900BE48ED /* RocketLibSystemSystemInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RocketLibSystemSystemInterface.h; sourceTree = "<group>"; };
+		911906DD1620614900BE48ED /* Systems.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Systems.cpp; sourceTree = "<group>"; };
+		911906DE1620614900BE48ED /* Systems.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Systems.h; sourceTree = "<group>"; };
+		911906DF1620614900BE48ED /* SystemTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SystemTable.h; sourceTree = "<group>"; };
+		911906E11620614900BE48ED /* TimeSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TimeSystem.cpp; sourceTree = "<group>"; };
+		911906E21620614900BE48ED /* TimeSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeSystem.h; sourceTree = "<group>"; };
+		9170EAE41622E32E00273B92 /* InputGLFW.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InputGLFW.cpp; sourceTree = "<group>"; };
+		9170EAE51622E32E00273B92 /* InputGLFW.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InputGLFW.h; sourceTree = "<group>"; };
+		9170EAE61622E32E00273B92 /* RocketLibSystemGLFW.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RocketLibSystemGLFW.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		9104532F162060F40068AA25 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		91045327162060F40068AA25 = {
+			isa = PBXGroup;
+			children = (
+				9119069F1620614900BE48ED /* AssetSystem */,
+				911906A21620614900BE48ED /* Definitions.inl */,
+				911906A31620614900BE48ED /* EntitySystem */,
+				911906A61620614900BE48ED /* GUISystem */,
+				911906B01620614900BE48ED /* IAssetSystem.h */,
+				911906B11620614900BE48ED /* IEntity.h */,
+				911906B21620614900BE48ED /* IEntitySystem.h */,
+				911906B31620614900BE48ED /* IGame.h */,
+				911906B41620614900BE48ED /* IGUIDocument.h */,
+				911906B51620614900BE48ED /* IGUIElement.h */,
+				911906B61620614900BE48ED /* IGUISystem.h */,
+				911906B71620614900BE48ED /* ILogSystem.h */,
+				911906B81620614900BE48ED /* ISystem.h */,
+				911906B91620614900BE48ED /* ITimeSystem.h */,
+				911906BA1620614900BE48ED /* IUpdateable.h */,
+				911906BB1620614900BE48ED /* LogSystem */,
+				911906C81620614900BE48ED /* RocketLibSystem */,
+				911906DD1620614900BE48ED /* Systems.cpp */,
+				911906DE1620614900BE48ED /* Systems.h */,
+				911906DF1620614900BE48ED /* SystemTable.h */,
+				911906E01620614900BE48ED /* TimeSystem */,
+				91045333162060F40068AA25 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		91045333162060F40068AA25 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				91045332162060F40068AA25 /* libSystems.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9119069F1620614900BE48ED /* AssetSystem */ = {
+			isa = PBXGroup;
+			children = (
+				911906A01620614900BE48ED /* AssetSystem.cpp */,
+				911906A11620614900BE48ED /* AssetSystem.h */,
+			);
+			path = AssetSystem;
+			sourceTree = "<group>";
+		};
+		911906A31620614900BE48ED /* EntitySystem */ = {
+			isa = PBXGroup;
+			children = (
+				911906A41620614900BE48ED /* EntitySystem.cpp */,
+				911906A51620614900BE48ED /* EntitySystem.h */,
+			);
+			path = EntitySystem;
+			sourceTree = "<group>";
+		};
+		911906A61620614900BE48ED /* GUISystem */ = {
+			isa = PBXGroup;
+			children = (
+				911906A71620614900BE48ED /* GUIDocument.cpp */,
+				911906A81620614900BE48ED /* GUIDocument.h */,
+				911906A91620614900BE48ED /* GUIElement.cpp */,
+				911906AA1620614900BE48ED /* GUIElement.h */,
+				911906AB1620614900BE48ED /* GUISystem.cpp */,
+				911906AC1620614900BE48ED /* GUISystem.h */,
+				911906AD1620614900BE48ED /* IGUIInstancer.h */,
+				911906AE1620614900BE48ED /* ReferenceCountable.cpp */,
+				911906AF1620614900BE48ED /* ReferenceCountable.h */,
+			);
+			path = GUISystem;
+			sourceTree = "<group>";
+		};
+		911906BB1620614900BE48ED /* LogSystem */ = {
+			isa = PBXGroup;
+			children = (
+				911906BC1620614900BE48ED /* FileLogSystem */,
+				911906BF1620614900BE48ED /* MultiLogSystem */,
+				911906C21620614900BE48ED /* RocketLogSystem */,
+				911906C51620614900BE48ED /* ThreadsafeLogSystem */,
+			);
+			path = LogSystem;
+			sourceTree = "<group>";
+		};
+		911906BC1620614900BE48ED /* FileLogSystem */ = {
+			isa = PBXGroup;
+			children = (
+				911906BD1620614900BE48ED /* FileLogSystem.cpp */,
+				911906BE1620614900BE48ED /* FileLogSystem.h */,
+			);
+			path = FileLogSystem;
+			sourceTree = "<group>";
+		};
+		911906BF1620614900BE48ED /* MultiLogSystem */ = {
+			isa = PBXGroup;
+			children = (
+				911906C01620614900BE48ED /* MultiLogSystem.cpp */,
+				911906C11620614900BE48ED /* MultiLogSystem.h */,
+			);
+			path = MultiLogSystem;
+			sourceTree = "<group>";
+		};
+		911906C21620614900BE48ED /* RocketLogSystem */ = {
+			isa = PBXGroup;
+			children = (
+				911906C31620614900BE48ED /* RocketLogSystem.cpp */,
+				911906C41620614900BE48ED /* RocketLogSystem.h */,
+			);
+			path = RocketLogSystem;
+			sourceTree = "<group>";
+		};
+		911906C51620614900BE48ED /* ThreadsafeLogSystem */ = {
+			isa = PBXGroup;
+			children = (
+				911906C61620614900BE48ED /* ThreadsafeLogSystem.h */,
+				911906C71620614900BE48ED /* ThreadsafeLogSystem_PlatformWindows.cpp */,
+			);
+			path = ThreadsafeLogSystem;
+			sourceTree = "<group>";
+		};
+		911906C81620614900BE48ED /* RocketLibSystem */ = {
+			isa = PBXGroup;
+			children = (
+				9170EAE41622E32E00273B92 /* InputGLFW.cpp */,
+				9170EAE51622E32E00273B92 /* InputGLFW.h */,
+				9170EAE61622E32E00273B92 /* RocketLibSystemGLFW.cpp */,
+				911906C91620614900BE48ED /* Input.cpp */,
+				911906CA1620614900BE48ED /* Input.h */,
+				911906D11620614900BE48ED /* RocketLibSystem.cpp */,
+				911906D21620614900BE48ED /* RocketLibSystem.h */,
+				911906D31620614900BE48ED /* RocketLibSystemFileInterface.cpp */,
+				911906D41620614900BE48ED /* RocketLibSystemFileInterface.h */,
+				911906D61620614900BE48ED /* RocketLibSystemOpenGL.h */,
+				911906D71620614900BE48ED /* RocketLibSystemRenderInterfaceOpenGL.cpp */,
+				911906D81620614900BE48ED /* RocketLibSystemRenderInterfaceOpenGL.h */,
+				911906D91620614900BE48ED /* RocketLibSystemSystemInterface.cpp */,
+				911906DA1620614900BE48ED /* RocketLibSystemSystemInterface.h */,
+			);
+			path = RocketLibSystem;
+			sourceTree = "<group>";
+		};
+		911906E01620614900BE48ED /* TimeSystem */ = {
+			isa = PBXGroup;
+			children = (
+				911906E11620614900BE48ED /* TimeSystem.cpp */,
+				911906E21620614900BE48ED /* TimeSystem.h */,
+			);
+			path = TimeSystem;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		91045330162060F40068AA25 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				911906E41620614900BE48ED /* AssetSystem.h in Headers */,
+				911906E61620614900BE48ED /* EntitySystem.h in Headers */,
+				911906E81620614900BE48ED /* GUIDocument.h in Headers */,
+				911906EA1620614900BE48ED /* GUIElement.h in Headers */,
+				911906EC1620614900BE48ED /* GUISystem.h in Headers */,
+				911906ED1620614900BE48ED /* IGUIInstancer.h in Headers */,
+				911906EF1620614900BE48ED /* ReferenceCountable.h in Headers */,
+				911906F01620614900BE48ED /* IAssetSystem.h in Headers */,
+				911906F11620614900BE48ED /* IEntity.h in Headers */,
+				911906F21620614900BE48ED /* IEntitySystem.h in Headers */,
+				911906F31620614900BE48ED /* IGame.h in Headers */,
+				911906F41620614900BE48ED /* IGUIDocument.h in Headers */,
+				911906F51620614900BE48ED /* IGUIElement.h in Headers */,
+				911906F61620614900BE48ED /* IGUISystem.h in Headers */,
+				911906F71620614900BE48ED /* ILogSystem.h in Headers */,
+				911906F81620614900BE48ED /* ISystem.h in Headers */,
+				911906F91620614900BE48ED /* ITimeSystem.h in Headers */,
+				911906FA1620614900BE48ED /* IUpdateable.h in Headers */,
+				911906FC1620614900BE48ED /* FileLogSystem.h in Headers */,
+				911906FE1620614900BE48ED /* MultiLogSystem.h in Headers */,
+				911907001620614900BE48ED /* RocketLogSystem.h in Headers */,
+				911907011620614900BE48ED /* ThreadsafeLogSystem.h in Headers */,
+				911907041620614900BE48ED /* Input.h in Headers */,
+				9119070C1620614900BE48ED /* RocketLibSystem.h in Headers */,
+				9119070E1620614900BE48ED /* RocketLibSystemFileInterface.h in Headers */,
+				911907101620614900BE48ED /* RocketLibSystemOpenGL.h in Headers */,
+				911907121620614900BE48ED /* RocketLibSystemRenderInterfaceOpenGL.h in Headers */,
+				911907141620614900BE48ED /* RocketLibSystemSystemInterface.h in Headers */,
+				911907181620614900BE48ED /* Systems.h in Headers */,
+				911907191620614900BE48ED /* SystemTable.h in Headers */,
+				9119071B1620614900BE48ED /* TimeSystem.h in Headers */,
+				9170EAE81622E32E00273B92 /* InputGLFW.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		91045331162060F40068AA25 /* Systems */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 91045336162060F40068AA25 /* Build configuration list for PBXNativeTarget "Systems" */;
+			buildPhases = (
+				9104532E162060F40068AA25 /* Sources */,
+				9104532F162060F40068AA25 /* Frameworks */,
+				91045330162060F40068AA25 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Systems;
+			productName = Systems;
+			productReference = 91045332162060F40068AA25 /* libSystems.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		91045329162060F40068AA25 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0440;
+				ORGANIZATIONNAME = "Doug Binks";
+			};
+			buildConfigurationList = 9104532C162060F40068AA25 /* Build configuration list for PBXProject "Systems" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 91045327162060F40068AA25;
+			productRefGroup = 91045333162060F40068AA25 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				91045331162060F40068AA25 /* Systems */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		9104532E162060F40068AA25 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				911906E31620614900BE48ED /* AssetSystem.cpp in Sources */,
+				911906E51620614900BE48ED /* EntitySystem.cpp in Sources */,
+				911906E71620614900BE48ED /* GUIDocument.cpp in Sources */,
+				911906E91620614900BE48ED /* GUIElement.cpp in Sources */,
+				911906EB1620614900BE48ED /* GUISystem.cpp in Sources */,
+				911906EE1620614900BE48ED /* ReferenceCountable.cpp in Sources */,
+				911906FB1620614900BE48ED /* FileLogSystem.cpp in Sources */,
+				911906FD1620614900BE48ED /* MultiLogSystem.cpp in Sources */,
+				911906FF1620614900BE48ED /* RocketLogSystem.cpp in Sources */,
+				911907021620614900BE48ED /* ThreadsafeLogSystem_PlatformWindows.cpp in Sources */,
+				911907031620614900BE48ED /* Input.cpp in Sources */,
+				9119070B1620614900BE48ED /* RocketLibSystem.cpp in Sources */,
+				9119070D1620614900BE48ED /* RocketLibSystemFileInterface.cpp in Sources */,
+				911907111620614900BE48ED /* RocketLibSystemRenderInterfaceOpenGL.cpp in Sources */,
+				911907131620614900BE48ED /* RocketLibSystemSystemInterface.cpp in Sources */,
+				911907171620614900BE48ED /* Systems.cpp in Sources */,
+				9119071A1620614900BE48ED /* TimeSystem.cpp in Sources */,
+				9170EAE71622E32E00273B92 /* InputGLFW.cpp in Sources */,
+				9170EAE91622E32E00273B92 /* RocketLibSystemGLFW.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		91045334162060F40068AA25 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		91045335162060F40068AA25 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		91045337162060F40068AA25 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				EXECUTABLE_PREFIX = lib;
+				HEADER_SEARCH_PATHS = (
+					../External/libRocket/Include,
+					../External/boost/,
+					../External/glfw/include,
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = "";
+			};
+			name = Debug;
+		};
+		91045338162060F40068AA25 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				EXECUTABLE_PREFIX = lib;
+				HEADER_SEARCH_PATHS = (
+					../External/libRocket/Include,
+					../External/boost/,
+					../External/glfw/include,
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = "";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		9104532C162060F40068AA25 /* Build configuration list for PBXProject "Systems" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				91045334162060F40068AA25 /* Debug */,
+				91045335162060F40068AA25 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		91045336162060F40068AA25 /* Build configuration list for PBXNativeTarget "Systems" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				91045337162060F40068AA25 /* Debug */,
+				91045338162060F40068AA25 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 91045329162060F40068AA25 /* Project object */;
+}

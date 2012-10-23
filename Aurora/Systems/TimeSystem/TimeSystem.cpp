@@ -17,8 +17,14 @@
 
 #include "TimeSystem.h"
 
+#ifdef _WIN32
 #include "Windows.h"      // For QueryPerformanceCounter
+#else
+#include <sys/time.h>
+#include <unistd.h>
+#endif
 #include "assert.h"
+#include <GL/glfw.h>
 
 /*
 	I'm not certain if I'm using the best datatype here for storing the time, and I suspect the divisions could be put off.
@@ -32,9 +38,10 @@ TimeSystem::TimeSystem(void)
 {
 	m_dSmoothFrameDuration = 0.01f; // Assume 100Hz for smoothing to start with
 
-	// Note that IIRC this can change with CPU frequency. Demoing on laptops remember!
+#ifdef _WIN32	// Note that IIRC this can change with CPU frequency. Demoing on laptops remember!
 	QueryPerformanceFrequency( (LARGE_INTEGER*) &m_iPerformanceFreq );
 	assert(m_iPerformanceFreq); // Consider quitting with error
+#endif
 	Reset();
 }
 
@@ -148,10 +155,9 @@ double TimeSystem::GetSmoothFrameDuration() const
 
 double TimeSystem::GetRawTime() const
 {
-	INT64 count;
-	QueryPerformanceCounter( (LARGE_INTEGER *) & count );
-	// This line fixes us at an accuracy of 1/10 millisecond, for which doubles should be up to the task
-	double seconds = ((10000 * count) / m_iPerformanceFreq) / ((double)10000);
+
+    double seconds = glfwGetTime();
+    
 	return seconds;
 }
 

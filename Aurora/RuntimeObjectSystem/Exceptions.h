@@ -18,28 +18,60 @@
 
 #pragma once
 
-
-// We might handle div by 0, stack overflow, etc
-enum ESimpleExceptions
+// class RuntimeProtector
+// overload void ProtectedFunc() to use, put function context (io) in new members
+// do not create threads within protected function
+// for threaded usuage use a protector per thread
+// amortize virtual function call and exception handling by processing many things in one call
+// note this isn't a functor as we prefer the explicit function name, and not using lambda's due to Cx11
+// not being supported sufficiently as yet
+class RuntimeProtector
 {
-	ESE_Unknown,
-	ESE_AccessViolationRead,
-	ESE_AccessViolationWrite,
+public:
+	// consctructor, hint allow debug may be ignored when true if on an OS which has not had this implemented
+    RuntimeProtector();
+    virtual ~RuntimeProtector();
+
+    // TryProtectedFunc() calls ProtectedFunc() and if it gets an exception sets m_bHashadException
+    // and returns !m_bHashadException
+    bool TryProtectedFunc();
+    
+    bool HasHadException() const
+    {
+        return m_bHashadException;
+    }
+    void ClearExceptions()
+    {
+        m_bHashadException = false;
+    }
+    
+    //exception information (exposed rather than get/set for simplicity)
+    enum ExceptionType
+    {
+        ESE_Unknown,
+        ESE_AccessViolation,
+        ESE_AccessViolationRead,    //may just get ESE_AccessViolation
+        ESE_AccessViolationWrite,   //may just get ESE_AccessViolation
+        ESE_InvalidInstruction
+        
+    };
+    struct ExceptionInfo_t
+    {
+        ExceptionType       Type;
+        void*               Addr; //address of data for access voilation, or instruction for invalid instruction
+    };
+    ExceptionInfo_t         ExceptionInfo;
+    
+    struct Impl;
+    Impl*                   m_pImpl;
+	bool					m_bHintAllowDebug;
+
+protected:
+    // don't call this directly, derive a class and implement it for your protected func
+    virtual void ProtectedFunc() = 0;
+private:
+    bool                    m_bHashadException;
 };
 
-struct AuroraExceptionInfo
-{
-	ESimpleExceptions exceptionType;
-	unsigned int xAddress;
-};
 
-
-// For handling failures in runtime exceptions
-// Might move into a DebugSystem for more better API with more control
-int RuntimeExceptionFilter(void);
-
-// For catching simple errors that we understand and falling back to
-// RuntimeExceptionFilter behaviour for others. Intended for situations
-// where we expect simple errors like null pointers in simple code
-// and so try to provide simple feedback rather than going to the debugger
-int SimpleExceptionFilter( void * nativeExceptionInfo, AuroraExceptionInfo *auroraExceptionInfo );
+#define AUTRY_RETURN( X )  X; return true;

@@ -82,18 +82,6 @@ public:
 		m_fWorldCenteringDist.SetZ( height * height * 0.25f );
 	}
 
-/*	virtual void GetInterface( InterfaceID iid, void** pReturn )
-	{
-		switch( iid )
-		{
-		case IID_IPHYSICSMANAGER:
-			*pReturn = static_cast<IPhysicsManager*>( this );
-			break;
-		default:
-			IObject::GetInterface( iid, pReturn );
-		}
-	}
-*/
 	// ~IObject
 
 	// IGameEventListener
@@ -167,8 +155,6 @@ private:
 		const AUVec3f& refPos = pGameObject->GetEntity()->GetPosition();
 		const float refDist = pGameObject->GetCollisionRadius();
 		const float forceStartMultiplier = 1.5f;
-
-		EGameObject type = pGameObject->GetGameObjectType();
 
 		TGameObjects& data = m_Objects[pGameObject->GetGameTeam()];
 		TGameObjects::iterator it = data.begin();
@@ -255,7 +241,6 @@ private:
 		{
 			// Rebuild m_objects pointer collection
 
-			IEntitySystem* pEntitySystem = PerModuleInterface::GetInstance()->GetSystemTable()->pEntitySystem;
 			for (int i=0; i<EGT_COUNT; ++i)
 			{
 				size_t count = m_ObjectIds[i].size();

@@ -41,6 +41,7 @@ struct IFileChangeNotifier
 	virtual void Watch( const char *filename, IFileChangeListener *pListener ) = 0; // can be file or directory
 
 	virtual void RemoveListener( IFileChangeListener *pListener ) = 0;
+    virtual ~IFileChangeNotifier() {}
 };
 
 

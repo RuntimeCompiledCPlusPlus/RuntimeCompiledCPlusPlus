@@ -20,6 +20,8 @@
 #ifndef IGUIELEMENT_INCLUDED
 #define IGUIELEMENT_INCLUDED
 
+#include <cstring>
+
 struct IGUIEvent
 {
 	virtual ~IGUIEvent() {}

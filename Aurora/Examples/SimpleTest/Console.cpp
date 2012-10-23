@@ -36,7 +36,23 @@
 #include <assert.h>
 #include <fstream>
 #include <algorithm>
-#include <windows.h>
+#ifdef _WIN32
+    #include <windows.h>
+#else
+#include <string.h>
+int stricmp( const char* pS1, const char* pS2 )
+{
+    return strcasecmp( pS1, pS2 );
+}
+#ifndef max
+#define max(a,b)            (((a) > (b)) ? (a) : (b))
+#endif
+
+#ifndef min
+#define min(a,b)            (((a) < (b)) ? (a) : (b))
+#endif
+
+#endif
 
 #define CONSOLE_INPUT_FILE "Console.txt"
 #define CONSOLE_CONTEXT_FILE "ConsoleContext.cpp"
@@ -198,7 +214,7 @@ void Console::InitFileChangeNotifier()
 void Console::InitGUI()
 {
 	// Load document but don't show it yet
-	Rocket::Core::ElementDocument* pDocument = m_pRocketContext->LoadDocument("/Assets/GUI/console.rml");
+	Rocket::Core::ElementDocument* pDocument = m_pRocketContext->LoadDocument("/GUI/console.rml");
 	if (pDocument != NULL)
 	{
 		pDocument->SetId( "Console" );
@@ -215,7 +231,7 @@ void Console::ReloadGUI()
 	// Clear style sheet cache so any changes to RCSS files will be applied
 	Rocket::Core::Factory::ClearStyleSheetCache();
 	
-	Rocket::Core::ElementDocument* pDocument = m_pRocketContext->LoadDocument("/Assets/GUI/console.rml");
+	Rocket::Core::ElementDocument* pDocument = m_pRocketContext->LoadDocument("/GUI/console.rml");
 	if (pDocument != NULL)
 	{
 		pDocument->SetId( "Console" );
@@ -271,7 +287,7 @@ void Console::ProcessEvent(Rocket::Core::Event& event)
 		if (character == '\n')
 		{
 			STextAreaParams& params = m_textAreaParams[m_bGUIViewMulti ? ETAT_MULTI : ETAT_SINGLE];
-			params.position = params.history.size() - 1;
+			params.position = (int)params.history.size() - 1;
 
 			StoreGUITextInHistory();
 			ApplyGUIExecute();
@@ -283,7 +299,7 @@ void Console::ProcessEvent(Rocket::Core::Event& event)
 		if (!m_pExecuteButton->IsDisabled())
 		{
 			STextAreaParams& params = m_textAreaParams[m_bGUIViewMulti ? ETAT_MULTI : ETAT_SINGLE];
-			params.position = params.history.size() - 1;
+			params.position = (int)params.history.size() - 1;
 
 			StoreGUITextInHistory();
 			ApplyGUIExecute();
@@ -299,7 +315,7 @@ void Console::ProcessEvent(Rocket::Core::Event& event)
 		m_bGUIViewMulti = !m_bGUIViewMulti;
 
 		STextAreaParams& params = m_textAreaParams[m_bGUIViewMulti ? ETAT_MULTI : ETAT_SINGLE];
-		if (params.position == params.history.size() - 1)
+		if (params.position == (int)params.history.size() - 1)
 		{
 			StoreGUITextInHistory(); // save text in latest history before changing views so we don't lose it
 		}
@@ -510,7 +526,7 @@ void Console::ApplyGUIFinishExecute()
 	STextAreaParams& params = m_textAreaParams[m_bGUIViewMulti ? ETAT_MULTI : ETAT_SINGLE];
 	params.pElement->Focus();
 	params.history.push_back(""); // add new history element which corresponds to current input
-	params.position = params.history.size() - 1;
+	params.position = (int)params.history.size() - 1;
 
 	ApplyGUIHistoryPosition();
 }
@@ -584,9 +600,21 @@ void Console::WriteConsoleContext(const std::string& text)
 	outFile << CONTEXT_FOOTER;
 }
 
+// local class for console execution
+class ConsoleExecuteProtector : public RuntimeProtector
+{
+public:
+ 	IConsoleContext*	pContext;
+    SystemTable*		pSys;
+private:
+    virtual void ProtectedFunc()
+    {
+		pContext->Execute( pSys );
+    }
+
+};
 void Console::ExecuteConsoleContext()
 {
-	IObjectFactorySystem* pFactorySystem = m_pEnv->sys->pObjectFactorySystem;
 	ILogSystem *pLog = m_pEnv->sys->pLogSystem;
 
 	IConsoleContext* pContext;
@@ -599,41 +627,41 @@ void Console::ExecuteConsoleContext()
 
 		// Console should execute Safe-C, but for some things we really do want to return
 		// null pointers on occaision. So lets deal with those simple cases cleanly.
-		bool bSuccess = true;
+		ConsoleExecuteProtector consoleProtectedExecutor;
+		consoleProtectedExecutor.m_bHintAllowDebug = false;
+		consoleProtectedExecutor.pContext = pContext;
+		consoleProtectedExecutor.pSys = m_pEnv->sys;
+		consoleProtectedExecutor.TryProtectedFunc();
 
-		AuroraExceptionInfo exceptionInfo;
-		__try {
-			pContext->Execute(m_pEnv->sys);
-		} __except( SimpleExceptionFilter( GetExceptionInformation(), &exceptionInfo ) )
+		if( consoleProtectedExecutor.HasHadException() )
 		{
-			// If we hit any structured exception, exceptionInfo will be initialized
-			// If it's one we recognise, we'll go straight here, with info filled out
-			// If not we'll go to debugger first, then here
-			bSuccess = false;
-		}
-
-		if (bSuccess)
-		{
-		}
-		else
-		{
-			switch (exceptionInfo.exceptionType)
+			switch (consoleProtectedExecutor.ExceptionInfo.Type)
 			{
-			case ESE_Unknown:
+			case RuntimeProtector::ESE_Unknown:
 				pLog->Log(eLV_ERRORS, "Console command caused an unknown error\n");
 				break;
-			case ESE_AccessViolationRead:
-				if (exceptionInfo.xAddress == 0)
+			case RuntimeProtector::ESE_AccessViolation:
+				// Note that in practice, writing to pointers it not something that should often be needed in a console command
+				if (consoleProtectedExecutor.ExceptionInfo.Addr == 0)
+					pLog->Log(eLV_ERRORS, "Console command tried to access a null pointer\n");
+				else
+					pLog->Log(eLV_ERRORS, "Console command tried to access an invalid pointer (address 0x%p)\n", consoleProtectedExecutor.ExceptionInfo.Addr);
+				break;
+			case RuntimeProtector::ESE_AccessViolationRead:
+				if (consoleProtectedExecutor.ExceptionInfo.Addr == 0)
 					pLog->Log(eLV_ERRORS, "Console command tried to read from a null pointer\n");
 				else
-					pLog->Log(eLV_ERRORS, "Console command tried to read from an invalid pointer (address 0x%p)\n", exceptionInfo.xAddress);
+					pLog->Log(eLV_ERRORS, "Console command tried to read from an invalid pointer (address 0x%p)\n", consoleProtectedExecutor.ExceptionInfo.Addr);
 				break;
-			case ESE_AccessViolationWrite:
+			case RuntimeProtector::ESE_AccessViolationWrite:
 				// Note that in practice, writing to pointers it not something that should often be needed in a console command
-				if (exceptionInfo.xAddress == 0)
+				if (consoleProtectedExecutor.ExceptionInfo.Addr == 0)
 					pLog->Log(eLV_ERRORS, "Console command tried to write to a null pointer\n");
 				else
-					pLog->Log(eLV_ERRORS, "Console command tried to write to an invalid pointer (address 0x%p)\n", exceptionInfo.xAddress);
+					pLog->Log(eLV_ERRORS, "Console command tried to write to an invalid pointer (address 0x%p)\n", consoleProtectedExecutor.ExceptionInfo.Addr);
+				break;
+			case RuntimeProtector::ESE_InvalidInstruction:
+					pLog->Log(eLV_ERRORS, "Console command tried to execute an invalid instruction at (address 0x%p)\n", consoleProtectedExecutor.ExceptionInfo.Addr);
 				break;
 			default:
 				AU_ASSERT(false);

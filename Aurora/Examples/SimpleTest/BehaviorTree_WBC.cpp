@@ -51,30 +51,38 @@ public:
 
 		if ( pBBCommon->enemy_collision_objectid.IsValid() )
 		{
-			pGameObject->SetBehavior( "Behavior_WBC_Combat" );
+			pGameObject->SetBehavior( m_Behavior_WBC_Combat );
 		}
 		else if ( !pBBCommon->target_position.IsInfinite() )
 		{
-			pGameObject->SetBehavior( "Behavior_WBC_Approach" );
+			pGameObject->SetBehavior( m_Behavior_WBC_Approach );
 		}
 		else if ( pBBGlobal->infection_count > 0 )
 		{
-			pGameObject->SetBehavior( "Behavior_WBC_Patrol" );
+			pGameObject->SetBehavior( m_Behavior_WBC_Patrol );
 		}
 		else
 		{
-			pGameObject->SetBehavior( "Behavior_WBC_Idle" );
+			pGameObject->SetBehavior( m_Behavior_WBC_Idle );
 		}	
 	}
 
 	virtual void Init( bool isFirstInit )
 	{
 		m_pBBManager = (IBlackboardManager*)IObjectUtils::GetUniqueInterface( "BlackboardManager", IID_IBLACKBOARDMANAGER );
+		m_Behavior_WBC_Combat	= IObjectUtils::GetConstructor( "Behavior_WBC_Combat" )->GetConstructorId();
+		m_Behavior_WBC_Approach	= IObjectUtils::GetConstructor( "Behavior_WBC_Approach" )->GetConstructorId();
+		m_Behavior_WBC_Patrol	= IObjectUtils::GetConstructor( "Behavior_WBC_Patrol" )->GetConstructorId();
+		m_Behavior_WBC_Idle		= IObjectUtils::GetConstructor( "Behavior_WBC_Idle" )->GetConstructorId();
 	}
 
 private:
 
 	IBlackboardManager* m_pBBManager;
+	ConstructorId		m_Behavior_WBC_Combat;
+	ConstructorId		m_Behavior_WBC_Approach;
+	ConstructorId		m_Behavior_WBC_Patrol;
+	ConstructorId		m_Behavior_WBC_Idle;
 };
 
 REGISTERCLASS(BehaviorTree_WBC);

@@ -69,7 +69,7 @@ template <class T> class AUDynArray : public IAUDynArray<T>
 public:
 	AUDynArray<T>(size_t size = 0)
 	{
-		m_vec.resize(size);
+		this->m_vec.resize(size);
 	}
 
 	~AUDynArray<T>()
@@ -80,12 +80,12 @@ public:
 
 	void Resize(size_t size) 
 	{
-		m_vec.resize(size);
+		this->m_vec.resize(size);
 	}
 
 	void Add(const T& item)
 	{
-		m_vec.push_back(item);
+		this->m_vec.push_back(item);
 	}
 };
 

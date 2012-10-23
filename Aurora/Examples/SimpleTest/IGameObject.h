@@ -48,7 +48,7 @@ struct IGameObject : public  TInterface<IID_IGAMEOBJECT,IEntityObject>, public I
 	virtual void SetColor( const AUColor& color ) = 0;
 	virtual void SetColor( float r, float g, float b, float a = 0.0f ) = 0;
 	virtual void SetModel( const char* file ) = 0;
-	virtual void SetBehavior( const char* behavior ) = 0;
+	virtual void SetBehavior( ConstructorId constructor ) = 0;
 
 	virtual void OnSelect() = 0;
 	virtual void OnDeselect() = 0;

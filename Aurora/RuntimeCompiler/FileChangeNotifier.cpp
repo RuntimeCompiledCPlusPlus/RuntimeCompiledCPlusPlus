@@ -18,9 +18,9 @@
 #include "FileChangeNotifier.h"
 #include "boost/algorithm/string.hpp"
 
-#ifdef _WINDOWS_
-#include "FileMonitor_PlatformWindows.h"
-#endif
+#include "FileMonitor.h"
+#include <algorithm>
+using namespace std;
 
 #define DEFAULT_MIN_TIME_BETWEEN_RECOMPILES 1.0f
 #define DEFAULT_NOTIFY_DELAY 0.1f
@@ -121,7 +121,7 @@ void FileChangeNotifier::OnFileChange( const boost::filesystem::path& filename )
 		{
 			const boost::filesystem::path* pFilename = &filename;
 
-#ifdef _WINDOWS_
+#ifdef _WIN32
 			// make filename lowercase to avoid case sensitivity issues with __FILE__ and ReadDirectoryChangesW output
 			boost::filesystem::path lowerFilename = boost::filesystem::path(boost::to_lower_copy(filename.wstring()));
 			pFilename = &lowerFilename;
@@ -160,7 +160,7 @@ void FileChangeNotifier::TriggerNotificationIfPossible()
 
 void FileChangeNotifier::NotifyListeners()
 {
-	std::map<IFileChangeListener*, AUDynArray<const char*>> interestedListenersMap;
+	std::map<IFileChangeListener*, AUDynArray<const char*> > interestedListenersMap;
 
 	// Determine which listeners are interested in which changed files
 	TPathNameList::const_iterator fileIt = m_changedFileList.begin();
@@ -180,8 +180,8 @@ void FileChangeNotifier::NotifyListeners()
 	}
 
 	// Notify each listener with an appropriate file list
-	std::map<IFileChangeListener*, AUDynArray<const char*>>::iterator finalIt = interestedListenersMap.begin();
-	std::map<IFileChangeListener*, AUDynArray<const char*>>::iterator finalItEnd = interestedListenersMap.end();
+	std::map<IFileChangeListener*, AUDynArray<const char*> >::iterator finalIt = interestedListenersMap.begin();
+	std::map<IFileChangeListener*, AUDynArray<const char*> >::iterator finalItEnd = interestedListenersMap.end();
 	while (finalIt != finalItEnd)
 	{
 		finalIt->first->OnFileChange(finalIt->second);	

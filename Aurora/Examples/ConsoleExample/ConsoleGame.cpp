@@ -24,7 +24,7 @@
 #include "../../RuntimeCompiler/FileChangeNotifier.h"
 #include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
 #include "../../RuntimeObjectSystem/ObjectFactorySystem/ObjectFactorySystem.h"
-#include "../../RuntimeObjectSystem/RuntimeObjectSystem/RuntimeObjectSystem.h"
+#include "../../RuntimeObjectSystem/RuntimeObjectSystem.h"
 
 #include "StdioLogSystem.h"
 
@@ -33,9 +33,28 @@
 #include "InterfaceIds.h"
 
 #include <iostream>
-#include <tchar.h>
+#ifdef WIN32
 #include <conio.h>
-#include <strstream>
+#include <tchar.h>
+#else
+#include <unistd.h>
+int _getche()
+{
+    int ret = getchar();
+    return ret;
+}
+int _kbhit()
+{
+    std::cout << "This port needs a fix, CTRL-C to quit\n";
+    return 0;
+}
+
+int Sleep( int msecs )
+{
+    return usleep( msecs * 1000);
+}
+#endif
+#include <sstream>
 #include <vector>
 #include <algorithm>
 #include <string>
@@ -56,11 +75,14 @@ ConsoleGame::ConsoleGame()
 
 ConsoleGame::~ConsoleGame()
 {
-	m_pRuntimeObjectSystem->GetObjectFactorySystem()->RemoveListener(this);
+    if( m_pRuntimeObjectSystem && m_pRuntimeObjectSystem->GetObjectFactorySystem() )
+    {
+        m_pRuntimeObjectSystem->GetObjectFactorySystem()->RemoveListener(this);
 
-	// delete object via correct interface
-	IObject* pObj = m_pRuntimeObjectSystem->GetObjectFactorySystem()->GetObject( m_ObjectId );
-	delete pObj;
+        // delete object via correct interface
+        IObject* pObj = m_pRuntimeObjectSystem->GetObjectFactorySystem()->GetObject( m_ObjectId );
+        delete pObj;
+    }
 
 	delete m_pRuntimeObjectSystem;
 	delete m_pCompilerLogger;
@@ -72,7 +94,11 @@ bool ConsoleGame::Init()
 	//Initialise the RuntimeObjectSystem
 	m_pRuntimeObjectSystem = new RuntimeObjectSystem;
 	m_pCompilerLogger = new StdioLogSystem();
-	m_pRuntimeObjectSystem->Initialise(m_pCompilerLogger, 0);
+	if( !m_pRuntimeObjectSystem->Initialise(m_pCompilerLogger, 0) )
+    {
+        m_pRuntimeObjectSystem = 0;
+        return false;
+    }
 	m_pRuntimeObjectSystem->GetObjectFactorySystem()->AddListener(this);
 
 
@@ -81,7 +107,7 @@ bool ConsoleGame::Init()
 	if( pCtor )
 	{
 		IObject* pObj = pCtor->Construct();
-		pObj->GetInterface( IID_IUPDATEABLE, (void**)&m_pUpdateable );
+		pObj->GetInterface( &m_pUpdateable );
 		if( 0 == m_pUpdateable )
 		{
 			delete pObj;
@@ -101,7 +127,7 @@ void ConsoleGame::OnConstructorsAdded()
 	if( m_pUpdateable )
 	{
 		IObject* pObj = m_pRuntimeObjectSystem->GetObjectFactorySystem()->GetObject( m_ObjectId );
-		pObj->GetInterface( IID_IUPDATEABLE, (void**)&m_pUpdateable );
+		pObj->GetInterface( &m_pUpdateable );
 		if( 0 == m_pUpdateable )
 		{
 			delete pObj;
@@ -123,8 +149,8 @@ bool ConsoleGame::MainLoop()
 
 	if( !m_pRuntimeObjectSystem->GetIsCompiling() )
 	{
-
-		std::cout << "\nMain Loop - press q to quit. Updates every second.\n";
+        static int numUpdates = 0;
+		std::cout << "\nMain Loop - press q to quit. Updates every second. Update: " << numUpdates++ << "\n";
 		if( _kbhit() )
 		{
 			int ret = _getche();

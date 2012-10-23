@@ -21,21 +21,11 @@
   <ItemGroup>
     <ClCompile Include="AURenderContext.cpp" />
     <ClCompile Include="AURenMesh.cpp" />
-    <ClCompile Include="AURenTexture.cpp" />
-    <ClCompile Include="IImage.cpp" />
-    <ClCompile Include="ImageJPG.cpp" />
-    <ClCompile Include="ImagePNM.cpp" />
-    <ClCompile Include="RenderWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AURenderContext.h" />
-    <ClInclude Include="AURenTexture.h" />
     <ClInclude Include="IAURenderable.h" />
     <ClInclude Include="AURenMesh.h" />
-    <ClInclude Include="IImage.h" />
-    <ClInclude Include="ImageJPG.h" />
-    <ClInclude Include="ImagePNM.h" />
-    <ClInclude Include="RenderWindow.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{26DDDB96-4A8E-4A1B-997C-970DE0CCCE37}</ProjectGuid>
@@ -106,8 +96,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;assimp.lib;jpeg.lib;glew32s.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\External\glew-1.6.0\lib;$(SolutionDir)\External\assimp\lib\assimp_release-dll_win32;$(SolutionDir)\External\Independant JPEG Group\jpeg-6b\bin</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;assimp.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\External\assimp\lib\assimp_release-dll_win32</AdditionalLibraryDirectories>
     </Lib>
     <PostBuildEvent>
       <Command>xcopy /y $(SolutionDir)\External\assimp\bin\assimp_release-dll_win32\*.dll $(OutDir)</Command>
@@ -131,8 +121,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;assimp.lib;jpeg.lib;glew32s.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\External\glew-1.6.0\lib;$(SolutionDir)\External\assimp\lib\assimp_release-dll_x64;$(SolutionDir)\External\Independant JPEG Group\jpeg-6b\bin</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;assimp.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\External\assimp\lib\assimp_release-dll_x64</AdditionalLibraryDirectories>
     </Lib>
     <PostBuildEvent>
       <Command>xcopy /y $(SolutionDir)\External\assimp\bin\assimp_release-dll_win32\*.dll $(OutDir)</Command>
@@ -160,8 +150,8 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;assimp.lib;jpeg.lib; glew32s.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\External\glew-1.6.0\lib;$(SolutionDir)\External\assimp\lib\assimp_release-dll_win32;$(SolutionDir)\External\Independant JPEG Group\jpeg-6b\bin</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;assimp.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\External\assimp\lib\assimp_release-dll_win32</AdditionalLibraryDirectories>
     </Lib>
     <PostBuildEvent>
       <Command>xcopy /y $(SolutionDir)\External\assimp\bin\assimp_release-dll_win32\*.dll $(SolutionDir)$(Configuration)\</Command>
@@ -189,8 +179,8 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;assimp.lib;jpeg.lib; glew32s.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\External\glew-1.6.0\lib;$(SolutionDir)\External\assimp\lib\assimp_release-dll_x64;$(SolutionDir)\External\Independant JPEG Group\jpeg-6b\bin</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;assimp.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\External\assimp\lib\assimp_release-dll_x64</AdditionalLibraryDirectories>
     </Lib>
     <PostBuildEvent>
       <Command>xcopy /y $(SolutionDir)\External\assimp\bin\assimp_release-dll_win32\*.dll $(OutDir)</Command>

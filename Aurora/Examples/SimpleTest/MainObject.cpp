@@ -71,7 +71,6 @@ private:
 	void CreateObjects()
 	{
 		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
-		IEntitySystem *pEntitySystem = pSystemTable->pEntitySystem;
 
 		// Construct unique objects (managers, util objects, etc)
 		IObjectUtils::CreateUniqueObject( "MainMenu" );

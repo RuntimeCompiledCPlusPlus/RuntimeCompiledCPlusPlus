@@ -16,7 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "Behavior_Infected_Base.h"
-
+#include <float.h>
 
 class Behavior_Infected_HuntWBC : public Behavior_Infected_Base
 {

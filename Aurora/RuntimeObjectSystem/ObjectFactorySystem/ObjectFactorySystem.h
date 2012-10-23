@@ -21,16 +21,24 @@
 #define OBJECTFACTORYSYSTEM_INCLUDED
 
 #include "../IObjectFactorySystem.h"
+#include "../SimpleSerializer/SimpleSerializer.h"
+#include "../Exceptions.h"
 #include <map>
 #include <string>
 #include <set>
 
-
-class ObjectFactorySystem : public IObjectFactorySystem
+// class  ObjectFactorySystem
+// implements interface IObjectFactorySystem
+// also implements RuntimeProtector so that when new constructors are added and used,
+// exceptions can be caught by the runtime system to allow fixing on the fly.
+class ObjectFactorySystem : public IObjectFactorySystem , public RuntimeProtector
 {
 public:
 	ObjectFactorySystem()
 		: m_pLogger( 0 )
+		, m_pNewConstructors( 0 )
+		, m_ProtectedPhase(PHASE_NONE)
+		, m_pSerializer( 0 )
 	{
 	}
 
@@ -49,6 +57,9 @@ public:
 	}
 
 
+	// RuntimeProtector implementation
+	virtual void ProtectedFunc();
+
 private:
 	typedef std::map<std::string,ConstructorId> CONSTRUCTORMAP;
 	typedef std::set<IObjectFactoryListener*> TObjectFactoryListeners;
@@ -57,6 +68,22 @@ private:
 	std::vector<IObjectConstructor*> m_Constructors;
 	TObjectFactoryListeners m_Listeners;
 	ICompilerLogger* m_pLogger;
+
+	// temp data needed during object swap
+	IAUDynArray<IObjectConstructor*>*	m_pNewConstructors;
+	std::vector<IObjectConstructor*>	m_PrevConstructors;
+	SimpleSerializer*					m_pSerializer;
+	enum ProtectedPhase
+	{
+		PHASE_NONE,
+		PHASE_SERIALIZEOUT,
+		PHASE_CONSTRUCTNEW,
+		PHASE_SERIALIZEIN,
+		PHASE_SERIALIZEOUTTEST,
+		PHASE_DELETEOLD,
+	};
+	ProtectedPhase						m_ProtectedPhase;
+
 };
 
 

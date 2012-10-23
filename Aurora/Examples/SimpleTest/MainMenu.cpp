@@ -29,7 +29,7 @@
 #include "../../Systems/IUpdateable.h"
 #include "../../Systems/IEntitySystem.h"
 #include "../../Systems/IGame.h"
-
+#include "../../Systems/IAssetSystem.h"
 
 class OnClickCompile : public IGUIEventListener
 {
@@ -104,8 +104,7 @@ public:
 
 	virtual void OnEvent( int event_id, const IGUIEvent& event_info )
 	{
-		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
-		m_bVisible = (event_id == 0) ? !m_bVisible : false; // Toggle or force close	
+		m_bVisible = (event_id == 0) ? !m_bVisible : false; // Toggle or force close
 		SetVisibility();
 
 		if ( !m_bVisible && m_pChildClose )
@@ -144,7 +143,7 @@ public:
 		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
 		char AutoCompile[100];
 		event_info.GetParameter( "value", AutoCompile, sizeof( AutoCompile ) );
-		int length = strlen( AutoCompile );
+		size_t length = strlen( AutoCompile );
 		if ( 0 == length )
 		{
 			g_bAutoCompile = false;
@@ -186,7 +185,7 @@ public:
 		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
 		char Mute[100];
 		event_info.GetParameter( "value", Mute, sizeof( Mute ) );
-		int length = strlen( Mute );
+		size_t length = strlen( Mute );
 		if ( length == 0 )
 		{
 			g_Muted = false;
@@ -232,7 +231,7 @@ public:
 		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
 		char Pause[100];
 		event_info.GetParameter( "value", Pause, sizeof( Pause ) );
-		int length = strlen( Pause );
+		size_t length = strlen( Pause );
 		if ( length == 0 )
 		{
 			g_Paused = false;
@@ -372,13 +371,12 @@ public:
 		IFileChangeNotifier* pFileChangeNotifier = pSystemTable->pFileChangeNotifier;
 
 		// Set watches on the data files we rely on for drawing GUI
-		// Note that the path will get correctly normalized by FileChangeNotifier
-		// An extra level of /.. has been added so that the filename in __FILE__ will get removed on normalizing
-		char path[256]; 
-		_snprintf_s(path, sizeof(path), "%s/../../../Assets/GUI/menu.rml", __FILE__);
-		pFileChangeNotifier->Watch(path, this);
-		_snprintf_s(path, sizeof(path), "%s/../../../Assets/GUI/menu.rcss", __FILE__);
-		pFileChangeNotifier->Watch(path, this);
+		std::string path = pSystemTable->pAssetSystem->GetAssetDirectory();
+		path += "/GUI/menu.rml";
+		pFileChangeNotifier->Watch(path.c_str(), this);
+		path = pSystemTable->pAssetSystem->GetAssetDirectory();
+		path += "/GUI/menu.rcss";
+		pFileChangeNotifier->Watch(path.c_str(), this);
 	}
 
 
@@ -400,7 +398,7 @@ public:
 		IGUIDocument* pDocument = forceLoad ? NULL : pGUI->GetDocument("MainDocument");
 		if (pDocument == NULL)
 		{
-			pDocument = pGUI->LoadDocument( "/Assets/GUI/menu.rml", "MainDocument");
+			pDocument = pGUI->LoadDocument( "/GUI/menu.rml", "MainDocument");
 			bHaveLoadedDoc = true;
 		}
 

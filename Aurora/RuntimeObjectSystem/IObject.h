@@ -81,6 +81,11 @@ struct IObject
 		}
 	}
 
+	template< typename T> void GetInterface( T** pReturn )
+	{
+		GetInterface( T::s_interfaceID, (void**)pReturn );
+	}
+
 
 	IObject() : _isRuntimeDelete(false) {}
 	virtual ~IObject()
@@ -123,7 +128,7 @@ protected:
 	bool IsRuntimeDelete() { return _isRuntimeDelete; }
 
 private:
-	friend ObjectFactorySystem;
+	friend class ObjectFactorySystem;
 
 	// Set to true when object is being deleted because a new version has been created
 	// Destructor should use this information to not delete other IObjects in this case
