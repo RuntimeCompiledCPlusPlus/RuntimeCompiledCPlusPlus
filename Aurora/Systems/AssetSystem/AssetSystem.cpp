@@ -30,18 +30,40 @@ AssetSystem::AssetSystem(const char* AssetDirName_)
 	//search for asset directory
 	path currPath;
 	currPath = current_path();
-
+    bool bAssetDirFound = false;
+    
 	//test root and downwards for directory
 	while( currPath.has_parent_path() )
 	{
 		path testPath = currPath / AssetDirName_;
 		if( exists( testPath ) )
 		{
+            bAssetDirFound = true;
 			m_AssetDirectory = testPath.string();
 			break;
 		}
 		currPath = currPath.parent_path();
 	}
+    
+    if( !bAssetDirFound )
+    {
+        //could be a development build, so test location of this source file and down
+        currPath = __FILE__;
+        if( exists( currPath ))
+        {
+            while( currPath.has_parent_path() )
+            {
+                path testPath = currPath / AssetDirName_;
+                if( exists( testPath ) )
+                {
+                    bAssetDirFound = true;
+                    m_AssetDirectory = testPath.string();
+                    break;
+                }
+                currPath = currPath.parent_path();
+            }           
+        }
+    }
 }
 
 
@@ -54,12 +76,14 @@ AssetSystem::~AssetSystem()
 		++currMesh;
 	}
 
+#ifndef NOALSOUND
 	ALBUFFERMAP::iterator currSound = m_AlBuffers.begin();
 	while( currSound != m_AlBuffers.end() )
 	{
 		delete currSound->second;
 		++currSound;
 	}
+#endif
 
 }
 
@@ -94,6 +118,7 @@ void AssetSystem::DestroyRenderableMesh(IAURenderableMesh* pMesh)
 CalSound* AssetSystem::CreateSoundFromFile( const char* pFilename, bool looping )
 {
 	CalSound* pSound= 0;
+#ifndef NOALSOUND
 	std::string filename( pFilename );
 	ALBUFFERMAP::iterator found = m_AlBuffers.find( filename );
 	if( found != m_AlBuffers.end() )
@@ -108,13 +133,15 @@ CalSound* AssetSystem::CreateSoundFromFile( const char* pFilename, bool looping 
 		m_AlBuffers[ filename ] = pBuffer; //use passed in filename for map
 		pSound = new CalSound( *pBuffer, looping );
 	}
-
+#endif
 	return pSound;
 }
 
 void AssetSystem::DestroySound( CalSound* pSound )
 {
+#ifndef NOALSOUND
 	delete pSound;
+#endif
 }
 
 bool AssetSystem::FindFile( std::string& filename )

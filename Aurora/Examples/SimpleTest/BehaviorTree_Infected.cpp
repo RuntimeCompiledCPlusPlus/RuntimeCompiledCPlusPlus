@@ -44,41 +44,49 @@ public:
 	virtual void Execute( IGameObject* pGameObject )
 	{
 		BB_Global* pBBGlobal = (BB_Global*)m_pBBManager->GetBlackboardGlobal();
-		BB_Team_Infection* pBBTeam = (BB_Team_Infection*)m_pBBManager->GetBlackboardTeam( pGameObject->GetGameTeam() );
 		BB_Group_Infected* pBBGroup = (BB_Group_Infected*)m_pBBManager->GetBlackboardGroup( pGameObject->GetGameObjectType() );
-		BB_Individual_Infected* pBBIndividual = (BB_Individual_Infected*)m_pBBManager->GetBlackboardIndividual( pGameObject );
 		BB_Individual_Common* pBBCommon = (BB_Individual_Common*)m_pBBManager->GetBlackboardIndividualCommon( pGameObject );
 
 		if ( pBBCommon->enemy_collision_objectid.IsValid() )
 		{
-			pGameObject->SetBehavior( "Behavior_Infected_Combat" );
+			pGameObject->SetBehavior( m_Behavior_Infected_Combat );
 		}
 		else if ( !pBBCommon->target_position.IsInfinite() )
 		{
-			pGameObject->SetBehavior( "Behavior_Infected_Approach" );
+			pGameObject->SetBehavior( m_Behavior_Infected_Approach );
 		}
 		else if ( pBBGlobal->infection_team_strength > pBBGlobal->immune_team_strength * 1.2f && pBBGroup->group_size > 1 )
 		{
-			pGameObject->SetBehavior( "Behavior_Infected_HuntWBC" );
+			pGameObject->SetBehavior( m_Behavior_Infected_HuntWBC );
 		}
 		else if ( pBBGlobal->immune_count > 0 )
 		{
-			pGameObject->SetBehavior( "Behavior_Infected_HuntRBC" );
+			pGameObject->SetBehavior( m_Behavior_Infected_HuntRBC );
 		}
 		else
 		{
-			pGameObject->SetBehavior( "Behavior_Infected_Idle" );
+			pGameObject->SetBehavior( m_Behavior_Infected_Idle );
 		}	
 	}
 
 	virtual void Init( bool isFirstInit )
 	{
 		m_pBBManager = (IBlackboardManager*)IObjectUtils::GetUniqueInterface( "BlackboardManager", IID_IBLACKBOARDMANAGER );
+		m_Behavior_Infected_Combat		= IObjectUtils::GetConstructor( "Behavior_Infected_Combat" )->GetConstructorId();
+		m_Behavior_Infected_Approach	= IObjectUtils::GetConstructor( "Behavior_Infected_Approach" )->GetConstructorId();
+		m_Behavior_Infected_HuntWBC		= IObjectUtils::GetConstructor( "Behavior_Infected_HuntWBC" )->GetConstructorId();
+		m_Behavior_Infected_HuntRBC		= IObjectUtils::GetConstructor( "Behavior_Infected_HuntRBC" )->GetConstructorId();
+		m_Behavior_Infected_Idle		= IObjectUtils::GetConstructor( "Behavior_Infected_Idle" )->GetConstructorId();
 	}
 
 private:
 
 	IBlackboardManager* m_pBBManager;
+	ConstructorId		m_Behavior_Infected_Combat;
+	ConstructorId		m_Behavior_Infected_Approach;
+	ConstructorId		m_Behavior_Infected_HuntWBC;
+	ConstructorId		m_Behavior_Infected_HuntRBC;
+	ConstructorId		m_Behavior_Infected_Idle;
 };
 
 REGISTERCLASS(BehaviorTree_Infected);

@@ -98,11 +98,17 @@ struct IObjectUtils
 		return pEntity;
 	}
 
+	static IObjectConstructor* GetConstructor( const char* objectType )
+	{
+		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
+		return  pSystemTable->pObjectFactorySystem->GetConstructor( objectType );
+	}
+
+
 	static IObject* CreateObjectAndEntity( const char* objectType, const char* entityName, bool bEntityNameIsUnique=true )
 	{
 		IObject* pObj = 0;
-		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
-		IObjectConstructor* pConstructor = pSystemTable->pObjectFactorySystem->GetConstructor( objectType );
+		IObjectConstructor* pConstructor = GetConstructor( objectType );
 		if( pConstructor )
 		{
 			pObj = pConstructor->Construct();
@@ -111,6 +117,7 @@ struct IObjectUtils
 		}
 		else
 		{
+			SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
 			pSystemTable->pLogSystem->Log( eLV_ERRORS, "CreateObjectAndEntity: Could not find constructor: %s\n", objectType  );
 			pObj = 0;
 		}
@@ -120,8 +127,7 @@ struct IObjectUtils
 	static IObject* CreateObject( const char* objectType )
 	{
 		IObject* pObj = 0;
-		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
-		IObjectConstructor* pConstructor = pSystemTable->pObjectFactorySystem->GetConstructor( objectType );
+		IObjectConstructor* pConstructor = GetConstructor( objectType );
 		if( pConstructor )
 		{
 			pObj = pConstructor->Construct();
@@ -129,16 +135,76 @@ struct IObjectUtils
 		}
 		else
 		{
+			SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
 			pSystemTable->pLogSystem->Log( eLV_ERRORS, "CreateObject: Could not find constructor: %s\n", objectType  );
 			pObj = 0;
 		}
 		return pObj;
 	}
-
 	template <class T> static void CreateObject( T **pInterface, const char * objectType )
 	{
 		IObject* pObj = CreateObject( objectType );
-		pObj->GetInterface( T::s_interfaceID, (void**)pInterface );
+		if( pObj )
+		{
+			pObj->GetInterface( pInterface );
+			if( 0 == *pInterface )
+			{
+				//mismatched type
+				SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
+				pSystemTable->pLogSystem->Log( eLV_ERRORS, "CreateObject: requested objectType does not support interface %s\n", objectType  );
+				delete pObj;
+			}
+		}
+		else
+		{
+			*pInterface = 0;
+		}
+	}
+
+	
+	static IObjectConstructor* GetConstructor( ConstructorId constructor )
+	{
+		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
+		return  pSystemTable->pObjectFactorySystem->GetConstructor( constructor );
+	}
+
+
+	static IObject* CreateObject( ConstructorId constructor )
+	{
+		IObject* pObj = 0;
+		IObjectConstructor* pConstructor = GetConstructor( constructor );
+		if( pConstructor )
+		{
+			pObj = pConstructor->Construct();
+			pObj->Init(true);
+		}
+		else
+		{
+			SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
+			pSystemTable->pLogSystem->Log( eLV_ERRORS, "CreateObject: Could not find constructor\n"  );
+		}
+		return pObj;
+	}
+
+	template <class T> static void CreateObject( T **pInterface, ConstructorId constructor )
+	{
+		IObject* pObj = CreateObject( constructor );
+		if( pObj )
+		{
+			pObj->GetInterface( pInterface );
+			if( 0 == *pInterface )
+			{
+				//mismatched type
+				SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
+				pSystemTable->pLogSystem->Log( eLV_ERRORS, "CreateObject: requested objectType does not support interface\n"  );
+				delete pObj;
+			}
+		}
+		else
+		{
+			*pInterface = 0;
+		}
+
 	}
 
 	template <class T> static void GetObject( T **pInterface, ObjectId id )

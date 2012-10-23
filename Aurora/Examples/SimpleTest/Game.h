@@ -28,9 +28,12 @@
 #include "../../Systems/IGame.h"
 #include <Rocket/Core/EventListener.h>
 #include <Rocket/Core/Context.h>
-#include <Windows.h>
 #include <vector>
 #include <map>
+
+#ifdef _WIN32
+#include <Windows.h>
+#endif
 
 #define BOOST_FILESYSTEM_VERSION 3
 #include "boost/filesystem.hpp" 
@@ -111,6 +114,7 @@ private:
 
 	bool				m_bHaveProgramError;
 	double				m_fLastUpdateSessionTime;
+	double				m_CompileStartedTime;
 
 	CalSound*			m_pLoopingBackgroundSound;
 	CalBuffer*			m_pLoopingBackgroundSoundBuffer;

@@ -64,6 +64,7 @@ public:
 		m_bValid			= alBuffer_.m_bValid;
 		m_puiNumReferences	= alBuffer_.m_puiNumReferences;
 		++*m_puiNumReferences;
+        return *this;
 	}
 
 private:

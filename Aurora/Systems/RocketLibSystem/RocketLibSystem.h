@@ -46,26 +46,19 @@ class RocketLibSystem
 {
 public:
 	/// Initialise the shell.
-	/// @param[in] path The path (relative to the current working directory) of the application's working directory.
-	static bool Initialise(const Rocket::Core::String& path);
+	static bool Initialise();
 	/// Shutdown the shell.
 	static void Shutdown();
 
 	/// Loads the default fonts from the given path.
 	static void LoadFonts(const char* directory);
 
-	/// Returns the path to the application's executable.
-	static const Rocket::Core::String& GetExecutablePath();
-
 	/// Open a platform specific window, optionally initialising an OpenGL context on it.
 	/// @param[in] title Title of the window.
 	/// @param[in] attach_opengl Attach and opengl context to the window.
-	static bool OpenWindow(const wchar_t* title, bool attach_opengl);
+	static bool OpenWindow(const char* title, bool attach_opengl);
 	/// Close the active window.
 	static void CloseWindow();
-
-	/// Returns a platform-dependent handle to the window.
-	static void* GetWindowHandle();
 
 	/// Flips the OpenGL buffers.
 	static void FlipBuffers();
@@ -86,7 +79,6 @@ public:
 	static void GetViewport( int WindowSize[4] );
 
 private:
-	static Rocket::Core::String executable_path;
 };
 
 #include "RocketLibSystemRenderInterfaceOpenGL.h"

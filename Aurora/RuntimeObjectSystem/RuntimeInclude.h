@@ -38,40 +38,23 @@ namespace
 
 template< unsigned int COUNT > struct RuntimeIncludeFiles : public IRuntimeIncludeFileList
 {
-	static void GetIncludeFiles( char** paFileArray_ )
-	{
-		//do nothing - RuntimeIncludeFiles<1> stored in paFileArray_[0]
-	}
-	static unsigned int GetCount()
-	{
-		return COUNT + 1;
-	}
 };
 
 
 #define RUNTIME_MODIFIABLE_INCLUDE_BASE( N ) \
-	template<> struct RuntimeIncludeFiles< N + 1 >  : public IRuntimeIncludeFileList\
+	template<> struct RuntimeIncludeFiles< N + 1 >  : public RuntimeIncludeFiles< N >\
 	{ \
-		char* fileArray[ N + 1 ]; \
-		unsigned int count; \
-		RuntimeIncludeFiles< N + 1 >() \
-		{ \
-			GetIncludeFiles( fileArray ); \
-			count = GetCount(); \
-		} \
 		virtual const char* GetIncludeFile( unsigned int Num_ ) const \
 		{ \
-			if( Num_ <= N ) return fileArray[ Num_ ]; \
+			if( Num_ <= N ) \
+			{ \
+				if( Num_ == N ) \
+				{ \
+					return __FILE__; \
+				} \
+				else return this->RuntimeIncludeFiles< N >::GetIncludeFile( Num_ ); \
+			} \
 			else return 0; \
-		} \
-		static unsigned int GetCount() \
-		{ \
-			return N + 1; \
-		} \
-		static void GetIncludeFiles( char** paFileArray_ ) \
-		{ \
-			paFileArray_[ N ] = __FILE__; \
-			RuntimeIncludeFiles< N >::GetIncludeFiles( paFileArray_ ); \
 		} \
 	}; \
 

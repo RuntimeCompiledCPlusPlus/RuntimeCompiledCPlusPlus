@@ -10,15 +10,6 @@
     <ClInclude Include="RocketLibSystem\Input.h">
       <Filter>RocketLibSystem</Filter>
     </ClInclude>
-    <ClInclude Include="RocketLibSystem\InputMacOSX.h">
-      <Filter>RocketLibSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="RocketLibSystem\InputWin32.h">
-      <Filter>RocketLibSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="RocketLibSystem\InputX11.h">
-      <Filter>RocketLibSystem</Filter>
-    </ClInclude>
     <ClInclude Include="RocketLibSystem\RocketLibSystem.h">
       <Filter>RocketLibSystem</Filter>
     </ClInclude>
@@ -77,6 +68,9 @@
     </ClInclude>
     <ClInclude Include="IGame.h" />
     <ClInclude Include="Systems.h" />
+    <ClInclude Include="RocketLibSystem\InputGLFW.h">
+      <Filter>RocketLibSystem</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="LogSystem">
@@ -117,34 +111,16 @@
     <ClCompile Include="RocketLibSystem\Input.cpp">
       <Filter>RocketLibSystem</Filter>
     </ClCompile>
-    <ClCompile Include="RocketLibSystem\InputMacOSX.cpp">
-      <Filter>RocketLibSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="RocketLibSystem\InputWin32.cpp">
-      <Filter>RocketLibSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="RocketLibSystem\InputX11.cpp">
-      <Filter>RocketLibSystem</Filter>
-    </ClCompile>
     <ClCompile Include="RocketLibSystem\RocketLibSystem.cpp">
       <Filter>RocketLibSystem</Filter>
     </ClCompile>
     <ClCompile Include="RocketLibSystem\RocketLibSystemFileInterface.cpp">
       <Filter>RocketLibSystem</Filter>
     </ClCompile>
-    <ClCompile Include="RocketLibSystem\RocketLibSystemMacOSX.cpp">
-      <Filter>RocketLibSystem</Filter>
-    </ClCompile>
     <ClCompile Include="RocketLibSystem\RocketLibSystemRenderInterfaceOpenGL.cpp">
       <Filter>RocketLibSystem</Filter>
     </ClCompile>
     <ClCompile Include="RocketLibSystem\RocketLibSystemSystemInterface.cpp">
-      <Filter>RocketLibSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="RocketLibSystem\RocketLibSystemWin32.cpp">
-      <Filter>RocketLibSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="RocketLibSystem\RocketLibSystemX11.cpp">
       <Filter>RocketLibSystem</Filter>
     </ClCompile>
     <ClCompile Include="LogSystem\MultiLogSystem\MultiLogSystem.cpp">
@@ -178,6 +154,12 @@
       <Filter>LogSystem\ThreadsafeLogSystem</Filter>
     </ClCompile>
     <ClCompile Include="Systems.cpp" />
+    <ClCompile Include="RocketLibSystem\RocketLibSystemGLFW.cpp">
+      <Filter>RocketLibSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="RocketLibSystem\InputGLFW.cpp">
+      <Filter>RocketLibSystem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Definitions.inl" />

@@ -463,6 +463,7 @@
 		6EF3BCFE12481DD40014316D /* WString.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EF3BBFF12481DD40014316D /* WString.h */; };
 		6EF3BCFF12481DD40014316D /* XMLNodeHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EF3BC0012481DD40014316D /* XMLNodeHandler.h */; };
 		6EF3BD0012481DD40014316D /* XMLParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EF3BC0112481DD40014316D /* XMLParser.h */; };
+		91E6F73B162020FE00FCB221 /* RocketControlsOSX.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E8B1E6B123ABCEF00C451C8 /* RocketControlsOSX.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -493,6 +494,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 6E8B1DDB123ABC7800C451C8;
 			remoteInfo = RocketCoreOSX;
+		};
+		91E6F73C1620210100FCB221 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6E8B1E6A123ABCEF00C451C8;
+			remoteInfo = RocketControlsOSX;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -846,6 +854,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6E8B1ECB123AC83300C451C8 /* RocketCoreOSX.framework in Frameworks */,
+				91E6F73B162020FE00FCB221 /* RocketControlsOSX.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1432,6 +1441,7 @@
 			);
 			dependencies = (
 				6E8B1F98123ACC3B00C451C8 /* PBXTargetDependency */,
+				91E6F73D1620210100FCB221 /* PBXTargetDependency */,
 			);
 			name = RocketDebuggerOSX;
 			productName = RocketDebuggerOSX;
@@ -1934,6 +1944,11 @@
 			target = 6E8B1DDB123ABC7800C451C8 /* RocketCoreOSX */;
 			targetProxy = 6E8B1F97123ACC3B00C451C8 /* PBXContainerItemProxy */;
 		};
+		91E6F73D1620210100FCB221 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6E8B1E6A123ABCEF00C451C8 /* RocketControlsOSX */;
+			targetProxy = 91E6F73C1620210100FCB221 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -2064,7 +2079,7 @@
 				INSTALL_PATH = "$(HOME)/Library/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../../support/lib\"",
+					"\"$(SRCROOT)/../../support/lib/MacOSX\"",
 				);
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -2074,7 +2089,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = RocketCoreOSX;
-				SDKROOT = macosx10.6;
+				SDKROOT = "";
 			};
 			name = Debug;
 		};
@@ -2096,7 +2111,7 @@
 				INSTALL_PATH = "$(HOME)/Library/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../../support/lib\"",
+					"\"$(SRCROOT)/../../support/lib/MacOSX\"",
 				);
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -2106,7 +2121,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = RocketCoreOSX;
-				SDKROOT = macosx10.6;
+				SDKROOT = "";
 				ZERO_LINK = NO;
 			};
 			name = Release;
@@ -2136,7 +2151,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = RocketControlsOSX;
-				SDKROOT = macosx10.6;
+				SDKROOT = "";
 			};
 			name = Debug;
 		};
@@ -2164,7 +2179,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = RocketControlsOSX;
-				SDKROOT = macosx10.6;
+				SDKROOT = "";
 				ZERO_LINK = NO;
 			};
 			name = Release;
@@ -2222,7 +2237,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = RocketDebuggerOSX;
-				SDKROOT = macosx10.6;
+				SDKROOT = "";
 			};
 			name = Debug;
 		};
@@ -2250,7 +2265,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = RocketDebuggerOSX;
-				SDKROOT = macosx10.6;
+				SDKROOT = "";
 				ZERO_LINK = NO;
 			};
 			name = Release;

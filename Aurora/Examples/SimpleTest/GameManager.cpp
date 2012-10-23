@@ -110,7 +110,7 @@ public:
 		{
 			PreloadModels();
 
-			CreateSplashScreen( "/Assets/GUI/title.tga", 1.0f, 0.0f, 0.5f, false );
+			CreateSplashScreen( "//GUI/title.tga", 1.0f, 0.0f, 0.5f, false );
 		}
 		
 		m_pEntity->SetUpdateable( this );
@@ -341,7 +341,7 @@ private:
 		{
 			std::string name = m_GlobalParameters.go[type].base_name;
 			char buff[16];
-			_itoa_s( ++(m_NextGameObjectNumber[type]), buff, 10 );
+            _snprintf_s(buff, sizeof(buff), _TRUNCATE, "%d",++(m_NextGameObjectNumber[type]));
 			name += buff;
 
 			IObject* pObj = IObjectUtils::CreateObjectAndEntity( "GameObject", name.c_str() );
@@ -409,12 +409,12 @@ private:
 			if (m_GameObjects[EGO_WBC].size() == 0)
 			{
 				SetGameState(EGS_INFECTIONWON);
-				CreateSplashScreen( "/Assets/GUI/infectionwin.tga", 1.0f, 0.5f, 0.0f, false );
+				CreateSplashScreen( "//GUI/infectionwin.tga", 1.0f, 0.5f, 0.0f, false );
 			}
 			else if (m_GameObjects[EGO_VIRUS].size() == 0 && m_GameObjects[EGO_INFECTED].size() == 0)
 			{
 				SetGameState(EGS_IMMUNEWON);
-				CreateSplashScreen( "/Assets/GUI/immunewin.tga", 1.0f, 0.5f, 0.0f, false );
+				CreateSplashScreen( "//GUI/immunewin.tga", 1.0f, 0.5f, 0.0f, false );
 			}
 
 			break;
@@ -452,8 +452,6 @@ private:
 
 	void DestroyGameObjects()
 	{
-		IObjectFactorySystem* pFactory = PerModuleInterface::GetInstance()->GetSystemTable()->pObjectFactorySystem;
-
 		for (size_t i=0; i<m_GameObjects.size(); ++i)
 		{
 			TGameObjects& objects = m_GameObjects[i];
@@ -571,7 +569,6 @@ private:
 		{
 			// Rebuild m_objects pointer collection
 
-			IEntitySystem* pEntitySystem = PerModuleInterface::GetInstance()->GetSystemTable()->pEntitySystem;
 			for (int i=0; i<EGO_COUNT; ++i)
 			{
 				m_GameObjects[i].clear();

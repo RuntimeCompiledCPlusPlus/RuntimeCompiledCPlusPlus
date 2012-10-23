@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="FileChangeNotifier.cpp" />
+    <ClCompile Include="BuildTool.cpp" />
+    <ClCompile Include="Compiler_PlatformWindows.cpp" />
+    <ClCompile Include="SimpleFileWatcher\FileWatcher.cpp">
+      <Filter>SimpleFileWatcher</Filter>
+    </ClCompile>
+    <ClCompile Include="SimpleFileWatcher\FileWatcherWin32.cpp">
+      <Filter>SimpleFileWatcher</Filter>
+    </ClCompile>
+    <ClCompile Include="FileMonitor.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="FileChangeNotifier.h" />
+    <ClInclude Include="BuildTool.h" />
+    <ClInclude Include="Compiler.h" />
+    <ClInclude Include="IFileChangeNotifier.h" />
+    <ClInclude Include="ICompilerLogger.h" />
+    <ClInclude Include="IFileMonitor.h" />
+    <ClInclude Include="SimpleFileWatcher\FileWatcher.h">
+      <Filter>SimpleFileWatcher</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleFileWatcher\FileWatcherImpl.h">
+      <Filter>SimpleFileWatcher</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleFileWatcher\FileWatcherWin32.h">
+      <Filter>SimpleFileWatcher</Filter>
+    </ClInclude>
+    <ClInclude Include="FileMonitor.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="SimpleFileWatcher">
+      <UniqueIdentifier>{0baef244-e3d1-4bf8-b037-fb5e814ef3d4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

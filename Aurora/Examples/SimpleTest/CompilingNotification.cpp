@@ -30,6 +30,7 @@
 #include "../../Systems/IUpdateable.h"
 #include "../../Systems/IEntitySystem.h"
 #include "../../Systems/ITimeSystem.h"
+#include "../../Systems/IAssetSystem.h"
 
 #include "IEntityObject.h"
 
@@ -277,13 +278,12 @@ private:
 		IFileChangeNotifier* pFileChangeNotifier = pSystemTable->pFileChangeNotifier;
 
 		// Set watches on the data files we rely on for drawing GUI
-		// Note that the path will get correctly normalized by FileChangeNotifier
-		// An extra level of /.. has been added so that the filename in __FILE__ will get removed on normalizing
-		char path[256]; 
-		_snprintf_s(path, sizeof(path), "%s/../../../Assets/GUI/compiling-notification.rml", __FILE__);
-		pFileChangeNotifier->Watch(path, this);
-		_snprintf_s(path, sizeof(path), "%s/../../../Assets/GUI/compiling-notification.rcss", __FILE__);
-		pFileChangeNotifier->Watch(path, this);
+		std::string path = pSystemTable->pAssetSystem->GetAssetDirectory();
+		path += "/GUI/compiling-notification.rml";
+		pFileChangeNotifier->Watch(path.c_str(), this);
+		path = pSystemTable->pAssetSystem->GetAssetDirectory();
+		path += "/GUI/compiling-notification.rcss";
+		pFileChangeNotifier->Watch(path.c_str(), this);
 	}
 
 	void InitDocument(bool forceLoad)
@@ -309,7 +309,7 @@ private:
 		IGUIDocument* pDocument = forceLoad ? NULL : pGUI->GetDocument("CompilingNotification");
 		if (pDocument == NULL)
 		{
-			pDocument = pGUI->LoadDocument("/Assets/GUI/compiling-notification.rml", "CompilingNotification");
+			pDocument = pGUI->LoadDocument("/GUI/compiling-notification.rml", "CompilingNotification");
 		}
 
 		if (pDocument != NULL)

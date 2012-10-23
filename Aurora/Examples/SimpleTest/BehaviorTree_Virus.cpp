@@ -51,34 +51,44 @@ public:
 
 		if ( pBBCommon->enemy_collision_objectid.IsValid() )
 		{
-			pGameObject->SetBehavior( "Behavior_Virus_Combat" );
+			pGameObject->SetBehavior( m_Behavior_Virus_Combat );
 		}
 		else if ( !pBBCommon->target_position.IsInfinite() )
 		{
-			pGameObject->SetBehavior( "Behavior_Virus_Approach" );
+			pGameObject->SetBehavior( m_Behavior_Virus_Approach );
 		}
 		else if ( pBBGlobal->infection_team_strength > pBBGlobal->immune_team_strength * 1.2f && pBBGlobal->infection_count > 3 )
 		{
-			pGameObject->SetBehavior( "Behavior_Virus_HuntWBC" );
+			pGameObject->SetBehavior( m_Behavior_Virus_HuntWBC );
 		}
 		else if ( pBBGlobal->immune_count > 0 )
 		{
-			pGameObject->SetBehavior( "Behavior_Virus_HuntRBC" );
+			pGameObject->SetBehavior( m_Behavior_Virus_HuntRBC );
 		}
 		else
 		{
-			pGameObject->SetBehavior( "Behavior_Virus_Idle" );
+			pGameObject->SetBehavior( m_Behavior_Virus_Idle );
 		}	
 	}
 
 	virtual void Init( bool isFirstInit )
 	{
 		m_pBBManager = (IBlackboardManager*)IObjectUtils::GetUniqueInterface( "BlackboardManager", IID_IBLACKBOARDMANAGER );
+		m_Behavior_Virus_Combat		= IObjectUtils::GetConstructor( "Behavior_Virus_Combat" )->GetConstructorId();
+		m_Behavior_Virus_Approach	= IObjectUtils::GetConstructor( "Behavior_Virus_Approach" )->GetConstructorId();
+		m_Behavior_Virus_HuntWBC	= IObjectUtils::GetConstructor( "Behavior_Virus_HuntWBC" )->GetConstructorId();
+		m_Behavior_Virus_HuntRBC	= IObjectUtils::GetConstructor( "Behavior_Virus_HuntRBC" )->GetConstructorId();
+		m_Behavior_Virus_Idle		= IObjectUtils::GetConstructor( "Behavior_Virus_Idle" )->GetConstructorId();
 	}
 
 private:
 
 	IBlackboardManager* m_pBBManager;
+	ConstructorId		m_Behavior_Virus_Combat;
+	ConstructorId		m_Behavior_Virus_Approach;
+	ConstructorId		m_Behavior_Virus_HuntWBC;
+	ConstructorId		m_Behavior_Virus_HuntRBC;
+	ConstructorId		m_Behavior_Virus_Idle;
 };
 
 REGISTERCLASS(BehaviorTree_Virus);

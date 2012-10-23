@@ -305,7 +305,6 @@ private:
 		{
 			// Rebuild m_objects pointer collection
 
-			IEntitySystem* pEntitySystem = PerModuleInterface::GetInstance()->GetSystemTable()->pEntitySystem;
 			for (int i=0; i<EGO_COUNT; ++i)
 			{
 				size_t count = m_ObjectIds[i].size();

@@ -208,16 +208,12 @@ public:
 		SetColor( AUColor(r, g, b, a) );
 	}
 
-	virtual void SetBehavior( const char* behavior )
+	virtual void SetBehavior( ConstructorId constructor )
 	{
-		if (!m_pBehavior || _stricmp(behavior, m_pBehavior->GetTypeName()))
+		if (!m_pBehavior || m_pBehavior->GetObjectId().m_ConstructorId != constructor )
 		{
 			IBehavior* pBehavior = 0;
-			IObject* pObj = IObjectUtils::CreateObject( behavior );
-			if (pObj)
-			{
-				IObjectUtils::GetObject( &pBehavior, pObj->GetObjectId() );
-			}
+			IObjectUtils::CreateObject(  &pBehavior, constructor );
 			
 			// Only destroy and replace existing behavior if we successfully created new one
 			if (pBehavior)
@@ -234,6 +230,7 @@ public:
 			}
 		}
 	}
+
 
 	virtual void OnSelect()
 	{
@@ -289,7 +286,7 @@ public:
 		const AUVec3f& pos = pBB->current_position;
 		const AUVec3f& vel = pBB->current_velocity;
 
-		sprintf_s( outputBuffer, bufferLen,
+		_snprintf_s( outputBuffer, bufferLen, _TRUNCATE,
 			"ID: %d\n"
 			"Name: %s\n"
 			"Position: (%0.2f, %0.2f, %0.2f)\n"

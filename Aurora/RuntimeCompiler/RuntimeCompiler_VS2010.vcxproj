@@ -123,17 +123,21 @@
     <ClCompile Include="FileChangeNotifier.cpp" />
     <ClCompile Include="BuildTool.cpp" />
     <ClCompile Include="Compiler_PlatformWindows.cpp" />
-    <ClCompile Include="FileMonitor_PlatformWindows.cpp" />
+    <ClCompile Include="FileMonitor.cpp" />
+    <ClCompile Include="SimpleFileWatcher\FileWatcher.cpp" />
+    <ClCompile Include="SimpleFileWatcher\FileWatcherWin32.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FileChangeNotifier.h" />
     <ClInclude Include="BuildTool.h" />
     <ClInclude Include="Compiler.h" />
-    <ClInclude Include="FileMonitor_PlatformWindows.h" />
+    <ClInclude Include="FileMonitor.h" />
     <ClInclude Include="IFileChangeNotifier.h" />
     <ClInclude Include="ICompilerLogger.h" />
     <ClInclude Include="IFileMonitor.h" />
-    <ClInclude Include="ThreadSafeQueue.h" />
+    <ClInclude Include="SimpleFileWatcher\FileWatcher.h" />
+    <ClInclude Include="SimpleFileWatcher\FileWatcherImpl.h" />
+    <ClInclude Include="SimpleFileWatcher\FileWatcherWin32.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
