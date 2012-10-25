@@ -76,6 +76,14 @@ struct RuntimeProtector::Impl
 		}
 		BOOL bRDebugPresent = FALSE;
 		CheckRemoteDebuggerPresent( GetModuleHandle(NULL), &bRDebugPresent );
+		if( FALSE == bRDebugPresent )
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
 	}
 
 	int SimpleExceptionFilter( void * nativeExceptionInfo, RuntimeProtector* pRuntimeProtector )
