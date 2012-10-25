@@ -26,25 +26,39 @@
 
 struct IRuntimeIncludeFileList
 {
-	virtual const char* GetIncludeFile( unsigned int Num_ ) const
+	IRuntimeIncludeFileList( size_t max ) : MaxNum( max )
+	{
+	}
+
+	// GetIncludeFile may return 0, so you should iterate through to GetMaxNum() ignoring 0 returns
+	virtual const char* GetIncludeFile( size_t Num_ ) const
 	{
 		return 0;
 	}
+	size_t MaxNum; // initialized in constructor below
 };
 
 
 namespace
 {
 
-template< unsigned int COUNT > struct RuntimeIncludeFiles : public IRuntimeIncludeFileList
+template< size_t COUNT > struct RuntimeIncludeFiles : public IRuntimeIncludeFileList
 {
+	RuntimeIncludeFiles( size_t max ) : IRuntimeIncludeFileList( max )
+	{
+	}
+	RuntimeIncludeFiles() : IRuntimeIncludeFileList( COUNT )
+	{
+	}
 };
 
 
 #define RUNTIME_MODIFIABLE_INCLUDE_BASE( N ) \
 	template<> struct RuntimeIncludeFiles< N + 1 >  : public RuntimeIncludeFiles< N >\
 	{ \
-		virtual const char* GetIncludeFile( unsigned int Num_ ) const \
+		RuntimeIncludeFiles( size_t max ) : RuntimeIncludeFiles<N>( max ) {} \
+		RuntimeIncludeFiles< N + 1 >() : RuntimeIncludeFiles<N>( N + 1 ) {} \
+		virtual const char* GetIncludeFile( size_t Num_ ) const \
 		{ \
 			if( Num_ <= N ) \
 			{ \

@@ -281,14 +281,17 @@ void RuntimeObjectSystem::SetupObjectConstructors(GETPerModuleInterface_PROC pPe
 
 		//add include file mappings
 		unsigned int includeNum = 0;
-		while( objectConstructors[i]->GetIncludeFile( includeNum ) )
+		for( size_t includeNum = 0; includeNum <= objectConstructors[i]->GetMaxNumIncludeFiles(); ++includeNum )
 		{
-			TFileToFilePair includePathPair;
-			includePathPair.first = objectConstructors[i]->GetIncludeFile( includeNum );
-			includePathPair.second = objectConstructors[i]->GetFileName();
-			AddToRuntimeFileList( objectConstructors[i]->GetIncludeFile( includeNum ) );
-			m_RuntimeIncludeMap.insert( includePathPair );
-			++includeNum;
+			const char* pIncludeFile = objectConstructors[i]->GetIncludeFile( includeNum );
+			if( pIncludeFile )
+			{
+				TFileToFilePair includePathPair;
+				includePathPair.first = pIncludeFile;
+				includePathPair.second = objectConstructors[i]->GetFileName();
+				AddToRuntimeFileList( objectConstructors[i]->GetIncludeFile( includeNum ) );
+				m_RuntimeIncludeMap.insert( includePathPair );
+			}
 		}
 	}
 	m_pObjectFactorySystem->AddConstructors( constructors );

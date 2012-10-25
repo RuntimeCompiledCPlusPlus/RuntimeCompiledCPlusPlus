@@ -115,11 +115,20 @@ public:
 	{
 		return m_FileName.c_str();
 	}
-	virtual const char* GetIncludeFile( unsigned int Num_ ) const
+	virtual const char* GetIncludeFile( size_t Num_ ) const
 	{
 		if( m_pIncludeFileList )
 		{
 			return m_pIncludeFileList->GetIncludeFile( Num_ );
+		}
+		return 0;
+	}
+
+	virtual size_t GetMaxNumIncludeFiles() const
+	{
+		if( m_pIncludeFileList )
+		{
+			return m_pIncludeFileList->MaxNum;
 		}
 		return 0;
 	}
