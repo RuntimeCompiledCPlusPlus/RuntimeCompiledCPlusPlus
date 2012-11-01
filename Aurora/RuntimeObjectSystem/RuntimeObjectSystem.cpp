@@ -280,7 +280,6 @@ void RuntimeObjectSystem::SetupObjectConstructors(GETPerModuleInterface_PROC pPe
 		AddToRuntimeFileList( objectConstructors[i]->GetFileName() );
 
 		//add include file mappings
-		unsigned int includeNum = 0;
 		for( size_t includeNum = 0; includeNum <= objectConstructors[i]->GetMaxNumIncludeFiles(); ++includeNum )
 		{
 			const char* pIncludeFile = objectConstructors[i]->GetIncludeFile( includeNum );
@@ -293,6 +292,24 @@ void RuntimeObjectSystem::SetupObjectConstructors(GETPerModuleInterface_PROC pPe
 				m_RuntimeIncludeMap.insert( includePathPair );
 			}
 		}
+
+		//add required include directories
+		for( size_t includeNum = 0; includeNum <= objectConstructors[i]->GetMaxNumIncludeDirs(); ++includeNum )
+		{
+			const char* pIncludeDir = objectConstructors[i]->GetIncludeDir( includeNum );
+			if( pIncludeDir )
+			{
+				//directories specified this way have a filename, so remove it
+				path incDirPath( pIncludeDir );
+				incDirPath.remove_filename();
+				std::vector<boost::filesystem::path>::iterator itrfound = std::find( m_IncludeDirList.begin(), m_IncludeDirList.end(), incDirPath );
+				if( m_IncludeDirList.end() == itrfound )
+				{
+					m_IncludeDirList.push_back( incDirPath );
+				}
+			}
+		}
+
 	}
 	m_pObjectFactorySystem->AddConstructors( constructors );
 }

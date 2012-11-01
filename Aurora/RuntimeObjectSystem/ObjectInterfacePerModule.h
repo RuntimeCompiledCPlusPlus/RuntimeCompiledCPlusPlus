@@ -22,11 +22,14 @@
 
 #include "ObjectInterface.h"
 #include "RuntimeInclude.h"
+#include "RuntimeIncludeDir.h"
 #include <string>
 #include <vector>
 #include <assert.h>
 
-#define AU_ASSERT( statement )  do { if (!(statement)) { volatile int* p = 0; int a = *p; if(a) {} } } while(0) 
+#define AU_ASSERT( statement )  do { if (!(statement)) { volatile int* p = 0; int a = *p; if(a) {} } } while(0)
+
+RUNTIME_MODIFIABLE_INCLUDE_DIR; // Runtime code will require this directory added to the include directory list.
 
 class PerModuleInterface : public IPerModuleInterface
 {
@@ -68,9 +71,13 @@ private:
 template<typename T> class TObjectConstructorConcrete: public IObjectConstructor
 {
 public:
-	TObjectConstructorConcrete( const char* Filename, IRuntimeIncludeFileList* pIncludeFileList_ )
+	TObjectConstructorConcrete(
+		const char* Filename,
+		IRuntimeIncludeFileList* pIncludeFileList_,
+		IRuntimeIncludeDirList*  pIncludeDirList_ )
 		: m_FileName( Filename )
 		, m_pIncludeFileList( pIncludeFileList_ )
+ 		, m_pIncludeDirList(  pIncludeDirList_ )
         , m_pModuleInterface(0)
 	{
 		PerModuleInterface::GetInstance()->AddConstructor( this );
@@ -132,6 +139,23 @@ public:
 		}
 		return 0;
 	}
+	virtual const char* GetIncludeDir( size_t Num_ ) const
+	{
+		if( m_pIncludeDirList )
+		{
+			return m_pIncludeDirList->GetIncludeDir( Num_ );
+		}
+		return 0;
+	}
+
+	virtual size_t GetMaxNumIncludeDirs() const
+	{
+		if( m_pIncludeDirList )
+		{
+			return m_pIncludeDirList->MaxNum;
+		}
+		return 0;
+	}
 
 	virtual IObject* GetConstructedObject( PerTypeObjectId id ) const
 	{
@@ -178,6 +202,7 @@ private:
 	std::vector<PerTypeObjectId>	m_FreeIds;
 	ConstructorId			m_Id;
 	IRuntimeIncludeFileList* m_pIncludeFileList;
+	IRuntimeIncludeDirList*	 m_pIncludeDirList;
     PerModuleInterface*      m_pModuleInterface;
 };
 
@@ -203,7 +228,8 @@ private:
 //NOTE: the file macro will only emit the full path if /FC option is used in visual studio or /ZI (Which forces /FC)
 #define REGISTERCLASS( T )	\
 	static RuntimeIncludeFiles< __COUNTER__ > g_includeFileList_##T; \
-template<> TObjectConstructorConcrete< TActual< T > > TActual< T >::m_Constructor( __FILE__, &g_includeFileList_##T );\
+	static RuntimeIncludeDir< __COUNTER__ > g_includeDirList_##T; \
+template<> TObjectConstructorConcrete< TActual< T > > TActual< T >::m_Constructor( __FILE__, &g_includeFileList_##T, &g_includeDirList_##T );\
 template<> const char* TActual< T >::GetTypeNameStatic() { return #T; } \
 template class TActual< T >; \
 

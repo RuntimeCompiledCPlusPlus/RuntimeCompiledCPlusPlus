@@ -71,6 +71,9 @@ struct IObjectConstructor
 	virtual const char* GetFileName() = 0;
 	virtual size_t GetMaxNumIncludeFiles() const = 0;
 	virtual const char* GetIncludeFile( size_t Num_ ) const = 0;
+	virtual size_t GetMaxNumIncludeDirs() const = 0;
+	virtual const char* GetIncludeDir( size_t Num_ ) const = 0;
+
 	virtual IObject* GetConstructedObject( PerTypeObjectId num ) const = 0;	//should return 0 for last or deleted object
 	virtual size_t	 GetNumberConstructedObjects() const = 0;
 	virtual ConstructorId GetConstructorId() const = 0;
