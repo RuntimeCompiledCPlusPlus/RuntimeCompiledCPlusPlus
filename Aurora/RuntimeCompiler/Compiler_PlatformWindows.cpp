@@ -237,8 +237,6 @@ bool Compiler::GetIsComplete() const
 
 void Compiler::Initialise( ICompilerLogger * pLogger )
 {
-	assert( pLogger );
-
 	m_pImplData = new PlatformCompilerImplData;
 	m_pImplData->m_pLogger = pLogger;
 	// get VS compiler path
