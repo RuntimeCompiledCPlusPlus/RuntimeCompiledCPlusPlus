@@ -66,6 +66,9 @@ template<> struct RuntimeIncludeFiles<0> : public IRuntimeIncludeFileList
 	RuntimeIncludeFiles( size_t max ) : IRuntimeIncludeFileList( max )
 	{
 	}
+	RuntimeIncludeFiles() : IRuntimeIncludeFileList( 0 )
+	{
+	}
 
 	virtual const char* GetIncludeDir( size_t Num_ ) const
 	{

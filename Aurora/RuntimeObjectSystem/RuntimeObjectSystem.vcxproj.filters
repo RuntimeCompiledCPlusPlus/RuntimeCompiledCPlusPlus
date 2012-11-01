@@ -27,7 +27,6 @@
     <ClInclude Include="Exceptions.h" />
     <ClInclude Include="IRuntimeObjectSystem.h" />
     <ClInclude Include="RuntimeObjectSystem.h" />
-    <ClInclude Include="RuntimeIncludeDir.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="SimpleSerializer">
