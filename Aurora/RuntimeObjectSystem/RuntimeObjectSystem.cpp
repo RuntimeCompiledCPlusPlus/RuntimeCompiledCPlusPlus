@@ -206,6 +206,18 @@ void RuntimeObjectSystem::StartRecompile( const std::vector<BuildTool::FileToBui
 
 	std::vector<BuildTool::FileToBuild> ourBuildFileList( buildFileList );
 
+	//Add libraries which need linking
+	std::vector<boost::filesystem::path> linkLibraryList;
+	for( size_t i = 0; i < buildFileList.size(); ++ i )
+	{
+
+		TFileToFileEqualRange range = m_RuntimeLinkLibraryMap.equal_range( buildFileList[i].filePath );
+		for(TFileToFileIterator it=range.first; it!=range.second; ++it)
+		{
+			linkLibraryList.push_back( it->second );
+		}
+	}
+
 
 	//Add required source files
 	const std::vector<const char*> vecRequiredFiles = PerModuleInterface::GetInstance()->GetRequiredSourceFiles();
@@ -218,6 +230,7 @@ void RuntimeObjectSystem::StartRecompile( const std::vector<BuildTool::FileToBui
 	m_pBuildTool->BuildModule(	ourBuildFileList,
 								m_IncludeDirList,
 								m_LibraryDirList,
+								linkLibraryList,
 								m_CompileOptions.c_str(),
 								m_LinkOptions.c_str(),
 								m_CurrentlyCompilingModuleName );
@@ -294,8 +307,21 @@ void RuntimeObjectSystem::SetupObjectConstructors(GETPerModuleInterface_PROC pPe
 				TFileToFilePair includePathPair;
 				includePathPair.first = pIncludeFile;
 				includePathPair.second = objectConstructors[i]->GetFileName();
-				AddToRuntimeFileList( objectConstructors[i]->GetIncludeFile( includeNum ) );
+				AddToRuntimeFileList( pIncludeFile );
 				m_RuntimeIncludeMap.insert( includePathPair );
+			}
+		}
+
+		//add link library file mappings
+		for( size_t linklibraryNum = 0; linklibraryNum <= objectConstructors[i]->GetMaxNumLinkLibraries(); ++linklibraryNum )
+		{
+			const char* pLinkLibrary = objectConstructors[i]->GetLinkLibrary( linklibraryNum );
+			if( pLinkLibrary )
+			{
+				TFileToFilePair linklibraryPathPair;
+				linklibraryPathPair.first = objectConstructors[i]->GetFileName();
+				linklibraryPathPair.second = pLinkLibrary;
+				m_RuntimeLinkLibraryMap.insert( linklibraryPathPair );
 			}
 		}
 	}

@@ -37,6 +37,7 @@ public:
 	void RunCompile( const std::vector<boost::filesystem::path>& filesToCompile,
 					 const std::vector<boost::filesystem::path>& includeDirList,
 					 const std::vector<boost::filesystem::path>& libraryDirList,
+					 const std::vector<boost::filesystem::path>& linkLibraryList,
 					 const char* pCompileOptions,
 					 const char* pLinkOptions,
 					 const boost::filesystem::path& outputFile );

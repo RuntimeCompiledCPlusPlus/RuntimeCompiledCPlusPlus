@@ -268,6 +268,7 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
 void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCompile,
 					 const std::vector<boost::filesystem::path>& includeDirList,
 					 const std::vector<boost::filesystem::path>& libraryDirList,
+					 const std::vector<boost::filesystem::path>& linkLibraryList,
 					 const char* pCompileOptions,
 					 const char* pLinkOptions,
 					 const boost::filesystem::path& outputFile )
@@ -346,6 +347,13 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
 		}
 	}
 
+	std::string strLinkLibraries;
+	for( size_t i = 0; i < linkLibraryList.size(); ++i )
+	{
+		strLinkLibraries += " \"" + linkLibraryList[i].string() + "\" ";
+	}
+	
+
 
 
 char* pCharTypeFlags = "";
@@ -357,7 +365,7 @@ char* pCharTypeFlags = "";
 	std::string cmdToSend = "cl " + flags + pCharTypeFlags
 		+ " /MP /Fo\"" + intermediate + "\\\\\" "
 		+ "/D WIN32 /EHa /Fe" + outputFile.string();
-	cmdToSend += " " + strIncludeFiles + " " + strFilesToCompile + linkOptions
+	cmdToSend += " " + strIncludeFiles + " " + strFilesToCompile + strLinkLibraries + linkOptions
 		+ "\necho " + c_CompletionToken + "\n";
 	OutputDebugStringA( cmdToSend.c_str() );
 	WriteInput( m_pImplData->m_CmdProcessInputWrite, cmdToSend );

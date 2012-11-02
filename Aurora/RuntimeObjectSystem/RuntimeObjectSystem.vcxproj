@@ -28,6 +28,7 @@
     <ClInclude Include="ObjectInterface.h" />
     <ClInclude Include="ObjectInterfacePerModule.h" />
     <ClInclude Include="RuntimeInclude.h" />
+    <ClInclude Include="RuntimeLinkLibrary.h" />
     <ClInclude Include="RuntimeObjectSystem.h" />
     <ClInclude Include="SimpleSerializer\SimpleSerializer.h" />
   </ItemGroup>

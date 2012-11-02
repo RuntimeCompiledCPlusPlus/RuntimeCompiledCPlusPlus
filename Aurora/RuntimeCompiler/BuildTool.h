@@ -50,6 +50,7 @@ public:
 	void BuildModule( const std::vector<FileToBuild>& buildFileList, 
 					  const std::vector<boost::filesystem::path>& includeDirList, 
 					  const std::vector<boost::filesystem::path>& libraryDirList,
+					  const std::vector<boost::filesystem::path>& linkLibraryList,
 					  const char* pCompileOptions,
 					  const char* pLinkOptions,
 					  const boost::filesystem::path& moduleName );

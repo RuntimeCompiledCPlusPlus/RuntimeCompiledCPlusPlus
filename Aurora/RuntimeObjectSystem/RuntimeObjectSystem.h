@@ -130,10 +130,11 @@ private:
 	std::vector<HMODULE>	m_Modules;	// Stores runtime created modules, but not the exe module.
 	TFileList				m_RuntimeFileList;
 	TFileToFileMap			m_RuntimeIncludeMap;
+	TFileToFileMap			m_RuntimeLinkLibraryMap;
 	bool					m_bAutoCompile;
 	boost::filesystem::path m_CurrentlyCompilingModuleName;
-	std::vector<boost::filesystem::path> m_IncludeDirList;
-	std::vector<boost::filesystem::path> m_LibraryDirList;
+	TFileList				m_IncludeDirList;
+	TFileList				m_LibraryDirList;
 	std::string				m_CompileOptions;
 	std::string				m_LinkOptions;
 

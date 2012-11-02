@@ -22,6 +22,7 @@
 
 #include "ObjectInterface.h"
 #include "RuntimeInclude.h"
+#include "RuntimeLinkLibrary.h"
 #include <string>
 #include <vector>
 #include <assert.h>
@@ -70,9 +71,11 @@ template<typename T> class TObjectConstructorConcrete: public IObjectConstructor
 public:
 	TObjectConstructorConcrete(
 		const char* Filename,
-		IRuntimeIncludeFileList* pIncludeFileList_ )
+		IRuntimeIncludeFileList* pIncludeFileList_,
+		IRuntimeLinkLibraryList* pLinkLibraryList )
 		: m_FileName( Filename )
 		, m_pIncludeFileList( pIncludeFileList_ )
+		, m_pLinkLibraryList( pLinkLibraryList )
         , m_pModuleInterface(0)
 	{
 		PerModuleInterface::GetInstance()->AddConstructor( this );
@@ -134,6 +137,23 @@ public:
 		}
 		return 0;
 	}
+	virtual const char* GetLinkLibrary( size_t Num_ ) const
+	{
+		if( m_pLinkLibraryList )
+		{
+			return m_pLinkLibraryList->GetLinkLibrary( Num_ );
+		}
+		return 0;
+	}
+
+	virtual size_t GetMaxNumLinkLibraries() const
+	{
+		if( m_pLinkLibraryList )
+		{
+			return m_pLinkLibraryList->MaxNum;
+		}
+		return 0;
+	}
 
 	virtual IObject* GetConstructedObject( PerTypeObjectId id ) const
 	{
@@ -180,6 +200,7 @@ private:
 	std::vector<PerTypeObjectId>	m_FreeIds;
 	ConstructorId			m_Id;
 	IRuntimeIncludeFileList* m_pIncludeFileList;
+	IRuntimeLinkLibraryList* m_pLinkLibraryList;
     PerModuleInterface*      m_pModuleInterface;
 };
 
@@ -205,7 +226,8 @@ private:
 //NOTE: the file macro will only emit the full path if /FC option is used in visual studio or /ZI (Which forces /FC)
 #define REGISTERCLASS( T )	\
 	static RuntimeIncludeFiles< __COUNTER__ > g_includeFileList_##T; \
-template<> TObjectConstructorConcrete< TActual< T > > TActual< T >::m_Constructor( __FILE__, &g_includeFileList_##T );\
+	static RuntimeLinkLibrary< __COUNTER__ > g_linkLibraryList_##T; \
+template<> TObjectConstructorConcrete< TActual< T > > TActual< T >::m_Constructor( __FILE__, &g_includeFileList_##T, &g_linkLibraryList_##T );\
 template<> const char* TActual< T >::GetTypeNameStatic() { return #T; } \
 template class TActual< T >; \
 
