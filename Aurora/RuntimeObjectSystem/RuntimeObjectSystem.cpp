@@ -86,8 +86,8 @@ bool RuntimeObjectSystem::Initialise( ICompilerLogger * pLogger, SystemTable* pS
 		m_pCompilerLogger->LogError( "Failed GetProcAddress for GetPerModuleInterface in current module\n" );
 		return false;
 	}
-    pPerModuleInterfaceProcAdd()->SetModuleFileName( "Main Exe" );
-	pPerModuleInterfaceProcAdd()->SetSystemTable( m_pSystemTable );
+       pPerModuleInterfaceProcAdd()->SetModuleFileName( "Main Exe" );
+       pPerModuleInterfaceProcAdd()->SetSystemTable( m_pSystemTable );
 
 	m_pObjectFactorySystem = new ObjectFactorySystem();
 	m_pObjectFactorySystem->SetLogger( m_pCompilerLogger );
@@ -276,7 +276,7 @@ bool RuntimeObjectSystem::LoadCompiledModule()
 		return false;
 	}
 
-    pPerModuleInterfaceProcAdd()->SetModuleFileName( m_CurrentlyCompilingModuleName.string().c_str() );
+       pPerModuleInterfaceProcAdd()->SetModuleFileName( m_CurrentlyCompilingModuleName.string().c_str() );
 	pPerModuleInterfaceProcAdd()->SetSystemTable( m_pSystemTable );
 	m_Modules.push_back( module );
 
@@ -299,6 +299,7 @@ void RuntimeObjectSystem::SetupObjectConstructors(GETPerModuleInterface_PROC pPe
 		AddToRuntimeFileList( objectConstructors[i]->GetFileName() );
 
 		//add include file mappings
+             //TODO: prior to adding this remove objectConstructors[i]->GetFileName() incedences from map
 		for( size_t includeNum = 0; includeNum <= objectConstructors[i]->GetMaxNumIncludeFiles(); ++includeNum )
 		{
 			const char* pIncludeFile = objectConstructors[i]->GetIncludeFile( includeNum );
@@ -311,7 +312,9 @@ void RuntimeObjectSystem::SetupObjectConstructors(GETPerModuleInterface_PROC pPe
 				m_RuntimeIncludeMap.insert( includePathPair );
 			}
 		}
-
+            
+             //remove previous link libraries for this file
+             m_RuntimeLinkLibraryMap.erase( objectConstructors[i]->GetFileName() );
 		//add link library file mappings
 		for( size_t linklibraryNum = 0; linklibraryNum <= objectConstructors[i]->GetMaxNumLinkLibraries(); ++linklibraryNum )
 		{

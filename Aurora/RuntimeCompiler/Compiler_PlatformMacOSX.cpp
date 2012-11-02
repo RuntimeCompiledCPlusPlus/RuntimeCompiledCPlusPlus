@@ -142,6 +142,7 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
 void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCompile,
 					 const std::vector<boost::filesystem::path>& includeDirList,
 					 const std::vector<boost::filesystem::path>& libraryDirList,
+                     const std::vector<boost::filesystem::path>& linkLibraryList,
 					 const char* pCompileOptions,
 					 const char* pLinkOptions,
 					 const boost::filesystem::path& outputFile )
@@ -208,10 +209,11 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
         compileString += "-I\"" + includeDirList[i].string() + "\" ";
     }
     
-    // library directories
+    // library and framework directories
     for( size_t i = 0; i < libraryDirList.size(); ++i )
 	{
         compileString += "-L\"" + libraryDirList[i].string() + "\" ";
+        compileString += "-F\"" + libraryDirList[i].string() + "\" ";
     }
     
     // output file
@@ -222,6 +224,13 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
 	{
         compileString += "\"" + filesToCompile[i].string() + "\" ";
     }
+    
+    // libraries to link
+    for( size_t i = 0; i < linkLibraryList.size(); ++i )
+	{
+        compileString += " " + linkLibraryList[i].string() + " ";
+    }
+    
     
     cout << compileString << endl << endl;
 
