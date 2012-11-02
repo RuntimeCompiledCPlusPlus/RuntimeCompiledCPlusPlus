@@ -85,7 +85,6 @@ void ObjectFactorySystem::ProtectedFunc()
 	m_ProtectedPhase = PHASE_CONSTRUCTNEW;
 	m_PrevConstructors = m_Constructors;
 
-	bool bConstructionOK = true;
 	//swap old constructors with new ones and create new objects
 	for( size_t i = 0; i < constructors.Size(); ++i )
 	{
