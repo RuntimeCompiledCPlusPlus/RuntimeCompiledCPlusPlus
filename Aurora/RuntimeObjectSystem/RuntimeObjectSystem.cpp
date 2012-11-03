@@ -290,6 +290,10 @@ bool RuntimeObjectSystem::LoadCompiledModule()
 
 void RuntimeObjectSystem::SetupObjectConstructors(GETPerModuleInterface_PROC pPerModuleInterfaceProcAdd)
 {
+	// for optimization purposes we skip some actions when running for the first time (i.e. no previous constructors)
+	bool bFirstTime = m_RuntimeFileList.empty();
+	
+
 	// get hold of the constructors
 	const std::vector<IObjectConstructor*> &objectConstructors = pPerModuleInterfaceProcAdd()->GetConstructors();
 	AUDynArray<IObjectConstructor*> constructors( objectConstructors.size() );
@@ -298,8 +302,28 @@ void RuntimeObjectSystem::SetupObjectConstructors(GETPerModuleInterface_PROC pPe
 		constructors[i] = objectConstructors[i];
 		AddToRuntimeFileList( objectConstructors[i]->GetFileName() );
 
+		path filePath = objectConstructors[i]->GetFileName();
+		if( !bFirstTime )
+		{
+ 			//remove old include file mappings for this file
+			TFileToFileIterator itrCurr = m_RuntimeIncludeMap.begin();
+			while( itrCurr != m_RuntimeIncludeMap.end() )
+			{
+				if( itrCurr->second == filePath )
+				{
+					itrCurr = m_RuntimeIncludeMap.erase( itrCurr );
+				}
+				else
+				{
+					++itrCurr;
+				}
+			}
+
+            //remove previous link libraries for this file
+            m_RuntimeLinkLibraryMap.erase( filePath );
+		}
+
 		//add include file mappings
-             //TODO: prior to adding this remove objectConstructors[i]->GetFileName() incedences from map
 		for( size_t includeNum = 0; includeNum <= objectConstructors[i]->GetMaxNumIncludeFiles(); ++includeNum )
 		{
 			const char* pIncludeFile = objectConstructors[i]->GetIncludeFile( includeNum );
@@ -307,22 +331,21 @@ void RuntimeObjectSystem::SetupObjectConstructors(GETPerModuleInterface_PROC pPe
 			{
 				TFileToFilePair includePathPair;
 				includePathPair.first = pIncludeFile;
-				includePathPair.second = objectConstructors[i]->GetFileName();
+				includePathPair.second = filePath;
 				AddToRuntimeFileList( pIncludeFile );
 				m_RuntimeIncludeMap.insert( includePathPair );
 			}
 		}
             
-             //remove previous link libraries for this file
-             m_RuntimeLinkLibraryMap.erase( objectConstructors[i]->GetFileName() );
-		//add link library file mappings
+
+ 		//add link library file mappings
 		for( size_t linklibraryNum = 0; linklibraryNum <= objectConstructors[i]->GetMaxNumLinkLibraries(); ++linklibraryNum )
 		{
 			const char* pLinkLibrary = objectConstructors[i]->GetLinkLibrary( linklibraryNum );
 			if( pLinkLibrary )
 			{
 				TFileToFilePair linklibraryPathPair;
-				linklibraryPathPair.first = objectConstructors[i]->GetFileName();
+				linklibraryPathPair.first = filePath;
 				linklibraryPathPair.second = pLinkLibrary;
 				m_RuntimeLinkLibraryMap.insert( linklibraryPathPair );
 			}
