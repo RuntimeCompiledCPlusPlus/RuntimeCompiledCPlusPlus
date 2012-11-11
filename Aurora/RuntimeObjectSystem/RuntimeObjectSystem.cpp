@@ -311,7 +311,9 @@ void RuntimeObjectSystem::SetupObjectConstructors(GETPerModuleInterface_PROC pPe
 			{
 				if( itrCurr->second == filePath )
 				{
-					itrCurr = m_RuntimeIncludeMap.erase( itrCurr );
+                    TFileToFileIterator itrErase = itrCurr;
+                    ++itrCurr;
+					m_RuntimeIncludeMap.erase( itrErase );
 				}
 				else
 				{
