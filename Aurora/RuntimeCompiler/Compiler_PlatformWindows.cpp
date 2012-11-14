@@ -26,6 +26,7 @@
 
 #include "Compiler.h"
 
+#define WIN32_LEAN_AND_MEAN
 #include "windows.h"
 #include <string>
 #include <sstream>
@@ -335,7 +336,7 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
 	for( size_t i = 0; i < filesToCompile.size(); ++i )
 	{
 		std::string strPath = filesToCompile[i].string();
-#ifdef _WINDOWS_
+#ifdef _WIN32
 		// In Win32, make filename lowercase so paths can be compared. Could alternatively use boost equality() operation.
 		strPath = boost::to_lower_copy(strPath);
 #endif

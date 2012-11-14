@@ -102,6 +102,11 @@ bool RuntimeObjectSystem::Initialise( ICompilerLogger * pLogger, SystemTable* pS
 	includeDir.remove_filename();
 	AddIncludeDir(includeDir.string().c_str());
 
+	//also add the runtime compiler dir to list of dirs
+	includeDir = includeDir.parent_path() / "RuntimeCompiler";
+	AddIncludeDir(includeDir.string().c_str());
+
+
 
 	return true;
 }

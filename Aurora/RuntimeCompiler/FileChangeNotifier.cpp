@@ -77,7 +77,7 @@ void FileChangeNotifier::Watch( const boost::filesystem::path& filename, IFileCh
 	boost::filesystem::path fixedFilename = filename;
 	fixedFilename.normalize().make_preferred(); // this is technically not safe on filesystems with symlinks, but practically is fine for our purposes
 	
-#ifdef _WINDOWS_
+#ifdef _WIN32
 	// make filename lowercase to avoid case sensitivity issues with __FILE__ and ReadDirectoryChangesW output
 	fixedFilename = boost::filesystem::path(boost::to_lower_copy(fixedFilename.wstring()));
 #endif
