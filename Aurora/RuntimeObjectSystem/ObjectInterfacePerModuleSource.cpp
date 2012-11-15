@@ -20,6 +20,8 @@
 
 PerModuleInterface* PerModuleInterface::ms_pObjectManager = NULL;
 
+SystemTable* PerModuleInterface::g_pSystemTable = 0;
+
 extern "C" 
 #ifdef _WIN32
 	__declspec(dllexport)	//should create file with export import macros etc.
@@ -52,11 +54,10 @@ std::vector<IObjectConstructor*>& PerModuleInterface::GetConstructors()
 
 void PerModuleInterface::SetSystemTable( SystemTable* pSystemTable )
 {
-	m_pSystemTable = pSystemTable;
+	g_pSystemTable = pSystemTable;
 }
 
 PerModuleInterface::PerModuleInterface()
-	: m_pSystemTable( NULL )
 {
 	//ensure this file gets compiled
 	AddRequiredSourceFiles( __FILE__ );
