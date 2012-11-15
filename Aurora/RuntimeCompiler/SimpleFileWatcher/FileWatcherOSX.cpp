@@ -289,7 +289,7 @@ namespace FW
 			// add base dir
 			int fd = open(mDirName.c_str(), O_RDONLY);
 			EV_SET(&mChangeList[0], fd, EVFILT_VNODE,
-				   EV_ADD | EV_ENABLE | EV_ONESHOT,
+				   EV_ADD | EV_ENABLE | EV_CLEAR,
 				   NOTE_DELETE | NOTE_EXTEND | NOTE_WRITE | NOTE_ATTRIB,
 				   0, 0);
 			
@@ -336,26 +336,30 @@ namespace FW
 	{
 		int nev = 0;
 		struct kevent event;
-		
-		WatchMap::iterator iter = mWatches.begin();
-		WatchMap::iterator end = mWatches.end();
-		for(; iter != end; ++iter)
-		{
-			WatchStruct* watch = iter->second;
-			
-			//while((nev = kevent(mDescriptor, (KEvent*)&(watch->mChangeList), watch->mChangeListCount + 1, &event, 1, &mTimeOut)) != 0)
-			while((nev = kevent(mDescriptor, (KEvent*)&(watch->mChangeList), 1, &event, 1, &mTimeOut)) != 0) // DJB revised to only watch dir
-			{
-				if(nev == -1)
-					perror("kevent");
-				else
-				{
-                    //DJB revised version needs to rescan directory for changes
-                    watch->rescan();
-				}
-			}
-		}
-	}
+        
+        // DJB updated code to handle multiple directories correctly
+        // first look for events which have occurred in our queue
+		while((nev = kevent(mDescriptor, 0, 0, &event, 1, &mTimeOut)) != 0)
+        {
+            if(nev == -1)
+                perror("kevent");
+            else
+            {
+                // have an event, need to find the watch which has this event
+                WatchMap::iterator iter = mWatches.begin();
+                WatchMap::iterator end = mWatches.end();
+                for(; iter != end; ++iter)
+                {
+                    WatchStruct* watch = iter->second;
+                    if( event.ident ==  watch->mChangeList[0].ident )
+                    {
+                        watch->rescan();
+                        break;
+                    }
+                }
+           }
+        }
+    }
 	
 	//--------
 	FileWatcherOSX::FileWatcherOSX()
@@ -394,6 +398,10 @@ namespace FW
 		
 		WatchStruct* watch = new WatchStruct(++mLastWatchID, directory, watcher);
 		mWatches.insert(std::make_pair(mLastWatchID, watch));
+        
+        // DJB we add the event to our kqueue (but don't request any return events, these are looked for in update loop
+        kevent(mDescriptor, (KEvent*)&(watch->mChangeList), 1, 0, 0, 0);
+        
 		return mLastWatchID;
 	}
 
@@ -425,7 +433,7 @@ namespace FW
 	
 		//inotify_rm_watch(mFD, watchid);
 		
-		delete watch;
+		delete watch; // Note: this also removes the event for the watch from the queue
 		watch = 0;
 	}
 	
