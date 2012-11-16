@@ -36,8 +36,7 @@ class OnClickCompile : public IGUIEventListener
 public:
 	virtual void OnEvent( int event_id, const IGUIEvent& event_info )
 	{
-		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
-		pSystemTable->pRuntimeObjectSystem->CompileAll( true );
+		PerModuleInterface::g_pSystemTable->pRuntimeObjectSystem->CompileAll( true );
 	}
 };
 
@@ -46,8 +45,7 @@ class OnClickConsole : public IGUIEventListener
 public:
 	virtual void OnEvent( int event_id, const IGUIEvent& event_info )
 	{
-		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
-		pSystemTable->pGame->ToggleConsoleGUI();
+		PerModuleInterface::g_pSystemTable->pGame->ToggleConsoleGUI();
 	}
 };
 
@@ -56,8 +54,7 @@ class OnClickNewButton : public IGUIEventListener
 public:
 	virtual void OnEvent( int event_id, const IGUIEvent& event_info )
 	{
-		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
-		pSystemTable->pGame->Reset();
+		PerModuleInterface::g_pSystemTable->pGame->Reset();
 	}
 };
 
@@ -67,8 +64,7 @@ class OnClickRestartButton : public IGUIEventListener
 public:
 	virtual void OnEvent( int event_id, const IGUIEvent& event_info )
 	{
-		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
-		pSystemTable->pGame->Restart();
+		PerModuleInterface::g_pSystemTable->pGame->Restart();
 	}
 };
 
@@ -140,7 +136,6 @@ class OnAutoCompile : public IGUIEventListener
 public:
 	virtual void OnEvent( int event_id, const IGUIEvent& event_info )
 	{
-		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
 		char AutoCompile[100];
 		event_info.GetParameter( "value", AutoCompile, sizeof( AutoCompile ) );
 		size_t length = strlen( AutoCompile );
@@ -152,7 +147,7 @@ public:
 		{
 			g_bAutoCompile = true;
 		}
-		pSystemTable->pRuntimeObjectSystem->SetAutoCompile( g_bAutoCompile );
+		PerModuleInterface::g_pSystemTable->pRuntimeObjectSystem->SetAutoCompile( g_bAutoCompile );
 	}
 };
 
@@ -165,13 +160,12 @@ class OnChangeVolume : public IGUIEventListener
 public:
 	virtual void OnEvent( int event_id, const IGUIEvent& event_info )
 	{
-		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
 		char Value[100];
 		event_info.GetParameter( "value", Value, sizeof( Value ) );
 		g_Volume = (float)atof( Value );
 		if( !g_Muted )
 		{
-			pSystemTable->pGame->SetVolume( g_Volume );
+			PerModuleInterface::g_pSystemTable->pGame->SetVolume( g_Volume );
 		}
 	}
 
@@ -182,19 +176,18 @@ class OnMuteVolume : public IGUIEventListener
 public:
 	virtual void OnEvent( int event_id, const IGUIEvent& event_info )
 	{
-		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
 		char Mute[100];
 		event_info.GetParameter( "value", Mute, sizeof( Mute ) );
 		size_t length = strlen( Mute );
 		if ( length == 0 )
 		{
 			g_Muted = false;
-			pSystemTable->pGame->SetVolume( g_Volume );
+			PerModuleInterface::g_pSystemTable->pGame->SetVolume( g_Volume );
 		}
 		else
 		{
 			g_Muted = true;
-			pSystemTable->pGame->SetVolume( 0.0f );
+			PerModuleInterface::g_pSystemTable->pGame->SetVolume( 0.0f );
 		}
 	}
 
@@ -210,13 +203,12 @@ public:
 	float m_MaxSpeed;
 	virtual void OnEvent( int event_id, const IGUIEvent& event_info )
 	{
-		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
 		char Value[100];
 		event_info.GetParameter( "value", Value, sizeof( Value ) );
 		g_Speed = (float)atof( Value )*m_MaxSpeed;
 		if( !g_Paused )
 		{
-			pSystemTable->pGame->SetSpeed ( g_Speed );
+			PerModuleInterface::g_pSystemTable->pGame->SetSpeed ( g_Speed );
 		}
 	}
 
@@ -228,19 +220,18 @@ class OnPauseGame : public IGUIEventListener
 public:
 	virtual void OnEvent( int event_id, const IGUIEvent& event_info )
 	{
-		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
 		char Pause[100];
 		event_info.GetParameter( "value", Pause, sizeof( Pause ) );
 		size_t length = strlen( Pause );
 		if ( length == 0 )
 		{
 			g_Paused = false;
-			pSystemTable->pGame->SetSpeed( g_Speed );
+			PerModuleInterface::g_pSystemTable->pGame->SetSpeed( g_Speed );
 		}
 		else
 		{
 			g_Paused = true;
-			pSystemTable->pGame->SetSpeed( 0.0f );
+			PerModuleInterface::g_pSystemTable->pGame->SetSpeed( 0.0f );
 		}
 	}
 };
@@ -367,14 +358,13 @@ public:
 
 	void InitWatch()
 	{
-		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
-		IFileChangeNotifier* pFileChangeNotifier = pSystemTable->pFileChangeNotifier;
+		IFileChangeNotifier* pFileChangeNotifier = PerModuleInterface::g_pSystemTable->pFileChangeNotifier;
 
 		// Set watches on the data files we rely on for drawing GUI
-		std::string path = pSystemTable->pAssetSystem->GetAssetDirectory();
+		std::string path = PerModuleInterface::g_pSystemTable->pAssetSystem->GetAssetDirectory();
 		path += "/GUI/menu.rml";
 		pFileChangeNotifier->Watch(path.c_str(), this);
-		path = pSystemTable->pAssetSystem->GetAssetDirectory();
+		path = PerModuleInterface::g_pSystemTable->pAssetSystem->GetAssetDirectory();
 		path += "/GUI/menu.rcss";
 		pFileChangeNotifier->Watch(path.c_str(), this);
 	}
@@ -385,8 +375,7 @@ public:
 		RemoveReferences();
 
 		// Load and show the menu
-		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
-		IGUISystem* pGUI = pSystemTable->pGUISystem;
+		IGUISystem* pGUI = PerModuleInterface::g_pSystemTable->pGUISystem;
 
 		if (forceLoad)
 		{
@@ -428,7 +417,6 @@ public:
 			m_OptionsEvent.m_bInline = false;
 			m_OptionsEvent.SetVisibility();	//force toggle menu to set to default state
 
-			SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
 			m_pAutoCompileCheckBox = pDocument->Element()->GetElementById( "autocompilecheckbox");
 			m_pAutoCompileCheckBox->AddEventListener( "change", &m_AutoCompileCheckBoxEvent, 0 );
 			//TODO: fix below. See other code below for pause and call the game->setAutoCompile with the value
@@ -439,7 +427,7 @@ public:
 				m_pAutoCompileCheckBox->GetAttribute( "checked", AutoCompile, sizeof( AutoCompile ) );
 				g_bAutoCompile = strlen( AutoCompile ) > 0;
 			}
-			pSystemTable->pRuntimeObjectSystem->SetAutoCompile( g_bAutoCompile );
+			PerModuleInterface::g_pSystemTable->pRuntimeObjectSystem->SetAutoCompile( g_bAutoCompile );
 
 
 			m_pVolumeSlider = pDocument->Element()->GetElementById( "volumeslider");
@@ -460,18 +448,18 @@ public:
 			
 			if( g_Muted )
 			{
-				pSystemTable->pGame->SetVolume( 0.0f );
+				PerModuleInterface::g_pSystemTable->pGame->SetVolume( 0.0f );
 			}
 			else
 			{
-				pSystemTable->pGame->SetVolume( g_Volume );
+				PerModuleInterface::g_pSystemTable->pGame->SetVolume( g_Volume );
 			}
 
 			m_pSpeedSlider = pDocument->Element()->GetElementById( "speedslider");
 			m_pSpeedSlider->AddEventListener( "change", &m_SpeedEvent, 0 );
 			m_pSpeedSlider->GetAttribute( "value", Value, sizeof( Value ) );
 			float val = (float)atof( Value );
-			pSystemTable->pGame->SetSpeed( val );
+			PerModuleInterface::g_pSystemTable->pGame->SetSpeed( val );
 			char Max[100];
 			m_pSpeedSlider->GetAttribute( "max", Max, sizeof( Max ) );
 			float max = (float)atof( Max );
@@ -489,11 +477,11 @@ public:
 			
 			if( g_Paused )
 			{
-				pSystemTable->pGame->SetSpeed( 0.0f );
+				PerModuleInterface::g_pSystemTable->pGame->SetSpeed( 0.0f );
 			}
 			else
 			{
-				pSystemTable->pGame->SetSpeed( g_Speed );					
+				PerModuleInterface::g_pSystemTable->pGame->SetSpeed( g_Speed );					
 			}
 
 			pDocument->Show();

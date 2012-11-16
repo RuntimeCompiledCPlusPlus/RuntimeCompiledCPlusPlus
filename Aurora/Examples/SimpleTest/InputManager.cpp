@@ -258,14 +258,13 @@ private:
 
 	void InitWatch()
 	{
-		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
-		IFileChangeNotifier* pFileChangeNotifier = pSystemTable->pFileChangeNotifier;
+		IFileChangeNotifier* pFileChangeNotifier = PerModuleInterface::g_pSystemTable->pFileChangeNotifier;
 
 		// Set watches on the data files we rely on for drawing GUI
-		std::string path = pSystemTable->pAssetSystem->GetAssetDirectory();
+		std::string path = PerModuleInterface::g_pSystemTable->pAssetSystem->GetAssetDirectory();
 		path += "/GUI/input.rml";
 		pFileChangeNotifier->Watch(path.c_str(), this);
-		path = pSystemTable->pAssetSystem->GetAssetDirectory();
+		path = PerModuleInterface::g_pSystemTable->pAssetSystem->GetAssetDirectory();
 		path += "/GUI/input.rcss";
 		pFileChangeNotifier->Watch(path.c_str(), this);
 	}
@@ -287,8 +286,7 @@ private:
 		}
 
 		// Load and show the input element
-		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
-		IGUISystem* pGUI = pSystemTable->pGUISystem;
+		IGUISystem* pGUI = PerModuleInterface::g_pSystemTable->pGUISystem;
 
 		if (forceLoad)
 		{
@@ -311,7 +309,7 @@ private:
 			// Make input element same size as window
 			char buff[16];
 			float windowWidth, windowHeight;
-			PerModuleInterface::GetInstance()->GetSystemTable()->pGame->GetWindowSize( windowWidth, windowHeight );
+			PerModuleInterface::g_pSystemTable->pGame->GetWindowSize( windowWidth, windowHeight );
             _snprintf_s(buff, sizeof(buff), _TRUNCATE, "%d",(int)windowWidth);
 			m_pInputElement->SetProperty( "width", buff );
             _snprintf_s(buff, sizeof(buff), _TRUNCATE, "%d",(int)windowHeight);

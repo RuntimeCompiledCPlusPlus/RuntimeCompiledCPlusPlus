@@ -131,7 +131,7 @@ public:
 		static unsigned int count = 0;
 		count = (count+1) % 6; //TODO: this will now change every frame, not every 0.2s (grumble)
 
-		double time = PerModuleInterface::GetInstance()->GetSystemTable()->pTimeSystem->GetFrameSessionTime();
+		double time = PerModuleInterface::g_pSystemTable->pTimeSystem->GetFrameSessionTime();
 		unsigned int newCount = (int)( time/UPDATE_INTERVAL ) % 6;
 		strcat( text, phrase );
 		strcat( text, dots[newCount] );
@@ -146,12 +146,11 @@ public:
 		{
 			// Refreshing the content of the counter is not itself free, so we impose some limit
 			// Since deltaTime is game time, which can be paused or slowed down, we update with frame time
-			double fSmoothFrameTime = PerModuleInterface::GetInstance()->GetSystemTable()->pTimeSystem->GetSmoothFrameDuration();
+			double fSmoothFrameTime = PerModuleInterface::g_pSystemTable->pTimeSystem->GetSmoothFrameDuration();
 			m_fTimeToNextUpdate -= fSmoothFrameTime;
 
-			SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
-			bool bCompiling = pSystemTable->pRuntimeObjectSystem->GetIsCompiling();
-			bool bLoadedModule = pSystemTable->pRuntimeObjectSystem->GetLastLoadModuleSuccess();
+			bool bCompiling = PerModuleInterface::g_pSystemTable->pRuntimeObjectSystem->GetIsCompiling();
+			bool bLoadedModule = PerModuleInterface::g_pSystemTable->pRuntimeObjectSystem->GetLastLoadModuleSuccess();
 			char text[200];
 
 			switch( m_CompilationStatus )
@@ -274,14 +273,13 @@ private:
 
 	void InitWatch()
 	{
-		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
-		IFileChangeNotifier* pFileChangeNotifier = pSystemTable->pFileChangeNotifier;
+		IFileChangeNotifier* pFileChangeNotifier = PerModuleInterface::g_pSystemTable->pFileChangeNotifier;
 
 		// Set watches on the data files we rely on for drawing GUI
-		std::string path = pSystemTable->pAssetSystem->GetAssetDirectory();
+		std::string path = PerModuleInterface::g_pSystemTable->pAssetSystem->GetAssetDirectory();
 		path += "/GUI/compiling-notification.rml";
 		pFileChangeNotifier->Watch(path.c_str(), this);
-		path = pSystemTable->pAssetSystem->GetAssetDirectory();
+		path = PerModuleInterface::g_pSystemTable->pAssetSystem->GetAssetDirectory();
 		path += "/GUI/compiling-notification.rcss";
 		pFileChangeNotifier->Watch(path.c_str(), this);
 	}
@@ -296,9 +294,8 @@ private:
 			m_pCompilingNotification = 0;
 		}
 
-		// Load and show the fps counter
-		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
-		IGUISystem* pGUI = pSystemTable->pGUISystem;
+		// Load the compiling notification rml
+		IGUISystem* pGUI = PerModuleInterface::g_pSystemTable->pGUISystem;
 
 		if (forceLoad)
 		{

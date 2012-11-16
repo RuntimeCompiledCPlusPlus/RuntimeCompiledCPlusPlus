@@ -72,7 +72,7 @@ public:
 		pGameManager->AddListener(this);
 
 		float height, width;
-		PerModuleInterface::GetInstance()->GetSystemTable()->pGame->GetWindowSize( width, height );
+		PerModuleInterface::g_pSystemTable->pGame->GetWindowSize( width, height );
 
 		// Slightly reduce dimensions so object never cross window edges (since their position is in the center of object
 		width -= 50;
