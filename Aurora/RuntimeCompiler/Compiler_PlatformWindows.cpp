@@ -279,7 +279,7 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
 #ifdef _DEBUG
 	std::string flags = "/nologo /Od /Zi /FC /LDd ";
 #else
-	std::string flags = "/nologo /O2 /LD /Zi";	//also need debug information in release
+	std::string flags = "/nologo /O2 /Zi /FC /LD ";	//also need debug information in release
 #endif
 	if( NULL == m_pImplData->m_CmdProcessInfo.hProcess )
 	{
