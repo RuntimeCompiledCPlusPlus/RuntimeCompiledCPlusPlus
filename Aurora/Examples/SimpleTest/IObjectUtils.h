@@ -101,6 +101,19 @@ struct IObjectUtils
 		return  PerModuleInterface::g_pSystemTable->pObjectFactorySystem->GetConstructor( objectType );
 	}
 
+	static ConstructorId GetConstructorId( const char* objectType )
+	{
+		  IObjectConstructor* pConstructor = GetConstructor( objectType );
+		  if( pConstructor )
+		  {
+			  return pConstructor->GetConstructorId();
+		  }
+		  else
+		  {
+			  return InvalidId;
+		  }
+	}
+
 
 	static IObject* CreateObjectAndEntity( const char* objectType, const char* entityName, bool bEntityNameIsUnique=true )
 	{
