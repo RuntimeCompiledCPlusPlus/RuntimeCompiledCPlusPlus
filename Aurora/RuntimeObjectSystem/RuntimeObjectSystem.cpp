@@ -119,13 +119,20 @@ void RuntimeObjectSystem::OnFileChange(const IAUDynArray<const char*>& filelist)
 		return;
 	}
 
+	std::vector<BuildTool::FileToBuild>* pBuildFileList = &m_BuildFileList;
+	if( m_bCompiling )
+	{
+		pBuildFileList = &m_PendingBuildFileList;
+	}
+
+
 	m_pCompilerLogger->LogInfo("FileChangeNotifier triggered recompile of files:\n");
 	for( size_t i = 0; i < filelist.Size(); ++ i )
 	{
 		BuildTool::FileToBuild fileToBuild(filelist[i]);
 		if( fileToBuild.filePath.extension() != ".h") //TODO: change to check for .cpp and .c as could have .inc files etc.?
 		{
-			m_BuildFileList.push_back( fileToBuild );
+			pBuildFileList->push_back( fileToBuild );
 		}
 		else
 		{
@@ -133,12 +140,15 @@ void RuntimeObjectSystem::OnFileChange(const IAUDynArray<const char*>& filelist)
 			for(TFileToFileIterator it=range.first; it!=range.second; ++it)
 			{
 				BuildTool::FileToBuild fileToBuildFromIncludes( (*it).second, true );
-				m_BuildFileList.push_back( fileToBuildFromIncludes );
+				pBuildFileList->push_back( fileToBuildFromIncludes );
 			}
 		}
 	}
 
-	StartRecompile();
+	if( !m_bCompiling )
+	{
+		StartRecompile();
+	}
 }
 
 bool RuntimeObjectSystem::GetIsCompiledComplete()
@@ -211,7 +221,10 @@ void RuntimeObjectSystem::StartRecompile()
 #endif
 
 
+	m_BuildFileList.insert( m_BuildFileList.end(), m_PendingBuildFileList.begin(), m_PendingBuildFileList.end() );
+	m_PendingBuildFileList.clear();
 	std::vector<BuildTool::FileToBuild> ourBuildFileList( m_BuildFileList );
+
 
 	//Add libraries which need linking
 	std::vector<boost::filesystem::path> linkLibraryList;
@@ -292,6 +305,11 @@ bool RuntimeObjectSystem::LoadCompiledModule()
 	SetupObjectConstructors(pPerModuleInterfaceProcAdd);
 	m_BuildFileList.clear();	// clear the files from our compile list
 	m_bLastLoadModuleSuccess = true;
+	if( !m_PendingBuildFileList.empty() )
+	{
+		// we have pending files to compile, go ahead and compile them
+		StartRecompile();
+	}
 	return true;
 }
 

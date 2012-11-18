@@ -134,6 +134,7 @@ private:
 	bool					m_bAutoCompile;
 	boost::filesystem::path m_CurrentlyCompilingModuleName;
 	std::vector<BuildTool::FileToBuild> m_BuildFileList;
+	std::vector<BuildTool::FileToBuild> m_PendingBuildFileList; // if a compile is already underway, store files here.
 	TFileList				m_IncludeDirList;
 	TFileList				m_LibraryDirList;
 	std::string				m_CompileOptions;
