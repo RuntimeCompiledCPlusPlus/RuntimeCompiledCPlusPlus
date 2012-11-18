@@ -58,7 +58,7 @@ bool SystemInterface::LogMessage(Log::Type logtype, const String& message)
 	else
 	{
 		OutputDebugStringA(message.CString());
-		OutputDebugStringA("\r\n");
+		//OutputDebugStringA("\r\n");
 	}
 #else
 	(logtype);
