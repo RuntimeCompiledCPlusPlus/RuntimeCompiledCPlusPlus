@@ -118,7 +118,6 @@ void RuntimeObjectSystem::OnFileChange(const IAUDynArray<const char*>& filelist)
 	{
 		return;
 	}
-	std::vector<BuildTool::FileToBuild> buildFileList;
 
 	m_pCompilerLogger->LogInfo("FileChangeNotifier triggered recompile of files:\n");
 	for( size_t i = 0; i < filelist.Size(); ++ i )
@@ -126,7 +125,7 @@ void RuntimeObjectSystem::OnFileChange(const IAUDynArray<const char*>& filelist)
 		BuildTool::FileToBuild fileToBuild(filelist[i]);
 		if( fileToBuild.filePath.extension() != ".h") //TODO: change to check for .cpp and .c as could have .inc files etc.?
 		{
-			buildFileList.push_back( fileToBuild );
+			m_BuildFileList.push_back( fileToBuild );
 		}
 		else
 		{
@@ -134,12 +133,12 @@ void RuntimeObjectSystem::OnFileChange(const IAUDynArray<const char*>& filelist)
 			for(TFileToFileIterator it=range.first; it!=range.second; ++it)
 			{
 				BuildTool::FileToBuild fileToBuildFromIncludes( (*it).second, true );
-				buildFileList.push_back( fileToBuildFromIncludes );
+				m_BuildFileList.push_back( fileToBuildFromIncludes );
 			}
 		}
 	}
 
-	StartRecompile( buildFileList );
+	StartRecompile();
 }
 
 bool RuntimeObjectSystem::GetIsCompiledComplete()
@@ -149,17 +148,20 @@ bool RuntimeObjectSystem::GetIsCompiledComplete()
 
 void RuntimeObjectSystem::CompileAll( bool bForceRecompile )
 {
-	std::vector<BuildTool::FileToBuild> buildFileList;
+	// since this is a compile all we can clear any pending compiles
+	m_BuildFileList.clear();
+
+	// add all files except headers
 	for( size_t i = 0; i < m_RuntimeFileList.size(); ++ i )
 	{
 		BuildTool::FileToBuild fileToBuild(m_RuntimeFileList[i], true ); //force re-compile on compile all
 		if( fileToBuild.filePath.extension() != ".h") //TODO: change to check for .cpp and .c as could have .inc files etc.?
 		{
-			buildFileList.push_back( fileToBuild );
+			m_BuildFileList.push_back( fileToBuild );
 		}
 	}
 
-	StartRecompile(buildFileList);
+	StartRecompile();
 }
 
 void RuntimeObjectSystem::SetAutoCompile( bool autoCompile )
@@ -186,7 +188,7 @@ void RuntimeObjectSystem::RemoveFromRuntimeFileList( const char* filename )
 	}
 }
 
-void RuntimeObjectSystem::StartRecompile( const std::vector<BuildTool::FileToBuild>& buildFileList )
+void RuntimeObjectSystem::StartRecompile()
 {
 	m_bCompiling = true;
 	m_pCompilerLogger->LogInfo( "Compiling...\n");
@@ -209,14 +211,14 @@ void RuntimeObjectSystem::StartRecompile( const std::vector<BuildTool::FileToBui
 #endif
 
 
-	std::vector<BuildTool::FileToBuild> ourBuildFileList( buildFileList );
+	std::vector<BuildTool::FileToBuild> ourBuildFileList( m_BuildFileList );
 
 	//Add libraries which need linking
 	std::vector<boost::filesystem::path> linkLibraryList;
-	for( size_t i = 0; i < buildFileList.size(); ++ i )
+	for( size_t i = 0; i < ourBuildFileList.size(); ++ i )
 	{
 
-		TFileToFileEqualRange range = m_RuntimeLinkLibraryMap.equal_range( buildFileList[i].filePath );
+		TFileToFileEqualRange range = m_RuntimeLinkLibraryMap.equal_range( ourBuildFileList[i].filePath );
 		for(TFileToFileIterator it=range.first; it!=range.second; ++it)
 		{
 			linkLibraryList.push_back( it->second );
@@ -288,7 +290,7 @@ bool RuntimeObjectSystem::LoadCompiledModule()
 	m_pCompilerLogger->LogInfo( "Compilation Succeeded\n");
 
 	SetupObjectConstructors(pPerModuleInterfaceProcAdd);
-
+	m_BuildFileList.clear();	// clear the files from our compile list
 	m_bLastLoadModuleSuccess = true;
 	return true;
 }

@@ -108,7 +108,7 @@ private:
 	typedef std::pair<boost::filesystem::path,boost::filesystem::path> TFileToFilePair;
 	typedef std::pair<TFileToFileMap::iterator,TFileToFileMap::iterator> TFileToFileEqualRange;
 
-	void StartRecompile( const std::vector<BuildTool::FileToBuild>& buildFileList );
+	void StartRecompile();
 
 	void InitObjects();
 	void SetupObjectConstructors(GETPerModuleInterface_PROC pPerModuleInterfaceProcAdd);
@@ -133,6 +133,7 @@ private:
 	TFileToFileMap			m_RuntimeLinkLibraryMap;
 	bool					m_bAutoCompile;
 	boost::filesystem::path m_CurrentlyCompilingModuleName;
+	std::vector<BuildTool::FileToBuild> m_BuildFileList;
 	TFileList				m_IncludeDirList;
 	TFileList				m_LibraryDirList;
 	std::string				m_CompileOptions;
