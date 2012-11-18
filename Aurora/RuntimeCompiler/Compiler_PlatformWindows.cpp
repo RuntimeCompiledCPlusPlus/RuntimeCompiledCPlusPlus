@@ -367,8 +367,9 @@ char* pCharTypeFlags = "";
 		+ " /MP /Fo\"" + intermediate + "\\\\\" "
 		+ "/D WIN32 /EHa /Fe" + outputFile.string();
 	cmdToSend += " " + strIncludeFiles + " " + strFilesToCompile + strLinkLibraries + linkOptions
-		+ "\necho " + c_CompletionToken + "\n";
-	OutputDebugStringA( cmdToSend.c_str() );
+		+ "\necho ";
+	if( m_pImplData->m_pLogger ) m_pImplData->m_pLogger->LogInfo( cmdToSend.c_str() );
+	cmdToSend += c_CompletionToken + "\n";
 	WriteInput( m_pImplData->m_CmdProcessInputWrite, cmdToSend );
 }
 
