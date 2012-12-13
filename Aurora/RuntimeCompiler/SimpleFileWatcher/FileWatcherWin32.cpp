@@ -197,14 +197,14 @@ namespace FW
 		WatchStruct* watch = CreateWatch(dirName.c_str(), recursive,
 			FILE_NOTIFY_CHANGE_CREATION | FILE_NOTIFY_CHANGE_SIZE | FILE_NOTIFY_CHANGE_FILE_NAME);
 
-		if(!watch)
-			throw FileNotFoundException(directory);
-
-		watch->mWatchid = watchid;
-		watch->mFileWatcher = this;
-		watch->mFileWatchListener = watcher;
-		watch->mDirName = new char[directory.string().length()+1];
-		strcpy(watch->mDirName, directory.string().c_str());
+		if(watch)
+		{
+			watch->mWatchid = watchid;
+			watch->mFileWatcher = this;
+			watch->mFileWatchListener = watcher;
+			watch->mDirName = new char[directory.string().length()+1];
+			strcpy(watch->mDirName, directory.string().c_str());
+		}
 
 		mWatches.insert(std::make_pair(watchid, watch));
 
