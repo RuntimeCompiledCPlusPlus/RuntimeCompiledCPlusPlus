@@ -55,7 +55,6 @@ namespace FW
 		virtual ~FileWatcherOSX();
 
 		/// Add a directory watch
-		/// @exception FileNotFoundException Thrown when the requested directory does not exist
 		WatchID addWatch(const String& directory, FileWatchListener* watcher, bool recursive);
 
 		/// Remove a directory watch. This is a brute force lazy search O(nlogn).
