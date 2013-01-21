@@ -49,6 +49,12 @@ namespace FileSystemUtils
 
 		bool Exists()		const;
 		bool CreateDir()	const;
+
+#ifdef _WIN32
+		static const char seperator = '\\';
+#else
+		static const char seperator = '/';
+#endif
 	};
 
 	
@@ -121,4 +127,16 @@ namespace FileSystemUtils
 		return false;
 	}
 
+	Path operator/( const Path& lhs_, const Path& rhs_ )
+	{
+		Path join = lhs_.m_string + Path::seperator + rhs_.m_string;
+		return join;
+	}
+}
+
+
+FileSystemUtils::Path operator/( const std::string& lhs_, const std::string& rhs_ )
+{
+	FileSystemUtils::Path join = lhs_ + FileSystemUtils::Path::seperator + rhs_;
+	return join;
 }
