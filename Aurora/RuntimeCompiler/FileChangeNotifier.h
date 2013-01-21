@@ -26,8 +26,7 @@
 #include <map>
 #include <set>
 
-#define BOOST_FILESYSTEM_VERSION 3
-#include "boost/filesystem.hpp"   // includes all needed Boost.Filesystem declarations
+#include "FileSystemUtils.h"
 
 
 // Manages the registering of files with the file monitor and triggering
@@ -67,7 +66,7 @@ public:
 	virtual void Update( float fDeltaTime );
 
 	// Add file to trigger compilation when it changes
-	virtual void Watch( const boost::filesystem::path& filename, IFileChangeListener *pListener );
+	virtual void Watch( const FileSystemUtils::Path& filename, IFileChangeListener *pListener );
 	virtual void Watch( const char *filename, IFileChangeListener *pListener );
 
 	virtual void RemoveListener( IFileChangeListener *pListener );
@@ -77,7 +76,7 @@ public:
 
 	// IFileMonitorListener
 
-	void OnFileChange( const boost::filesystem::path& filename );
+	void OnFileChange( const FileSystemUtils::Path& filename );
 
 	// ~IFileMonitorListener
 	
@@ -88,7 +87,7 @@ private:
 	void NotifyListeners();
 
 	typedef std::set<IFileChangeListener*> TFileChangeListeners;
-	typedef std::map<boost::filesystem::path, TFileChangeListeners> TFileListenerMap;
+	typedef std::map<FileSystemUtils::Path, TFileChangeListeners> TFileListenerMap;
 	typedef std::vector<std::string> TPathNameList;
 
 	// Private members
@@ -105,7 +104,7 @@ private:
 	float m_fChangeNotifyDelay;
 	float m_fTimeUntilNextAllowedRecompile;
 	float m_fFileChangeSpamTimeRemaining;
-	boost::filesystem::path m_LastFileChanged;	
+	FileSystemUtils::Path m_LastFileChanged;	
 };
 
 #endif //FILECHANGENOTIFIER_INCLUDED

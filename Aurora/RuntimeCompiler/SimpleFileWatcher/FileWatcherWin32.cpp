@@ -24,7 +24,6 @@
 
 #if FILEWATCHER_PLATFORM == FILEWATCHER_PLATFORM_WIN32
 
-#define _WIN32_WINNT 0x0550
 #include <windows.h>
 
 #if defined(_MSC_VER)
@@ -62,7 +61,7 @@ namespace FW
 	/// Unpacks events and passes them to a user defined callback.
 	void CALLBACK WatchCallback(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOverlapped)
 	{
-		TCHAR szFile[MAX_PATH];
+		char szFile[MAX_PATH];
 		PFILE_NOTIFY_INFORMATION pNotify;
 		WatchStruct* pWatch = (WatchStruct*) lpOverlapped;
 		size_t offset = 0;
@@ -77,19 +76,12 @@ namespace FW
 				pNotify = (PFILE_NOTIFY_INFORMATION) &pWatch->mBuffer[offset];
 				offset += pNotify->NextEntryOffset;
 
-#			if defined(UNICODE)
-				{
-					lstrcpynW(szFile, pNotify->FileName,
-						min(MAX_PATH, pNotify->FileNameLength / sizeof(WCHAR) + 1));
-				}
-#			else
-				{
-					int count = WideCharToMultiByte(CP_ACP, 0, pNotify->FileName,
-						pNotify->FileNameLength / sizeof(WCHAR),
-						szFile, MAX_PATH - 1, NULL, NULL);
-					szFile[count] = TEXT('\0');
-				}
-#			endif
+
+				int count = WideCharToMultiByte(CP_ACP, 0, pNotify->FileName,
+					pNotify->FileNameLength / sizeof(WCHAR),
+					szFile, MAX_PATH - 1, NULL, NULL);
+				szFile[count] = TEXT('\0');
+
 
 				pWatch->mFileWatcher->handleAction(pWatch, szFile, pNotify->Action);
 
@@ -134,13 +126,13 @@ namespace FW
 	}
 
 	/// Starts monitoring a directory.
-	WatchStruct* CreateWatch(LPCTSTR szDirectory, bool recursive, DWORD mNotifyFilter)
+	WatchStruct* CreateWatch(const char* szDirectory, bool recursive, DWORD mNotifyFilter)
 	{
 		WatchStruct* pWatch;
 		size_t ptrsize = sizeof(*pWatch);
 		pWatch = static_cast<WatchStruct*>(HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, ptrsize));
 
-		pWatch->mDirHandle = CreateFile(szDirectory, FILE_LIST_DIRECTORY,
+		pWatch->mDirHandle = CreateFileA(szDirectory, FILE_LIST_DIRECTORY,
 			FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, 
 			OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED, NULL);
 
@@ -189,12 +181,8 @@ namespace FW
 	WatchID FileWatcherWin32::addWatch(const String& directory, FileWatchListener* watcher, bool recursive)
 	{
 		WatchID watchid = ++mLastWatchID;
-#ifdef UNICODE
-		std::wstring dirName = directory.wstring();
-#else
-		std::string dirName = directory.string();
-#endif
-		WatchStruct* watch = CreateWatch(dirName.c_str(), recursive,
+
+		WatchStruct* watch = CreateWatch(directory.c_str(), recursive,
 			FILE_NOTIFY_CHANGE_CREATION | FILE_NOTIFY_CHANGE_SIZE | FILE_NOTIFY_CHANGE_FILE_NAME);
 
 		if(watch)
@@ -202,8 +190,8 @@ namespace FW
 			watch->mWatchid = watchid;
 			watch->mFileWatcher = this;
 			watch->mFileWatchListener = watcher;
-			watch->mDirName = new char[directory.string().length()+1];
-			strcpy(watch->mDirName, directory.string().c_str());
+			watch->mDirName = new char[directory.m_string.length()+1];
+			strcpy(watch->mDirName, directory.c_str());
 		}
 
 		mWatches.insert(std::make_pair(watchid, watch));

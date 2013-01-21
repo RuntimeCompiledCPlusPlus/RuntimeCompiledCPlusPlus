@@ -33,13 +33,12 @@
 #include <string>
 #include <stdexcept>
 
-#define BOOST_FILESYSTEM_VERSION 3
-#include "boost/filesystem.hpp"   // includes all needed Boost.Filesystem declarations
+#include "../FileSystemUtils.h"
 
 namespace FW
 {
 	/// Type for a string
-	typedef boost::filesystem::path String;
+	typedef FileSystemUtils::Path String;
 	/// Type for a watch id
 	typedef unsigned long WatchID;
 

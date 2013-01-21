@@ -27,7 +27,7 @@
 #include "IObjectFactorySystem.h"
 #include "ObjectFactorySystem/ObjectFactorySystem.h"
 #include "ObjectInterfacePerModule.h"
-
+#include <algorithm>
 #include "IObject.h"
 
 #ifndef _WIN32
@@ -36,7 +36,7 @@
 #include <dlfcn.h>
 #endif
 
-using boost::filesystem::path;
+using FileSystemUtils::Path;
 
 RuntimeObjectSystem::RuntimeObjectSystem()
 	: m_pCompilerLogger(0)
@@ -98,13 +98,13 @@ bool RuntimeObjectSystem::Initialise( ICompilerLogger * pLogger, SystemTable* pS
 	SetupObjectConstructors(pPerModuleInterfaceProcAdd);
 
 	//add this dir to list of include dirs
-	boost::filesystem::path includeDir( __FILE__ );
-	includeDir.remove_filename();
-	AddIncludeDir(includeDir.string().c_str());
+	FileSystemUtils::Path includeDir( __FILE__ );
+	includeDir = includeDir.ParentPath();
+	AddIncludeDir(includeDir.c_str());
 
 	//also add the runtime compiler dir to list of dirs
-	includeDir = includeDir.parent_path() / "RuntimeCompiler";
-	AddIncludeDir(includeDir.string().c_str());
+	includeDir = includeDir.ParentPath() / Path("RuntimeCompiler");
+	AddIncludeDir(includeDir.c_str());
 
 
 
@@ -130,7 +130,7 @@ void RuntimeObjectSystem::OnFileChange(const IAUDynArray<const char*>& filelist)
 	for( size_t i = 0; i < filelist.Size(); ++ i )
 	{
 		BuildTool::FileToBuild fileToBuild(filelist[i]);
-		if( fileToBuild.filePath.extension() != ".h") //TODO: change to check for .cpp and .c as could have .inc files etc.?
+		if( fileToBuild.filePath.Extension() != ".h") //TODO: change to check for .cpp and .c as could have .inc files etc.?
 		{
 			pBuildFileList->push_back( fileToBuild );
 		}
@@ -165,7 +165,7 @@ void RuntimeObjectSystem::CompileAll( bool bForceRecompile )
 	for( size_t i = 0; i < m_RuntimeFileList.size(); ++ i )
 	{
 		BuildTool::FileToBuild fileToBuild(m_RuntimeFileList[i], true ); //force re-compile on compile all
-		if( fileToBuild.filePath.extension() != ".h") //TODO: change to check for .cpp and .c as could have .inc files etc.?
+		if( fileToBuild.filePath.Extension() != ".h") //TODO: change to check for .cpp and .c as could have .inc files etc.?
 		{
 			m_BuildFileList.push_back( fileToBuild );
 		}
@@ -205,11 +205,11 @@ void RuntimeObjectSystem::StartRecompile()
 
 	//Use a temporary filename for the dll
 #ifdef _WIN32
-	wchar_t tempPath[MAX_PATH];
-	GetTempPath( MAX_PATH, tempPath );
-	wchar_t tempFileName[MAX_PATH]; 
-	GetTempFileName( tempPath, L"", 0, tempFileName );
-	std::wstring strTempFileName( tempFileName );
+	char tempPath[MAX_PATH];
+	GetTempPathA( MAX_PATH, tempPath );
+	char tempFileName[MAX_PATH]; 
+	GetTempFileNameA( tempPath, "", 0, tempFileName );
+	std::string strTempFileName( tempFileName );
 	m_CurrentlyCompilingModuleName= strTempFileName;
 #else
     char tempPath[] = "/tmp/RCCppTempDylibXXXXXX";
@@ -227,7 +227,7 @@ void RuntimeObjectSystem::StartRecompile()
 
 
 	//Add libraries which need linking
-	std::vector<boost::filesystem::path> linkLibraryList;
+	std::vector<FileSystemUtils::Path> linkLibraryList;
 	for( size_t i = 0; i < ourBuildFileList.size(); ++ i )
 	{
 
@@ -264,14 +264,13 @@ bool RuntimeObjectSystem::LoadCompiledModule()
 	// Since the temporary file is created with 0 bytes, loadlibrary can fail with a dialogue we want to prevent. So check size
 	// We pass in the ec value so the function won't throw an exception on error, but the value itself sometimes seems to
 	// be set even without an error, so not sure if it should be relied on.
-	boost::system::error_code ec;
-	uintmax_t sizeOfModule = file_size( m_CurrentlyCompilingModuleName, ec );
+	uint64_t sizeOfModule = m_CurrentlyCompilingModuleName.GetFileSize();
 
 	HMODULE module = 0;
 	if( sizeOfModule )
 	{
 #ifdef _WIN32
-		module = LoadLibraryW( m_CurrentlyCompilingModuleName.c_str() );
+		module = LoadLibraryA( m_CurrentlyCompilingModuleName.c_str() );
 #else
         module = dlopen( m_CurrentlyCompilingModuleName.c_str(), RTLD_NOW );
 #endif
@@ -279,7 +278,7 @@ bool RuntimeObjectSystem::LoadCompiledModule()
 
 	if (!module)
 	{
-		m_pCompilerLogger->LogError( "Failed to load module %ls\n",m_CurrentlyCompilingModuleName.wstring().c_str());
+		m_pCompilerLogger->LogError( "Failed to load module %s\n",m_CurrentlyCompilingModuleName.c_str());
 		return false;
 	}
 
@@ -296,7 +295,7 @@ bool RuntimeObjectSystem::LoadCompiledModule()
 		return false;
 	}
 
-       pPerModuleInterfaceProcAdd()->SetModuleFileName( m_CurrentlyCompilingModuleName.string().c_str() );
+       pPerModuleInterfaceProcAdd()->SetModuleFileName( m_CurrentlyCompilingModuleName.c_str() );
 	pPerModuleInterfaceProcAdd()->SetSystemTable( m_pSystemTable );
 	m_Modules.push_back( module );
 
@@ -327,7 +326,7 @@ void RuntimeObjectSystem::SetupObjectConstructors(GETPerModuleInterface_PROC pPe
 		constructors[i] = objectConstructors[i];
 		AddToRuntimeFileList( objectConstructors[i]->GetFileName() );
 
-		path filePath = objectConstructors[i]->GetFileName();
+		Path filePath = objectConstructors[i]->GetFileName();
 		if( !bFirstTime )
 		{
  			//remove old include file mappings for this file
@@ -383,11 +382,11 @@ void RuntimeObjectSystem::SetupObjectConstructors(GETPerModuleInterface_PROC pPe
 
 void RuntimeObjectSystem::AddIncludeDir( const char *path_ )
 {
-	m_IncludeDirList.push_back(path(path_));
+	m_IncludeDirList.push_back(Path(path_));
 }
 
 
 void RuntimeObjectSystem::AddLibraryDir( const char *path_ )
 {
-	m_LibraryDirList.push_back(path(path_));
+	m_LibraryDirList.push_back(Path(path_));
 }

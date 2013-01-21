@@ -16,7 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "FileChangeNotifier.h"
-#include "boost/algorithm/string.hpp"
 
 #include "FileMonitor.h"
 #include <algorithm>
@@ -72,14 +71,13 @@ void FileChangeNotifier::Update( float fDeltaTime )
 }
 
 
-void FileChangeNotifier::Watch( const boost::filesystem::path& filename, IFileChangeListener *pListener )
+void FileChangeNotifier::Watch( const FileSystemUtils::Path& filename, IFileChangeListener *pListener )
 {
-	boost::filesystem::path fixedFilename = filename;
-	fixedFilename.normalize().make_preferred(); // this is technically not safe on filesystems with symlinks, but practically is fine for our purposes
+	FileSystemUtils::Path fixedFilename = filename.DelimitersToOSDefault(); // Note this doesn't handle ../
 	
 #ifdef _WIN32
 	// make filename lowercase to avoid case sensitivity issues with __FILE__ and ReadDirectoryChangesW output
-	fixedFilename = boost::filesystem::path(boost::to_lower_copy(fixedFilename.wstring()));
+	FileSystemUtils::ToLowerInPlace( fixedFilename.m_string );
 #endif
 
 	m_pFileMonitor->Watch(fixedFilename, this);
@@ -90,7 +88,7 @@ void FileChangeNotifier::Watch( const boost::filesystem::path& filename, IFileCh
 
 void FileChangeNotifier::Watch( const char *filename, IFileChangeListener *pListener )
 {
-	Watch(boost::filesystem::path(filename), pListener);
+	Watch(FileSystemUtils::Path(filename), pListener);
 }
 
 void FileChangeNotifier::RemoveListener( IFileChangeListener *pListener )
@@ -106,7 +104,7 @@ void FileChangeNotifier::RemoveListener( IFileChangeListener *pListener )
 	pListener->OnRegisteredWithNotifier(NULL);
 }
 
-void FileChangeNotifier::OnFileChange( const boost::filesystem::path& filename )
+void FileChangeNotifier::OnFileChange( const FileSystemUtils::Path& filename )
 {
 	if (m_bActive)
 	{
@@ -119,15 +117,16 @@ void FileChangeNotifier::OnFileChange( const boost::filesystem::path& filename )
 
 		if (!bIgnoreFileChange)
 		{
-			const boost::filesystem::path* pFilename = &filename;
+			const FileSystemUtils::Path* pFilename = &filename;
 
 #ifdef _WIN32
 			// make filename lowercase to avoid case sensitivity issues with __FILE__ and ReadDirectoryChangesW output
-			boost::filesystem::path lowerFilename = boost::filesystem::path(boost::to_lower_copy(filename.wstring()));
+			FileSystemUtils::Path lowerFilename = filename;
+			FileSystemUtils::ToLowerInPlace( lowerFilename.m_string );
 			pFilename = &lowerFilename;
 #endif
 
-			m_changedFileList.push_back(pFilename->string());
+			m_changedFileList.push_back(pFilename->m_string);
 
 			if (!m_bRecompilePending)
 			{

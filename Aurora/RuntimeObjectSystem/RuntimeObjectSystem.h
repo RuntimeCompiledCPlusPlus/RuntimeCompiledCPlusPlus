@@ -35,9 +35,7 @@
 #include <vector>
 #include <map>
 
-#define BOOST_FILESYSTEM_VERSION 3
-#include "boost/filesystem.hpp" 
-
+#include "../RuntimeCompiler/FileSystemUtils.h"
 
 struct ICompilerLogger;
 struct IObjectFactorySystem;
@@ -102,10 +100,10 @@ public:
 	// ~IFileChangeListener
 
 private:
-	typedef std::vector<boost::filesystem::path> TFileList;
-	typedef std::multimap<boost::filesystem::path,boost::filesystem::path> TFileToFileMap;
+	typedef std::vector<FileSystemUtils::Path> TFileList;
+	typedef std::multimap<FileSystemUtils::Path,FileSystemUtils::Path> TFileToFileMap;
 	typedef TFileToFileMap::iterator TFileToFileIterator;
-	typedef std::pair<boost::filesystem::path,boost::filesystem::path> TFileToFilePair;
+	typedef std::pair<FileSystemUtils::Path,FileSystemUtils::Path> TFileToFilePair;
 	typedef std::pair<TFileToFileMap::iterator,TFileToFileMap::iterator> TFileToFileEqualRange;
 
 	void StartRecompile();
@@ -132,7 +130,7 @@ private:
 	TFileToFileMap			m_RuntimeIncludeMap;
 	TFileToFileMap			m_RuntimeLinkLibraryMap;
 	bool					m_bAutoCompile;
-	boost::filesystem::path m_CurrentlyCompilingModuleName;
+	FileSystemUtils::Path m_CurrentlyCompilingModuleName;
 	std::vector<BuildTool::FileToBuild> m_BuildFileList;
 	std::vector<BuildTool::FileToBuild> m_PendingBuildFileList; // if a compile is already underway, store files here.
 	TFileList				m_IncludeDirList;

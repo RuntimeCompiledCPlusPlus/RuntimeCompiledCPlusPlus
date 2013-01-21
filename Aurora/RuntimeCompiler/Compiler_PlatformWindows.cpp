@@ -27,7 +27,7 @@
 #include "Compiler.h"
 
 #define WIN32_LEAN_AND_MEAN
-#include "windows.h"
+#include <windows.h>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -40,7 +40,7 @@
 #include "ICompilerLogger.h"
 
 using namespace std;
-
+using namespace FileSystemUtils;
 
 struct VSVersionInfo
 {
@@ -73,12 +73,10 @@ public:
 		ZeroMemory( &si, sizeof(si) );
 		si.cb = sizeof(si);
 
-		boost::filesystem::path VSPath(  m_VSPath );
-
 #ifndef _WIN64
-		std::string cmdSetParams = "@PROMPT $ \n\"" + VSPath.string() + "Vcvars32.bat\"\n";
+		std::string cmdSetParams = "@PROMPT $ \n\"" + m_VSPath + "Vcvars32.bat\"\n";
 #else
-		std::string cmdSetParams = "@PROMPT $ \n\"" + VSPath.string() + "/../Vcvarsall.bat\" amd64\n";
+		std::string cmdSetParams = "@PROMPT $ \n\"" + m_VSPath + "/../Vcvarsall.bat\" amd64\n";
 #endif
 		// Set up the security attributes struct.
 		SECURITY_ATTRIBUTES sa;
@@ -226,9 +224,9 @@ Compiler::~Compiler()
 	CloseHandle( m_pImplData->m_CmdProcessOutputRead );
 }
 
-const std::wstring Compiler::GetObjectFileExtension() const
+const std::string Compiler::GetObjectFileExtension() const
 {
-	return L".obj";
+	return ".obj";
 }
 
 bool Compiler::GetIsComplete() const
@@ -248,8 +246,10 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
 	m_pImplData->m_intermediatePath = ".\\Runtime";
 
 	// Remove any existing intermediate directory
+	// TODO
+	/*
 	boost::system::error_code ec;
-	boost::filesystem::path path(m_pImplData->m_intermediatePath);
+	FileSystemUtils::Path path(m_pImplData->m_intermediatePath);
 	if (boost::filesystem::is_directory(path))
 	{
 		// In theory remove_all should do the job here, but it doesn't seem to
@@ -263,16 +263,16 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
 		}
 		boost::filesystem::remove(path,ec);
 	}
-
+	*/
 }
 
-void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCompile,
-					 const std::vector<boost::filesystem::path>& includeDirList,
-					 const std::vector<boost::filesystem::path>& libraryDirList,
-					 const std::vector<boost::filesystem::path>& linkLibraryList,
+void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToCompile,
+					 const std::vector<FileSystemUtils::Path>& includeDirList,
+					 const std::vector<FileSystemUtils::Path>& libraryDirList,
+					 const std::vector<FileSystemUtils::Path>& linkLibraryList,
 					 const char* pCompileOptions,
 					 const char* pLinkOptions,
-					 const boost::filesystem::path& outputFile )
+					 const FileSystemUtils::Path& outputFile )
 {
 	m_pImplData->m_bCompileIsComplete = false;
 	//optimization and c runtime
@@ -298,7 +298,7 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
 		linkOptions = " /link ";
 		for( size_t i = 0; i < libraryDirList.size(); ++i )
 		{
-			linkOptions += " /LIBPATH:\"" + libraryDirList[i].string() + "\"";
+			linkOptions += " /LIBPATH:\"" + libraryDirList[i].m_string + "\"";
 		}
 
 		if( bHaveLinkOptions )
@@ -322,7 +322,7 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
 	std::string strIncludeFiles;
 	for( size_t i = 0; i < includeDirList.size(); ++i )
 	{
-		strIncludeFiles += " /I \"" + includeDirList[i].string() + "\"";
+		strIncludeFiles += " /I \"" + includeDirList[i].m_string + "\"";
 	}
 
 
@@ -335,7 +335,7 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
 	std::set<std::string> filteredPaths;
 	for( size_t i = 0; i < filesToCompile.size(); ++i )
 	{
-		std::string strPath = filesToCompile[i].string();
+		std::string strPath = filesToCompile[i].m_string;
 		FileSystemUtils::ToLowerInPlace(strPath);
 
 		std::set<std::string>::const_iterator it = filteredPaths.find(strPath);
@@ -349,7 +349,7 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
 	std::string strLinkLibraries;
 	for( size_t i = 0; i < linkLibraryList.size(); ++i )
 	{
-		strLinkLibraries += " \"" + linkLibraryList[i].string() + "\" ";
+		strLinkLibraries += " \"" + linkLibraryList[i].m_string + "\" ";
 	}
 	
 
@@ -363,7 +363,7 @@ char* pCharTypeFlags = "";
 	// /MP - use multiple processes to compile if possible. Only speeds up compile for multiple files and not link
 	std::string cmdToSend = "cl " + flags + pCharTypeFlags
 		+ " /MP /Fo\"" + intermediate.m_string + "\\\\\" "
-		+ "/D WIN32 /EHa /Fe" + outputFile.string();
+		+ "/D WIN32 /EHa /Fe" + outputFile.m_string;
 	cmdToSend += " " + strIncludeFiles + " " + strFilesToCompile + strLinkLibraries + linkOptions
 		+ "\necho ";
 	if( m_pImplData->m_pLogger ) m_pImplData->m_pLogger->LogInfo( cmdToSend.c_str() );
