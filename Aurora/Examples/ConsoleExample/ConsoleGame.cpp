@@ -64,7 +64,7 @@ int Sleep( int msecs )
 #if defined _WINDOWS_ && defined GetObject
 #undef GetObject
 #endif
-using boost::filesystem::path;
+using FileSystemUtils::Path;
 
 ConsoleGame::ConsoleGame()
 	: m_pCompilerLogger(0)

@@ -35,9 +35,6 @@
 #include <Windows.h>
 #endif
 
-#define BOOST_FILESYSTEM_VERSION 3
-#include "boost/filesystem.hpp" 
-
 
 class Console;
 class Environment;

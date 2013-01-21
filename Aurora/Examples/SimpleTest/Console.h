@@ -20,8 +20,7 @@
 #ifndef CONSOLE_INCLUDED
 #define CONSOLE_INCLUDED
 
-#define BOOST_FILESYSTEM_VERSION 3
-#include "boost/filesystem.hpp"   // includes all needed Boost.Filesystem declarations
+#include "../../RuntimeCompiler/FileSystemUtils.h"
 
 #include "../../RuntimeCompiler/IFileChangeNotifier.h"
 #include "../../RuntimeObjectSystem/ObjectInterface.h"
@@ -103,8 +102,8 @@ private:
 	Environment* m_pEnv;
 	Rocket::Core::Context* m_pRocketContext;
 	ObjectId m_contextId;
-	boost::filesystem::path m_inputFile;
-	boost::filesystem::path m_contextFile;
+	FileSystemUtils::Path m_inputFile;
+	FileSystemUtils::Path m_contextFile;
 
 	bool m_bWaitingForCompile;
 	bool m_bCurrentContextFromGUI;

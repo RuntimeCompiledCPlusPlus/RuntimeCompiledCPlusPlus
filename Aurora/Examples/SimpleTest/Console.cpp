@@ -31,8 +31,6 @@
 #include "IConsoleContext.h"
 #include "IObjectUtils.h"
 
-#include "boost/algorithm/string.hpp"
-
 #include <assert.h>
 #include <fstream>
 #include <algorithm>
@@ -62,7 +60,7 @@ int stricmp( const char* pS1, const char* pS2 )
 #undef GetObject
 #endif
 
-using boost::filesystem::path;
+using FileSystemUtils::Path;
 
 
 static const char* CONTEXT_HEADER = 
@@ -97,16 +95,16 @@ Console::Console(Environment* pEnv, Rocket::Core::Context* pRocketContext)
 {
 	AU_ASSERT(m_pEnv && m_pRocketContext);
 
-	path basepath = path(__FILE__).parent_path();
-	m_inputFile = basepath / path(CONSOLE_INPUT_FILE);
-	m_contextFile = basepath / path(CONSOLE_CONTEXT_FILE); 
+	Path basepath = Path(__FILE__).ParentPath();
+	m_inputFile = basepath / Path(CONSOLE_INPUT_FILE);
+	m_contextFile = basepath / Path(CONSOLE_CONTEXT_FILE); 
 	
 #ifdef _WINDOWS_
 	// make filename lowercase to avoid case sensitivity issues
-	m_contextFile = boost::filesystem::path(boost::to_lower_copy(m_contextFile.wstring()));
+	FileSystemUtils::ToLowerInPlace( m_contextFile.m_string );
 #endif
 
-	if (CreateConsoleContextFile())
+	if( CreateConsoleContextFile() )
 	{
 		InitFileChangeNotifier();
 	}	
@@ -121,7 +119,7 @@ Console::Console(Environment* pEnv, Rocket::Core::Context* pRocketContext)
 
 Console::~Console()
 {
-	boost::filesystem::remove(m_contextFile);
+	m_contextFile.Remove();
 
 	// Call just in case it wasn't already called
 	DestroyContext();
@@ -138,7 +136,7 @@ void Console::DestroyContext()
 
 void Console::OnFileChange(const IAUDynArray<const char*>& filelist)
 {
-	if (!stricmp(filelist[0], m_inputFile.string().c_str()))
+	if (!stricmp(filelist[0], m_inputFile.c_str()))
 	{
 		// This is a console compilation notification
 
@@ -169,7 +167,7 @@ void Console::OnCompileDone(bool bSuccess)
 
 		// Remove temp context file from game runtime file list so it isn't included in full recompiles
 		// This must be done every time ConsoleContext.cpp gets recompiled because it will get registered again
-		m_pEnv->sys->pRuntimeObjectSystem->RemoveFromRuntimeFileList(m_contextFile.string().c_str());
+		m_pEnv->sys->pRuntimeObjectSystem->RemoveFromRuntimeFileList(m_contextFile.c_str());
 
 		if (bSuccess)
 		{
@@ -197,17 +195,17 @@ void Console::OnCompileDone(bool bSuccess)
 void Console::InitFileChangeNotifier()
 {
 	// Make filechangenotifier monitor console code file and notify here
-	m_pEnv->sys->pFileChangeNotifier->Watch(m_inputFile.string().c_str(), this);
+	m_pEnv->sys->pFileChangeNotifier->Watch(m_inputFile.c_str(), this);
 
 	// Make filechangenotifier watch temp context file for changes and notify regular listener for recompile
-	m_pEnv->sys->pRuntimeObjectSystem->AddToRuntimeFileList( m_contextFile.string().c_str() );
+	m_pEnv->sys->pRuntimeObjectSystem->AddToRuntimeFileList( m_contextFile.c_str() );
 	//m_pEnv->sys->pFileChangeNotifier->Watch(m_contextFile.string().c_str(), m_pEnv->sys->pRuntimeObjectSystem);
 
 	// Make filechangenotifier watch console RML/RCSS files
-	path basepath = path(__FILE__).parent_path();
-	std::string filename = (basepath / path("/../../Assets/GUI/console.rml")).string();
+	Path basepath = Path(__FILE__).ParentPath();
+	std::string filename = (basepath / Path("/../../Assets/GUI/console.rml")).m_string;
 	m_pEnv->sys->pFileChangeNotifier->Watch(filename.c_str(), this);
-	filename = (basepath / path("/../../Assets/GUI/console.rcss")).string();
+	filename = (basepath / Path("/../../Assets/GUI/console.rcss")).m_string;
 	m_pEnv->sys->pFileChangeNotifier->Watch(filename.c_str(), this);
 }
 

@@ -70,7 +70,7 @@
 
 #include <GL/glfw.h>
 
-using boost::filesystem::path;
+using FileSystemUtils::Path;
 
 
 // Global pointer to Game object necessary so we can do callback to Game::MainLoop method
@@ -119,12 +119,12 @@ bool Game::Init()
 #ifdef _WIN32
 	// We Set Dir here so logs go to bin directory, useful for debugging as dir can be set anywhere.
 	DWORD size = MAX_PATH;
-	wchar_t filename[MAX_PATH];
-	GetModuleFileName( NULL, filename, size );
-	std::wstring strTempFileName( filename );
-	path launchPath( strTempFileName );
-	launchPath = launchPath.parent_path();
-	SetCurrentDirectory( launchPath.wstring().c_str() );
+	char filename[MAX_PATH];
+	GetModuleFileNameA( NULL, filename, size );
+	std::string strTempFileName( filename );
+	Path launchPath( strTempFileName );
+	launchPath = launchPath.ParentPath();
+	SetCurrentDirectoryA( launchPath.m_string.c_str() );
 #endif
     
 
