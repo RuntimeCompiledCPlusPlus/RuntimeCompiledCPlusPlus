@@ -132,6 +132,7 @@
     <ClInclude Include="BuildTool.h" />
     <ClInclude Include="Compiler.h" />
     <ClInclude Include="FileMonitor.h" />
+    <ClInclude Include="FileSystemUtils.h" />
     <ClInclude Include="IFileChangeNotifier.h" />
     <ClInclude Include="ICompilerLogger.h" />
     <ClInclude Include="IFileMonitor.h" />

@@ -118,7 +118,7 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
 
     m_pImplData = new PlatformCompilerImplData;
     m_pImplData->m_pLogger = pLogger;
-	m_pImplData->m_intermediatePath = "Runtime";
+	m_pImplData->m_intermediatePath = "./Runtime";
 
 	// Remove any existing intermediate directory
 	boost::system::error_code ec;

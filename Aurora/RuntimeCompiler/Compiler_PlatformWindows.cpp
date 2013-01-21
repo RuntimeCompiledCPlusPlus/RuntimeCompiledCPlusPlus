@@ -32,7 +32,7 @@
 #include <sstream>
 #include <vector>
 #include <set>
-#include "boost/algorithm/string.hpp"
+#include "FileSystemUtils.h"
 
 #include "assert.h"
 #include <process.h>
@@ -45,7 +45,7 @@ using namespace std;
 struct VSVersionInfo
 {
 	int				Version;
-	std::wstring	Path;
+	std::string		Path;
 };
 
 const std::string	c_CompletionToken( "_COMPLETION_TOKEN_" );
@@ -203,7 +203,7 @@ public:
 		CloseHandle( hErrorWrite );
 		hErrorWrite = NULL;
 	}
-	std::wstring		m_VSPath;
+	std::string			m_VSPath;
 	std::string			m_intermediatePath;
 	PROCESS_INFORMATION m_CmdProcessInfo;
 	HANDLE				m_CmdProcessOutputRead;
@@ -245,7 +245,7 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
 	GetPathsOfVisualStudioInstalls( &Versions );
 	m_pImplData->m_VSPath = Versions[0].Path;
 
-	m_pImplData->m_intermediatePath = "Runtime";
+	m_pImplData->m_intermediatePath = ".\\Runtime";
 
 	// Remove any existing intermediate directory
 	boost::system::error_code ec;
@@ -309,12 +309,12 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
 
 	// Check for intermediate directory, create it if required
 	// There are a lot more checks and robustness that could be added here
-	std::string intermediate = m_pImplData->m_intermediatePath;
-	if (!boost::filesystem::exists(intermediate))
+	FileSystemUtils::Path intermediate = m_pImplData->m_intermediatePath;
+	if ( !intermediate.Exists() )
 	{
-		boost::system::error_code ec;
-		boost::filesystem::create_directory(intermediate,ec);
-		if( m_pImplData->m_pLogger ) m_pImplData->m_pLogger->LogInfo("Created intermediate folder \"%s\"\n",intermediate.c_str());
+		bool success = intermediate.CreateDir();
+		if( success && m_pImplData->m_pLogger ) { m_pImplData->m_pLogger->LogInfo("Created intermediate folder \"%s\"\n",intermediate.c_str()); }
+		else { m_pImplData->m_pLogger->LogError("Error creating intermediate folder \"%s\"\n",intermediate.c_str()); }
 	}
 
 
@@ -336,10 +336,8 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
 	for( size_t i = 0; i < filesToCompile.size(); ++i )
 	{
 		std::string strPath = filesToCompile[i].string();
-#ifdef _WIN32
-		// In Win32, make filename lowercase so paths can be compared. Could alternatively use boost equality() operation.
-		strPath = boost::to_lower_copy(strPath);
-#endif
+		FileSystemUtils::ToLowerInPlace(strPath);
+
 		std::set<std::string>::const_iterator it = filteredPaths.find(strPath);
 		if (it == filteredPaths.end())
 		{
@@ -364,7 +362,7 @@ char* pCharTypeFlags = "";
 
 	// /MP - use multiple processes to compile if possible. Only speeds up compile for multiple files and not link
 	std::string cmdToSend = "cl " + flags + pCharTypeFlags
-		+ " /MP /Fo\"" + intermediate + "\\\\\" "
+		+ " /MP /Fo\"" + intermediate.m_string + "\\\\\" "
 		+ "/D WIN32 /EHa /Fe" + outputFile.string();
 	cmdToSend += " " + strIncludeFiles + " " + strFilesToCompile + strLinkLibraries + linkOptions
 		+ "\necho ";
@@ -377,38 +375,38 @@ char* pCharTypeFlags = "";
 void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions )
 {
 	//HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\<version>\Setup\VS\<edition>
-	std::wstring keyName = L"SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7";
+	std::string keyName = "SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7";
 
 	const size_t NUMNAMESTOCHECK = 4;
-	std::wstring valueName[NUMNAMESTOCHECK];
+	std::string valueName[NUMNAMESTOCHECK];
 
 	//switch around prefered compiler to the one we've used to compile this file
 	const unsigned int MSCVERSION = _MSC_VER;
 	switch( MSCVERSION )
 	{
 	case 1400:	//VS 2005
-		valueName[3] = L"8.0";	//VS 2005
-		valueName[2] = L"9.0";	//VS 2008
-		valueName[1] = L"10.0";	//VS 2010
-		valueName[0] = L"11.0";	//VS 2011
+		valueName[3] = "8.0";	//VS 2005
+		valueName[2] = "9.0";	//VS 2008
+		valueName[1] = "10.0";	//VS 2010
+		valueName[0] = "11.0";	//VS 2011
 		break;
 	case 1500:	//VS 2008
-		valueName[2] = L"8.0";	//VS 2005
-		valueName[3] = L"9.0";	//VS 2008
-		valueName[1] = L"10.0";	//VS 2010
-		valueName[0] = L"11.0";	//VS 2011
+		valueName[2] = "8.0";	//VS 2005
+		valueName[3] = "9.0";	//VS 2008
+		valueName[1] = "10.0";	//VS 2010
+		valueName[0] = "11.0";	//VS 2011
 		break;
 	case 1600:	//VS 2010
-		valueName[1] = L"8.0";	//VS 2005
-		valueName[2] = L"9.0";	//VS 2008
-		valueName[3] = L"10.0";	//VS 2010
-		valueName[0] = L"11.0";	//VS 2011
+		valueName[1] = "8.0";	//VS 2005
+		valueName[2] = "9.0";	//VS 2008
+		valueName[3] = "10.0";	//VS 2010
+		valueName[0] = "11.0";	//VS 2011
 		break;
 	case 1700:	//VS 2011
-		valueName[0] = L"8.0";	//VS 2005
-		valueName[1] = L"9.0";	//VS 2008
-		valueName[2] = L"10.0";	//VS 2010
-		valueName[3] = L"11.0";	//VS 2011
+		valueName[0] = "8.0";	//VS 2005
+		valueName[1] = "9.0";	//VS 2008
+		valueName[2] = "10.0";	//VS 2010
+		valueName[3] = "11.0";	//VS 2011
 		break;
 	default:
 		assert( false ); //shouldn't happen.
@@ -416,11 +414,11 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions )
 
 
 
-	wchar_t value[MAX_PATH];
+	char value[MAX_PATH];
 	DWORD size = MAX_PATH;
 
 	HKEY key;
-	LONG retKeyVal = RegOpenKeyExW(
+	LONG retKeyVal = RegOpenKeyExA(
 				  HKEY_LOCAL_MACHINE,	//__in        HKEY hKey,
 				  keyName.c_str(),			//__in_opt    LPCTSTR lpSubKey,
 				  0,					//__reserved  DWORD ulOptions,
@@ -431,7 +429,7 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions )
 	for( int i = NUMNAMESTOCHECK-1; i >= 0; --i )
 	{
 
-		LONG retVal = RegQueryValueExW(
+		LONG retVal = RegQueryValueExA(
 					  key,					//__in         HKEY hKey,
 					  valueName[i].c_str(),	//__in_opt     LPCTSTR lpValueName,
 					  NULL,					//__reserved   LPDWORD lpReserved,
@@ -444,7 +442,7 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions )
 			VSVersionInfo vInfo;
 			vInfo.Version = i + 8;
 			vInfo.Path = value;
-			vInfo.Path += L"bin\\";
+			vInfo.Path += "bin\\";
 			pVersions->push_back( vInfo );
 		}
 	}
