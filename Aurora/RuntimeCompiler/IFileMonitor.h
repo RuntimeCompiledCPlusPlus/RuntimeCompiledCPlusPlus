@@ -20,13 +20,11 @@
 #ifndef IFILEMONITOR_INCLUDED
 #define IFILEMONITOR_INCLUDED
 
-#define BOOST_FILESYSTEM_VERSION 3
-#include "boost/filesystem.hpp"   // includes all needed Boost.Filesystem declarations
-
+#include "FileSystemUtils.h"
 
 struct IFileMonitorListener
 {
-	virtual void OnFileChange( const boost::filesystem::path& filename ) = 0;
+	virtual void OnFileChange( const FileSystemUtils::Path& filename ) = 0;
     virtual ~IFileMonitorListener() {}
 };
 
@@ -34,7 +32,7 @@ struct IFileMonitorListener
 struct IFileMonitor
 {
 	virtual void Update( float fTimeDelta ) = 0;
-	virtual void Watch( const boost::filesystem::path& filename, IFileMonitorListener *pListener=0 ) = 0; // can be file or directory
+	virtual void Watch( const FileSystemUtils::Path& filename, IFileMonitorListener *pListener=0 ) = 0; // can be file or directory
 	virtual void Watch( const char *filename, IFileMonitorListener *pListener=0 ) = 0; // can be file or directory
     virtual ~IFileMonitor() {}
 };

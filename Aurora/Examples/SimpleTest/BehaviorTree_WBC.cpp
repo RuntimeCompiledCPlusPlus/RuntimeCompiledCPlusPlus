@@ -70,10 +70,10 @@ public:
 	virtual void Init( bool isFirstInit )
 	{
 		m_pBBManager = (IBlackboardManager*)IObjectUtils::GetUniqueInterface( "BlackboardManager", IID_IBLACKBOARDMANAGER );
-		m_Behavior_WBC_Combat	= IObjectUtils::GetConstructor( "Behavior_WBC_Combat" )->GetConstructorId();
-		m_Behavior_WBC_Approach	= IObjectUtils::GetConstructor( "Behavior_WBC_Approach" )->GetConstructorId();
-		m_Behavior_WBC_Patrol	= IObjectUtils::GetConstructor( "Behavior_WBC_Patrol" )->GetConstructorId();
-		m_Behavior_WBC_Idle		= IObjectUtils::GetConstructor( "Behavior_WBC_Idle" )->GetConstructorId();
+		m_Behavior_WBC_Combat	= IObjectUtils::GetConstructorId( "Behavior_WBC_Combat" );
+		m_Behavior_WBC_Approach	= IObjectUtils::GetConstructorId( "Behavior_WBC_Approach" );
+		m_Behavior_WBC_Patrol	= IObjectUtils::GetConstructorId( "Behavior_WBC_Patrol" );
+		m_Behavior_WBC_Idle		= IObjectUtils::GetConstructorId( "Behavior_WBC_Idle" );
 	}
 
 private:

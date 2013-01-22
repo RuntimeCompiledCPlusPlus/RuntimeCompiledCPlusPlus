@@ -26,12 +26,13 @@
 
 #include "Compiler.h"
 
-#include "windows.h"
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 #include <string>
 #include <sstream>
 #include <vector>
 #include <set>
-#include "boost/algorithm/string.hpp"
+#include "FileSystemUtils.h"
 
 #include "assert.h"
 #include <process.h>
@@ -39,12 +40,12 @@
 #include "ICompilerLogger.h"
 
 using namespace std;
-
+using namespace FileSystemUtils;
 
 struct VSVersionInfo
 {
 	int				Version;
-	std::wstring	Path;
+	std::string		Path;
 };
 
 const std::string	c_CompletionToken( "_COMPLETION_TOKEN_" );
@@ -72,12 +73,10 @@ public:
 		ZeroMemory( &si, sizeof(si) );
 		si.cb = sizeof(si);
 
-		boost::filesystem::path VSPath(  m_VSPath );
-
 #ifndef _WIN64
-		std::string cmdSetParams = "@PROMPT $ \n\"" + VSPath.string() + "Vcvars32.bat\"\n";
+		std::string cmdSetParams = "@PROMPT $ \n\"" + m_VSPath + "Vcvarsall.bat\" x86\n";
 #else
-		std::string cmdSetParams = "@PROMPT $ \n\"" + VSPath.string() + "/../Vcvarsall.bat\" amd64\n";
+		std::string cmdSetParams = "@PROMPT $ \n\"" + m_VSPath + "Vcvarsall.bat\" x86_amd64\n";
 #endif
 		// Set up the security attributes struct.
 		SECURITY_ATTRIBUTES sa;
@@ -202,7 +201,7 @@ public:
 		CloseHandle( hErrorWrite );
 		hErrorWrite = NULL;
 	}
-	std::wstring		m_VSPath;
+	std::string			m_VSPath;
 	std::string			m_intermediatePath;
 	PROCESS_INFORMATION m_CmdProcessInfo;
 	HANDLE				m_CmdProcessOutputRead;
@@ -225,9 +224,9 @@ Compiler::~Compiler()
 	CloseHandle( m_pImplData->m_CmdProcessOutputRead );
 }
 
-const std::wstring Compiler::GetObjectFileExtension() const
+const std::string Compiler::GetObjectFileExtension() const
 {
-	return L".obj";
+	return ".obj";
 }
 
 bool Compiler::GetIsComplete() const
@@ -237,8 +236,6 @@ bool Compiler::GetIsComplete() const
 
 void Compiler::Initialise( ICompilerLogger * pLogger )
 {
-	assert( pLogger );
-
 	m_pImplData = new PlatformCompilerImplData;
 	m_pImplData->m_pLogger = pLogger;
 	// get VS compiler path
@@ -246,11 +243,13 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
 	GetPathsOfVisualStudioInstalls( &Versions );
 	m_pImplData->m_VSPath = Versions[0].Path;
 
-	m_pImplData->m_intermediatePath = "Runtime";
+	m_pImplData->m_intermediatePath = ".\\Runtime";
 
 	// Remove any existing intermediate directory
+	// TODO
+	/*
 	boost::system::error_code ec;
-	boost::filesystem::path path(m_pImplData->m_intermediatePath);
+	FileSystemUtils::Path path(m_pImplData->m_intermediatePath);
 	if (boost::filesystem::is_directory(path))
 	{
 		// In theory remove_all should do the job here, but it doesn't seem to
@@ -264,22 +263,23 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
 		}
 		boost::filesystem::remove(path,ec);
 	}
-
+	*/
 }
 
-void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCompile,
-					 const std::vector<boost::filesystem::path>& includeDirList,
-					 const std::vector<boost::filesystem::path>& libraryDirList,
+void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToCompile,
+					 const std::vector<FileSystemUtils::Path>& includeDirList,
+					 const std::vector<FileSystemUtils::Path>& libraryDirList,
+					 const std::vector<FileSystemUtils::Path>& linkLibraryList,
 					 const char* pCompileOptions,
 					 const char* pLinkOptions,
-					 const boost::filesystem::path& outputFile )
+					 const FileSystemUtils::Path& outputFile )
 {
 	m_pImplData->m_bCompileIsComplete = false;
 	//optimization and c runtime
 #ifdef _DEBUG
 	std::string flags = "/nologo /Od /Zi /FC /LDd ";
 #else
-	std::string flags = "/nologo /O2 /LD /Zi";	//also need debug information in release
+	std::string flags = "/nologo /O2 /Zi /FC /LD ";	//also need debug information in release
 #endif
 	if( NULL == m_pImplData->m_CmdProcessInfo.hProcess )
 	{
@@ -298,7 +298,7 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
 		linkOptions = " /link ";
 		for( size_t i = 0; i < libraryDirList.size(); ++i )
 		{
-			linkOptions += " /LIBPATH:\"" + libraryDirList[i].string() + "\"";
+			linkOptions += " /LIBPATH:\"" + libraryDirList[i].m_string + "\"";
 		}
 
 		if( bHaveLinkOptions )
@@ -309,12 +309,12 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
 
 	// Check for intermediate directory, create it if required
 	// There are a lot more checks and robustness that could be added here
-	std::string intermediate = m_pImplData->m_intermediatePath;
-	if (!boost::filesystem::exists(intermediate))
+	FileSystemUtils::Path intermediate = m_pImplData->m_intermediatePath;
+	if ( !intermediate.Exists() )
 	{
-		boost::system::error_code ec;
-		boost::filesystem::create_directory(intermediate,ec);
-		if( m_pImplData->m_pLogger ) m_pImplData->m_pLogger->LogInfo("Created intermediate folder \"%s\"\n",intermediate.c_str());
+		bool success = intermediate.CreateDir();
+		if( success && m_pImplData->m_pLogger ) { m_pImplData->m_pLogger->LogInfo("Created intermediate folder \"%s\"\n",intermediate.c_str()); }
+		else { m_pImplData->m_pLogger->LogError("Error creating intermediate folder \"%s\"\n",intermediate.c_str()); }
 	}
 
 
@@ -322,7 +322,7 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
 	std::string strIncludeFiles;
 	for( size_t i = 0; i < includeDirList.size(); ++i )
 	{
-		strIncludeFiles += " /I \"" + includeDirList[i].string() + "\"";
+		strIncludeFiles += " /I \"" + includeDirList[i].m_string + "\"";
 	}
 
 
@@ -335,11 +335,9 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
 	std::set<std::string> filteredPaths;
 	for( size_t i = 0; i < filesToCompile.size(); ++i )
 	{
-		std::string strPath = filesToCompile[i].string();
-#ifdef _WINDOWS_
-		// In Win32, make filename lowercase so paths can be compared. Could alternatively use boost equality() operation.
-		strPath = boost::to_lower_copy(strPath);
-#endif
+		std::string strPath = filesToCompile[i].m_string;
+		FileSystemUtils::ToLowerInPlace(strPath);
+
 		std::set<std::string>::const_iterator it = filteredPaths.find(strPath);
 		if (it == filteredPaths.end())
 		{
@@ -347,6 +345,13 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
 			filteredPaths.insert(strPath);
 		}
 	}
+
+	std::string strLinkLibraries;
+	for( size_t i = 0; i < linkLibraryList.size(); ++i )
+	{
+		strLinkLibraries += " \"" + linkLibraryList[i].m_string + "\" ";
+	}
+	
 
 
 
@@ -357,11 +362,12 @@ char* pCharTypeFlags = "";
 
 	// /MP - use multiple processes to compile if possible. Only speeds up compile for multiple files and not link
 	std::string cmdToSend = "cl " + flags + pCharTypeFlags
-		+ " /MP /Fo\"" + intermediate + "\\\\\" "
-		+ "/D WIN32 /EHa /Fe" + outputFile.string();
-	cmdToSend += " " + strIncludeFiles + " " + strFilesToCompile + linkOptions
-		+ "\necho " + c_CompletionToken + "\n";
-	OutputDebugStringA( cmdToSend.c_str() );
+		+ " /MP /Fo\"" + intermediate.m_string + "\\\\\" "
+		+ "/D WIN32 /EHa /Fe" + outputFile.m_string;
+	cmdToSend += " " + strIncludeFiles + " " + strFilesToCompile + strLinkLibraries + linkOptions
+		+ "\necho ";
+	if( m_pImplData->m_pLogger ) m_pImplData->m_pLogger->LogInfo( cmdToSend.c_str() );
+	cmdToSend += c_CompletionToken + "\n";
 	WriteInput( m_pImplData->m_CmdProcessInputWrite, cmdToSend );
 }
 
@@ -369,38 +375,38 @@ char* pCharTypeFlags = "";
 void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions )
 {
 	//HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\<version>\Setup\VS\<edition>
-	std::wstring keyName = L"SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7";
+	std::string keyName = "SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7";
 
 	const size_t NUMNAMESTOCHECK = 4;
-	std::wstring valueName[NUMNAMESTOCHECK];
+	std::string valueName[NUMNAMESTOCHECK];
 
 	//switch around prefered compiler to the one we've used to compile this file
 	const unsigned int MSCVERSION = _MSC_VER;
 	switch( MSCVERSION )
 	{
 	case 1400:	//VS 2005
-		valueName[3] = L"8.0";	//VS 2005
-		valueName[2] = L"9.0";	//VS 2008
-		valueName[1] = L"10.0";	//VS 2010
-		valueName[0] = L"11.0";	//VS 2011
+		valueName[3] = "8.0";	//VS 2005
+		valueName[2] = "9.0";	//VS 2008
+		valueName[1] = "10.0";	//VS 2010
+		valueName[0] = "11.0";	//VS 2011
 		break;
 	case 1500:	//VS 2008
-		valueName[2] = L"8.0";	//VS 2005
-		valueName[3] = L"9.0";	//VS 2008
-		valueName[1] = L"10.0";	//VS 2010
-		valueName[0] = L"11.0";	//VS 2011
+		valueName[2] = "8.0";	//VS 2005
+		valueName[3] = "9.0";	//VS 2008
+		valueName[1] = "10.0";	//VS 2010
+		valueName[0] = "11.0";	//VS 2011
 		break;
 	case 1600:	//VS 2010
-		valueName[1] = L"8.0";	//VS 2005
-		valueName[2] = L"9.0";	//VS 2008
-		valueName[3] = L"10.0";	//VS 2010
-		valueName[0] = L"11.0";	//VS 2011
+		valueName[1] = "8.0";	//VS 2005
+		valueName[2] = "9.0";	//VS 2008
+		valueName[3] = "10.0";	//VS 2010
+		valueName[0] = "11.0";	//VS 2011
 		break;
 	case 1700:	//VS 2011
-		valueName[0] = L"8.0";	//VS 2005
-		valueName[1] = L"9.0";	//VS 2008
-		valueName[2] = L"10.0";	//VS 2010
-		valueName[3] = L"11.0";	//VS 2011
+		valueName[0] = "8.0";	//VS 2005
+		valueName[1] = "9.0";	//VS 2008
+		valueName[2] = "10.0";	//VS 2010
+		valueName[3] = "11.0";	//VS 2011
 		break;
 	default:
 		assert( false ); //shouldn't happen.
@@ -408,11 +414,11 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions )
 
 
 
-	wchar_t value[MAX_PATH];
+	char value[MAX_PATH];
 	DWORD size = MAX_PATH;
 
 	HKEY key;
-	LONG retKeyVal = RegOpenKeyExW(
+	LONG retKeyVal = RegOpenKeyExA(
 				  HKEY_LOCAL_MACHINE,	//__in        HKEY hKey,
 				  keyName.c_str(),			//__in_opt    LPCTSTR lpSubKey,
 				  0,					//__reserved  DWORD ulOptions,
@@ -423,7 +429,7 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions )
 	for( int i = NUMNAMESTOCHECK-1; i >= 0; --i )
 	{
 
-		LONG retVal = RegQueryValueExW(
+		LONG retVal = RegQueryValueExA(
 					  key,					//__in         HKEY hKey,
 					  valueName[i].c_str(),	//__in_opt     LPCTSTR lpValueName,
 					  NULL,					//__reserved   LPDWORD lpReserved,
@@ -436,7 +442,6 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions )
 			VSVersionInfo vInfo;
 			vInfo.Version = i + 8;
 			vInfo.Path = value;
-			vInfo.Path += L"bin\\";
 			pVersions->push_back( vInfo );
 		}
 	}

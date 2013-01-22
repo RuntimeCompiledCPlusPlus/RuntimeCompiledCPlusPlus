@@ -60,12 +60,10 @@ public:
 	}
 
 	virtual ~GameObject()
-	{
-		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
-		
+	{		
 		if (m_pRenMesh)
 		{
-			pSystemTable->pAssetSystem->DestroyRenderableMesh(m_pRenMesh);
+			PerModuleInterface::g_pSystemTable->pAssetSystem->DestroyRenderableMesh(m_pRenMesh);
 		}
 
 		if( m_pEntity )
@@ -189,8 +187,7 @@ public:
 	{
 		std::string path = "/Models/"; //directories relative to asset dir
 		path += file;
-		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
-		m_pRenMesh = pSystemTable->pAssetSystem->CreateRenderableMeshFromFile( path.c_str() );
+		m_pRenMesh = PerModuleInterface::g_pSystemTable->pAssetSystem->CreateRenderableMeshFromFile( path.c_str() );
 		m_pEntity->SetRenderable( m_pRenMesh );
 	}
 

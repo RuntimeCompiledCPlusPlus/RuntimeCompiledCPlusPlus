@@ -67,13 +67,13 @@ private:
 
 	virtual IAUEntity* GetEntity( const char* name )
 	{
-		return PerModuleInterface::GetInstance()->GetSystemTable()->pEntitySystem->Get( name );
+		return PerModuleInterface::g_pSystemTable->pEntitySystem->Get( name );
 	}
 
 	virtual IGameObject* GetGameObject( const char* name )
 	{
 		IGameObject* pGameObject = 0;
-		IObject* pObj = PerModuleInterface::GetInstance()->GetSystemTable()->pEntitySystem->Get( name )->GetObject();
+		IObject* pObj = PerModuleInterface::g_pSystemTable->pEntitySystem->Get( name )->GetObject();
 		IObjectUtils::GetObject( &pGameObject, pObj->GetObjectId() );
 		return pGameObject;
 	}
@@ -100,7 +100,7 @@ private:
 
 	virtual void ListEntities()
 	{
-		IEntitySystem* pEntitySystem = PerModuleInterface::GetInstance()->GetSystemTable()->pEntitySystem;
+		IEntitySystem* pEntitySystem = PerModuleInterface::g_pSystemTable->pEntitySystem;
 		AUDynArray<AUEntityId> entities;
 		pEntitySystem->GetAll(entities);
 		Log( "Listing %d entities...\n", entities.Size() );
@@ -113,9 +113,8 @@ private:
 
 	virtual void ListGameObjects()
 	{
-		SystemTable* pSys = PerModuleInterface::GetInstance()->GetSystemTable();
-		IEntitySystem* pEntitySystem = pSys->pEntitySystem;
-		IObjectFactorySystem* pFactory = pSys->pObjectFactorySystem;
+		IEntitySystem* pEntitySystem = PerModuleInterface::g_pSystemTable->pEntitySystem;
+		IObjectFactorySystem* pFactory = PerModuleInterface::g_pSystemTable->pObjectFactorySystem;
 
 		// Get list of all Game Objects
 		IObjectConstructor* pConstructor = pFactory->GetConstructor( "GameObject" );
@@ -144,7 +143,7 @@ private:
 
 	virtual void SetLogProperty( const char* name, const char* value )
 	{
-		SystemTable* pSys = PerModuleInterface::GetInstance()->GetSystemTable();
+		SystemTable* pSys = PerModuleInterface::g_pSystemTable;
 		IGUIElement* pElement = pSys->pGUISystem->GetLogElement();
 		if (pElement)
 		{

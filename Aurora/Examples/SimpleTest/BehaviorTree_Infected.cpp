@@ -72,11 +72,11 @@ public:
 	virtual void Init( bool isFirstInit )
 	{
 		m_pBBManager = (IBlackboardManager*)IObjectUtils::GetUniqueInterface( "BlackboardManager", IID_IBLACKBOARDMANAGER );
-		m_Behavior_Infected_Combat		= IObjectUtils::GetConstructor( "Behavior_Infected_Combat" )->GetConstructorId();
-		m_Behavior_Infected_Approach	= IObjectUtils::GetConstructor( "Behavior_Infected_Approach" )->GetConstructorId();
-		m_Behavior_Infected_HuntWBC		= IObjectUtils::GetConstructor( "Behavior_Infected_HuntWBC" )->GetConstructorId();
-		m_Behavior_Infected_HuntRBC		= IObjectUtils::GetConstructor( "Behavior_Infected_HuntRBC" )->GetConstructorId();
-		m_Behavior_Infected_Idle		= IObjectUtils::GetConstructor( "Behavior_Infected_Idle" )->GetConstructorId();
+		m_Behavior_Infected_Combat		= IObjectUtils::GetConstructorId( "Behavior_Infected_Combat" );
+		m_Behavior_Infected_Approach	= IObjectUtils::GetConstructorId( "Behavior_Infected_Approach" );
+		m_Behavior_Infected_HuntWBC		= IObjectUtils::GetConstructorId( "Behavior_Infected_HuntWBC" );
+		m_Behavior_Infected_HuntRBC		= IObjectUtils::GetConstructorId( "Behavior_Infected_HuntRBC" );
+		m_Behavior_Infected_Idle		= IObjectUtils::GetConstructorId( "Behavior_Infected_Idle" );
 	}
 
 private:

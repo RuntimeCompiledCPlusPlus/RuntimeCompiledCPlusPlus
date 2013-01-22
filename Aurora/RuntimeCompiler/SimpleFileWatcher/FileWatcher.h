@@ -33,13 +33,12 @@
 #include <string>
 #include <stdexcept>
 
-#define BOOST_FILESYSTEM_VERSION 3
-#include "boost/filesystem.hpp"   // includes all needed Boost.Filesystem declarations
+#include "../FileSystemUtils.h"
 
 namespace FW
 {
 	/// Type for a string
-	typedef boost::filesystem::path String;
+	typedef FileSystemUtils::Path String;
 	/// Type for a watch id
 	typedef unsigned long WatchID;
 
@@ -47,29 +46,6 @@ namespace FW
 	class FileWatcherImpl;
 	class FileWatchListener;
 
-	/// Base exception class
-	/// @class Exception
-	class Exception : public std::runtime_error
-	{
-	public:
-		Exception(const String& message)
-			: std::runtime_error(message.string())
-		{}
-	};
-
-	/// Exception thrown when a file is not found.
-	/// @class FileNotFoundException
-	class FileNotFoundException : public Exception
-	{
-	public:
-		FileNotFoundException()
-			: Exception("File not found")
-		{}
-
-		FileNotFoundException(const String& filename)
-			: Exception("File not found (" + filename.string() + ")")
-		{}
-	};
 
 	/// Actions to listen for. Rename will send two events, one for
 	/// the deletion of the old file, and one for the creation of the
@@ -104,11 +80,9 @@ namespace FW
 
 		/// Add a directory watch. Same as the other addWatch, but doesn't have recursive option.
 		/// For backwards compatibility.
-		/// @exception FileNotFoundException Thrown when the requested directory does not exist
 		WatchID addWatch(const String& directory, FileWatchListener* watcher);
 
 		/// Add a directory watch
-		/// @exception FileNotFoundException Thrown when the requested directory does not exist
 		WatchID addWatch(const String& directory, FileWatchListener* watcher, bool recursive);
 
 		/// Remove a directory watch. This is a brute force search O(nlogn).

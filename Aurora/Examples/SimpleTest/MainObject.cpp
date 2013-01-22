@@ -70,8 +70,6 @@ private:
 
 	void CreateObjects()
 	{
-		SystemTable* pSystemTable = PerModuleInterface::GetInstance()->GetSystemTable();
-
 		// Construct unique objects (managers, util objects, etc)
 		IObjectUtils::CreateUniqueObject( "MainMenu" );
 		IObjectUtils::CreateUniqueObjectAndEntity( "CompilingNotification", "CompilingNotification" );
@@ -87,7 +85,7 @@ private:
 		IObjectUtils::CreateUniqueObjectAndEntity( "BehaviorTreeManager", "BehaviorTreeManager" );
 		IObjectUtils::CreateUniqueObjectAndEntity( "BlackboardManager", "BlackboardManager" );
 
-		pSystemTable->pLogSystem->Log(eLV_COMMENTS, "Created Objects\n");
+		PerModuleInterface::g_pSystemTable->pLogSystem->Log(eLV_COMMENTS, "Created Objects\n");
 	}
 };
 

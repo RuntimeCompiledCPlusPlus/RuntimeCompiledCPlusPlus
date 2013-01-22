@@ -17,23 +17,21 @@
 
 #pragma once
 
-#ifndef RUNTIMEINCLUDE_INCLUDED
-#define RUNTIMEINCLUDE_INCLUDED
-
-#include <stddef.h>
+#ifndef RUNTIMELINKLIBRARY_INCLUDED
+#define RUNTIMELINKLIBRARY_INCLUDED
 
 //NOTE: the file macro will only emit the full path if /FC option is used in visual studio or /ZI (Which forces /FC)
 //Following creates a list of files which are runtime modifiable, to be used in headers
 //requires use of __COUNTER__ predefined macro, which is in gcc 4.3+, clang/llvm and MSVC
 
-struct IRuntimeIncludeFileList
+struct IRuntimeLinkLibraryList
 {
-	IRuntimeIncludeFileList( size_t max ) : MaxNum( max )
+	IRuntimeLinkLibraryList( size_t max ) : MaxNum( max )
 	{
 	}
 
 	// GetIncludeFile may return 0, so you should iterate through to GetMaxNum() ignoring 0 returns
-	virtual const char* GetIncludeFile( size_t Num_ ) const
+	virtual const char* GetLinkLibrary( size_t Num_ ) const
 	{
 		return 0;
 	}
@@ -44,35 +42,35 @@ struct IRuntimeIncludeFileList
 namespace
 {
 
-template< size_t COUNT > struct RuntimeIncludeFiles : public RuntimeIncludeFiles<COUNT-1>
+template< size_t COUNT > struct RuntimeLinkLibrary : public RuntimeLinkLibrary<COUNT-1>
 {
-	RuntimeIncludeFiles( size_t max ) : RuntimeIncludeFiles<COUNT-1>( max )
+	RuntimeLinkLibrary( size_t max ) : RuntimeLinkLibrary<COUNT-1>( max )
 	{
 	}
-	RuntimeIncludeFiles() : RuntimeIncludeFiles<COUNT-1>( COUNT )
+	RuntimeLinkLibrary() : RuntimeLinkLibrary<COUNT-1>( COUNT )
 	{
 	}
 
-	virtual const char* GetIncludeDir( size_t Num_ ) const
+	virtual const char* GetLinkLibrary( size_t Num_ ) const
 	{
 		if( Num_ < COUNT )
 		{
-			return this->RuntimeIncludeFiles< COUNT-1 >::GetIncludeDir( Num_ );
+			return this->RuntimeLinkLibrary< COUNT-1 >::GetLinkLibrary( Num_ );
 		}
 		else return 0;
 	}
 };
 
-template<> struct RuntimeIncludeFiles<0> : public IRuntimeIncludeFileList
+template<> struct RuntimeLinkLibrary<0> : public IRuntimeLinkLibraryList
 {
-	RuntimeIncludeFiles( size_t max ) : IRuntimeIncludeFileList( max )
+	RuntimeLinkLibrary( size_t max ) : IRuntimeLinkLibraryList( max )
 	{
 	}
-	RuntimeIncludeFiles() : IRuntimeIncludeFileList( 0 )
+	RuntimeLinkLibrary() : IRuntimeLinkLibraryList( 0 )
 	{
 	}
 
-	virtual const char* GetIncludeDir( size_t Num_ ) const
+	virtual const char* GetLinkLibrary( size_t Num_ ) const
 	{
 		return 0;
 	} 
@@ -80,28 +78,28 @@ template<> struct RuntimeIncludeFiles<0> : public IRuntimeIncludeFileList
 
 
 
-#define RUNTIME_MODIFIABLE_INCLUDE_BASE( N ) \
-	template<> struct RuntimeIncludeFiles< N + 1 >  : public RuntimeIncludeFiles< N >\
+#define RUNTIME_MODIFIABLE_LINKLIBRARY_BASE( LIBRARY, N ) \
+	template<> struct RuntimeLinkLibrary< N + 1 >  : public RuntimeLinkLibrary< N >\
 	{ \
-		RuntimeIncludeFiles( size_t max ) : RuntimeIncludeFiles<N>( max ) {} \
-		RuntimeIncludeFiles< N + 1 >() : RuntimeIncludeFiles<N>( N + 1 ) {} \
-		virtual const char* GetIncludeFile( size_t Num_ ) const \
+		RuntimeLinkLibrary( size_t max ) : RuntimeLinkLibrary<N>( max ) {} \
+		RuntimeLinkLibrary< N + 1 >() : RuntimeLinkLibrary<N>( N + 1 ) {} \
+		virtual const char* GetLinkLibrary( size_t Num_ ) const \
 		{ \
 			if( Num_ <= N ) \
 			{ \
 				if( Num_ == N ) \
 				{ \
-					return __FILE__; \
+					return LIBRARY; \
 				} \
-				else return this->RuntimeIncludeFiles< N >::GetIncludeFile( Num_ ); \
+				else return this->RuntimeLinkLibrary< N >::GetLinkLibrary( Num_ ); \
 			} \
 			else return 0; \
 		} \
 	}; \
 
 
-#define RUNTIME_MODIFIABLE_INCLUDE namespace { RUNTIME_MODIFIABLE_INCLUDE_BASE( __COUNTER__ ) }
+#define RUNTIME_MODIFIABLE_LINKLIBRARY( LIBRARY ) namespace { RUNTIME_MODIFIABLE_LINKLIBRARY_BASE( LIBRARY, __COUNTER__ ) }
 
 }
 
-#endif //RUNTIMEINCLUDE_INCLUDED
+#endif //RUNTIMELINKLIBRARY_INCLUDED

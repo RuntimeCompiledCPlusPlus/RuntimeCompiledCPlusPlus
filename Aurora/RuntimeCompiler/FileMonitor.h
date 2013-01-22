@@ -26,8 +26,7 @@
 #include "IFileMonitor.h"
 #include <vector>
 
-#define BOOST_FILESYSTEM_VERSION 3
-#include "boost/filesystem.hpp"   // includes all needed Boost.Filesystem declarations
+#include "FileSystemUtils.h"
 
 #include "SimpleFileWatcher/FileWatcher.h"
 
@@ -37,8 +36,8 @@
 class FileMonitor : public IFileMonitor, public FW::FileWatchListener
 {
 public:
-	//typedef ThreadSafeQueue<boost::filesystem::path> TNotifications;
-	typedef std::vector<boost::filesystem::path> TNotifications;
+	//typedef ThreadSafeQueue<FileSystemUtils::Path> TNotifications;
+	typedef std::vector<FileSystemUtils::Path> TNotifications;
 
 	FileMonitor();
 	virtual ~FileMonitor();
@@ -57,7 +56,7 @@ public:
 	// Watch file or directory for changes
 	// Optional callbackFunc will be notified on change occurring
 	// If callback is specified, file will not be added to change list when it changes
-	virtual void Watch( const boost::filesystem::path& filename, IFileMonitorListener *pListener /*=0*/ );
+	virtual void Watch( const FileSystemUtils::Path& filename, IFileMonitorListener *pListener /*=0*/ );
 	virtual void Watch( const char* filename, IFileMonitorListener *pListener /*=0*/ );
 
 	// ~IFileMonitor
@@ -73,7 +72,7 @@ public:
 	// Clears the list of changes, resets changed flag
 	void ClearChanges();
 
-	const std::vector<boost::filesystem::path>& GetChanges() const
+	const std::vector<FileSystemUtils::Path>& GetChanges() const
 	{
 		return m_FileChangedList;
 	}
@@ -83,10 +82,10 @@ private:
 	
 	struct WatchedFile
 	{
-		boost::filesystem::path file;
+		FileSystemUtils::Path file;
 		IFileMonitorListener *pListener;
 
-		WatchedFile( const boost::filesystem::path& file_, IFileMonitorListener *pListener_ )
+		WatchedFile( const FileSystemUtils::Path& file_, IFileMonitorListener *pListener_ )
 			: file(file_), pListener(pListener_)
 		{}
 	};
@@ -94,12 +93,12 @@ private:
 
 	struct WatchedDir
 	{
-		boost::filesystem::path dir;
+		FileSystemUtils::Path dir;
 		IFileMonitorListener *pListener; // used when the directory itself is explicitly being watched
 		TFileList fileWatchList;
 		bool bWatchDirItself;
 
-		WatchedDir( const boost::filesystem::path& dir_ )
+		WatchedDir( const FileSystemUtils::Path& dir_ )
 			: dir(dir_)
 			, bWatchDirItself(false)
 		{}
@@ -108,27 +107,25 @@ private:
 	
 
 	void StartWatchingDir( WatchedDir& dir );
-	TDirList::iterator GetWatchedDirEntry( const boost::filesystem::path& dir );
-	TFileList::iterator GetWatchedFileEntry( const boost::filesystem::path& file, TFileList& fileList );
-	void ProcessChangeNotification( const boost::filesystem::path& file );
-	bool ArePathsEqual( const boost::filesystem::path& file1, const boost::filesystem::path& file2 ) const;
+	TDirList::iterator GetWatchedDirEntry( const FileSystemUtils::Path& dir );
+	TFileList::iterator GetWatchedFileEntry( const FileSystemUtils::Path& file, TFileList& fileList );
+	void ProcessChangeNotification( const FileSystemUtils::Path& file );
+	bool ArePathsEqual( const FileSystemUtils::Path& file1, const FileSystemUtils::Path& file2 ) const;
 
 	FW::FileWatcher* m_pFileWatcher;
 	TDirList m_DirWatchList;
-	std::vector<boost::filesystem::path> m_FileChangedList;
+	std::vector<FileSystemUtils::Path> m_FileChangedList;
 	TNotifications m_changeNotifications;
 
 	bool m_bChangeFlag;
 };
 
 
-inline bool FileMonitor::ArePathsEqual( const boost::filesystem::path& file1, const boost::filesystem::path& file2 ) const
+inline bool FileMonitor::ArePathsEqual( const FileSystemUtils::Path& file1, const FileSystemUtils::Path& file2 ) const
 {
 #ifdef _WIN32
 	// Do case insensitive comparison on Windows
-	// Not as inefficient as it looks, since boost paths are natively wstrings on Windows
-	// so no conversions or allocations are actually happening here
-	return _wcsicmp(file1.wstring().c_str(), file2.wstring().c_str()) == 0;
+	return _stricmp(file1.c_str(), file2.c_str()) == 0;
 #else
 	return file1 == file2;
 #endif

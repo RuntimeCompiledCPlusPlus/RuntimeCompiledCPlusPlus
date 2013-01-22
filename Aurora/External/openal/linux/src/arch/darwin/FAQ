@@ -1,8 +1,0 @@
-Q : Moving windows or using a big amount of CPU power makes result sound choppy.
-A : Increase the number of buffers in "darwin_native.c" and recompile.
-
-Q : There's really too much latency.
-A : Decrease the number of buffers in "darwin_native.c" and recompile.
-
-Q : There's really too much latency and result sound choppy.
-A : Change your CPU or write a better MOSX implementation than mine !

@@ -73,6 +73,11 @@ struct ISimpleSerializer
 	// Returns true on successful property load, or always when saving a value
 	template <typename T> bool SerializeProperty(const char* propertyName, T& value);
 
+	// Array of T version of SerializeProperty
+	// Stores a copy of the value when loading is false
+	// Returns true on successful property load, or always when saving a value
+	template <typename T, size_t N> bool SerializeProperty(const char* propertyName, T (&arrayIn)[N] );
+
 	// User should generally use the templated methods above rather than these ones
 	virtual void SetISerializedValue(const char* propertyName, const ISerializedValue* pValue) = 0;
 	virtual const ISerializedValue* GetISerializedValue(const char* propertyName) const = 0;
@@ -104,5 +109,48 @@ inline bool ISimpleSerializer::SerializeProperty(const char* propertyName, T& va
 	return true;
 }
 
+template <typename T, size_t N>
+struct SerializedValueArray : ISerializedValue
+{
+	// NOTE: this requires value being serialized to have a correct copy constructor that
+	// will copy all values that would otherwise be deleted when object being serialized
+	// is deleted	
+	SerializedValueArray(const T (&arrayIn)[N] )
+	{
+		memcpy( valueArray, arrayIn, sizeof( valueArray) );
+	}
+
+	ISerializedValue* Clone() const
+	{
+		return new SerializedValueArray(valueArray);
+	}
+
+	T valueArray[N];
+};
+
+// NOTE: this is less efficient than having separate functions for setting and getting properties,
+// but allows for user code to generally have much simpler serialization methods without needing to 
+// handle save and load separately (in most cases)
+template <typename T, size_t N>
+inline bool ISimpleSerializer::SerializeProperty(const char* propertyName, T (&arrayIn)[N])
+{
+	if (IsLoading())
+	{
+		const SerializedValueArray<T,N>* pSV = static_cast<const SerializedValueArray<T,N>*>(GetISerializedValue(propertyName));
+		if (!pSV)
+		{
+			return false;
+		}
+
+		memcpy( arrayIn, pSV->valueArray, sizeof( arrayIn ) );
+	}
+	else
+	{
+		const SerializedValueArray<T,N> sv = SerializedValueArray<T,N>(arrayIn);
+		SetISerializedValue(propertyName, &sv);
+	}	
+
+	return true;
+}
 
 #endif //ISIMPLESERIALIZER_INCLUDED

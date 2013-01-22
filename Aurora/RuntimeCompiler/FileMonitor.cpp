@@ -24,7 +24,6 @@
 #include <algorithm>
 
 using namespace std;
-using namespace boost::filesystem;
 
 
 #define CHANGE_QUEUE_SIZE 1000
@@ -56,22 +55,23 @@ void FileMonitor::Update(	float fDeltaTime )
 
 void FileMonitor::Watch( const char* filename, IFileMonitorListener *pListener /*= NULL*/ )
 {
-	Watch(boost::filesystem::path(filename), pListener);
+	Watch(FileSystemUtils::Path(filename), pListener);
 }
 
-void FileMonitor::Watch( const boost::filesystem::path& filename, IFileMonitorListener *pListener /*= NULL*/ )
+void FileMonitor::Watch( const FileSystemUtils::Path& filename, IFileMonitorListener *pListener /*= NULL*/ )
 {
-	boost::filesystem::path filepath = boost::filesystem::path(filename).make_preferred();
+	FileSystemUtils::Path filepath = filename.DelimitersToOSDefault();
+
 
 	// Is this a directory path or a file path?
 	// Actually, we can't tell from a path, in general
 	// foo/bar could be a filename with no extension
-	// It seems reasonable to inspect the path using boost, check it actually exists
+	// It seems reasonable to inspect the path using FileSystemUtils, check it actually exists
 	// (it should, surely? otherwise error?) and determine whether it is a file or a folder
 	// but for now - we cheat by assuming files have extensions
-	bool bPathIsDir = !filepath.has_extension();
+	bool bPathIsDir = !filepath.HasExtension();
 
-	boost::filesystem::path pathDir = bPathIsDir ? filepath : filepath.parent_path();
+	FileSystemUtils::Path pathDir = bPathIsDir ? filepath : filepath.ParentPath();
 	TDirList::iterator dirIt = GetWatchedDirEntry(pathDir);	
 	if (dirIt == m_DirWatchList.end())
 	{
@@ -103,7 +103,7 @@ void FileMonitor::Watch( const boost::filesystem::path& filename, IFileMonitorLi
 }
 
 
-FileMonitor::TDirList::iterator FileMonitor::GetWatchedDirEntry( const boost::filesystem::path& dir )
+FileMonitor::TDirList::iterator FileMonitor::GetWatchedDirEntry( const FileSystemUtils::Path& dir )
 {
 	TDirList::iterator dirIt = m_DirWatchList.begin();
 	TDirList::iterator dirItEnd = m_DirWatchList.end();
@@ -116,7 +116,7 @@ FileMonitor::TDirList::iterator FileMonitor::GetWatchedDirEntry( const boost::fi
 }
 
 
-FileMonitor::TFileList::iterator FileMonitor::GetWatchedFileEntry( const boost::filesystem::path& file, TFileList& fileList )
+FileMonitor::TFileList::iterator FileMonitor::GetWatchedFileEntry( const FileSystemUtils::Path& file, TFileList& fileList )
 {
 	TFileList::iterator fileIt = fileList.begin();
 	TFileList::iterator fileItEnd = fileList.end();
@@ -142,13 +142,13 @@ void FileMonitor::StartWatchingDir( WatchedDir& dirEntry )
 }
 
 
-void FileMonitor::ProcessChangeNotification( const boost::filesystem::path& file )
+void FileMonitor::ProcessChangeNotification( const FileSystemUtils::Path& file )
 {
 	// Notify any listeners and add to change list if this is a watched file/dir
 	
 	// Again - this isn't correct, just a hack
-	bool bPathIsDir = !file.has_extension();
-	boost::filesystem::path pathDir = bPathIsDir ? file : file.parent_path();
+	bool bPathIsDir = !file.HasExtension();
+	FileSystemUtils::Path pathDir = bPathIsDir ? file : file.ParentPath();
 
 	TDirList::iterator dirIt = GetWatchedDirEntry(pathDir);	
 	if (dirIt != m_DirWatchList.end())
@@ -203,12 +203,12 @@ void FileMonitor::handleFileAction(FW::WatchID watchid, const FW::String& dir, c
 	case FW::Actions::Modified:
 		{
 #ifdef _WIN32
-			boost::filesystem::path filePath(dir);
-			filePath /= filename;
+			FileSystemUtils::Path filePath(dir);
+			filePath = filePath / filename;
 #else
-  			boost::filesystem::path filePath(filename);
+  			FileSystemUtils::Path filePath(filename);
 #endif
-			m_changeNotifications.push_back(filePath.make_preferred());
+			m_changeNotifications.push_back(filePath.DelimitersToOSDefault());
 		}
 		break;
 	default:

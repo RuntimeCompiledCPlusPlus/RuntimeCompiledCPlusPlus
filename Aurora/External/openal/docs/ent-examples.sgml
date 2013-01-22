@@ -1,5 +1,0 @@
-
-  <!NOTATION  ASCII    system    "ASCII" >
-  <!ENTITY    sample.c  system "examples/init_al.c" CDATA CGM-CHAR> 
-  <!ENTITY    ExInitAL.c  system "examples/init_al.c"   CDATA  ASCII  > 
-  

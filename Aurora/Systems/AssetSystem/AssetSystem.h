@@ -25,7 +25,6 @@
 #include <string>
 
 class AURenMesh;
-class CalBuffer;
 
 class AssetSystem : public IAssetSystem
 {
@@ -36,8 +35,6 @@ public:
 	virtual IAURenderableMesh* CreateRenderableMeshFromFile( const char* pFilename );
 	virtual void DestroyRenderableMesh( IAURenderableMesh* pMesh );
 
-	virtual CalSound* CreateSoundFromFile( const char* pFilename, bool looping );
-	virtual void DestroySound( CalSound* pSound );
     virtual const char* GetAssetDirectory() const
     {
         return m_AssetDirectory.c_str();
@@ -46,9 +43,7 @@ public:
 private:
 	bool FindFile( std::string& filename );
 	typedef std::map<std::string, AURenMesh*> MESHMAP;
-	typedef std::map<std::string, CalBuffer*> ALBUFFERMAP;
 	MESHMAP		m_Meshes;
-	ALBUFFERMAP m_AlBuffers;
 	std::string m_AssetDirectory;
 };
 

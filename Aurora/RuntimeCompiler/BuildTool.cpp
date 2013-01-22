@@ -18,11 +18,11 @@
 #include "BuildTool.h"
 #include "Compiler.h"
 #include <fstream>
-
+#include <algorithm>
 #include "ICompilerLogger.h"
 
 using namespace std;
-using namespace boost::filesystem;
+using namespace FileSystemUtils;
 
 BuildTool::BuildTool()
 {
@@ -40,26 +40,25 @@ void BuildTool::Initialise( ICompilerLogger * pLogger )
 }
 
 void BuildTool::BuildModule( const std::vector<FileToBuild>& buildFileList,
-							 const std::vector<boost::filesystem::path>& includeDirList,
-							 const std::vector<boost::filesystem::path>& libraryDirList,
+							 const std::vector<FileSystemUtils::Path>& includeDirList,
+							 const std::vector<FileSystemUtils::Path>& libraryDirList,
+							 const std::vector<FileSystemUtils::Path>& linkLibraryList,
 							 const char* pCompileOptions,
 							 const char* pLinkOptions,
-							 const boost::filesystem::path& moduleName )
+							 const FileSystemUtils::Path& moduleName )
 {
 	// Initial version is very basic, simply compiles them.
-	path objectFileExtension = m_Compiler.GetObjectFileExtension();
-	vector<path> compileFileList;			// List of files we pass to the compiler
+	Path objectFileExtension = m_Compiler.GetObjectFileExtension();
+	vector<Path> compileFileList;			// List of files we pass to the compiler
 	compileFileList.reserve( buildFileList.size() );
-	vector<path> forcedCompileFileList;		// List of files which must be compiled even if object file exists
-	vector<path> nonForcedCompileFileList;	// List of files which can be linked if already compiled
-
-	path current = boost::filesystem::current_path();
+	vector<Path> forcedCompileFileList;		// List of files which must be compiled even if object file exists
+	vector<Path> nonForcedCompileFileList;	// List of files which can be linked if already compiled
 
 	// Seperate into seperate file lists of force and non-forced,
 	// so we can ensure we don't have the same file in both
 	for( size_t i = 0; i < buildFileList.size(); ++i )
 	{
-		path buildFile = buildFileList[i].filePath;
+		Path buildFile = buildFileList[i].filePath;
 		if( buildFileList[i].forceCompile )
 		{
 			if( find( forcedCompileFileList.begin(), forcedCompileFileList.end(), buildFile ) == forcedCompileFileList.end() )
@@ -85,16 +84,16 @@ void BuildTool::BuildModule( const std::vector<FileToBuild>& buildFileList,
 	// Add non forced files, but only if they don't exist in forced compile list
 	for( size_t i = 0; i < nonForcedCompileFileList.size(); ++i )
 	{
-		path buildFile = nonForcedCompileFileList[i];
+		Path buildFile = nonForcedCompileFileList[i];
 		if( find( forcedCompileFileList.begin(), forcedCompileFileList.end(), buildFile ) == forcedCompileFileList.end() )
 		{
 			// Check if we have a pre-compiled object version of this file, and if so use that.
-			path runtimeFolder = L"Runtime";
-			path objectFileName = current/runtimeFolder/buildFile.leaf();
-			objectFileName.replace_extension(objectFileExtension);
+			Path runtimeFolder = "./Runtime";
+			Path objectFileName = runtimeFolder/buildFile.Filename();
+			objectFileName.ReplaceExtension(objectFileExtension.c_str());
 
-			if( boost::filesystem::exists( objectFileName ) && boost::filesystem::exists( buildFile )
-				&& boost::filesystem::last_write_time( objectFileName ) > boost::filesystem::last_write_time( buildFile ) )
+			if( objectFileName.Exists() && buildFile.Exists()
+				&& objectFileName.GetLastWriteTime() > buildFile.GetLastWriteTime() )
 			{
 				buildFile = objectFileName;
 			}
@@ -103,5 +102,5 @@ void BuildTool::BuildModule( const std::vector<FileToBuild>& buildFileList,
 		}
 	}
 
-	m_Compiler.RunCompile( compileFileList, includeDirList, libraryDirList, pCompileOptions, pLinkOptions, moduleName );
+	m_Compiler.RunCompile( compileFileList, includeDirList, libraryDirList, linkLibraryList, pCompileOptions, pLinkOptions, moduleName );
 }

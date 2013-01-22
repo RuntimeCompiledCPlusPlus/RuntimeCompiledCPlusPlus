@@ -74,11 +74,11 @@ public:
 	virtual void Init( bool isFirstInit )
 	{
 		m_pBBManager = (IBlackboardManager*)IObjectUtils::GetUniqueInterface( "BlackboardManager", IID_IBLACKBOARDMANAGER );
-		m_Behavior_Virus_Combat		= IObjectUtils::GetConstructor( "Behavior_Virus_Combat" )->GetConstructorId();
-		m_Behavior_Virus_Approach	= IObjectUtils::GetConstructor( "Behavior_Virus_Approach" )->GetConstructorId();
-		m_Behavior_Virus_HuntWBC	= IObjectUtils::GetConstructor( "Behavior_Virus_HuntWBC" )->GetConstructorId();
-		m_Behavior_Virus_HuntRBC	= IObjectUtils::GetConstructor( "Behavior_Virus_HuntRBC" )->GetConstructorId();
-		m_Behavior_Virus_Idle		= IObjectUtils::GetConstructor( "Behavior_Virus_Idle" )->GetConstructorId();
+		m_Behavior_Virus_Combat		= IObjectUtils::GetConstructorId( "Behavior_Virus_Combat" );
+		m_Behavior_Virus_Approach	= IObjectUtils::GetConstructorId( "Behavior_Virus_Approach" );
+		m_Behavior_Virus_HuntWBC	= IObjectUtils::GetConstructorId( "Behavior_Virus_HuntWBC" );
+		m_Behavior_Virus_HuntRBC	= IObjectUtils::GetConstructorId( "Behavior_Virus_HuntRBC" );
+		m_Behavior_Virus_Idle		= IObjectUtils::GetConstructorId( "Behavior_Virus_Idle" );
 	}
 
 private:

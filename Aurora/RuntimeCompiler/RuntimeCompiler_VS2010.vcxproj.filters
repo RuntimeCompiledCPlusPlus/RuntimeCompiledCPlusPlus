@@ -29,6 +29,7 @@
       <Filter>SimpleFileWatcher</Filter>
     </ClInclude>
     <ClInclude Include="FileMonitor.h" />
+    <ClInclude Include="FileSystemUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="SimpleFileWatcher">

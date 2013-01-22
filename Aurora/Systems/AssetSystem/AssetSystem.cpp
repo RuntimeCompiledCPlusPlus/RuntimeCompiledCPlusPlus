@@ -18,49 +18,44 @@
 #include "AssetSystem.h"
 
 #include "../../Renderer/AURenMesh.h"
-#include "../../Audio/alManager.h"
-#include "../../Audio/alSound.h"
-
-#define BOOST_FILESYSTEM_VERSION 3
-#include "boost/filesystem.hpp"
-using namespace boost::filesystem;
+#include "../../RuntimeCompiler/FileSystemUtils.h"
 
 AssetSystem::AssetSystem(const char* AssetDirName_)
 {
 	//search for asset directory
-	path currPath;
-	currPath = current_path();
+	FileSystemUtils::Path currPath;
+	currPath = FileSystemUtils::GetCurrentPath();
     bool bAssetDirFound = false;
     
 	//test root and downwards for directory
-	while( currPath.has_parent_path() )
+	while( currPath.HasParentPath() )
 	{
-		path testPath = currPath / AssetDirName_;
-		if( exists( testPath ) )
+		FileSystemUtils::Path testPath = currPath / AssetDirName_;
+		if( testPath.Exists() )
 		{
             bAssetDirFound = true;
-			m_AssetDirectory = testPath.string();
+			m_AssetDirectory = testPath.m_string;
 			break;
 		}
-		currPath = currPath.parent_path();
+		currPath = currPath.ParentPath();
 	}
     
     if( !bAssetDirFound )
     {
         //could be a development build, so test location of this source file and down
         currPath = __FILE__;
-        if( exists( currPath ))
+		if(currPath.Exists() )
         {
-            while( currPath.has_parent_path() )
+            while( currPath.HasParentPath() )
             {
-                path testPath = currPath / AssetDirName_;
-                if( exists( testPath ) )
+                FileSystemUtils::Path testPath = currPath / AssetDirName_;
+                if( testPath.Exists() )
                 {
                     bAssetDirFound = true;
-                    m_AssetDirectory = testPath.string();
+					m_AssetDirectory = testPath.m_string;
                     break;
                 }
-                currPath = currPath.parent_path();
+                currPath = currPath.ParentPath();
             }           
         }
     }
@@ -75,16 +70,6 @@ AssetSystem::~AssetSystem()
 		delete currMesh->second;
 		++currMesh;
 	}
-
-#ifndef NOALSOUND
-	ALBUFFERMAP::iterator currSound = m_AlBuffers.begin();
-	while( currSound != m_AlBuffers.end() )
-	{
-		delete currSound->second;
-		++currSound;
-	}
-#endif
-
 }
 
 IAURenderableMesh* AssetSystem::CreateRenderableMeshFromFile( const char* pFilename )
@@ -115,49 +100,20 @@ void AssetSystem::DestroyRenderableMesh(IAURenderableMesh* pMesh)
 	delete pMesh;
 }
 
-CalSound* AssetSystem::CreateSoundFromFile( const char* pFilename, bool looping )
-{
-	CalSound* pSound= 0;
-#ifndef NOALSOUND
-	std::string filename( pFilename );
-	ALBUFFERMAP::iterator found = m_AlBuffers.find( filename );
-	if( found != m_AlBuffers.end() )
-	{
-		pSound = new CalSound( *(found->second), looping );
-	}
-	else
-	{
-		std::string fileToLoad( pFilename );
-		FindFile( fileToLoad );
-		CalBuffer* pBuffer = new CalBuffer( fileToLoad );
-		m_AlBuffers[ filename ] = pBuffer; //use passed in filename for map
-		pSound = new CalSound( *pBuffer, looping );
-	}
-#endif
-	return pSound;
-}
-
-void AssetSystem::DestroySound( CalSound* pSound )
-{
-#ifndef NOALSOUND
-	delete pSound;
-#endif
-}
-
 bool AssetSystem::FindFile( std::string& filename )
 {
-	if( exists( filename ) )
+	if( FileSystemUtils::Path( filename ).Exists() )
 	{
 		return true;
 	}
 
 	//else try in asset directory
-	path testpath = m_AssetDirectory;
-	testpath /= filename;
+	FileSystemUtils::Path testpath = m_AssetDirectory;
+	testpath = testpath / filename;
 
-	if( exists( testpath ) )
+	if( testpath.Exists() )
 	{
-		filename = testpath.string();
+		filename = testpath.m_string;
 		return true;
 	}
 

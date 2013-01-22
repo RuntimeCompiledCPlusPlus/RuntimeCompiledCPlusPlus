@@ -30,7 +30,7 @@
 #ifndef IOBJECT_INCLUDED
 #define IOBJECT_INCLUDED
 
-#include "../RuntimeObjectSystem/ObjectInterface.h"
+#include "ObjectInterface.h"
 
 struct ISimpleSerializer;
 class ObjectFactorySystem;
