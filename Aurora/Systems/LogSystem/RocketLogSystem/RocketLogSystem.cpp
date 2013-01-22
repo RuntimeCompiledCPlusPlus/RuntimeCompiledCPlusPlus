@@ -18,7 +18,7 @@
 #include "RocketLogSystem.h"
 
 #include <vector>
-#include "../libRocket/Include/Rocket/Core.h"
+#include <Rocket/Core/Core.h>
 #include <stdarg.h>
 #include <assert.h>
 
