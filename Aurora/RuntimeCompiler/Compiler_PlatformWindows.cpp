@@ -74,9 +74,9 @@ public:
 		si.cb = sizeof(si);
 
 #ifndef _WIN64
-		std::string cmdSetParams = "@PROMPT $ \n\"" + m_VSPath + "Vcvars32.bat\"\n";
+		std::string cmdSetParams = "@PROMPT $ \n\"" + m_VSPath + "Vcvarsall.bat\" x86\n";
 #else
-		std::string cmdSetParams = "@PROMPT $ \n\"" + m_VSPath + "/../Vcvarsall.bat\" amd64\n";
+		std::string cmdSetParams = "@PROMPT $ \n\"" + m_VSPath + "Vcvarsall.bat\" x86_amd64\n";
 #endif
 		// Set up the security attributes struct.
 		SECURITY_ATTRIBUTES sa;
@@ -442,7 +442,6 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions )
 			VSVersionInfo vInfo;
 			vInfo.Version = i + 8;
 			vInfo.Path = value;
-			vInfo.Path += "bin\\";
 			pVersions->push_back( vInfo );
 		}
 	}
