@@ -104,9 +104,6 @@ namespace FW
 			stat(name.c_str(), &attrib);
 			
 			int fd = open(name.c_str(), O_RDONLY);
-
-			if(fd == -1)
-				throw FileNotFoundException(name);
 			
 			++mChangeListCount;
 			
@@ -137,8 +134,8 @@ namespace FW
 			target.udata = &tempEntry;
 			KEvent* ke = (KEvent*)bsearch(&target, &mChangeList, mChangeListCount + 1, sizeof(KEvent), comparator);
 			if(!ke)
-				throw FileNotFoundException(name);
-
+				return;
+            
 			tempEntry.mFilename = 0;
 			
 			// delete
@@ -178,7 +175,7 @@ namespace FW
 			bool bRescanRequired = false; //if files are added or deleted we need a rescan.
 			while((dentry = readdir(dir)) != NULL)
 			{
-                std::string fname = mDirName.string() + "/" + dentry->d_name;
+                std::string fname = mDirName.m_string + "/" + dentry->d_name;
 				stat(fname.c_str(), &attrib);
 				if(!S_ISREG(attrib.st_mode))
 					continue;
@@ -289,7 +286,7 @@ namespace FW
 			// add base dir
 			int fd = open(mDirName.c_str(), O_RDONLY);
 			EV_SET(&mChangeList[0], fd, EVFILT_VNODE,
-				   EV_ADD | EV_ENABLE | EV_ONESHOT,
+				   EV_ADD | EV_ENABLE | EV_CLEAR,
 				   NOTE_DELETE | NOTE_EXTEND | NOTE_WRITE | NOTE_ATTRIB,
 				   0, 0);
 			
@@ -298,13 +295,13 @@ namespace FW
 			// scan directory and call addFile(name, false) on each file
 			DIR* dir = opendir(mDirName.c_str());
 			if(!dir)
-				throw FileNotFoundException(mDirName);
+				return;
 			
 			struct dirent* entry;
 			struct stat attrib;
 			while((entry = readdir(dir)) != NULL)
 			{
-                std::string fname = (mDirName.string() + "/" + std::string(entry->d_name));
+                std::string fname = (mDirName.m_string + "/" + std::string(entry->d_name));
 				stat(fname.c_str(), &attrib);
 				if(S_ISREG(attrib.st_mode))
 					addFile(fname, false);
@@ -336,26 +333,30 @@ namespace FW
 	{
 		int nev = 0;
 		struct kevent event;
-		
-		WatchMap::iterator iter = mWatches.begin();
-		WatchMap::iterator end = mWatches.end();
-		for(; iter != end; ++iter)
-		{
-			WatchStruct* watch = iter->second;
-			
-			//while((nev = kevent(mDescriptor, (KEvent*)&(watch->mChangeList), watch->mChangeListCount + 1, &event, 1, &mTimeOut)) != 0)
-			while((nev = kevent(mDescriptor, (KEvent*)&(watch->mChangeList), 1, &event, 1, &mTimeOut)) != 0) // DJB revised to only watch dir
-			{
-				if(nev == -1)
-					perror("kevent");
-				else
-				{
-                    //DJB revised version needs to rescan directory for changes
-                    watch->rescan();
-				}
-			}
-		}
-	}
+        
+        // DJB updated code to handle multiple directories correctly
+        // first look for events which have occurred in our queue
+		while((nev = kevent(mDescriptor, 0, 0, &event, 1, &mTimeOut)) != 0)
+        {
+            if(nev == -1)
+                perror("kevent");
+            else
+            {
+                // have an event, need to find the watch which has this event
+                WatchMap::iterator iter = mWatches.begin();
+                WatchMap::iterator end = mWatches.end();
+                for(; iter != end; ++iter)
+                {
+                    WatchStruct* watch = iter->second;
+                    if( event.ident ==  watch->mChangeList[0].ident )
+                    {
+                        watch->rescan();
+                        break;
+                    }
+                }
+           }
+        }
+    }
 	
 	//--------
 	FileWatcherOSX::FileWatcherOSX()
@@ -394,6 +395,10 @@ namespace FW
 		
 		WatchStruct* watch = new WatchStruct(++mLastWatchID, directory, watcher);
 		mWatches.insert(std::make_pair(mLastWatchID, watch));
+        
+        // DJB we add the event to our kqueue (but don't request any return events, these are looked for in update loop
+        kevent(mDescriptor, (KEvent*)&(watch->mChangeList), 1, 0, 0, 0);
+        
 		return mLastWatchID;
 	}
 
@@ -425,7 +430,7 @@ namespace FW
 	
 		//inotify_rm_watch(mFD, watchid);
 		
-		delete watch;
+		delete watch; // Note: this also removes the event for the watch from the queue
 		watch = 0;
 	}
 	

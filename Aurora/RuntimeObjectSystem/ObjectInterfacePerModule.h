@@ -22,16 +22,18 @@
 
 #include "ObjectInterface.h"
 #include "RuntimeInclude.h"
+#include "RuntimeLinkLibrary.h"
 #include <string>
 #include <vector>
 #include <assert.h>
 
-#define AU_ASSERT( statement )  do { if (!(statement)) { volatile int* p = 0; int a = *p; if(a) {} } } while(0) 
+#define AU_ASSERT( statement )  do { if (!(statement)) { volatile int* p = 0; int a = *p; if(a) {} } } while(0)
 
 class PerModuleInterface : public IPerModuleInterface
 {
 public:
-	static PerModuleInterface* GetInstance();
+	static PerModuleInterface*  GetInstance();
+	static SystemTable*			g_pSystemTable;
 
 	void AddConstructor( IObjectConstructor* pConstructor );
 
@@ -40,7 +42,7 @@ public:
 
 	SystemTable* GetSystemTable()
 	{
-		return m_pSystemTable;
+		return g_pSystemTable;
 	}
 
 	virtual const std::vector<const char*>& GetRequiredSourceFiles() const;
@@ -61,16 +63,19 @@ private:
 	static PerModuleInterface*			ms_pObjectManager;
 	std::vector<IObjectConstructor*>	m_ObjectConstructors;
 	std::vector<const char*>			m_RequiredSourceFiles;
-	SystemTable*						m_pSystemTable;
     std::string                         m_ModuleFilename;
 };
 
 template<typename T> class TObjectConstructorConcrete: public IObjectConstructor
 {
 public:
-	TObjectConstructorConcrete( const char* Filename, IRuntimeIncludeFileList* pIncludeFileList_ )
+	TObjectConstructorConcrete(
+		const char* Filename,
+		IRuntimeIncludeFileList* pIncludeFileList_,
+		IRuntimeLinkLibraryList* pLinkLibraryList )
 		: m_FileName( Filename )
 		, m_pIncludeFileList( pIncludeFileList_ )
+		, m_pLinkLibraryList( pLinkLibraryList )
         , m_pModuleInterface(0)
 	{
 		PerModuleInterface::GetInstance()->AddConstructor( this );
@@ -115,11 +120,37 @@ public:
 	{
 		return m_FileName.c_str();
 	}
-	virtual const char* GetIncludeFile( unsigned int Num_ ) const
+	virtual const char* GetIncludeFile( size_t Num_ ) const
 	{
 		if( m_pIncludeFileList )
 		{
 			return m_pIncludeFileList->GetIncludeFile( Num_ );
+		}
+		return 0;
+	}
+
+	virtual size_t GetMaxNumIncludeFiles() const
+	{
+		if( m_pIncludeFileList )
+		{
+			return m_pIncludeFileList->MaxNum;
+		}
+		return 0;
+	}
+	virtual const char* GetLinkLibrary( size_t Num_ ) const
+	{
+		if( m_pLinkLibraryList )
+		{
+			return m_pLinkLibraryList->GetLinkLibrary( Num_ );
+		}
+		return 0;
+	}
+
+	virtual size_t GetMaxNumLinkLibraries() const
+	{
+		if( m_pLinkLibraryList )
+		{
+			return m_pLinkLibraryList->MaxNum;
 		}
 		return 0;
 	}
@@ -169,6 +200,7 @@ private:
 	std::vector<PerTypeObjectId>	m_FreeIds;
 	ConstructorId			m_Id;
 	IRuntimeIncludeFileList* m_pIncludeFileList;
+	IRuntimeLinkLibraryList* m_pLinkLibraryList;
     PerModuleInterface*      m_pModuleInterface;
 };
 
@@ -194,7 +226,8 @@ private:
 //NOTE: the file macro will only emit the full path if /FC option is used in visual studio or /ZI (Which forces /FC)
 #define REGISTERCLASS( T )	\
 	static RuntimeIncludeFiles< __COUNTER__ > g_includeFileList_##T; \
-template<> TObjectConstructorConcrete< TActual< T > > TActual< T >::m_Constructor( __FILE__, &g_includeFileList_##T );\
+	static RuntimeLinkLibrary< __COUNTER__ > g_linkLibraryList_##T; \
+template<> TObjectConstructorConcrete< TActual< T > > TActual< T >::m_Constructor( __FILE__, &g_includeFileList_##T, &g_linkLibraryList_##T );\
 template<> const char* TActual< T >::GetTypeNameStatic() { return #T; } \
 template class TActual< T >; \
 

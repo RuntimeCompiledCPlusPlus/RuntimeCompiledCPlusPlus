@@ -1,6 +1,0 @@
-PTHREAD_OBJS=posixthreads.o
-THREADLIB_OBJS=@SYS_THREAD_OBJS@
-libthreadlib: libthreadlib.a
-
-libthreadlib.a: $(THREADLIB_OBJS)
-	ar cru libthreadlib.a $(THREADLIB_OBJS)

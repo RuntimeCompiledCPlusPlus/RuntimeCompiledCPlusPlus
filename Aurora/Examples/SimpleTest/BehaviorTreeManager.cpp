@@ -112,7 +112,7 @@ private:
 
 	void DestroyAllTrees()
 	{
-		IObjectFactorySystem* pFactory = PerModuleInterface::GetInstance()->GetSystemTable()->pObjectFactorySystem;
+		IObjectFactorySystem* pFactory = PerModuleInterface::g_pSystemTable->pObjectFactorySystem;
 		TTreeMap::iterator it = m_trees.begin();
 		TTreeMap::iterator itEnd = m_trees.end();
 		while (it != itEnd)

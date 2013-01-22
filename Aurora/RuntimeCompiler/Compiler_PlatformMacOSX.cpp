@@ -27,7 +27,7 @@
 
 #include <string>
 #include <vector>
-
+#include <iostream>
 #include "assert.h"
 
 #include "ICompilerLogger.h"
@@ -66,9 +66,9 @@ Compiler::~Compiler()
 {
 }
 
-const std::wstring Compiler::GetObjectFileExtension() const
+const std::string Compiler::GetObjectFileExtension() const
 {
-	return L".o";
+	return ".o";
 }
 
 bool Compiler::GetIsComplete() const
@@ -118,9 +118,10 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
 
     m_pImplData = new PlatformCompilerImplData;
     m_pImplData->m_pLogger = pLogger;
-	m_pImplData->m_intermediatePath = "Runtime";
+	m_pImplData->m_intermediatePath = "./Runtime";
 
 	// Remove any existing intermediate directory
+    /*
 	boost::system::error_code ec;
 	boost::filesystem::path path(m_pImplData->m_intermediatePath);
 	if (boost::filesystem::is_directory(path))
@@ -136,15 +137,17 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
 		}
 		boost::filesystem::remove(path,ec);
 	}
+     */
 
 }
 
-void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCompile,
-					 const std::vector<boost::filesystem::path>& includeDirList,
-					 const std::vector<boost::filesystem::path>& libraryDirList,
+void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToCompile,
+					 const std::vector<FileSystemUtils::Path>& includeDirList,
+					 const std::vector<FileSystemUtils::Path>& libraryDirList,
+                     const std::vector<FileSystemUtils::Path>& linkLibraryList,
 					 const char* pCompileOptions,
 					 const char* pLinkOptions,
-					 const boost::filesystem::path& outputFile )
+					 const FileSystemUtils::Path& outputFile )
 {
     //NOTE: Currently doesn't check if a prior compile is ongoing or not, which could lead to memory leaks
  	m_pImplData->m_bCompileIsComplete = false;
@@ -205,25 +208,33 @@ void Compiler::RunCompile( const std::vector<boost::filesystem::path>& filesToCo
     // include directories
     for( size_t i = 0; i < includeDirList.size(); ++i )
 	{
-        compileString += "-I\"" + includeDirList[i].string() + "\" ";
+        compileString += "-I\"" + includeDirList[i].m_string + "\" ";
     }
     
-    // library directories
+    // library and framework directories
     for( size_t i = 0; i < libraryDirList.size(); ++i )
 	{
-        compileString += "-L\"" + libraryDirList[i].string() + "\" ";
+        compileString += "-L\"" + libraryDirList[i].m_string + "\" ";
+        compileString += "-F\"" + libraryDirList[i].m_string + "\" ";
     }
     
     // output file
-    compileString += "-o " + outputFile.string() + " ";
+    compileString += "-o " + outputFile.m_string + " ";
 
     // files to compile
     for( size_t i = 0; i < filesToCompile.size(); ++i )
 	{
-        compileString += "\"" + filesToCompile[i].string() + "\" ";
+        compileString += "\"" + filesToCompile[i].m_string + "\" ";
     }
     
-    cout << compileString << endl << endl;
+    // libraries to link
+    for( size_t i = 0; i < linkLibraryList.size(); ++i )
+	{
+        compileString += " " + linkLibraryList[i].m_string + " ";
+    }
+    
+    
+    std::cout << compileString << std::endl << std::endl;
 
     execl("/bin/sh", "sh", "-c", compileString.c_str(), (const char*)NULL);
 }

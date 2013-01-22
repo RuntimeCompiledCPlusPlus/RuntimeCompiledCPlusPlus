@@ -85,7 +85,7 @@ public:
 	{
 		m_pEntity->SetUpdateable( this );
 
-		PerModuleInterface::GetInstance()->GetSystemTable()->pGame->GetWindowSize( m_fWindowWidth, m_fWindowHeight );
+		PerModuleInterface::g_pSystemTable->pGame->GetWindowSize( m_fWindowWidth, m_fWindowHeight );
 	}
 
 	// ~IEntityObject

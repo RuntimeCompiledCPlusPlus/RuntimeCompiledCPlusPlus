@@ -84,7 +84,7 @@ public:
 		if( pSerializer->IsLoading() )
 		{
 			pSerializer->SerializeProperty("m_Entity", entityId);
-			IAUEntity* pEntity = PerModuleInterface::GetInstance()->GetSystemTable()->pEntitySystem->Get(entityId);
+			IAUEntity* pEntity = PerModuleInterface::g_pSystemTable->pEntitySystem->Get(entityId);
 			AU_ASSERT(pEntity);
 			SetEntity( pEntity );	//must do this through set entity
 		}

@@ -35,9 +35,7 @@
 #include <vector>
 #include <map>
 
-#define BOOST_FILESYSTEM_VERSION 3
-#include "boost/filesystem.hpp" 
-
+#include "../RuntimeCompiler/FileSystemUtils.h"
 
 struct ICompilerLogger;
 struct IObjectFactorySystem;
@@ -102,13 +100,13 @@ public:
 	// ~IFileChangeListener
 
 private:
-	typedef std::vector<boost::filesystem::path> TFileList;
-	typedef std::multimap<boost::filesystem::path,boost::filesystem::path> TFileToFileMap;
+	typedef std::vector<FileSystemUtils::Path> TFileList;
+	typedef std::multimap<FileSystemUtils::Path,FileSystemUtils::Path> TFileToFileMap;
 	typedef TFileToFileMap::iterator TFileToFileIterator;
-	typedef std::pair<boost::filesystem::path,boost::filesystem::path> TFileToFilePair;
+	typedef std::pair<FileSystemUtils::Path,FileSystemUtils::Path> TFileToFilePair;
 	typedef std::pair<TFileToFileMap::iterator,TFileToFileMap::iterator> TFileToFileEqualRange;
 
-	void StartRecompile( const std::vector<BuildTool::FileToBuild>& buildFileList );
+	void StartRecompile();
 
 	void InitObjects();
 	void SetupObjectConstructors(GETPerModuleInterface_PROC pPerModuleInterfaceProcAdd);
@@ -130,10 +128,13 @@ private:
 	std::vector<HMODULE>	m_Modules;	// Stores runtime created modules, but not the exe module.
 	TFileList				m_RuntimeFileList;
 	TFileToFileMap			m_RuntimeIncludeMap;
+	TFileToFileMap			m_RuntimeLinkLibraryMap;
 	bool					m_bAutoCompile;
-	boost::filesystem::path m_CurrentlyCompilingModuleName;
-	std::vector<boost::filesystem::path> m_IncludeDirList;
-	std::vector<boost::filesystem::path> m_LibraryDirList;
+	FileSystemUtils::Path m_CurrentlyCompilingModuleName;
+	std::vector<BuildTool::FileToBuild> m_BuildFileList;
+	std::vector<BuildTool::FileToBuild> m_PendingBuildFileList; // if a compile is already underway, store files here.
+	TFileList				m_IncludeDirList;
+	TFileList				m_LibraryDirList;
 	std::string				m_CompileOptions;
 	std::string				m_LinkOptions;
 

@@ -20,8 +20,7 @@
 #include <string>
 #include <vector>
 
-#define BOOST_FILESYSTEM_VERSION 3
-#include "boost/filesystem.hpp"   // includes all needed Boost.Filesystem declarations
+#include "FileSystemUtils.h"
 
 class PlatformCompilerImplData;
 struct ICompilerLogger;
@@ -33,13 +32,14 @@ public:
 	~Compiler();
 	void Initialise( ICompilerLogger * pLogger );
 
-	const std::wstring GetObjectFileExtension() const;
-	void RunCompile( const std::vector<boost::filesystem::path>& filesToCompile,
-					 const std::vector<boost::filesystem::path>& includeDirList,
-					 const std::vector<boost::filesystem::path>& libraryDirList,
+	const std::string GetObjectFileExtension() const;
+	void RunCompile( const std::vector<FileSystemUtils::Path>& filesToCompile,
+					 const std::vector<FileSystemUtils::Path>& includeDirList,
+					 const std::vector<FileSystemUtils::Path>& libraryDirList,
+					 const std::vector<FileSystemUtils::Path>& linkLibraryList,
 					 const char* pCompileOptions,
 					 const char* pLinkOptions,
-					 const boost::filesystem::path& outputFile );
+					 const FileSystemUtils::Path& outputFile );
 	bool GetIsComplete() const;
 private:
 	PlatformCompilerImplData* m_pImplData;

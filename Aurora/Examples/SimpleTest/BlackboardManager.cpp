@@ -245,7 +245,7 @@ private:
 		TIndividualMap::iterator it = m_BlackboardIndividual.find(id);
 		if (it != m_BlackboardIndividual.end())
 		{
-			IObjectFactorySystem* pFactory = PerModuleInterface::GetInstance()->GetSystemTable()->pObjectFactorySystem;
+			IObjectFactorySystem* pFactory = PerModuleInterface::g_pSystemTable->pObjectFactorySystem;
 			IObject* pObj = pFactory->GetObject(it->second);
 			delete pObj;
 
@@ -258,7 +258,7 @@ private:
 		TIndividualMap::iterator it = m_BlackboardIndividualCommon.find(id);
 		if (it != m_BlackboardIndividualCommon.end())
 		{
-			IObjectFactorySystem* pFactory = PerModuleInterface::GetInstance()->GetSystemTable()->pObjectFactorySystem;
+			IObjectFactorySystem* pFactory = PerModuleInterface::g_pSystemTable->pObjectFactorySystem;
 			IObject* pObj = pFactory->GetObject(it->second);
 			delete pObj;
 
@@ -268,7 +268,7 @@ private:
 
 	void DestroyAllBlackboards()
 	{
-		IObjectFactorySystem* pFactory = PerModuleInterface::GetInstance()->GetSystemTable()->pObjectFactorySystem;
+		IObjectFactorySystem* pFactory = PerModuleInterface::g_pSystemTable->pObjectFactorySystem;
 		IObject* pObj = 0;
 
 		delete m_pBlackboardGlobal;

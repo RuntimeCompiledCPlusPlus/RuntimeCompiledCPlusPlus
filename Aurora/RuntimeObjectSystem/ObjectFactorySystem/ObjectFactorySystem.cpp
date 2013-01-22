@@ -85,7 +85,6 @@ void ObjectFactorySystem::ProtectedFunc()
 	m_ProtectedPhase = PHASE_CONSTRUCTNEW;
 	m_PrevConstructors = m_Constructors;
 
-	bool bConstructionOK = true;
 	//swap old constructors with new ones and create new objects
 	for( size_t i = 0; i < constructors.Size(); ++i )
 	{
@@ -201,6 +200,9 @@ void ObjectFactorySystem::AddConstructors( IAUDynArray<IObjectConstructor*> &con
 			m_pLogger->LogError( "Exception during object swapping, switching back to previous objects.\n" );
 			switch( m_ProtectedPhase  )
 			{
+            case PHASE_NONE:
+                AU_ASSERT( false );
+                break;
 			case PHASE_SERIALIZEOUT:
 				m_pLogger->LogError( "\tError occured during serialize out old objects phase.\n" );
 				break;
@@ -212,8 +214,10 @@ void ObjectFactorySystem::AddConstructors( IAUDynArray<IObjectConstructor*> &con
 				break;
 			case PHASE_SERIALIZEOUTTEST:
 				m_pLogger->LogError( "\tError occured during serialize test of new objects phase.\n" );
-				break;
-			}
+                break;
+           case PHASE_DELETEOLD:
+                break;
+ 			}
 		}
 
 		//swap back to new constructors before everything is serialized back in

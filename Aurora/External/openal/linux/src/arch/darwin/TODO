@@ -1,6 +1,0 @@
-Implements what's not !
-Test sound conversion code.
-Clean up everything.
-Make better autoconf & automake files.
-Decide how to implement dynamic library loading (dlfnc.h or dylid?...)
-Try to make all test programs work.

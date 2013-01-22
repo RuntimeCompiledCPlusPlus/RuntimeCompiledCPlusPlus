@@ -21,8 +21,7 @@
 #include <string>
 #include "Compiler.h"
 
-#define BOOST_FILESYSTEM_VERSION 3
-#include "boost/filesystem.hpp"   // includes all needed Boost.Filesystem declarations
+#include "FileSystemUtils.h"
 
 class BuildTool
 {
@@ -33,26 +32,27 @@ public:
 
 	struct FileToBuild
 	{
-		FileToBuild( const boost::filesystem::path& filePath_ )
+		FileToBuild( const FileSystemUtils::Path& filePath_ )
 			: filePath( filePath_ )
 			, forceCompile( false )
 		{
 		}
-		FileToBuild( const boost::filesystem::path& filePath_, bool forceCompile_ )
+		FileToBuild( const FileSystemUtils::Path& filePath_, bool forceCompile_ )
 			: filePath( filePath_ )
 			, forceCompile( forceCompile_ )
 		{
 		}
-		boost::filesystem::path filePath;
+		FileSystemUtils::Path	filePath;
 		bool					forceCompile; //if true the file is compiled even if object file is present
 	};
 
 	void BuildModule( const std::vector<FileToBuild>& buildFileList, 
-					  const std::vector<boost::filesystem::path>& includeDirList, 
-					  const std::vector<boost::filesystem::path>& libraryDirList,
+					  const std::vector<FileSystemUtils::Path>& includeDirList, 
+					  const std::vector<FileSystemUtils::Path>& libraryDirList,
+					  const std::vector<FileSystemUtils::Path>& linkLibraryList,
 					  const char* pCompileOptions,
 					  const char* pLinkOptions,
-					  const boost::filesystem::path& moduleName );
+					  const FileSystemUtils::Path& moduleName );
 	bool GetIsComplete()
 	{
 		return m_Compiler.GetIsComplete();
