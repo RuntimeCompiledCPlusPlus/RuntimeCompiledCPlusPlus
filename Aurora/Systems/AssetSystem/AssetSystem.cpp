@@ -18,8 +18,6 @@
 #include "AssetSystem.h"
 
 #include "../../Renderer/AURenMesh.h"
-#include "../../Audio/alManager.h"
-#include "../../Audio/alSound.h"
 #include "../../RuntimeCompiler/FileSystemUtils.h"
 
 AssetSystem::AssetSystem(const char* AssetDirName_)
@@ -72,16 +70,6 @@ AssetSystem::~AssetSystem()
 		delete currMesh->second;
 		++currMesh;
 	}
-
-#ifndef NOALSOUND
-	ALBUFFERMAP::iterator currSound = m_AlBuffers.begin();
-	while( currSound != m_AlBuffers.end() )
-	{
-		delete currSound->second;
-		++currSound;
-	}
-#endif
-
 }
 
 IAURenderableMesh* AssetSystem::CreateRenderableMeshFromFile( const char* pFilename )
@@ -110,35 +98,6 @@ IAURenderableMesh* AssetSystem::CreateRenderableMeshFromFile( const char* pFilen
 void AssetSystem::DestroyRenderableMesh(IAURenderableMesh* pMesh)
 {
 	delete pMesh;
-}
-
-CalSound* AssetSystem::CreateSoundFromFile( const char* pFilename, bool looping )
-{
-	CalSound* pSound= 0;
-#ifndef NOALSOUND
-	std::string filename( pFilename );
-	ALBUFFERMAP::iterator found = m_AlBuffers.find( filename );
-	if( found != m_AlBuffers.end() )
-	{
-		pSound = new CalSound( *(found->second), looping );
-	}
-	else
-	{
-		std::string fileToLoad( pFilename );
-		FindFile( fileToLoad );
-		CalBuffer* pBuffer = new CalBuffer( fileToLoad );
-		m_AlBuffers[ filename ] = pBuffer; //use passed in filename for map
-		pSound = new CalSound( *pBuffer, looping );
-	}
-#endif
-	return pSound;
-}
-
-void AssetSystem::DestroySound( CalSound* pSound )
-{
-#ifndef NOALSOUND
-	delete pSound;
-#endif
 }
 
 bool AssetSystem::FindFile( std::string& filename )

@@ -28,18 +28,7 @@
               Auto Compile: <input type="checkbox" id="autocompilecheckbox" value="checked" checked="something"/>
             </p>
           </div>
-          
-          <div>
-          <h1>Audio:</h1>
-          </div>
-          <div class="options">
-            <p>
-              Volume:  <input type="range" id="volumeslider" name="volume" value="0.5" min="0" max="1" step="0.01" />
-              &nbsp;&nbsp;&nbsp;Mute:&nbsp; <input type="checkbox" id="mutecheckbox" value="checked" checked="something"/>
-            </p>
-          </div>
-
-          
+                    
           <div>
           <h1>Game:</h1>
           </div>

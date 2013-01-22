@@ -47,8 +47,6 @@
 #include "../../Systems/IGUISystem.h"
 #include "../../Systems/SystemTable.h"
 #include "../../Systems/IAssetSystem.h"
-#include "../../Audio/alManager.h"
-#include "../../Audio/alSound.h"
 
 #include "../../Systems/LogSystem/RocketLogSystem/RocketLogSystem.h"
 
@@ -94,8 +92,6 @@ Game::Game()
 	, m_pLightingControl(0)
 	, m_bHaveProgramError(false)
 	, m_fLastUpdateSessionTime(-1)
-	, m_pLoopingBackgroundSound(0)
-	, m_pLoopingBackgroundSoundBuffer(0)
 	, m_GameSpeed(1.0f)
 	, m_CompileStartedTime(0.0)
 {
@@ -144,8 +140,6 @@ bool Game::Init()
 
 	m_pConsole = new Console(m_pEnv, m_pRocketContext);
 
-	InitSound();
-
 	return true;
 }
 
@@ -162,7 +156,6 @@ void Game::Shutdown()
 {
 	DeleteObjects();
 	RocketLibShutdown();
-	ShutdownSound();
 }
 
 void Game::OnConstructorsAdded()
@@ -192,20 +185,9 @@ void Game::Exit()
 	RocketLibSystem::RequestExit();
 }
 
-void Game::SetVolume( float volume )
-{
-#ifndef NOALSOUND
-	CalManager::GetInstance().SetVolume( volume );
-#endif
-}
-
 void Game::SetSpeed( float speed )
 {
 	m_GameSpeed = speed;
-#ifndef NOALSOUND
-	float pitch = 1.0f + 0.1f*(speed-1.0f);//fake, but works.
-	CalManager::GetInstance().SetGlobalPitch( pitch );
-#endif
 }
 
 void Game::GetWindowSize( float& width, float& height ) const
@@ -372,14 +354,6 @@ void Game::RenderWorld()
 		-viewPos.y,
 		-viewPos.z );
 
-#ifndef NOALSOUND
-	//set sound position
-	AUVec3f velocity(0.0f, 0.0f, 0.0f);
-	CalManager::GetInstance().SetListener(	viewPos, velocity, viewOrientation );
-
-	//play audio
-	CalManager::GetInstance().PlayRequestedSounds();
-#endif
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glShadeModel(GL_SMOOTH);
 	glDisable(GL_POLYGON_SMOOTH);
@@ -535,25 +509,4 @@ void Game::InitStoredObjectPointers()
 
 	m_pLightingControl = (ILightingControl*)IObjectUtils::GetUniqueInterface( "LightingControl", IID_ILIGHTINGCONTROL );
 	AU_ASSERT(m_pLightingControl);
-}
-
-void Game::InitSound()
-{
-#ifndef NOALSOUND
-	AUVec3f pos, vel;
-	AUOrientation3D orientation;
-	CalManager::GetInstance().SetListener(	pos, vel, orientation );
-	m_pLoopingBackgroundSound = m_pEnv->sys->pAssetSystem->CreateSoundFromFile( "/Sounds/62912_Benboncan_Heartbeat_Mono_shortloop.wav", true );
-	m_pLoopingBackgroundSound->SetReferenceDistance( 1000.0f );	//since this is ambient it doesn't fade
-	m_pLoopingBackgroundSound->Play( pos );
-#endif
-}
-
-void Game::ShutdownSound()
-{
-#ifndef NOALSOUND
-	m_pEnv->sys->pAssetSystem->DestroySound( m_pLoopingBackgroundSound );
-	CalManager::CleanUp();
-	CalManager::GetInstance().SetIsEnabled( false );
-#endif
 }

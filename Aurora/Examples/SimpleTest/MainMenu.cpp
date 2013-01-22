@@ -152,48 +152,6 @@ public:
 };
 
 
-float g_Volume = 1.0f;
-bool g_Muted = false;
-
-class OnChangeVolume : public IGUIEventListener
-{
-public:
-	virtual void OnEvent( int event_id, const IGUIEvent& event_info )
-	{
-		char Value[100];
-		event_info.GetParameter( "value", Value, sizeof( Value ) );
-		g_Volume = (float)atof( Value );
-		if( !g_Muted )
-		{
-			PerModuleInterface::g_pSystemTable->pGame->SetVolume( g_Volume );
-		}
-	}
-
-};
-
-class OnMuteVolume : public IGUIEventListener
-{
-public:
-	virtual void OnEvent( int event_id, const IGUIEvent& event_info )
-	{
-		char Mute[100];
-		event_info.GetParameter( "value", Mute, sizeof( Mute ) );
-		size_t length = strlen( Mute );
-		if ( length == 0 )
-		{
-			g_Muted = false;
-			PerModuleInterface::g_pSystemTable->pGame->SetVolume( g_Volume );
-		}
-		else
-		{
-			g_Muted = true;
-			PerModuleInterface::g_pSystemTable->pGame->SetVolume( 0.0f );
-		}
-	}
-
-};
-
-
 float g_Speed = 1.0f;
 bool g_Paused = true;
 
@@ -248,8 +206,6 @@ public:
 		, m_pMenuButton(0)
 		, m_pOptionsButton(0)
 		, m_pAutoCompileCheckBox(0)
-		, m_pVolumeSlider(0)
-		, m_pMuteCheckBox(0)
 		, m_pSpeedSlider(0)
 		, m_pPauseCheckBox(0)
 
@@ -305,18 +261,6 @@ public:
 			m_pAutoCompileCheckBox->RemoveReference();
 			m_pAutoCompileCheckBox = 0;
 		}
-		if( m_pVolumeSlider )
-		{
-			m_pVolumeSlider->RemoveEventListener( "change", &m_VolumeEvent, 0 );
-			m_pVolumeSlider->RemoveReference();
-			m_pVolumeSlider = 0;
-		}
-		if( m_pMuteCheckBox )
-		{
-			m_pMuteCheckBox->RemoveEventListener( "change", &m_MuteCheckBoxEvent, 0 );
-			m_pMuteCheckBox->RemoveReference();
-			m_pMuteCheckBox = 0;
-		}
 		if( m_pSpeedSlider )
 		{
 			m_pSpeedSlider->RemoveEventListener( "change", &m_SpeedEvent, 0 );
@@ -344,8 +288,6 @@ public:
 		SERIALIZE(m_MenuEvent.m_bVisible);
 		SERIALIZE(m_OptionsEvent.m_bVisible);
 		SERIALIZE( g_bAutoCompile );
-		SERIALIZE( g_Volume );
-		SERIALIZE( g_Muted );
 		SERIALIZE( g_Speed );
 		SERIALIZE( g_Paused );
 	}
@@ -429,32 +371,7 @@ public:
 			}
 			PerModuleInterface::g_pSystemTable->pRuntimeObjectSystem->SetAutoCompile( g_bAutoCompile );
 
-
-			m_pVolumeSlider = pDocument->Element()->GetElementById( "volumeslider");
-			m_pVolumeSlider->AddEventListener( "change", &m_VolumeEvent, 0 );
-			char Value[100];
-			m_pVolumeSlider->GetAttribute( "value", Value, sizeof( Value ) );
-			g_Volume = (float)atof( Value );
-
-			m_pMuteCheckBox = pDocument->Element()->GetElementById( "mutecheckbox");
-			m_pMuteCheckBox->AddEventListener( "change", &m_MuteCheckBoxEvent, 0 );
-
-			if( bHaveLoadedDoc )
-			{
-				char Mute[100];
-				m_pMuteCheckBox->GetAttribute( "checked", Mute, sizeof( Mute ) );
-				g_Muted = strlen( Mute ) > 0;
-			}
-			
-			if( g_Muted )
-			{
-				PerModuleInterface::g_pSystemTable->pGame->SetVolume( 0.0f );
-			}
-			else
-			{
-				PerModuleInterface::g_pSystemTable->pGame->SetVolume( g_Volume );
-			}
-
+			char Value[80];
 			m_pSpeedSlider = pDocument->Element()->GetElementById( "speedslider");
 			m_pSpeedSlider->AddEventListener( "change", &m_SpeedEvent, 0 );
 			m_pSpeedSlider->GetAttribute( "value", Value, sizeof( Value ) );
@@ -498,8 +415,6 @@ public:
 	IGUIElement* m_pMenuButton;
 	IGUIElement* m_pOptionsButton;
 	IGUIElement* m_pAutoCompileCheckBox;
-	IGUIElement* m_pVolumeSlider;
-	IGUIElement* m_pMuteCheckBox;
 	IGUIElement* m_pSpeedSlider;
 	IGUIElement* m_pPauseCheckBox;
 
@@ -510,8 +425,6 @@ public:
 	OnClickVisibleButton	m_MenuEvent;
 	OnClickVisibleButton	m_OptionsEvent;
 	OnAutoCompile			m_AutoCompileCheckBoxEvent;
-	OnChangeVolume			m_VolumeEvent;
-	OnMuteVolume			m_MuteCheckBoxEvent;
 	OnChangeSpeed			m_SpeedEvent;
 	OnPauseGame				m_PauseCheckBoxEvent;
 };

@@ -32,7 +32,6 @@ struct IGame : public ISystem
 	virtual void Exit() = 0;
 	virtual void GetWindowSize( float& width, float& height ) const = 0;
 
-	virtual void SetVolume( float volume ) = 0;
 	virtual void SetSpeed( float speed ) = 0; 
 };
 

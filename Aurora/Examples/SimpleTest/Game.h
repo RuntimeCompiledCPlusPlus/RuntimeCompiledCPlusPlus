@@ -44,8 +44,7 @@ class AURenderContext;
 struct ICameraControl;
 struct ILightingControl;
 typedef int AUEntityId;
-class CalSound;
-class CalBuffer;
+
 
 class Game : public IGame, public IObjectFactoryListener
 {
@@ -73,7 +72,6 @@ public:
 	virtual void ToggleConsoleGUI();
 	virtual void Exit();
 	virtual void GetWindowSize( float& width, float& height ) const;
-	virtual void SetVolume( float volume );
 	virtual void SetSpeed( float speed );
 
 	// ~IGame
@@ -84,9 +82,6 @@ private:
 	void RocketLibUpdate();
 	void RocketLibShutdown();
 	void RenderWorld();
-
-	void InitSound();
-	void ShutdownSound();
 
 	void InitObjects();
 	void DeleteObjects();
@@ -113,8 +108,6 @@ private:
 	double				m_fLastUpdateSessionTime;
 	double				m_CompileStartedTime;
 
-	CalSound*			m_pLoopingBackgroundSound;
-	CalBuffer*			m_pLoopingBackgroundSoundBuffer;
 
 	float				m_GameSpeed;
 
