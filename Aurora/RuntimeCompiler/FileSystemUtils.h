@@ -41,7 +41,7 @@ namespace FileSystemUtils
 	public:
 		std::string m_string;
 
-		Path::Path()
+		Path()
 		{
 		}
 
@@ -55,7 +55,7 @@ namespace FileSystemUtils
 		{
 		}
 
-		const char* c_str() const;
+		const char* c_str()             const;
 
 		Path& operator=( const std::string& rhs_ );
 		Path& operator=( const char* rhs_ );
@@ -274,7 +274,7 @@ namespace FileSystemUtils
 		//remove any trailing seperators
 		while( parentpath.m_string.find_last_of( seperators ) == parentpath.m_string.length() )
 		{
-			parentpath.m_string.pop_back();
+			parentpath.m_string.erase(parentpath.m_string.length(), 1);
 		}
 
 		size_t pos = parentpath.m_string.find_last_of( seperators );
@@ -285,7 +285,7 @@ namespace FileSystemUtils
 			//remove any trailing seperators
 			while( parentpath.m_string.find_last_of( seperators ) == parentpath.m_string.length() )
 			{
-				parentpath.m_string.pop_back();
+                parentpath.m_string.erase(parentpath.m_string.length(), 1);
 			}
 		}
 
@@ -343,7 +343,7 @@ namespace FileSystemUtils
 		GetCurrentDirectoryA( sizeof( currdir ), currdir );
 		currPath = currdir;
 #else
-		char* currdir = getcwd(0);
+		char* currdir = getcwd(0,0);
 		currPath = currdir;
 		free( currdir );
 #endif

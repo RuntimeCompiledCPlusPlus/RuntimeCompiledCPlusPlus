@@ -175,7 +175,7 @@ namespace FW
 			bool bRescanRequired = false; //if files are added or deleted we need a rescan.
 			while((dentry = readdir(dir)) != NULL)
 			{
-                std::string fname = mDirName.string() + "/" + dentry->d_name;
+                std::string fname = mDirName.m_string + "/" + dentry->d_name;
 				stat(fname.c_str(), &attrib);
 				if(!S_ISREG(attrib.st_mode))
 					continue;
@@ -301,7 +301,7 @@ namespace FW
 			struct stat attrib;
 			while((entry = readdir(dir)) != NULL)
 			{
-                std::string fname = (mDirName.string() + "/" + std::string(entry->d_name));
+                std::string fname = (mDirName.m_string + "/" + std::string(entry->d_name));
 				stat(fname.c_str(), &attrib);
 				if(S_ISREG(attrib.st_mode))
 					addFile(fname, false);

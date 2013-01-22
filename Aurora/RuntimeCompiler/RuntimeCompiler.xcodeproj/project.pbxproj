@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9106B90116AE8B9A003D2CD9 /* FileSystemUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 9106B90016AE8B9A003D2CD9 /* FileSystemUtils.h */; };
 		91CDEF8D1619F0D70061B76E /* BuildTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 91CDEF7D1619F0D70061B76E /* BuildTool.cpp */; };
 		91CDEF8E1619F0D70061B76E /* BuildTool.h in Headers */ = {isa = PBXBuildFile; fileRef = 91CDEF7E1619F0D70061B76E /* BuildTool.h */; };
 		91CDEF8F1619F0D70061B76E /* Compiler_PlatformMacOSX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 91CDEF7F1619F0D70061B76E /* Compiler_PlatformMacOSX.cpp */; };
@@ -26,6 +27,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		9106B90016AE8B9A003D2CD9 /* FileSystemUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileSystemUtils.h; sourceTree = "<group>"; };
 		919FE7001619F04600A269B6 /* libRuntimeCompiler.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRuntimeCompiler.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		91CDEF7D1619F0D70061B76E /* BuildTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BuildTool.cpp; sourceTree = "<group>"; };
 		91CDEF7E1619F0D70061B76E /* BuildTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BuildTool.h; sourceTree = "<group>"; };
@@ -59,6 +61,7 @@
 		919FE6F51619F04600A269B6 = {
 			isa = PBXGroup;
 			children = (
+				9106B90016AE8B9A003D2CD9 /* FileSystemUtils.h */,
 				91CDEF9E1619F0E30061B76E /* SimpleFileWatcher */,
 				91CDEF7D1619F0D70061B76E /* BuildTool.cpp */,
 				91CDEF7E1619F0D70061B76E /* BuildTool.h */,
@@ -112,6 +115,7 @@
 				91CDEF991619F0D70061B76E /* FileWatcher.h in Headers */,
 				91CDEF9A1619F0D70061B76E /* FileWatcherImpl.h in Headers */,
 				91CDEF9C1619F0D70061B76E /* FileWatcherOSX.h in Headers */,
+				9106B90116AE8B9A003D2CD9 /* FileSystemUtils.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

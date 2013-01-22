@@ -56,15 +56,9 @@
 		910A9E77162313EF0032E310 /* PerceptionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 910A9E4D162313EF0032E310 /* PerceptionManager.cpp */; };
 		910A9E78162313EF0032E310 /* PhysicsManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 910A9E4E162313EF0032E310 /* PhysicsManager.cpp */; };
 		910A9E79162313EF0032E310 /* SplashScreen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 910A9E4F162313EF0032E310 /* SplashScreen.cpp */; };
-		910A9E80162323130032E310 /* libboost_filesystem.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 910A9E7E162323120032E310 /* libboost_filesystem.a */; };
-		910A9E81162323130032E310 /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 910A9E7F162323120032E310 /* libboost_system.a */; };
-		910A9E841623231E0032E310 /* libboost_filesystem.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 910A9E821623231E0032E310 /* libboost_filesystem.dylib */; };
-		910A9E851623231E0032E310 /* libboost_system.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 910A9E831623231E0032E310 /* libboost_system.dylib */; };
 		910A9E891623233F0032E310 /* RocketControlsOSX.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 910A9E861623233E0032E310 /* RocketControlsOSX.framework */; };
 		910A9E8A1623233F0032E310 /* RocketCoreOSX.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 910A9E871623233F0032E310 /* RocketCoreOSX.framework */; };
 		910A9E8B1623233F0032E310 /* RocketDebuggerOSX.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 910A9E881623233F0032E310 /* RocketDebuggerOSX.framework */; };
-		91D03E3916248B120044DC3F /* libboost_filesystem.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 910A9E92162328550032E310 /* libboost_filesystem.dylib */; };
-		91D03E3A16248B120044DC3F /* libboost_system.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 910A9E93162328550032E310 /* libboost_system.dylib */; };
 		91D03E3B16248B120044DC3F /* libfreetype.6.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 910A9E901623284B0032E310 /* libfreetype.6.dylib */; };
 /* End PBXBuildFile section */
 
@@ -75,8 +69,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
-				91D03E3916248B120044DC3F /* libboost_filesystem.dylib in CopyFiles */,
-				91D03E3A16248B120044DC3F /* libboost_system.dylib in CopyFiles */,
 				91D03E3B16248B120044DC3F /* libfreetype.6.dylib in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -84,10 +76,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		9107152E162740B00069C8C5 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = ../../../../../../../../../System/Library/Frameworks/Foundation.framework; sourceTree = "<group>"; };
-		91071531162740B80069C8C5 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = ../../../../../../../../../System/Library/Frameworks/AppKit.framework; sourceTree = "<group>"; };
-		91071533162740CD0069C8C5 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = ../../../../../../../../../System/Library/Frameworks/Cocoa.framework; sourceTree = "<group>"; };
-		91071535162740FD0069C8C5 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = ../../../../../../../../../System/Library/Frameworks/SystemConfiguration.framework; sourceTree = "<group>"; };
+		9107152E162740B00069C8C5 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		91071531162740B80069C8C5 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
+		91071533162740CD0069C8C5 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		91071535162740FD0069C8C5 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = /System/Library/Frameworks/SystemConfiguration.framework; sourceTree = "<absolute>"; };
 		910A9D9E16230A370032E310 /* SimpleTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		910A9DA216230A370032E310 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		910A9DA516230A370032E310 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -184,20 +176,14 @@
 		910A9E4D162313EF0032E310 /* PerceptionManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PerceptionManager.cpp; sourceTree = "<group>"; };
 		910A9E4E162313EF0032E310 /* PhysicsManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PhysicsManager.cpp; sourceTree = "<group>"; };
 		910A9E4F162313EF0032E310 /* SplashScreen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SplashScreen.cpp; sourceTree = "<group>"; };
-		910A9E7E162323120032E310 /* libboost_filesystem.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_filesystem.a; path = ../../External/boost/stage/libOSX/libboost_filesystem.a; sourceTree = "<group>"; };
-		910A9E7F162323120032E310 /* libboost_system.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_system.a; path = ../../External/boost/stage/libOSX/libboost_system.a; sourceTree = "<group>"; };
-		910A9E821623231E0032E310 /* libboost_filesystem.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_filesystem.dylib; path = ../../External/boost/stage/libOSX/libboost_filesystem.dylib; sourceTree = "<group>"; };
-		910A9E831623231E0032E310 /* libboost_system.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_system.dylib; path = ../../External/boost/stage/libOSX/libboost_system.dylib; sourceTree = "<group>"; };
 		910A9E861623233E0032E310 /* RocketControlsOSX.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RocketControlsOSX.framework; path = ../../External/libRocket/Build/build/Release/RocketControlsOSX.framework; sourceTree = "<group>"; };
 		910A9E871623233F0032E310 /* RocketCoreOSX.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RocketCoreOSX.framework; path = ../../External/libRocket/Build/build/Release/RocketCoreOSX.framework; sourceTree = "<group>"; };
 		910A9E881623233F0032E310 /* RocketDebuggerOSX.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RocketDebuggerOSX.framework; path = ../../External/libRocket/Build/build/Release/RocketDebuggerOSX.framework; sourceTree = "<group>"; };
 		910A9E901623284B0032E310 /* libfreetype.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfreetype.6.dylib; path = ../../External/support/lib/MacOSX/libfreetype.6.dylib; sourceTree = "<group>"; };
-		910A9E92162328550032E310 /* libboost_filesystem.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_filesystem.dylib; path = ../../External/boost/stage/libOSX/libboost_filesystem.dylib; sourceTree = "<group>"; };
-		910A9E93162328550032E310 /* libboost_system.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_system.dylib; path = ../../External/boost/stage/libOSX/libboost_system.dylib; sourceTree = "<group>"; };
 		910A9EF516232E2A0032E310 /* SimpleTest-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "SimpleTest-Info.plist"; sourceTree = "<group>"; };
-		91448C03162731940026BFC8 /* libmacho.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmacho.dylib; path = ../../../../../../../../../usr/lib/system/libmacho.dylib; sourceTree = "<group>"; };
-		91448C06162731B20026BFC8 /* Kernel.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Kernel.framework; path = ../../../../../../../../../System/Library/Frameworks/Kernel.framework; sourceTree = "<group>"; };
-		91448C08162732840026BFC8 /* System.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = System.framework; path = ../../../../../../../../../System/Library/Frameworks/System.framework; sourceTree = "<group>"; };
+		91448C03162731940026BFC8 /* libmacho.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmacho.dylib; path = /usr/lib/system/libmacho.dylib; sourceTree = "<absolute>"; };
+		91448C06162731B20026BFC8 /* Kernel.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Kernel.framework; path = /System/Library/Frameworks/Kernel.framework; sourceTree = "<absolute>"; };
+		91448C08162732840026BFC8 /* System.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = System.framework; path = /System/Library/Frameworks/System.framework; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -211,15 +197,11 @@
 				910A9DF81623134E0032E310 /* libRenderer.a in Frameworks */,
 				910A9DF91623134E0032E310 /* libRuntimeCompiler.a in Frameworks */,
 				910A9DFA1623134E0032E310 /* libRuntimeObjectSystem.a in Frameworks */,
-				910A9E80162323130032E310 /* libboost_filesystem.a in Frameworks */,
-				910A9E81162323130032E310 /* libboost_system.a in Frameworks */,
 				910A9DFB1623134E0032E310 /* libSystems.a in Frameworks */,
 				910A9DFD162313D40032E310 /* libglfw.a in Frameworks */,
 				910A9DF3162313440032E310 /* IOKit.framework in Frameworks */,
 				910A9DA316230A370032E310 /* Cocoa.framework in Frameworks */,
 				910A9DC916230D880032E310 /* OpenGL.framework in Frameworks */,
-				910A9E841623231E0032E310 /* libboost_filesystem.dylib in Frameworks */,
-				910A9E851623231E0032E310 /* libboost_system.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -229,13 +211,6 @@
 		910A9D9316230A370032E310 = {
 			isa = PBXGroup;
 			children = (
-				91071535162740FD0069C8C5 /* SystemConfiguration.framework */,
-				91071533162740CD0069C8C5 /* Cocoa.framework */,
-				91071531162740B80069C8C5 /* AppKit.framework */,
-				9107152E162740B00069C8C5 /* Foundation.framework */,
-				91448C08162732840026BFC8 /* System.framework */,
-				91448C06162731B20026BFC8 /* Kernel.framework */,
-				91448C03162731940026BFC8 /* libmacho.dylib */,
 				91D03E3C16249DFB0044DC3F /* RuntimeModifiableInterfaces */,
 				91D8765216242DF000A588D8 /* RuntimeModifiableSource */,
 				910A9E28162313EF0032E310 /* CompilerLogger.cpp */,
@@ -268,16 +243,17 @@
 		910A9DA116230A370032E310 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				910A9E92162328550032E310 /* libboost_filesystem.dylib */,
-				910A9E93162328550032E310 /* libboost_system.dylib */,
+				91071535162740FD0069C8C5 /* SystemConfiguration.framework */,
+				91071533162740CD0069C8C5 /* Cocoa.framework */,
+				91071531162740B80069C8C5 /* AppKit.framework */,
+				9107152E162740B00069C8C5 /* Foundation.framework */,
+				91448C08162732840026BFC8 /* System.framework */,
+				91448C06162731B20026BFC8 /* Kernel.framework */,
+				91448C03162731940026BFC8 /* libmacho.dylib */,
 				910A9E901623284B0032E310 /* libfreetype.6.dylib */,
 				910A9E861623233E0032E310 /* RocketControlsOSX.framework */,
 				910A9E871623233F0032E310 /* RocketCoreOSX.framework */,
 				910A9E881623233F0032E310 /* RocketDebuggerOSX.framework */,
-				910A9E821623231E0032E310 /* libboost_filesystem.dylib */,
-				910A9E831623231E0032E310 /* libboost_system.dylib */,
-				910A9E7E162323120032E310 /* libboost_filesystem.a */,
-				910A9E7F162323120032E310 /* libboost_system.a */,
 				910A9DFC162313D40032E310 /* libglfw.a */,
 				910A9DF41623134E0032E310 /* libRenderer.a */,
 				910A9DF51623134E0032E310 /* libRuntimeCompiler.a */,
