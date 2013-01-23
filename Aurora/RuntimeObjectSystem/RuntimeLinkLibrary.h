@@ -78,7 +78,7 @@ template<> struct RuntimeLinkLibrary<0> : public IRuntimeLinkLibraryList
 
 
 
-#define RUNTIME_MODIFIABLE_LINKLIBRARY_BASE( LIBRARY, N ) \
+#define RUNTIME_COMPILER_LINKLIBRARY_BASE( LIBRARY, N ) \
 	template<> struct RuntimeLinkLibrary< N + 1 >  : public RuntimeLinkLibrary< N >\
 	{ \
 		RuntimeLinkLibrary( size_t max ) : RuntimeLinkLibrary<N>( max ) {} \
@@ -98,7 +98,7 @@ template<> struct RuntimeLinkLibrary<0> : public IRuntimeLinkLibraryList
 	}; \
 
 
-#define RUNTIME_MODIFIABLE_LINKLIBRARY( LIBRARY ) namespace { RUNTIME_MODIFIABLE_LINKLIBRARY_BASE( LIBRARY, __COUNTER__ ) }
+#define RUNTIME_COMPILER_LINKLIBRARY( LIBRARY ) namespace { RUNTIME_COMPILER_LINKLIBRARY_BASE( LIBRARY, __COUNTER__ ) }
 
 }
 
