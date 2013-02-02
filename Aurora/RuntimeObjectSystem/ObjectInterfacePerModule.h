@@ -66,6 +66,10 @@ private:
     std::string                         m_ModuleFilename;
 };
 
+
+
+
+
 template<typename T> class TObjectConstructorConcrete: public IObjectConstructor
 {
 public:
@@ -89,6 +93,7 @@ public:
 		if( m_FreeIds.empty() )
 		{
 			PerTypeObjectId id = m_ConstructedObjects.size();
+
 			pT = new T();
 			pT->SetPerTypeId( id );
 			m_ConstructedObjects.push_back( pT );
@@ -208,6 +213,24 @@ private:
 template<typename T> class TActual: public T
 {
 public:
+	// overload new/delete to get alignment correct
+#ifdef _WIN32
+	void* operator new(size_t size)
+	{
+		size_t align = __alignof( TActual );
+		return _aligned_malloc( size, align );
+	}
+#else
+	void* operator new(size_t)
+	{
+		size_t align = __alignof__( TActual );
+		return memalign( size, align );	}
+	}
+#endif
+	void operator delete(void* p)
+	{
+		free( p );
+	}
 	friend class TObjectConstructorConcrete<TActual>;
 	virtual ~TActual() { m_Constructor.DeRegister( m_Id ); }
 	virtual PerTypeObjectId GetPerTypeId() const { return m_Id; }
