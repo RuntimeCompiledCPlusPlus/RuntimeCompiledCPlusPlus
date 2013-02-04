@@ -227,10 +227,17 @@ public:
 		return memalign( size, align );	}
 	}
 #endif
+#ifdef _WIN32
+	void operator delete(void* p)
+	{
+		_aligned_free( p );
+	}
+#else
 	void operator delete(void* p)
 	{
 		free( p );
 	}
+#endif
 	friend class TObjectConstructorConcrete<TActual>;
 	virtual ~TActual() { m_Constructor.DeRegister( m_Id ); }
 	virtual PerTypeObjectId GetPerTypeId() const { return m_Id; }
