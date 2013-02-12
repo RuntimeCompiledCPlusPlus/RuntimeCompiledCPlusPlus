@@ -96,7 +96,7 @@ struct RuntimeProtector::Impl
 
 		if (nCode == EXCEPTION_ACCESS_VIOLATION)
 		{
-			int flavour = pRecord->ExceptionInformation[0];
+			ULONG_PTR flavour = pRecord->ExceptionInformation[0];
 			switch( flavour )
 			{
 			case 0: 
