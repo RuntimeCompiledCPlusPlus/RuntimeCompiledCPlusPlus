@@ -220,24 +220,21 @@ public:
 		size_t align = __alignof( TActual );
 		return _aligned_malloc( size, align );
 	}
-#else
-	void* operator new(size_t)
-	{
-		size_t align = __alignof__( TActual );
-		return memalign( size, align );	}
-	}
-#endif
-#ifdef _WIN32
 	void operator delete(void* p)
 	{
 		_aligned_free( p );
 	}
 #else
-	void operator delete(void* p)
+#ifdef __APPLE_CC__
+    // default alignment is 16 bytes on mac, so do not override new
+#else
+	void* operator new(size_t size)
 	{
-		free( p );
+		size_t align = __alignof__( TActual );
+		return memalign( size, align );	}
 	}
-#endif
+#endif //__APPLE_CC__
+#endif //_WIN32
 	friend class TObjectConstructorConcrete<TActual>;
 	virtual ~TActual() { m_Constructor.DeRegister( m_Id ); }
 	virtual PerTypeObjectId GetPerTypeId() const { return m_Id; }
