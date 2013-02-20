@@ -217,7 +217,7 @@ public:
 #ifdef _WIN32
 	void* operator new(size_t size)
 	{
-		size_t align = __alignof( TActual );
+		size_t align = __alignof( TActual<T> );
 		return _aligned_malloc( size, align );
 	}
 	void operator delete(void* p)
@@ -225,7 +225,6 @@ public:
 		_aligned_free( p );
 	}
 #else
-#ifdef __APPLE_CC__
 	void* operator new(size_t size)
 	{
 		size_t align = __alignof__( TActual<T> );
@@ -237,17 +236,6 @@ public:
 	{
 		free( p );
 	}
-#else
-	void* operator new(size_t size)
-	{
-		size_t align = __alignof__( TActual );
-		return memalign( size, align );	}
-	}
-    void operator delete(void* p)
-    {
-        free( p );
-    }
-#endif //__APPLE_CC__
 #endif //_WIN32
 	friend class TObjectConstructorConcrete<TActual>;
 	virtual ~TActual() { m_Constructor.DeRegister( m_Id ); }
