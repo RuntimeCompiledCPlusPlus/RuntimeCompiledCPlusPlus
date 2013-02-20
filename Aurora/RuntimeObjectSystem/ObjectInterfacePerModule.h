@@ -228,10 +228,14 @@ public:
 #ifdef __APPLE_CC__
 	void* operator new(size_t size)
 	{
-		size_t align = __alignof__( TActual );
+		size_t align = __alignof__( TActual<T> );
 		void* pRet;
-		posix_memalign( &pRet, size, align );
+		posix_memalign( &pRet, align, size );
 		return pRet;
+	}
+	void operator delete(void* p)
+	{
+		free( p );
 	}
 #else
 	void* operator new(size_t size)
@@ -239,6 +243,10 @@ public:
 		size_t align = __alignof__( TActual );
 		return memalign( size, align );	}
 	}
+    void operator delete(void* p)
+    {
+        free( p );
+    }
 #endif //__APPLE_CC__
 #endif //_WIN32
 	friend class TObjectConstructorConcrete<TActual>;
