@@ -226,7 +226,13 @@ public:
 	}
 #else
 #ifdef __APPLE_CC__
-    // default alignment is 16 bytes on mac, so do not override new
+	void* operator new(size_t size)
+	{
+		size_t align = __alignof__( TActual );
+		void* pRet;
+		posix_memalign( &pRet, size, align );
+		return pRet;
+	}
 #else
 	void* operator new(size_t size)
 	{
