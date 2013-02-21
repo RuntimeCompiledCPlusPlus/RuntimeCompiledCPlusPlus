@@ -35,7 +35,7 @@
 #include <stdlib.h>
 #include <dirent.h>
 #include <string.h>
-
+#include <assert.h>
 
 namespace FW
 {
@@ -87,7 +87,7 @@ namespace FW
 		: mWatchID(watchid), mDirName(dirname), mListener(listener)
 		{
 			mChangeListCount = 0;
-			addAll();
+			addAll(true);
 		}
         
         ~WatchStruct()
@@ -103,7 +103,7 @@ namespace FW
 			struct stat attrib;
 			stat(name.c_str(), &attrib);
 			
-			int fd = open(name.c_str(), O_RDONLY);
+			int fd = 0;//open(name.c_str(), O_RDONLY);
 			
 			++mChangeListCount;
 			
@@ -272,7 +272,7 @@ namespace FW
             if( bRescanRequired )
             {
                 removeAll();
-                addAll();
+                addAll(false);
             }
 		};
 		
@@ -281,14 +281,17 @@ namespace FW
 			mListener->handleFileAction(mWatchID, mDirName, filename, action);
 		}
 		
-		void addAll()
+		void addAll( bool bCreatedirevent )
 		{
-			// add base dir
-			int fd = open(mDirName.c_str(), O_RDONLY);
-			EV_SET(&mChangeList[0], fd, EVFILT_VNODE,
-				   EV_ADD | EV_ENABLE | EV_CLEAR,
-				   NOTE_DELETE | NOTE_EXTEND | NOTE_WRITE | NOTE_ATTRIB,
-				   0, 0);
+            if( bCreatedirevent )
+            {
+                // add base dir
+                int fd = open(mDirName.c_str(), O_RDONLY);
+                EV_SET(&mChangeList[0], fd, EVFILT_VNODE,
+                       EV_ADD | EV_ENABLE | EV_CLEAR,
+                       NOTE_DELETE | NOTE_EXTEND | NOTE_WRITE | NOTE_ATTRIB,
+                       0, 0);
+            }
 			
 			//fprintf(stderr, "ADDED: %s\n", mDirName.c_str());			
 			
@@ -317,12 +320,11 @@ namespace FW
 		{
 			KEvent* ke = NULL;
 			
-			// go through list removing each file and sending an event
-			for(int i = 0; i < mChangeListCount; ++i)
+			// go through list removing each file but not the directory
+			for(int i = 1; i < mChangeListCount; ++i)
 			{
 				ke = &mChangeList[i];
 				// delete
-				close((int)ke->ident);
 				delete((EntryStruct*)ke->udata);
 			}
             mChangeListCount = 0;
@@ -437,6 +439,7 @@ namespace FW
 	//--------
 	void FileWatcherOSX::handleAction(WatchStruct* watch, const String& filename, unsigned long action)
 	{
+        assert(false);//should not get here for OSX impl
 	}
 
 };//namespace FW
