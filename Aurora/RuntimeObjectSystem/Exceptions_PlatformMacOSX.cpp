@@ -62,7 +62,7 @@ RuntimeProtector::~RuntimeProtector()
     delete m_pImpl;
 }
 
-void signalHandler(int sig, siginfo_t *info, void *context)
+inline void signalHandler(int sig, siginfo_t *info, void *context)
 {
     // we only handle synchronous signals with this handler, so they come to the correct thread.
     assert( RuntimeProtector::Impl::m_pCurrImpl );
@@ -85,7 +85,7 @@ void signalHandler(int sig, siginfo_t *info, void *context)
     longjmp(RuntimeProtector::Impl::m_pCurrImpl->m_env, sig );
 }
 
-bool RuntimeProtector::TryProtectedFunc()
+inline bool RuntimeProtector::TryProtectedFunc()
 {
    
     // allow cascading by storing prev and current impl

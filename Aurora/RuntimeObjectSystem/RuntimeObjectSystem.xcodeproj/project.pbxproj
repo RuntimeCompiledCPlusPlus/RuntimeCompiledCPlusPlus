@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		910987F416441841006315D5 /* RuntimeLinkLibrary.h in Headers */ = {isa = PBXBuildFile; fileRef = 910987F316441841006315D5 /* RuntimeLinkLibrary.h */; };
+		916500C516D6642F00E75759 /* Exceptions_PlatformMacOSX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 916500C416D6642F00E75759 /* Exceptions_PlatformMacOSX.cpp */; };
 		91B4FC2D161A027C0029E1A5 /* Exceptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 91B4FC1B161A027C0029E1A5 /* Exceptions.h */; };
 		91B4FC2E161A027C0029E1A5 /* IObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 91B4FC1C161A027C0029E1A5 /* IObject.h */; };
 		91B4FC2F161A027C0029E1A5 /* IObjectFactorySystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 91B4FC1D161A027C0029E1A5 /* IObjectFactorySystem.h */; };
@@ -28,7 +29,7 @@
 /* Begin PBXFileReference section */
 		910987F316441841006315D5 /* RuntimeLinkLibrary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RuntimeLinkLibrary.h; sourceTree = "<group>"; };
 		913A25D21619FB7D006AF4C1 /* libRuntimeObjectSystem.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRuntimeObjectSystem.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		916500C116D6603200E75759 /* Exceptions_PlatformMacOSX.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Exceptions_PlatformMacOSX.inl; sourceTree = "<group>"; };
+		916500C416D6642F00E75759 /* Exceptions_PlatformMacOSX.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Exceptions_PlatformMacOSX.cpp; sourceTree = "<group>"; };
 		91B4FC1B161A027C0029E1A5 /* Exceptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Exceptions.h; sourceTree = "<group>"; };
 		91B4FC1C161A027C0029E1A5 /* IObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IObject.h; sourceTree = "<group>"; };
 		91B4FC1D161A027C0029E1A5 /* IObjectFactorySystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IObjectFactorySystem.h; sourceTree = "<group>"; };
@@ -62,7 +63,7 @@
 			children = (
 				910987F316441841006315D5 /* RuntimeLinkLibrary.h */,
 				91B4FC1B161A027C0029E1A5 /* Exceptions.h */,
-				916500C116D6603200E75759 /* Exceptions_PlatformMacOSX.inl */,
+				916500C416D6642F00E75759 /* Exceptions_PlatformMacOSX.cpp */,
 				91B4FC1C161A027C0029E1A5 /* IObject.h */,
 				91B4FC1D161A027C0029E1A5 /* IObjectFactorySystem.h */,
 				91B4FC1E161A027C0029E1A5 /* IRuntimeObjectSystem.h */,
@@ -182,6 +183,7 @@
 				91B4FC36161A027C0029E1A5 /* ObjectInterfacePerModuleSource.cpp in Sources */,
 				91B4FC38161A027C0029E1A5 /* RuntimeObjectSystem.cpp in Sources */,
 				91B4FC3A161A027C0029E1A5 /* SimpleSerializer.cpp in Sources */,
+				916500C516D6642F00E75759 /* Exceptions_PlatformMacOSX.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
