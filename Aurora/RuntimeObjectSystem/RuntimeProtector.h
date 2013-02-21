@@ -18,6 +18,10 @@
 
 #pragma once
 
+#ifndef _WIN32
+    #include <setjmp.h> // used by posix type systems to chain handling
+#endif
+
 // class RuntimeProtector
 // overload void ProtectedFunc() to use, put function context (io) in new members
 // do not create threads within protected function
@@ -68,6 +72,12 @@ struct RuntimeProtector
     
     bool                    m_bHintAllowDebug;    // some RuntimeProtectors may not want to allow debug
     bool                    m_bHashadException;
+    
+    // internal 
     unsigned int            m_ModulesLoadedCount; // used internally to reset exceptions when a new module is loaded
+#ifndef _WIN32
+    jmp_buf                 m_env;
+    RuntimeProtector*       m_pPrevious;          // used by posix type systems to chain handling
+#endif
 };
 

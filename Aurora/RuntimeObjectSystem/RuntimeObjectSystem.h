@@ -96,11 +96,9 @@ public:
      }
  
      // exception handling to catch and protect main app from crashing when using runtime compiling
-    virtual void SetProtectionEnabled( bool bProtectionEnabled_ )
-    {
-        m_bProtectionEnabled = bProtectionEnabled_;
-    }
-	virtual bool IsProtectionEnabled() const
+    virtual void SetProtectionEnabled( bool bProtectionEnabled_ );
+	
+    virtual bool IsProtectionEnabled() const
     {
         return m_bProtectionEnabled;
     }
@@ -156,7 +154,9 @@ private:
     bool                    m_bProtectionEnabled;
 
     // platform implementation in RuntimeObjectSystem_Plaform*.cpp
+public:
     struct PlatformImpl;
+private:
     PlatformImpl*           m_pImpl;
     void                    CreatePlatformImpl();
     void                    DeletePlatformImpl();

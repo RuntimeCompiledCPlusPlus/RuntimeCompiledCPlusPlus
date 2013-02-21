@@ -144,6 +144,12 @@ void RuntimeObjectSystem::DeletePlatformImpl()
     delete m_pImpl;
 }
 
+void RuntimeObjectSystem::SetProtectionEnabled( bool bProtectionEnabled_ )
+{
+    m_bProtectionEnabled = bProtectionEnabled_;
+}
+
+
 bool RuntimeObjectSystem::TryProtectedFunction( RuntimeProtector* pProtectedObject_ )
 {
     bool bJustCaughtException = false;
