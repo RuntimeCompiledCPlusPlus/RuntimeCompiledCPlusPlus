@@ -9,7 +9,6 @@
       <Filter>SimpleSerializer</Filter>
     </ClCompile>
     <ClCompile Include="RuntimeObjectSystem.cpp" />
-    <ClCompile Include="Exceptions_PlatformWindows.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IObject.h" />
@@ -28,6 +27,7 @@
     <ClInclude Include="IRuntimeObjectSystem.h" />
     <ClInclude Include="RuntimeObjectSystem.h" />
     <ClInclude Include="RuntimeLinkLibrary.h" />
+    <ClInclude Include="Exceptions_PlatformWindows.inl" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="SimpleSerializer">

@@ -46,6 +46,7 @@ RuntimeObjectSystem::RuntimeObjectSystem()
 	, m_bAutoCompile( true )
 	, m_pObjectFactorySystem(0)
 	, m_pFileChangeNotifier(0)
+    , m_TotalLoadedModulesEver(1) // starts at one for current exe
 {
 }
 
@@ -295,11 +296,12 @@ bool RuntimeObjectSystem::LoadCompiledModule()
 		return false;
 	}
 
-       pPerModuleInterfaceProcAdd()->SetModuleFileName( m_CurrentlyCompilingModuleName.c_str() );
+    pPerModuleInterfaceProcAdd()->SetModuleFileName( m_CurrentlyCompilingModuleName.c_str() );
 	pPerModuleInterfaceProcAdd()->SetSystemTable( m_pSystemTable );
 	m_Modules.push_back( module );
 
 	m_pCompilerLogger->LogInfo( "Compilation Succeeded\n");
+    ++m_TotalLoadedModulesEver;
 
 	SetupObjectConstructors(pPerModuleInterfaceProcAdd);
 	m_BuildFileList.clear();	// clear the files from our compile list

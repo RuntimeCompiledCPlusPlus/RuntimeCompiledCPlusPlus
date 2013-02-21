@@ -15,12 +15,16 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#include "Exceptions.h"
-
+#define WIN32_LEAN_AND_MEAN
 #include "Windows.h"
 #include "WinBase.h"
 #include "excpt.h"
 #include <assert.h>
+
+// windows includes can cause GetObject to be defined, we undefine it here.
+#ifdef GetObject
+    #undef GetObject
+#endif
 
 struct RuntimeProtector::Impl
 {
@@ -128,7 +132,7 @@ struct RuntimeProtector::Impl
 	}
 };
 
-RuntimeProtector::RuntimeProtector()
+inline RuntimeProtector::RuntimeProtector()
     : m_pImpl( new Impl() )
 	, m_bHashadException( false )
 	, m_bHintAllowDebug( true )
@@ -136,27 +140,27 @@ RuntimeProtector::RuntimeProtector()
 {
 }
 
-RuntimeProtector::~RuntimeProtector()
+inline RuntimeProtector::~RuntimeProtector()
 {
     delete m_pImpl;
 }
 
-bool RuntimeProtector::TryProtectedFunc()
+inline bool RuntimeProtector::TryProtectedFunc()
 {
 	m_bHashadException = false;
 	if( m_bProtectionEnabled )
 	{
-	__try
-    {
-		ProtectedFunc();
-	}
-    __except( m_pImpl->SimpleExceptionFilter( GetExceptionInformation(), this ) )
-	{
-		// If we hit any structured exception, exceptionInfo will be initialized
-		// If it's one we recognise and we hinted for no debugging, we'll go straight here, with info filled out
-		// If not we'll go to debugger first, then here
-		m_bHashadException = true;
-	}
+	    __try
+        {
+		    ProtectedFunc();
+	    }
+        __except( m_pImpl->SimpleExceptionFilter( GetExceptionInformation(), this ) )
+	    {
+		    // If we hit any structured exception, exceptionInfo will be initialized
+		    // If it's one we recognise and we hinted for no debugging, we'll go straight here, with info filled out
+		    // If not we'll go to debugger first, then here
+		    m_bHashadException = true;
+	    }
 	}
 	else
 	{

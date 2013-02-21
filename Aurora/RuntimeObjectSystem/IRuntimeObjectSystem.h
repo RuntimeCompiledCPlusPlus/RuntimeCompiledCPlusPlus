@@ -37,6 +37,10 @@ public:
 	virtual bool LoadCompiledModule() = 0;
 	virtual bool GetLastLoadModuleSuccess() const = 0;
 
+    // GetNumberLoadedModules() returns total number successfully loaded, not current number loaded
+    // Mainly useful for detected wether a new module has been loaded by checking for change
+    virtual unsigned int GetNumberLoadedModules() const = 0;
+
 	virtual IObjectFactorySystem* GetObjectFactorySystem() const = 0;
 	virtual IFileChangeNotifier* GetFileChangeNotifier() const = 0;
 

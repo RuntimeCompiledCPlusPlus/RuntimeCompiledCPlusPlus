@@ -90,6 +90,10 @@ public:
 	{
 		return m_bLastLoadModuleSuccess;
 	}
+     virtual unsigned int GetNumberLoadedModules() const
+     {
+         return m_TotalLoadedModulesEver;
+     }
 
 
 
@@ -137,6 +141,7 @@ private:
 	TFileList				m_LibraryDirList;
 	std::string				m_CompileOptions;
 	std::string				m_LinkOptions;
+    unsigned int            m_TotalLoadedModulesEver;
 
 };
 

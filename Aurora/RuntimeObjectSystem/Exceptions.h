@@ -90,5 +90,10 @@ private:
     bool                    m_bProtectionEnabled;
 };
 
-
 #define AUTRY_RETURN( X )  X; return true;
+
+// now include inline implementations, which are inline so we can use this in a runtime compiled module.
+#ifdef _WIN32
+    #include "Exceptions_PlatformWindows.inl"
+#else
+#endif

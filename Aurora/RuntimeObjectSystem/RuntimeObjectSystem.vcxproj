@@ -33,7 +33,9 @@
     <ClInclude Include="SimpleSerializer\SimpleSerializer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Exceptions_PlatformWindows.cpp" />
+    <ClInclude Include="Exceptions_PlatformWindows.inl">
+      <FileType>CppCode</FileType>
+    </ClInclude>
     <ClCompile Include="ObjectFactorySystem\ObjectFactorySystem.cpp" />
     <ClCompile Include="ObjectInterfacePerModuleSource.cpp" />
     <ClCompile Include="RuntimeObjectSystem.cpp" />
