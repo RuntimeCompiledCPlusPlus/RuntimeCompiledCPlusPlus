@@ -27,16 +27,21 @@
 
 static bool                         ms_bMachPortSet     = false;
 static __thread RuntimeProtector*   m_pCurrProtector    = 0; // for nested threaded handling, one per thread.
-    
 
+const size_t NUM_OLD_EXCEPTION_HANDLERS = 16;
+static mach_msg_type_number_t  old_count;
+static exception_mask_t        old_masks[NUM_OLD_EXCEPTION_HANDLERS];
+static mach_port_t             old_ports[NUM_OLD_EXCEPTION_HANDLERS];
+static exception_behavior_t    old_behaviors[NUM_OLD_EXCEPTION_HANDLERS];
+static thread_state_flavor_t   old_flavors[NUM_OLD_EXCEPTION_HANDLERS];
 
 void RuntimeObjectSystem::CreatePlatformImpl()
 {
     if( !ms_bMachPortSet )
     {
         // prevent OS X debugger from catching signals in a none re-catchable way
-        task_set_exception_ports(mach_task_self(), EXC_MASK_BAD_ACCESS, MACH_PORT_NULL, EXCEPTION_DEFAULT, MACHINE_THREAD_STATE);
-        task_set_exception_ports(mach_task_self(), EXC_MASK_BAD_INSTRUCTION, MACH_PORT_NULL, EXCEPTION_DEFAULT, MACHINE_THREAD_STATE);
+        task_get_exception_ports(mach_task_self(), EXC_MASK_BAD_ACCESS | EXC_MASK_BAD_INSTRUCTION, old_masks, &old_count, old_ports, old_behaviors, old_flavors);
+        task_set_exception_ports(mach_task_self(), EXC_MASK_BAD_ACCESS | EXC_MASK_BAD_INSTRUCTION, MACH_PORT_NULL, EXCEPTION_DEFAULT, MACHINE_THREAD_STATE);
         ms_bMachPortSet = true;
     }
 }
@@ -48,6 +53,20 @@ void RuntimeObjectSystem::DeletePlatformImpl()
 void RuntimeObjectSystem::SetProtectionEnabled( bool bProtectionEnabled_ )
 {
     m_bProtectionEnabled = bProtectionEnabled_;
+    if( !m_bProtectionEnabled )
+    {
+        if( ms_bMachPortSet )
+        {
+            for( int i = 0; i < old_count; ++i )
+            {
+                task_set_exception_ports( mach_task_self(), old_masks[i], old_ports[i], old_behaviors[i], old_flavors[i]);
+            }
+        }
+    }
+    else
+    {
+        CreatePlatformImpl();
+    }
 }
 
 
