@@ -15,6 +15,9 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
+#include "RuntimeProtector.h"
+#include "RuntimeObjectSystem.h"
+
 #define WIN32_LEAN_AND_MEAN
 #include "Windows.h"
 #include "WinBase.h"
@@ -26,7 +29,7 @@
     #undef GetObject
 #endif
 
-struct RuntimeProtector::Impl
+struct RuntimeObjectSystem::PlatformImpl
 {
 
 	enum ExceptionState
@@ -37,7 +40,7 @@ struct RuntimeProtector::Impl
 
 	ExceptionState s_exceptionState;
 
-	Impl()
+	PlatformImpl()
 		: s_exceptionState( ES_PASS )
 	{
 	}
@@ -132,40 +135,47 @@ struct RuntimeProtector::Impl
 	}
 };
 
-inline RuntimeProtector::RuntimeProtector()
-    : m_pImpl( new Impl() )
-	, m_bHashadException( false )
-	, m_bHintAllowDebug( true )
-	, m_bProtectionEnabled( true )
+void RuntimeObjectSystem::CreatePlatformImpl()
 {
+    m_pImpl = new PlatformImpl();
 }
-
-inline RuntimeProtector::~RuntimeProtector()
+void RuntimeObjectSystem::DeletePlatformImpl()
 {
     delete m_pImpl;
 }
 
-inline bool RuntimeProtector::TryProtectedFunc()
+bool RuntimeObjectSystem::TryProtectedFunction( RuntimeProtector* pProtectedObject_ )
 {
-	m_bHashadException = false;
+    bool bJustCaughtException = false;
+    if( m_TotalLoadedModulesEver != pProtectedObject_->m_ModulesLoadedCount )
+    {
+        // clear exceptions if we've just loaded a new module
+        pProtectedObject_->m_ModulesLoadedCount = m_TotalLoadedModulesEver;
+    	pProtectedObject_->m_bHashadException = false;
+    }
 	if( m_bProtectionEnabled )
 	{
-	    __try
+        if( !pProtectedObject_->m_bHashadException )
         {
-		    ProtectedFunc();
-	    }
-        __except( m_pImpl->SimpleExceptionFilter( GetExceptionInformation(), this ) )
-	    {
-		    // If we hit any structured exception, exceptionInfo will be initialized
-		    // If it's one we recognise and we hinted for no debugging, we'll go straight here, with info filled out
-		    // If not we'll go to debugger first, then here
-		    m_bHashadException = true;
-	    }
+	        __try
+            {
+		        pProtectedObject_->ProtectedFunc();
+	        }
+            __except( m_pImpl->SimpleExceptionFilter( GetExceptionInformation(), pProtectedObject_ ) )
+	        {
+		        // If we hit any structured exception, exceptionInfo will be initialized
+		        // If it's one we recognise and we hinted for no debugging, we'll go straight here, with info filled out
+		        // If not we'll go to debugger first, then here
+		        pProtectedObject_->m_bHashadException = true;
+                bJustCaughtException = true;
+	        }
+         }
 	}
 	else
 	{
-		ProtectedFunc();
+    	pProtectedObject_->m_bHashadException = false;
+		pProtectedObject_->ProtectedFunc();
 	}
-	return !m_bHashadException;
+	return !bJustCaughtException;
 }
 

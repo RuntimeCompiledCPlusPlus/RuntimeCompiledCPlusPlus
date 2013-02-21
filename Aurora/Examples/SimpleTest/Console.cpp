@@ -27,6 +27,7 @@
 #include "../../Systems/IEntitySystem.h"
 #include "../../Systems/IGame.h"
 #include "../../Systems/SystemTable.h"
+#include "../../RuntimeObjectSystem/RuntimeProtector.h"
 #include "Environment.h"
 #include "IConsoleContext.h"
 #include "IObjectUtils.h"
@@ -629,7 +630,7 @@ void Console::ExecuteConsoleContext()
 		consoleProtectedExecutor.m_bHintAllowDebug = false;
 		consoleProtectedExecutor.pContext = pContext;
 		consoleProtectedExecutor.pSys = m_pEnv->sys;
-		consoleProtectedExecutor.TryProtectedFunc();
+        m_pEnv->sys->pRuntimeObjectSystem->TryProtectedFunction( &consoleProtectedExecutor );
 
 		if( consoleProtectedExecutor.HasHadException() )
 		{

@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Exceptions.h" />
+    <ClInclude Include="RuntimeProtector.h" />
     <ClInclude Include="IObject.h" />
     <ClInclude Include="IObjectFactorySystem.h" />
     <ClInclude Include="IRuntimeObjectSystem.h" />
@@ -33,12 +33,10 @@
     <ClInclude Include="SimpleSerializer\SimpleSerializer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Exceptions_PlatformWindows.inl">
-      <FileType>CppCode</FileType>
-    </ClInclude>
     <ClCompile Include="ObjectFactorySystem\ObjectFactorySystem.cpp" />
     <ClCompile Include="ObjectInterfacePerModuleSource.cpp" />
     <ClCompile Include="RuntimeObjectSystem.cpp" />
+    <ClCompile Include="RuntimeObjectSystem_PlatformWindows.cpp" />
     <ClCompile Include="SimpleSerializer\SimpleSerializer.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

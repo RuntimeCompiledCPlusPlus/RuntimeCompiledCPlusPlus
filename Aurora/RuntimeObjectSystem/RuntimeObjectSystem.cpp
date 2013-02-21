@@ -47,13 +47,16 @@ RuntimeObjectSystem::RuntimeObjectSystem()
 	, m_pObjectFactorySystem(0)
 	, m_pFileChangeNotifier(0)
     , m_TotalLoadedModulesEver(1) // starts at one for current exe
+    , m_bProtectionEnabled( true )
+    , m_pImpl( 0 )
 {
+    CreatePlatformImpl();
 }
 
 RuntimeObjectSystem::~RuntimeObjectSystem()
 {
 	m_pFileChangeNotifier->RemoveListener(this);
-
+    DeletePlatformImpl();
 	delete m_pObjectFactorySystem;
 	delete m_pFileChangeNotifier;
 	delete m_pBuildTool;
@@ -87,11 +90,12 @@ bool RuntimeObjectSystem::Initialise( ICompilerLogger * pLogger, SystemTable* pS
 		m_pCompilerLogger->LogError( "Failed GetProcAddress for GetPerModuleInterface in current module\n" );
 		return false;
 	}
-       pPerModuleInterfaceProcAdd()->SetModuleFileName( "Main Exe" );
-       pPerModuleInterfaceProcAdd()->SetSystemTable( m_pSystemTable );
+    pPerModuleInterfaceProcAdd()->SetModuleFileName( "Main Exe" );
+    pPerModuleInterfaceProcAdd()->SetSystemTable( m_pSystemTable );
 
 	m_pObjectFactorySystem = new ObjectFactorySystem();
 	m_pObjectFactorySystem->SetLogger( m_pCompilerLogger );
+    m_pObjectFactorySystem->SetRuntimeObjectSystem( this );
 
 	m_pFileChangeNotifier = new FileChangeNotifier();
 

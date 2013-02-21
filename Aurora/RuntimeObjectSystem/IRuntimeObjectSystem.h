@@ -24,6 +24,7 @@ struct ICompilerLogger;
 struct IObjectFactorySystem;
 struct IFileChangeNotifier;
 class  BuildTool;
+struct RuntimeProtector;
 
 struct IRuntimeObjectSystem
 {
@@ -57,6 +58,11 @@ public:
 
 	//ensure subclasses are deleted correctly
 	virtual ~IRuntimeObjectSystem(){};
+
+    // exception handling to catch and protect main app from crashing when using runtime compiling
+    virtual void SetProtectionEnabled( bool bProtectionEnabled_ ) = 0;
+	virtual bool IsProtectionEnabled() const = 0;
+    virtual bool TryProtectedFunction( RuntimeProtector* pProtectedObject_ ) = 0;
 };
 
 #endif // IRUNTIMEOBJECTSYSTEM_INCLUDED

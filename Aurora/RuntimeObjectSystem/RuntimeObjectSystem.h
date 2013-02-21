@@ -94,6 +94,17 @@ public:
      {
          return m_TotalLoadedModulesEver;
      }
+ 
+     // exception handling to catch and protect main app from crashing when using runtime compiling
+    virtual void SetProtectionEnabled( bool bProtectionEnabled_ )
+    {
+        m_bProtectionEnabled = bProtectionEnabled_;
+    }
+	virtual bool IsProtectionEnabled() const
+    {
+        return m_bProtectionEnabled;
+    }
+    virtual bool TryProtectedFunction( RuntimeProtector* pProtectedObject_ );
 
 
 
@@ -142,6 +153,13 @@ private:
 	std::string				m_CompileOptions;
 	std::string				m_LinkOptions;
     unsigned int            m_TotalLoadedModulesEver;
+    bool                    m_bProtectionEnabled;
+
+    // platform implementation in RuntimeObjectSystem_Plaform*.cpp
+    struct PlatformImpl;
+    PlatformImpl*           m_pImpl;
+    void                    CreatePlatformImpl();
+    void                    DeletePlatformImpl();
 
 };
 

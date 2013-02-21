@@ -23,6 +23,7 @@
 #include "../Common/AUArray.inl"
 #include "../RuntimeObjectSystem/ObjectInterface.h"
 #include "../RuntimeCompiler/ICompilerLogger.h"
+struct IRuntimeObjectSystem;
 
 struct IObjectFactoryListener
 {
@@ -44,7 +45,8 @@ struct IObjectFactorySystem
 
 	virtual void AddListener(IObjectFactoryListener* pListener) = 0;
 	virtual void RemoveListener(IObjectFactoryListener* pListener) = 0;
-	virtual void SetLogger( ICompilerLogger * pLogger ) = 0;
+	virtual void SetLogger( ICompilerLogger* pLogger ) = 0;
+	virtual void SetRuntimeObjectSystem( IRuntimeObjectSystem* pRuntimeObjectSystem ) = 0;
     virtual ~IObjectFactorySystem() {}
 
 };
