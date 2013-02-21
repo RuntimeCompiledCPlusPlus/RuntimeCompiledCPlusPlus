@@ -44,7 +44,23 @@ public:
     {
         m_bHashadException = false;
     }
-    
+
+	// To allow the debugger to fully catch an exception without it being handled by the RuntimeProtector
+	// call SetProtection( false ). This is mostly of use on Mac OS X where the debugger does not capture all
+	// exception information if protection is enabled.
+	void SetProtection( bool bProtected_ )
+	{
+		m_bProtectionEnabled = bProtected_;
+		if( !m_bProtectionEnabled )
+		{
+			m_bHashadException = false;
+		}
+	}
+	bool IsProtectionEnabled() const
+	{
+		return m_bProtectionEnabled;
+	}
+   
     //exception information (exposed rather than get/set for simplicity)
     enum ExceptionType
     {
@@ -64,13 +80,14 @@ public:
     
     struct Impl;
     Impl*                   m_pImpl;
-	bool					m_bHintAllowDebug;
+    bool                    m_bHintAllowDebug;
 
 protected:
     // don't call this directly, derive a class and implement it for your protected func
     virtual void ProtectedFunc() = 0;
 private:
     bool                    m_bHashadException;
+    bool                    m_bProtectionEnabled;
 };
 
 
