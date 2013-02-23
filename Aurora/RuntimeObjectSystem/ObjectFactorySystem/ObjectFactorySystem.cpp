@@ -20,7 +20,7 @@
 #include "../ObjectInterface.h"
 #include "../ObjectInterfacePerModule.h"
 #include "../IObject.h"
-
+#include "../IRuntimeObjectSystem.h"
 
 
 IObjectConstructor* ObjectFactorySystem::GetConstructor( const char* type ) const
@@ -191,7 +191,7 @@ void ObjectFactorySystem::AddConstructors( IAUDynArray<IObjectConstructor*> &con
 	m_ProtectedPhase = PHASE_NONE;
 	m_pNewConstructors = &constructors;
 	// we use the protected function to do all serialization
-	TryProtectedFunc();
+    m_pRuntimeObjectSystem->TryProtectedFunction( this );
 
 	if( HasHadException() && PHASE_DELETEOLD != m_ProtectedPhase )
 	{

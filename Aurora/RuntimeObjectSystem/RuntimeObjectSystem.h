@@ -90,6 +90,19 @@ public:
 	{
 		return m_bLastLoadModuleSuccess;
 	}
+     virtual unsigned int GetNumberLoadedModules() const
+     {
+         return m_TotalLoadedModulesEver;
+     }
+ 
+     // exception handling to catch and protect main app from crashing when using runtime compiling
+    virtual void SetProtectionEnabled( bool bProtectionEnabled_ );
+	
+    virtual bool IsProtectionEnabled() const
+    {
+        return m_bProtectionEnabled;
+    }
+    virtual bool TryProtectedFunction( RuntimeProtector* pProtectedObject_ );
 
 
 
@@ -137,6 +150,16 @@ private:
 	TFileList				m_LibraryDirList;
 	std::string				m_CompileOptions;
 	std::string				m_LinkOptions;
+    unsigned int            m_TotalLoadedModulesEver;
+    bool                    m_bProtectionEnabled;
+
+    // platform implementation in RuntimeObjectSystem_Plaform*.cpp
+public:
+    struct PlatformImpl;
+private:
+    PlatformImpl*           m_pImpl;
+    void                    CreatePlatformImpl();
+    void                    DeletePlatformImpl();
 
 };
 

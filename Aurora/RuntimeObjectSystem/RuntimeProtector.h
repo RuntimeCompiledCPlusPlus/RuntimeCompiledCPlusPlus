@@ -18,6 +18,10 @@
 
 #pragma once
 
+#ifndef _WIN32
+    #include <setjmp.h> // used by posix type systems to chain handling
+#endif
+
 // class RuntimeProtector
 // overload void ProtectedFunc() to use, put function context (io) in new members
 // do not create threads within protected function
@@ -25,16 +29,20 @@
 // amortize virtual function call and exception handling by processing many things in one call
 // note this isn't a functor as we prefer the explicit function name, and not using lambda's due to Cx11
 // not being supported sufficiently as yet
-class RuntimeProtector
+struct RuntimeProtector
 {
-public:
 	// consctructor, hint allow debug may be ignored when true if on an OS which has not had this implemented
-    RuntimeProtector();
-    virtual ~RuntimeProtector();
+    RuntimeProtector()
+	    : m_bHashadException( false )
+	    , m_bHintAllowDebug( true )
+        , m_ModulesLoadedCount( 0 )
+    {
+    }
 
-    // TryProtectedFunc() calls ProtectedFunc() and if it gets an exception sets m_bHashadException
-    // and returns !m_bHashadException
-    bool TryProtectedFunc();
+    virtual ~RuntimeProtector() {}
+
+     // don't call this directly, derive a class and implement it for your protected func
+    virtual void ProtectedFunc() = 0;
     
     bool HasHadException() const
     {
@@ -44,7 +52,7 @@ public:
     {
         m_bHashadException = false;
     }
-    
+   
     //exception information (exposed rather than get/set for simplicity)
     enum ExceptionType
     {
@@ -62,16 +70,14 @@ public:
     };
     ExceptionInfo_t         ExceptionInfo;
     
-    struct Impl;
-    Impl*                   m_pImpl;
-	bool					m_bHintAllowDebug;
-
-protected:
-    // don't call this directly, derive a class and implement it for your protected func
-    virtual void ProtectedFunc() = 0;
-private:
+    bool                    m_bHintAllowDebug;    // some RuntimeProtectors may not want to allow debug
     bool                    m_bHashadException;
+    
+    // internal 
+    unsigned int            m_ModulesLoadedCount; // used internally to reset exceptions when a new module is loaded
+#ifndef _WIN32
+    jmp_buf                 m_env;
+    RuntimeProtector*       m_pPrevious;          // used by posix type systems to chain handling
+#endif
 };
 
-
-#define AUTRY_RETURN( X )  X; return true;

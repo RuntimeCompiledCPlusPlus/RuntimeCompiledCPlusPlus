@@ -15,14 +15,21 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#include "Exceptions.h"
+#include "RuntimeProtector.h"
+#include "RuntimeObjectSystem.h"
 
+#define WIN32_LEAN_AND_MEAN
 #include "Windows.h"
 #include "WinBase.h"
 #include "excpt.h"
 #include <assert.h>
 
-struct RuntimeProtector::Impl
+// windows includes can cause GetObject to be defined, we undefine it here.
+#ifdef GetObject
+    #undef GetObject
+#endif
+
+struct RuntimeObjectSystem::PlatformImpl
 {
 
 	enum ExceptionState
@@ -33,7 +40,7 @@ struct RuntimeProtector::Impl
 
 	ExceptionState s_exceptionState;
 
-	Impl()
+	PlatformImpl()
 		: s_exceptionState( ES_PASS )
 	{
 	}
@@ -96,7 +103,7 @@ struct RuntimeProtector::Impl
 
 		if (nCode == EXCEPTION_ACCESS_VIOLATION)
 		{
-			int flavour = pRecord->ExceptionInformation[0];
+			ULONG_PTR flavour = pRecord->ExceptionInformation[0];
 			switch( flavour )
 			{
 			case 0: 
@@ -128,32 +135,53 @@ struct RuntimeProtector::Impl
 	}
 };
 
-RuntimeProtector::RuntimeProtector()
-    : m_pImpl( new Impl() )
-	, m_bHashadException( false )
-	, m_bHintAllowDebug( true )
+void RuntimeObjectSystem::CreatePlatformImpl()
 {
+    m_pImpl = new PlatformImpl();
 }
-
-RuntimeProtector::~RuntimeProtector()
+void RuntimeObjectSystem::DeletePlatformImpl()
 {
     delete m_pImpl;
 }
 
-bool RuntimeProtector::TryProtectedFunc()
+void RuntimeObjectSystem::SetProtectionEnabled( bool bProtectionEnabled_ )
 {
-	m_bHashadException = false;
-	__try
+    m_bProtectionEnabled = bProtectionEnabled_;
+}
+
+
+bool RuntimeObjectSystem::TryProtectedFunction( RuntimeProtector* pProtectedObject_ )
+{
+    bool bJustCaughtException = false;
+    if( m_TotalLoadedModulesEver != pProtectedObject_->m_ModulesLoadedCount )
     {
-		ProtectedFunc();
-	}
-    __except( m_pImpl->SimpleExceptionFilter( GetExceptionInformation(), this ) )
+        // clear exceptions if we've just loaded a new module
+        pProtectedObject_->m_ModulesLoadedCount = m_TotalLoadedModulesEver;
+    	pProtectedObject_->m_bHashadException = false;
+    }
+	if( m_bProtectionEnabled )
 	{
-		// If we hit any structured exception, exceptionInfo will be initialized
-		// If it's one we recognise and we hinted for no debugging, we'll go straight here, with info filled out
-		// If not we'll go to debugger first, then here
-		m_bHashadException = true;
+        if( !pProtectedObject_->m_bHashadException )
+        {
+	        __try
+            {
+		        pProtectedObject_->ProtectedFunc();
+	        }
+            __except( m_pImpl->SimpleExceptionFilter( GetExceptionInformation(), pProtectedObject_ ) )
+	        {
+		        // If we hit any structured exception, exceptionInfo will be initialized
+		        // If it's one we recognise and we hinted for no debugging, we'll go straight here, with info filled out
+		        // If not we'll go to debugger first, then here
+		        pProtectedObject_->m_bHashadException = true;
+                bJustCaughtException = true;
+	        }
+         }
 	}
-	return !m_bHashadException;
+	else
+	{
+    	pProtectedObject_->m_bHashadException = false;
+		pProtectedObject_->ProtectedFunc();
+	}
+	return !bJustCaughtException;
 }
 

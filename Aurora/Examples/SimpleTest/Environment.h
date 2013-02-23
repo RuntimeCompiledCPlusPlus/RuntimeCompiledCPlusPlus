@@ -20,9 +20,6 @@
 #ifndef ENVIRONMENT_INCLUDED
 #define ENVIRONMENT_INCLUDED
 
-#include "../../RuntimeObjectSystem/Exceptions.h"
-
-
 struct SystemTable;
 struct IGame;
 struct ICompilerLogger;
