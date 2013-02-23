@@ -24,6 +24,7 @@
 #include "../../RuntimeObjectSystem/ObjectInterface.h"
 #include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
 #include "../../RuntimeObjectSystem/IRuntimeObjectSystem.h"
+#include "../../RuntimeObjectSystem/RuntimeProtector.h"
 #include "../../Common/AUArray.inl"
 #include "../../Systems/IGame.h"
 #include <Rocket/Core/EventListener.h>
@@ -44,6 +45,7 @@ class AURenderContext;
 struct ICameraControl;
 struct ILightingControl;
 typedef int AUEntityId;
+struct IEntitySystem;
 
 
 class Game : public IGame, public IObjectFactoryListener
@@ -104,12 +106,25 @@ private:
 	ICameraControl*		m_pCameraControl;
 	ILightingControl*	m_pLightingControl;
 
-	bool				m_bHaveProgramError;
 	double				m_fLastUpdateSessionTime;
 	double				m_CompileStartedTime;
 
 
 	float				m_GameSpeed;
+
+    // Local class definition for handling protected update
+    class EntityUpdateProtector : public RuntimeProtector
+    {
+    public:
+        AUDynArray<AUEntityId>  entities;
+        float                   fDeltaTime;
+        IEntitySystem*          pEntitySystem;
+    
+    private:
+        virtual void ProtectedFunc();
+
+    };
+    EntityUpdateProtector m_EntityUpdateProtector;
 
 };
 

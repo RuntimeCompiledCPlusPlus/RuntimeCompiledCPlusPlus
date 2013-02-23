@@ -22,6 +22,10 @@
 	James Wynn james@jameswynn.com
 */
 
+/**
+    Major changes Doug Binks
+ **/
+
 #include "FileWatcherOSX.h"
 
 #if FILEWATCHER_PLATFORM == FILEWATCHER_PLATFORM_KQUEUE
@@ -35,59 +39,50 @@
 #include <stdlib.h>
 #include <dirent.h>
 #include <string.h>
-
+#include <assert.h>
 
 namespace FW
 {
 	
-#define MAX_CHANGE_EVENT_SIZE 2048
+#define MAX_FILELIST_SIZE 2048
 	
 	typedef struct kevent KEvent;
 	
-	struct EntryStruct
+	struct FileInfo
 	{
-		EntryStruct(const char* filename, time_t mtime = 0)
-		: mFilename(filename), mModifiedTime(mtime)
+		FileInfo()
+		: mFilename(0), mModifiedTime(0)
 		{
-		}
-		~EntryStruct()
-		{
-			delete[] mFilename;
 		}
 		const char* mFilename;
 		time_t mModifiedTime;
 	};
-	
-	int comparator(const void* ke1, const void* ke2)
-	{
-		///*
-        KEvent* kevent1 = (KEvent*) ke1;
-		KEvent* kevent2 = (KEvent*) ke2;
-		
-		EntryStruct* event1 = (EntryStruct*)kevent1->udata;
-		EntryStruct* event2 = (EntryStruct*)kevent2->udata;
-		int retVal = strcmp(event1->mFilename, event2->mFilename);
+    
+    int comparator(const void* f1, const void* f2)
+    {
+        FileInfo* finfo1 = (FileInfo*)f1;
+        FileInfo* finfo2 = (FileInfo*)f2;
+        
+        int retVal = strcmp(finfo1->mFilename, finfo2->mFilename);
         
         return retVal;
-		//*/
-		//return strcmp(((EntryStruct*)(((KEvent*)(ke1))->udata))->mFilename, ((EntryStruct*)(((KEvent*)(ke2))->udata))->mFilename);
-	}
-	
+    }
+    
+    
 	struct WatchStruct
 	{
-		WatchID mWatchID;
-		String mDirName;
-		FileWatchListener* mListener;
+		WatchID             mWatchID;
+		String              mDirName;
+		FileWatchListener*  mListener;
+        KEvent              mDirKevent;
 		
-		// index 0 is always the directory
-		KEvent mChangeList[MAX_CHANGE_EVENT_SIZE];
-		size_t mChangeListCount;
+		FileInfo            mFileList[MAX_FILELIST_SIZE];
+		size_t              mFileListCount;
 		
 		WatchStruct(WatchID watchid, const String& dirname, FileWatchListener* listener)
-		: mWatchID(watchid), mDirName(dirname), mListener(listener)
+		: mWatchID(watchid), mDirName(dirname), mListener(listener), mFileListCount( 0 )
 		{
-			mChangeListCount = 0;
-			addAll();
+			addAll(true);
 		}
         
         ~WatchStruct()
@@ -95,66 +90,41 @@ namespace FW
             removeAll();
         }
 		
-		void addFile(const std::string& name, bool imitEvents = true)
+		void addFile(const std::string& name)
 		{
-			//fprintf(stderr, "ADDED: %s\n", name.c_str());
-			
-			// create entry
+			// create entry in file list
 			struct stat attrib;
 			stat(name.c_str(), &attrib);
-			
-			int fd = open(name.c_str(), O_RDONLY);
-			
-			++mChangeListCount;
-			
+
 			char* namecopy = new char[name.length() + 1];
 			strncpy(namecopy, name.c_str(), name.length());
 			namecopy[name.length()] = 0;
-			EntryStruct* entry = new EntryStruct(namecopy, attrib.st_mtime);
+            mFileList[mFileListCount].mFilename = namecopy;
+            mFileList[mFileListCount].mModifiedTime = attrib.st_mtime;
+			++mFileListCount;
 			
-			// set the event data at the end of the list
-			EV_SET(&mChangeList[mChangeListCount], fd, EVFILT_VNODE,
-				   EV_ADD | EV_ENABLE | EV_ONESHOT,
-				   NOTE_DELETE | NOTE_EXTEND | NOTE_WRITE | NOTE_ATTRIB,
-				   0, (void*)entry);
-			
-			// qsort
-			//qsort(mChangeList + 1, mChangeListCount, sizeof(KEvent), comparator);
-			
-			// handle action
-			if(imitEvents)
-				handleAction(name, Actions::Add);
 		}
-		
-		void removeFile(const std::string& name, bool imitEvents = true)
+		void removeFile(const std::string& name)
 		{
 			// bsearch
-			KEvent target;
-			EntryStruct tempEntry(name.c_str(), 0);
-			target.udata = &tempEntry;
-			KEvent* ke = (KEvent*)bsearch(&target, &mChangeList, mChangeListCount + 1, sizeof(KEvent), comparator);
-			if(!ke)
+			FileInfo key;
+			key.mFilename =  name.c_str();
+			FileInfo* found = (FileInfo*)bsearch(&key, &mFileList, mFileListCount, sizeof(FileInfo), comparator);
+			if(!found)
+            {
 				return;
+            }
             
-			tempEntry.mFilename = 0;
-			
-			// delete
-			close((int)ke->ident);
-			delete((EntryStruct*)ke->udata);
-			memset(ke, 0, sizeof(KEvent));
-			
+			key.mFilename = 0; // prevent deletion of key string
+			delete found->mFilename;
+            found->mFilename = 0;
+            
+            assert( mFileListCount > 1 );
 			// move end to current
-			memcpy(ke, &mChangeList[mChangeListCount], sizeof(KEvent));
-			memset(&mChangeList[mChangeListCount], 0, sizeof(KEvent));
-			--mChangeListCount;
-			
-			// qsort
-			//qsort(mChangeList + 1, mChangeListCount, sizeof(KEvent), comparator);
-			
-			// handle action
-			if(imitEvents)
-				handleAction(name, Actions::Delete);
-		}
+			memcpy(found, &mFileList[mFileListCount-1], sizeof(FileInfo));
+			memset(&mFileList[mFileListCount-1], 0, sizeof(FileInfo));
+			--mFileListCount;
+        }
 		
 		// called when the directory is actually changed
 		// means a file has been added or removed
@@ -169,8 +139,7 @@ namespace FW
 				return;
 			
 			struct dirent* dentry;
-			KEvent* ke = &mChangeList[1];
-			EntryStruct* entry = 0;
+			size_t fileIndex = 0;
 			struct stat attrib;			
 			bool bRescanRequired = false; //if files are added or deleted we need a rescan.
 			while((dentry = readdir(dir)) != NULL)
@@ -180,22 +149,21 @@ namespace FW
 				if(!S_ISREG(attrib.st_mode))
 					continue;
 				
-				if(ke <= &mChangeList[mChangeListCount])
+				if( fileIndex < mFileListCount )
 				{
-					entry = (EntryStruct*)ke->udata;
-					int result = strcmp(entry->mFilename, fname.c_str());
-					//fprintf(stderr, "[%s cmp %s]\n", entry->mFilename, fname.c_str());
+					FileInfo& entry = mFileList[fileIndex];
+					int result = strcmp(entry.mFilename, fname.c_str());
 					if(result == 0)
 					{
-						stat(entry->mFilename, &attrib);
+						stat(entry.mFilename, &attrib);
 						time_t timestamp = attrib.st_mtime;
 						
-						if(entry->mModifiedTime != timestamp)
+						if(entry.mModifiedTime != timestamp)
 						{
-							entry->mModifiedTime = timestamp;
-							handleAction(entry->mFilename, Actions::Modified);
+							entry.mModifiedTime = timestamp;
+							handleAction(entry.mFilename, Actions::Modified);
 						}
-						ke++;
+						++fileIndex;
 					}
                     else
                     {
@@ -203,76 +171,62 @@ namespace FW
                         // if we find the file in our list, then we have some deletions up to that point
                         // otherwise we have an add
                         bRescanRequired = true;
-                        KEvent* currKe = ke+1;
-                        while( currKe <= &mChangeList[mChangeListCount])
+                        size_t currFile = fileIndex+1;
+                        while( currFile < mFileListCount )
                         {
-                            entry = (EntryStruct*)currKe->udata;
-                            int res = strcmp(entry->mFilename, fname.c_str());
+                            FileInfo& entry = mFileList[currFile];
+                            int res = strcmp(entry.mFilename, fname.c_str());
                             if(res == 0)
                             {
                                 //have found the file in our list
                                 break;
                             }
-                            ++currKe;
+                            ++currFile;
                         }
                         
                         //process events but don't add/remove to list.
-                        if( currKe <= &mChangeList[mChangeListCount] )
+                        if( currFile < mFileListCount )
                         {
                            //have some deletions.
-                           while( ke < currKe )
+                           while( fileIndex < currFile )
                            {
-                               entry = (EntryStruct*)ke->udata;
-                               handleAction(entry->mFilename, Actions::Delete);
-                               ++ke;
+                               FileInfo& entry = mFileList[currFile];
+                               handleAction(entry.mFilename, Actions::Delete);
+                               ++fileIndex;
                            }
-                            ++ke;
+                            ++fileIndex;
                         }
                         else
                         {
-                            //we don't increment ke here as it's an add in the middle.
+                            //we don't increment fileIndex here as it's an add in the middle.
                             handleAction(fname.c_str(), Actions::Add);
                         }
                     }
-                    /*
-					else if(result < 0)
-					{
-						// f1 was deleted
-						removeFile(entry->mFilename);
-						ke++;
-					}
-					else
-					{
-						// f2 was created
-						addFile(fname);
-						ke++;
-					}
-                     */
-				}
+ 				}
 				else
 				{
 					// just add
-					addFile(fname);
-					ke++;
+ 					addFile(fname);
+                    handleAction(fname.c_str(), Actions::Add);
+					++fileIndex;
 				}
 			}//end while
 			
 			closedir(dir);
             
-            while( ke <= &mChangeList[mChangeListCount] )
+            while( fileIndex < mFileListCount )
             {
                 // the last files have been deleted...
                 bRescanRequired = true;
-                entry = (EntryStruct*)ke->udata;
-                handleAction(entry->mFilename, Actions::Delete);
-                ++ke;
-                
+                FileInfo& entry = mFileList[fileIndex];
+                handleAction(entry.mFilename, Actions::Delete);
+                ++fileIndex;
             }
             
             if( bRescanRequired )
             {
                 removeAll();
-                addAll();
+                addAll(false);
             }
 		};
 		
@@ -281,14 +235,17 @@ namespace FW
 			mListener->handleFileAction(mWatchID, mDirName, filename, action);
 		}
 		
-		void addAll()
+		void addAll( bool bCreatedirevent )
 		{
-			// add base dir
-			int fd = open(mDirName.c_str(), O_RDONLY);
-			EV_SET(&mChangeList[0], fd, EVFILT_VNODE,
-				   EV_ADD | EV_ENABLE | EV_CLEAR,
-				   NOTE_DELETE | NOTE_EXTEND | NOTE_WRITE | NOTE_ATTRIB,
-				   0, 0);
+            if( bCreatedirevent )
+            {
+                // add base dir
+                int fd = open(mDirName.c_str(), O_RDONLY);
+                EV_SET(&mDirKevent, fd, EVFILT_VNODE,
+                       EV_ADD | EV_ENABLE | EV_CLEAR,
+                       NOTE_DELETE | NOTE_EXTEND | NOTE_WRITE | NOTE_ATTRIB,
+                       0, 0);
+            }
 			
 			//fprintf(stderr, "ADDED: %s\n", mDirName.c_str());			
 			
@@ -304,7 +261,7 @@ namespace FW
                 std::string fname = (mDirName.m_string + "/" + std::string(entry->d_name));
 				stat(fname.c_str(), &attrib);
 				if(S_ISREG(attrib.st_mode))
-					addFile(fname, false);
+					addFile(fname);
 				//else
 				//	fprintf(stderr, "NOT ADDED: %s (%d)\n", fname.c_str(), attrib.st_mode);
 
@@ -315,17 +272,15 @@ namespace FW
 		
 		void removeAll()
 		{
-			KEvent* ke = NULL;
-			
-			// go through list removing each file and sending an event
-			for(int i = 0; i < mChangeListCount; ++i)
+			// go through list removing each file but not the directory
+			for(int i = 0; i < mFileListCount; ++i)
 			{
-				ke = &mChangeList[i];
+				FileInfo& entry = mFileList[i];
 				// delete
-				close((int)ke->ident);
-				delete((EntryStruct*)ke->udata);
+				delete[] entry.mFilename;
+                entry.mModifiedTime = 0;
 			}
-            mChangeListCount = 0;
+            mFileListCount = 0;
 		}
 	};
 	
@@ -348,7 +303,7 @@ namespace FW
                 for(; iter != end; ++iter)
                 {
                     WatchStruct* watch = iter->second;
-                    if( event.ident ==  watch->mChangeList[0].ident )
+                    if( event.ident ==  watch->mDirKevent.ident )
                     {
                         watch->rescan();
                         break;
@@ -397,7 +352,7 @@ namespace FW
 		mWatches.insert(std::make_pair(mLastWatchID, watch));
         
         // DJB we add the event to our kqueue (but don't request any return events, these are looked for in update loop
-        kevent(mDescriptor, (KEvent*)&(watch->mChangeList), 1, 0, 0, 0);
+        kevent(mDescriptor, (KEvent*)&(watch->mDirKevent), 1, 0, 0, 0);
         
 		return mLastWatchID;
 	}
@@ -437,6 +392,7 @@ namespace FW
 	//--------
 	void FileWatcherOSX::handleAction(WatchStruct* watch, const String& filename, unsigned long action)
 	{
+        assert(false);//should not get here for OSX impl
 	}
 
 };//namespace FW

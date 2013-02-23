@@ -22,7 +22,7 @@
 
 #include "../IObjectFactorySystem.h"
 #include "../SimpleSerializer/SimpleSerializer.h"
-#include "../Exceptions.h"
+#include "../RuntimeProtector.h"
 #include <map>
 #include <string>
 #include <set>
@@ -39,6 +39,7 @@ public:
 		, m_pNewConstructors( 0 )
 		, m_ProtectedPhase(PHASE_NONE)
 		, m_pSerializer( 0 )
+        , m_pRuntimeObjectSystem( 0 )
 	{
 	}
 
@@ -55,6 +56,10 @@ public:
 	{
 		m_pLogger = pLogger;
 	}
+    virtual void SetRuntimeObjectSystem( IRuntimeObjectSystem* pRuntimeObjectSystem )
+    {
+        m_pRuntimeObjectSystem = pRuntimeObjectSystem;
+    }
 
 
 	// RuntimeProtector implementation
@@ -68,6 +73,7 @@ private:
 	std::vector<IObjectConstructor*> m_Constructors;
 	TObjectFactoryListeners m_Listeners;
 	ICompilerLogger* m_pLogger;
+    IRuntimeObjectSystem* m_pRuntimeObjectSystem;
 
 	// temp data needed during object swap
 	IAUDynArray<IObjectConstructor*>*	m_pNewConstructors;

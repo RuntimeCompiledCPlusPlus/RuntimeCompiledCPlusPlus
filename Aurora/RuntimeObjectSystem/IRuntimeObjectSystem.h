@@ -24,6 +24,7 @@ struct ICompilerLogger;
 struct IObjectFactorySystem;
 struct IFileChangeNotifier;
 class  BuildTool;
+struct RuntimeProtector;
 
 struct IRuntimeObjectSystem
 {
@@ -36,6 +37,10 @@ public:
 	virtual bool GetIsCompiledComplete() = 0;
 	virtual bool LoadCompiledModule() = 0;
 	virtual bool GetLastLoadModuleSuccess() const = 0;
+
+    // GetNumberLoadedModules() returns total number successfully loaded, not current number loaded
+    // Mainly useful for detected wether a new module has been loaded by checking for change
+    virtual unsigned int GetNumberLoadedModules() const = 0;
 
 	virtual IObjectFactorySystem* GetObjectFactorySystem() const = 0;
 	virtual IFileChangeNotifier* GetFileChangeNotifier() const = 0;
@@ -53,6 +58,11 @@ public:
 
 	//ensure subclasses are deleted correctly
 	virtual ~IRuntimeObjectSystem(){};
+
+    // exception handling to catch and protect main app from crashing when using runtime compiling
+    virtual void SetProtectionEnabled( bool bProtectionEnabled_ ) = 0;
+	virtual bool IsProtectionEnabled() const = 0;
+    virtual bool TryProtectedFunction( RuntimeProtector* pProtectedObject_ ) = 0;
 };
 
 #endif // IRUNTIMEOBJECTSYSTEM_INCLUDED

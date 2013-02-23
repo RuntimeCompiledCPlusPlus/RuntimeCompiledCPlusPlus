@@ -71,6 +71,25 @@
 using FileSystemUtils::Path;
 
 
+void Game::EntityUpdateProtector::ProtectedFunc()
+{
+	for (size_t i=0; i<entities.Size(); ++i)
+	{
+		IAUEntity* pEnt = pEntitySystem->Get(entities[i]);
+		if (pEnt) // Safety check in case entity was deleted during this update by another object
+		{
+			IAUUpdateable* pUpdateable = pEnt->GetUpdateable();
+			if (pUpdateable)
+			{
+				// If dropped here after a runtime failure, your crash was likely
+				// somewhere directly in the pUpdatable object's Update method
+				pUpdateable->Update(fDeltaTime);
+			}
+		}
+	}
+}
+
+
 // Global pointer to Game object necessary so we can do callback to Game::MainLoop method
 // Could be dangerous if we're instantiating multiple Game objects for some reason
 static Game* g_pGame = NULL;
@@ -90,7 +109,6 @@ Game::Game()
 	, m_bRenderError(false)
 	, m_pCameraControl(0)
 	, m_pLightingControl(0)
-	, m_bHaveProgramError(false)
 	, m_fLastUpdateSessionTime(-1)
 	, m_GameSpeed(1.0f)
 	, m_CompileStartedTime(0.0)
@@ -139,6 +157,7 @@ bool Game::Init()
 	m_pEnv->sys->pObjectFactorySystem->AddListener(this);
 
 	m_pConsole = new Console(m_pEnv, m_pRocketContext);
+	m_EntityUpdateProtector.pEntitySystem = m_pEnv->sys->pEntitySystem;
 
 	return true;
 }
@@ -198,34 +217,7 @@ void Game::GetWindowSize( float& width, float& height ) const
 	height = (float)WindowSize[3];
 }
 
-// Local class definition for handling protected update
-class EntityUpdateProtector : public RuntimeProtector
-{
-public:
-    AUDynArray<AUEntityId>  entities;
-    float                   fDeltaTime;
-    IEntitySystem*          pEntitySystem;
-    
-private:
-    virtual void ProtectedFunc()
-    {
-		for (size_t i=0; i<entities.Size(); ++i)
-		{
-			IAUEntity* pEnt = pEntitySystem->Get(entities[i]);
-			if (pEnt) // Safety check in case entity was deleted during this update by another object
-			{
-				IAUUpdateable* pUpdateable = pEnt->GetUpdateable();
-				if (pUpdateable)
-				{
-					// If dropped here after a runtime failure, your crash was likely
-					// somewhere directly in the pUpdatable object's Update method
-					pUpdateable->Update(fDeltaTime);
-				}
-			}
-		}
-    }
 
-};
 
 void Game::MainLoop()
 {
@@ -254,20 +246,15 @@ void Game::MainLoop()
 
 	pTimeSystem->StartFrame();
 
-	if( !m_bHaveProgramError )
-	{
-        EntityUpdateProtector entityUpdateProtector;
-		AUDynArray<AUEntityId> entities;
-		entityUpdateProtector.pEntitySystem = m_pEnv->sys->pEntitySystem;
-		entityUpdateProtector.pEntitySystem->GetAll(entityUpdateProtector.entities);
-        entityUpdateProtector.fDeltaTime = fClampedDelta;
+	AUDynArray<AUEntityId> entities;
+	m_EntityUpdateProtector.pEntitySystem->GetAll(m_EntityUpdateProtector.entities);
+    m_EntityUpdateProtector.fDeltaTime = fClampedDelta;
 		
-		if (!entityUpdateProtector.TryProtectedFunc())
-		{
-			m_bHaveProgramError = true;
-			m_pEnv->sys->pLogSystem->Log(eLV_ERRORS, "Have caught an exception in main entity Update loop, code will not be run until new compile - please fix.\n");
-		}
+    if (!m_pEnv->sys->pRuntimeObjectSystem->TryProtectedFunction( &m_EntityUpdateProtector ) )
+	{
+		m_pEnv->sys->pLogSystem->Log(eLV_ERRORS, "Have caught an exception in main entity Update loop, code will not be run until new compile - please fix.\n");
 	}
+
 
 	if (!m_pCameraControl || !m_pLightingControl)
 	{
@@ -292,8 +279,6 @@ void Game::MainLoop()
 		m_pConsole->OnCompileDone(bSuccess);
 		if( bSuccess )
 		{
-			// reset program error status
-			m_bHaveProgramError = false;
 			float compileAndLoadTime = (float)( pTimeSystem->GetSessionTimeNow() - m_CompileStartedTime );
 			m_pEnv->sys->pLogSystem->Log(eLV_COMMENTS, "Compile and Module Reload Time: %.1f s\n", compileAndLoadTime);
 
