@@ -16,6 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "Behavior_RBC_Base.h"
+#include <float.h>
 
 /* Demo [Tutorial03]
 class Behavior_RBC_Evade : public Behavior_RBC_Base
@@ -74,3 +75,4 @@ class CDummy : public IObject
 };
 
 REGISTERCLASS(CDummy);
+
