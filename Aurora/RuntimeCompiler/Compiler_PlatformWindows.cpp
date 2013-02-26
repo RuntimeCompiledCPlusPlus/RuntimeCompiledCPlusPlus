@@ -366,7 +366,7 @@ char* pCharTypeFlags = "";
 		+ "/D WIN32 /EHa /Fe" + outputFile.m_string;
 	cmdToSend += " " + strIncludeFiles + " " + strFilesToCompile + strLinkLibraries + linkOptions
 		+ "\necho ";
-	if( m_pImplData->m_pLogger ) m_pImplData->m_pLogger->LogInfo( cmdToSend.c_str() );
+	if( m_pImplData->m_pLogger ) m_pImplData->m_pLogger->LogInfo( "%s", cmdToSend.c_str() ); // use %s to prevent any tokens in compile string being interpreted as formating
 	cmdToSend += c_CompletionToken + "\n";
 	WriteInput( m_pImplData->m_CmdProcessInputWrite, cmdToSend );
 }
