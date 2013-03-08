@@ -21,6 +21,7 @@
 #include <string>
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <sys/stat.h>
 
 #ifdef _WIN32

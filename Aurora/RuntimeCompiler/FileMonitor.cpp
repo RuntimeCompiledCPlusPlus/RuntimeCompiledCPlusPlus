@@ -31,8 +31,8 @@ using namespace std;
 
 FileMonitor::FileMonitor()
 	: m_changeNotifications(CHANGE_QUEUE_SIZE)
-	, m_bChangeFlag(false)
 	, m_pFileWatcher( new FW::FileWatcher() ) // Create the file watch object
+	, m_bChangeFlag(false)
 {
 }
 
