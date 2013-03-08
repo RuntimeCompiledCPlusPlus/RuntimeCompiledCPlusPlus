@@ -11,7 +11,7 @@ class RuntimeObject01 : public TInterface<IID_IUPDATEABLE,IUpdateable>
 public:
 	virtual void Update( float deltaTime )
 	{
-		std::cout << "Runtime Object 01 update called!\n";
+		std::cout << "Runtime Object 01 Asdkj update called!\n";
 	}
 };
 

@@ -43,7 +43,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="SimpleFileWatcher/FileWatcherWin32.cpp|RuntimeCompiler.xcodeproj|Compiler_PlatformWindows.cpp|SimpleFileWatcher/FileWatcherLinux.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="SimpleFileWatcher/FileWatcherOSX.cpp|SimpleFileWatcher/FileWatcherWin32.cpp|RuntimeCompiler.xcodeproj|Compiler_PlatformWindows.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -91,7 +91,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="SimpleFileWatcher/FileWatcherWin32.cpp|RuntimeCompiler.xcodeproj|Compiler_PlatformWindows.cpp|SimpleFileWatcher/FileWatcherLinux.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="SimpleFileWatcher/FileWatcherOSX.cpp|SimpleFileWatcher/FileWatcherWin32.cpp|RuntimeCompiler.xcodeproj|Compiler_PlatformWindows.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

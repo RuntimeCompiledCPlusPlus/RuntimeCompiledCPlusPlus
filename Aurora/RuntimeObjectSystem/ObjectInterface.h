@@ -21,6 +21,7 @@
 #define OBJECTINTERFACE_INCLUDED
 
 #include <vector>
+#include <stdlib.h>
 
 struct SystemTable; //This is the interface to your own engine code, which you need to define yourself if required.
 struct IObject;
