@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		91977BBD16EB398A003FAE7A /* libRuntimeCompiler.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 91977BBB16EB398A003FAE7A /* libRuntimeCompiler.a */; };
+		91977BBE16EB398A003FAE7A /* libRuntimeObjectSystem.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 91977BBC16EB398A003FAE7A /* libRuntimeObjectSystem.a */; };
 		91DE41E7161B1BB800BE0D16 /* ConsoleExample.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 91DE41DF161B1BB800BE0D16 /* ConsoleExample.cpp */; };
 		91DE41E8161B1BB800BE0D16 /* ConsoleGame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 91DE41E0161B1BB800BE0D16 /* ConsoleGame.cpp */; };
 		91DE41E9161B1BB800BE0D16 /* RuntimeObject01.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 91DE41E4161B1BB800BE0D16 /* RuntimeObject01.cpp */; };
@@ -26,6 +28,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		91977BBB16EB398A003FAE7A /* libRuntimeCompiler.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRuntimeCompiler.a; path = "../../../../../../../Library/Developer/Xcode/DerivedData/Aurora-amgiihqkoasuvzdugsovjupxbfdk/Build/Products/Debug/libRuntimeCompiler.a"; sourceTree = "<group>"; };
+		91977BBC16EB398A003FAE7A /* libRuntimeObjectSystem.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRuntimeObjectSystem.a; path = "../../../../../../../Library/Developer/Xcode/DerivedData/Aurora-amgiihqkoasuvzdugsovjupxbfdk/Build/Products/Debug/libRuntimeObjectSystem.a"; sourceTree = "<group>"; };
 		91A171CE161B175E004B5954 /* ConsoleExample */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ConsoleExample; sourceTree = BUILT_PRODUCTS_DIR; };
 		91DE41DF161B1BB800BE0D16 /* ConsoleExample.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConsoleExample.cpp; sourceTree = "<group>"; };
 		91DE41E0161B1BB800BE0D16 /* ConsoleGame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConsoleGame.cpp; sourceTree = "<group>"; };
@@ -42,6 +46,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				91977BBD16EB398A003FAE7A /* libRuntimeCompiler.a in Frameworks */,
+				91977BBE16EB398A003FAE7A /* libRuntimeObjectSystem.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -51,6 +57,8 @@
 		91A171C3161B175E004B5954 = {
 			isa = PBXGroup;
 			children = (
+				91977BBB16EB398A003FAE7A /* libRuntimeCompiler.a */,
+				91977BBC16EB398A003FAE7A /* libRuntimeObjectSystem.a */,
 				91DE41DF161B1BB800BE0D16 /* ConsoleExample.cpp */,
 				91DE41E0161B1BB800BE0D16 /* ConsoleGame.cpp */,
 				91DE41E1161B1BB800BE0D16 /* ConsoleGame.h */,
@@ -196,6 +204,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../../External/boost/stage/libOSX\"",
+					"\"$(SRCROOT)/../../../../../../../Library/Developer/Xcode/DerivedData/Aurora-amgiihqkoasuvzdugsovjupxbfdk/Build/Products/Debug\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = "";
@@ -209,6 +218,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../../External/boost/stage/libOSX\"",
+					"\"$(SRCROOT)/../../../../../../../Library/Developer/Xcode/DerivedData/Aurora-amgiihqkoasuvzdugsovjupxbfdk/Build/Products/Debug\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = "";
