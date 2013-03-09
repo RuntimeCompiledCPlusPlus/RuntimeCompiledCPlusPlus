@@ -323,18 +323,22 @@ namespace FileSystemUtils
 	}
 
 
-	inline Path operator/( const Path& lhs_, const Path& rhs_ )
-	{
-		std::string strlhs = lhs_.m_string;
-		while( strlhs.length() && strlhs.find_last_of( FILESYSTEMUTILS_SEPERATORS ) == strlhs.length()-1 )
-		{
-			strlhs.erase(strlhs.length()-1, 1);
-		}
-
-		//note: should probably remove preceding seperators to rhs_, but this has not as yet occured
-		Path join = strlhs + Path::seperator + rhs_.m_string;
-		return join;
-	}
+    inline Path operator/( const Path& lhs_, const Path& rhs_ )
+    {
+        if( 0 == lhs_.m_string.length() )
+        {
+            return rhs_;
+        }
+        std::string strlhs = lhs_.m_string;
+        while( strlhs.length() && strlhs.find_last_of( FILESYSTEMUTILS_SEPERATORS ) == strlhs.length()-1 )
+        {
+        	strlhs.erase(strlhs.length()-1, 1);
+        }
+        
+        //note: should probably remove preceding seperators to rhs_, but this has not as yet occured
+        Path join = strlhs + Path::seperator + rhs_.m_string;
+        return join;
+    }
 
 	inline bool operator==(  const Path& lhs_, const Path& rhs_ )
 	{

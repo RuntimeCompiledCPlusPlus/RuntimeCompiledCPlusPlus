@@ -36,7 +36,9 @@ struct RuntimeProtector
 	    : m_bHashadException( false )
 	    , m_bHintAllowDebug( true )
         , m_ModulesLoadedCount( 0 )
+#ifndef _WIN32
     	, m_pPrevious( 0 )
+#endif
     {
     }
 
