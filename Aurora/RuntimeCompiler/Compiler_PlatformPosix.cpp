@@ -208,9 +208,9 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 	#endif
 #else
 	#ifdef DEBUG
-		std::string compileString = "g++ -g -O0 -fvisibility=hidden -Xlinker -dylib ";
+		std::string compileString = "g++ -g -O0 -fPIC -fvisibility=hidden -shared ";
 	#else
-		std::string compileString = "g++ -g -Os -fvisibility=hidden -Xlinker -dylib ";
+		std::string compileString = "g++ -g -Os -fPIC -fvisibility=hidden -shared ";
 	#endif
 #endif //__APPLE__
     
