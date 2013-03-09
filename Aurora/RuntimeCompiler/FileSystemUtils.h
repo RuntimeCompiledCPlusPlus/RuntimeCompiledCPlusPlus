@@ -30,9 +30,13 @@
 	#define WIN32_LEAN_AND_MEAN
 	#include <windows.h>
 	#undef GetObject
+
+	#define FILESYSTEMUTILS_SEPERATORS "/\\"
 #else
 	#include <unistd.h>
+	#define FILESYSTEMUTILS_SEPERATORS "/"
 #endif
+
 
 namespace FileSystemUtils
 {
@@ -74,6 +78,9 @@ namespace FileSystemUtils
 		Path Filename()					const;
 		Path ParentPath()				const;
 		Path DelimitersToOSDefault()	const;
+
+		// returns a path cleaned of /../ by removing prior dir
+		Path GetCleanPath()				const;
 
 		// replaces extension if one exists, or adds it if not
 		void ReplaceExtension( const std::string& ext );
@@ -267,26 +274,22 @@ namespace FileSystemUtils
 	{
 		Path parentpath = m_string;
 
-#ifdef _WIN32
-		const char* seperators = "/\\";
-#else
-		const char* seperators = "/";
-#endif
+
 		//remove any trailing seperators
-		while( parentpath.m_string.find_last_of( seperators ) == parentpath.m_string.length() )
+		while( parentpath.m_string.find_last_of( FILESYSTEMUTILS_SEPERATORS ) == parentpath.m_string.length()-1 )
 		{
-			parentpath.m_string.erase(parentpath.m_string.length(), 1);
+			parentpath.m_string.erase(parentpath.m_string.length()-1, 1);
 		}
 
-		size_t pos = parentpath.m_string.find_last_of( seperators );
+		size_t pos = parentpath.m_string.find_last_of( FILESYSTEMUTILS_SEPERATORS );
 		if( pos < parentpath.m_string.length() )
 		{
 			parentpath = parentpath.m_string.substr(0, pos);
 
 			//remove any trailing seperators
-			while( parentpath.m_string.find_last_of( seperators ) == parentpath.m_string.length() )
+			while( parentpath.m_string.find_last_of( FILESYSTEMUTILS_SEPERATORS ) == parentpath.m_string.length()-1)
 			{
-                parentpath.m_string.erase(parentpath.m_string.length(), 1);
+                parentpath.m_string.erase(parentpath.m_string.length()-1, 1);
 			}
 		}
 
@@ -322,7 +325,14 @@ namespace FileSystemUtils
 
 	inline Path operator/( const Path& lhs_, const Path& rhs_ )
 	{
-		Path join = lhs_.m_string + Path::seperator + rhs_.m_string;
+		std::string strlhs = lhs_.m_string;
+		while( strlhs.length() && strlhs.find_last_of( FILESYSTEMUTILS_SEPERATORS ) == strlhs.length()-1 )
+		{
+			strlhs.erase(strlhs.length()-1, 1);
+		}
+
+		//note: should probably remove preceding seperators to rhs_, but this has not as yet occured
+		Path join = strlhs + Path::seperator + rhs_.m_string;
 		return join;
 	}
 
@@ -352,11 +362,34 @@ namespace FileSystemUtils
 		return currPath;
 	}
 
+	inline Path Path::GetCleanPath() const
+	{
+		Path path = m_string;
+		bool bFound = false;
+		do
+		{
+			bFound = false;
+			size_t pos = path.m_string.find( ".." );
+			if( pos != std::string::npos && pos+3 < path.m_string.length() && pos > 0 )
+			{
+				Path a = path.m_string.substr(0,pos-1); 					 // pos-1 as we don't want delimiter
+				Path b = path.m_string.substr(pos+3,path.m_string.length()); // pos+3 as we don't want delimiter
+				a = a.ParentPath();
+				path = a / b;
+				bFound = true;
+			}
+		} while( bFound );
+
+		return path;
+	}
+
 }
 
 
 inline FileSystemUtils::Path operator/( const std::string& lhs_, const std::string& rhs_ )
 {
-	FileSystemUtils::Path join = lhs_ + FileSystemUtils::Path::seperator + rhs_;
-	return join;
+	//remove any trailing seperators
+	FileSystemUtils::Path pathlhs = lhs_;
+	FileSystemUtils::Path pathrhs = rhs_;
+	return pathlhs / pathrhs;
 }

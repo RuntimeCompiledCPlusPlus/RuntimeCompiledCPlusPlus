@@ -51,6 +51,14 @@ public:
     {
         m_ModuleFilename = name;
     }
+    const char* GetCompiledPath() const
+    {
+#ifdef COMPILE_PATH
+    	return COMPILE_PATH;
+#else
+    	return "";
+#endif
+    }
 
 private:
 	PerModuleInterface();
@@ -82,7 +90,11 @@ public:
 		, m_pLinkLibraryList( pLinkLibraryList )
         , m_pModuleInterface(0)
 	{
-		PerModuleInterface::GetInstance()->AddConstructor( this );
+		// add path to filename
+		#ifdef COMPILE_PATH
+			m_FileName = COMPILE_PATH + m_FileName;
+		#endif
+	    PerModuleInterface::GetInstance()->AddConstructor( this );
         m_pModuleInterface = PerModuleInterface::GetInstance();
 		m_Id = InvalidId;
 	}

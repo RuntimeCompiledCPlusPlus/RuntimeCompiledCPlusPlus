@@ -202,12 +202,12 @@ void FileMonitor::handleFileAction(FW::WatchID watchid, const FW::String& dir, c
 		break;
 	case FW::Actions::Modified:
 		{
-#ifdef _WIN32
-			FileSystemUtils::Path filePath(dir);
-			filePath = filePath / filename;
-#else
   			FileSystemUtils::Path filePath(filename);
-#endif
+ 			if( !filename.HasParentPath() )
+  			{
+  				filePath = dir / filePath;
+  			}
+
 			m_changeNotifications.push_back(filePath.DelimitersToOSDefault());
 		}
 		break;
