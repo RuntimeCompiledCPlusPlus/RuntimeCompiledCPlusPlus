@@ -241,7 +241,8 @@ public:
 	{
 		size_t align = __alignof__( TActual<T> );
 		void* pRet;
-		posix_memalign( &pRet, align, size );
+		int retval = posix_memalign( &pRet, align, size );
+		(void)retval;	//unused
 		return pRet;
 	}
 	void operator delete(void* p)

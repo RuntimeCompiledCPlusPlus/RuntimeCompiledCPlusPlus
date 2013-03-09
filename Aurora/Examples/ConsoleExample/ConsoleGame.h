@@ -56,8 +56,8 @@ private:
 	IRuntimeObjectSystem*	m_pRuntimeObjectSystem;
 
 	// Runtime object
-	IUpdateable* m_pUpdateable;
-	ObjectId	   m_ObjectId;
+	IUpdateable* 			m_pUpdateable;
+	ObjectId	   			m_ObjectId;
 
 };
 

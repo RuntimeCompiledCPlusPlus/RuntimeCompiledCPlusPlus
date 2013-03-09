@@ -100,8 +100,8 @@ private:
 
 		WatchedDir( const FileSystemUtils::Path& dir_ )
 			: dir(dir_)
-			, bWatchDirItself(false)
 			, pListener(0)
+			, bWatchDirItself(false)
 		{}
 	};
 	typedef std::vector<WatchedDir> TDirList;

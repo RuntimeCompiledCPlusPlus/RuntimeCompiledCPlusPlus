@@ -40,12 +40,13 @@ using FileSystemUtils::Path;
 
 RuntimeObjectSystem::RuntimeObjectSystem()
 	: m_pCompilerLogger(0)
+	, m_pSystemTable(0)
+	, m_pObjectFactorySystem(0)
+	, m_pFileChangeNotifier(0)
 	, m_pBuildTool(0)
 	, m_bCompiling( false )
 	, m_bLastLoadModuleSuccess( false )
 	, m_bAutoCompile( true )
-	, m_pObjectFactorySystem(0)
-	, m_pFileChangeNotifier(0)
     , m_TotalLoadedModulesEver(1) // starts at one for current exe
     , m_bProtectionEnabled( true )
     , m_pImpl( 0 )

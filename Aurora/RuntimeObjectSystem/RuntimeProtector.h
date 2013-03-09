@@ -71,9 +71,9 @@ struct RuntimeProtector
     };
     ExceptionInfo_t         ExceptionInfo;
     
-    bool                    m_bHintAllowDebug;    // some RuntimeProtectors may not want to allow debug
     bool                    m_bHashadException;
-    
+    bool                    m_bHintAllowDebug;    // some RuntimeProtectors may not want to allow debug
+
     // internal 
     unsigned int            m_ModulesLoadedCount; // used internally to reset exceptions when a new module is loaded
 #ifndef _WIN32
