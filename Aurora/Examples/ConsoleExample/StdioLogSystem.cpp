@@ -25,9 +25,8 @@
 
 #ifdef _WIN32
     #include "Windows.h"
+	#pragma warning( disable : 4996 4800 )
 #endif
-
-#pragma warning( disable : 4996 4800 )
 
 
 void StdioLogSystem::LogError(const char * format, ...)

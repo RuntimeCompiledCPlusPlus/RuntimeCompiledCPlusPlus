@@ -18,25 +18,32 @@
 #include "RuntimeObjectSystem.h"
 #include "RuntimeProtector.h"
 
-// Mach ports requirements
+#ifdef __APPLE__
+	// Mach ports requirements
+	#include <mach/mach.h>
+#endif
+
 #include <pthread.h>
-#include <mach/mach.h>
 #include <assert.h>
 #include <signal.h>
+#include <string.h>
 
-
-static bool                         ms_bMachPortSet     = false;
 static __thread RuntimeProtector*   m_pCurrProtector    = 0; // for nested threaded handling, one per thread.
 
-const size_t NUM_OLD_EXCEPTION_HANDLERS = 16;
-static mach_msg_type_number_t  old_count;
-static exception_mask_t        old_masks[NUM_OLD_EXCEPTION_HANDLERS];
-static mach_port_t             old_ports[NUM_OLD_EXCEPTION_HANDLERS];
-static exception_behavior_t    old_behaviors[NUM_OLD_EXCEPTION_HANDLERS];
-static thread_state_flavor_t   old_flavors[NUM_OLD_EXCEPTION_HANDLERS];
+#ifdef __APPLE__
+	static bool                         ms_bMachPortSet     = false;
+
+	const size_t NUM_OLD_EXCEPTION_HANDLERS = 16;
+	static mach_msg_type_number_t  old_count;
+	static exception_mask_t        old_masks[NUM_OLD_EXCEPTION_HANDLERS];
+	static mach_port_t             old_ports[NUM_OLD_EXCEPTION_HANDLERS];
+	static exception_behavior_t    old_behaviors[NUM_OLD_EXCEPTION_HANDLERS];
+	static thread_state_flavor_t   old_flavors[NUM_OLD_EXCEPTION_HANDLERS];
+#endif
 
 void RuntimeObjectSystem::CreatePlatformImpl()
 {
+#ifdef __APPLE__
     if( !ms_bMachPortSet )
     {
         // prevent OS X debugger from catching signals in a none re-catchable way
@@ -44,6 +51,7 @@ void RuntimeObjectSystem::CreatePlatformImpl()
         task_set_exception_ports(mach_task_self(), EXC_MASK_BAD_ACCESS | EXC_MASK_BAD_INSTRUCTION, MACH_PORT_NULL, EXCEPTION_DEFAULT, MACHINE_THREAD_STATE);
         ms_bMachPortSet = true;
     }
+#endif
 }
 
 void RuntimeObjectSystem::DeletePlatformImpl()
@@ -53,6 +61,7 @@ void RuntimeObjectSystem::DeletePlatformImpl()
 void RuntimeObjectSystem::SetProtectionEnabled( bool bProtectionEnabled_ )
 {
     m_bProtectionEnabled = bProtectionEnabled_;
+#ifdef __APPLE__
     if( !m_bProtectionEnabled )
     {
         if( ms_bMachPortSet )
@@ -67,6 +76,7 @@ void RuntimeObjectSystem::SetProtectionEnabled( bool bProtectionEnabled_ )
     {
         CreatePlatformImpl();
     }
+#endif
 }
 
 

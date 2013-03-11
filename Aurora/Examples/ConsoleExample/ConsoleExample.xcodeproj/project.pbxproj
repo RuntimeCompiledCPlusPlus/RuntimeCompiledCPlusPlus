@@ -7,16 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		914B6D02161B5D65001F4606 /* libboost_filesystem.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 914B6D00161B5D65001F4606 /* libboost_filesystem.a */; };
-		914B6D03161B5D65001F4606 /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 914B6D01161B5D65001F4606 /* libboost_system.a */; };
-		914B6D0B161B6018001F4606 /* libboost_filesystem.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 914B6D09161B6018001F4606 /* libboost_filesystem.dylib */; };
-		914B6D0C161B6018001F4606 /* libboost_system.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 914B6D0A161B6018001F4606 /* libboost_system.dylib */; };
+		91977BBD16EB398A003FAE7A /* libRuntimeCompiler.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 91977BBB16EB398A003FAE7A /* libRuntimeCompiler.a */; };
+		91977BBE16EB398A003FAE7A /* libRuntimeObjectSystem.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 91977BBC16EB398A003FAE7A /* libRuntimeObjectSystem.a */; };
 		91DE41E7161B1BB800BE0D16 /* ConsoleExample.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 91DE41DF161B1BB800BE0D16 /* ConsoleExample.cpp */; };
 		91DE41E8161B1BB800BE0D16 /* ConsoleGame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 91DE41E0161B1BB800BE0D16 /* ConsoleGame.cpp */; };
 		91DE41E9161B1BB800BE0D16 /* RuntimeObject01.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 91DE41E4161B1BB800BE0D16 /* RuntimeObject01.cpp */; };
 		91DE41EA161B1BB800BE0D16 /* StdioLogSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 91DE41E5161B1BB800BE0D16 /* StdioLogSystem.cpp */; };
-		91DE4209161B2E2600BE0D16 /* libRuntimeCompiler.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 91DE4207161B2E2600BE0D16 /* libRuntimeCompiler.a */; };
-		91DE420A161B2E2600BE0D16 /* libRuntimeObjectSystem.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 91DE4208161B2E2600BE0D16 /* libRuntimeObjectSystem.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -26,18 +22,14 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
-				914B6D0B161B6018001F4606 /* libboost_filesystem.dylib in CopyFiles */,
-				914B6D0C161B6018001F4606 /* libboost_system.dylib in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		914B6D00161B5D65001F4606 /* libboost_filesystem.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_filesystem.a; path = ../../External/boost/stage/libOSX/libboost_filesystem.a; sourceTree = "<group>"; };
-		914B6D01161B5D65001F4606 /* libboost_system.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_system.a; path = ../../External/boost/stage/libOSX/libboost_system.a; sourceTree = "<group>"; };
-		914B6D09161B6018001F4606 /* libboost_filesystem.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_filesystem.dylib; path = ../../External/boost/stage/libOSX/libboost_filesystem.dylib; sourceTree = "<group>"; };
-		914B6D0A161B6018001F4606 /* libboost_system.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_system.dylib; path = ../../External/boost/stage/libOSX/libboost_system.dylib; sourceTree = "<group>"; };
+		91977BBB16EB398A003FAE7A /* libRuntimeCompiler.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRuntimeCompiler.a; path = "../../../../../../../Library/Developer/Xcode/DerivedData/Aurora-amgiihqkoasuvzdugsovjupxbfdk/Build/Products/Debug/libRuntimeCompiler.a"; sourceTree = "<group>"; };
+		91977BBC16EB398A003FAE7A /* libRuntimeObjectSystem.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRuntimeObjectSystem.a; path = "../../../../../../../Library/Developer/Xcode/DerivedData/Aurora-amgiihqkoasuvzdugsovjupxbfdk/Build/Products/Debug/libRuntimeObjectSystem.a"; sourceTree = "<group>"; };
 		91A171CE161B175E004B5954 /* ConsoleExample */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ConsoleExample; sourceTree = BUILT_PRODUCTS_DIR; };
 		91DE41DF161B1BB800BE0D16 /* ConsoleExample.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConsoleExample.cpp; sourceTree = "<group>"; };
 		91DE41E0161B1BB800BE0D16 /* ConsoleGame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConsoleGame.cpp; sourceTree = "<group>"; };
@@ -47,8 +39,6 @@
 		91DE41E4161B1BB800BE0D16 /* RuntimeObject01.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RuntimeObject01.cpp; sourceTree = "<group>"; };
 		91DE41E5161B1BB800BE0D16 /* StdioLogSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StdioLogSystem.cpp; sourceTree = "<group>"; };
 		91DE41E6161B1BB800BE0D16 /* StdioLogSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StdioLogSystem.h; sourceTree = "<group>"; };
-		91DE4207161B2E2600BE0D16 /* libRuntimeCompiler.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRuntimeCompiler.a; path = ../../RuntimeCompiler/build/Release/libRuntimeCompiler.a; sourceTree = "<group>"; };
-		91DE4208161B2E2600BE0D16 /* libRuntimeObjectSystem.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRuntimeObjectSystem.a; path = ../../RuntimeObjectSystem/build/Release/libRuntimeObjectSystem.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,10 +46,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				914B6D02161B5D65001F4606 /* libboost_filesystem.a in Frameworks */,
-				914B6D03161B5D65001F4606 /* libboost_system.a in Frameworks */,
-				91DE4209161B2E2600BE0D16 /* libRuntimeCompiler.a in Frameworks */,
-				91DE420A161B2E2600BE0D16 /* libRuntimeObjectSystem.a in Frameworks */,
+				91977BBD16EB398A003FAE7A /* libRuntimeCompiler.a in Frameworks */,
+				91977BBE16EB398A003FAE7A /* libRuntimeObjectSystem.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -69,12 +57,8 @@
 		91A171C3161B175E004B5954 = {
 			isa = PBXGroup;
 			children = (
-				914B6D09161B6018001F4606 /* libboost_filesystem.dylib */,
-				914B6D0A161B6018001F4606 /* libboost_system.dylib */,
-				914B6D00161B5D65001F4606 /* libboost_filesystem.a */,
-				914B6D01161B5D65001F4606 /* libboost_system.a */,
-				91DE4207161B2E2600BE0D16 /* libRuntimeCompiler.a */,
-				91DE4208161B2E2600BE0D16 /* libRuntimeObjectSystem.a */,
+				91977BBB16EB398A003FAE7A /* libRuntimeCompiler.a */,
+				91977BBC16EB398A003FAE7A /* libRuntimeObjectSystem.a */,
 				91DE41DF161B1BB800BE0D16 /* ConsoleExample.cpp */,
 				91DE41E0161B1BB800BE0D16 /* ConsoleGame.cpp */,
 				91DE41E1161B1BB800BE0D16 /* ConsoleGame.h */,
@@ -220,6 +204,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../../External/boost/stage/libOSX\"",
+					"\"$(SRCROOT)/../../../../../../../Library/Developer/Xcode/DerivedData/Aurora-amgiihqkoasuvzdugsovjupxbfdk/Build/Products/Debug\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = "";
@@ -233,6 +218,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../../External/boost/stage/libOSX\"",
+					"\"$(SRCROOT)/../../../../../../../Library/Developer/Xcode/DerivedData/Aurora-amgiihqkoasuvzdugsovjupxbfdk/Build/Products/Debug\"",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = "";

@@ -40,12 +40,13 @@ using FileSystemUtils::Path;
 
 RuntimeObjectSystem::RuntimeObjectSystem()
 	: m_pCompilerLogger(0)
+	, m_pSystemTable(0)
+	, m_pObjectFactorySystem(0)
+	, m_pFileChangeNotifier(0)
 	, m_pBuildTool(0)
 	, m_bCompiling( false )
 	, m_bLastLoadModuleSuccess( false )
 	, m_bAutoCompile( true )
-	, m_pObjectFactorySystem(0)
-	, m_pFileChangeNotifier(0)
     , m_TotalLoadedModulesEver(1) // starts at one for current exe
     , m_bProtectionEnabled( true )
     , m_pImpl( 0 )
@@ -186,6 +187,8 @@ void RuntimeObjectSystem::SetAutoCompile( bool autoCompile )
 
 void RuntimeObjectSystem::AddToRuntimeFileList( const char* filename )
 {
+	FileSystemUtils::Path path = filename;
+	path = path.GetCleanPath();
 	TFileList::iterator it = std::find( m_RuntimeFileList.begin(), m_RuntimeFileList.end(), filename );
 	if ( it == m_RuntimeFileList.end() )
 	{
@@ -246,9 +249,11 @@ void RuntimeObjectSystem::StartRecompile()
 
 	//Add required source files
 	const std::vector<const char*> vecRequiredFiles = PerModuleInterface::GetInstance()->GetRequiredSourceFiles();
+	FileSystemUtils::Path compileDir = PerModuleInterface::GetInstance()->GetCompiledPath();
 	for( size_t i = 0; i < vecRequiredFiles.size(); ++i )
 	{
-		BuildTool::FileToBuild reqFile( vecRequiredFiles[i], false );	//don't force compile of these
+		FileSystemUtils::Path fullpath = compileDir / vecRequiredFiles[i];
+		BuildTool::FileToBuild reqFile( fullpath, false );	//don't force compile of these
 		ourBuildFileList.push_back( reqFile );
 	}
 

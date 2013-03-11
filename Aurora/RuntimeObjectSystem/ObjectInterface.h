@@ -21,6 +21,7 @@
 #define OBJECTINTERFACE_INCLUDED
 
 #include <vector>
+#include <stdlib.h>
 
 struct SystemTable; //This is the interface to your own engine code, which you need to define yourself if required.
 struct IObject;
@@ -78,6 +79,7 @@ struct IObjectConstructor
 	virtual size_t	 GetNumberConstructedObjects() const = 0;
 	virtual ConstructorId GetConstructorId() const = 0;
 	virtual void SetConstructorId( ConstructorId id ) = 0;					//take care how you use this - should only be used by id service
+	virtual ~IObjectConstructor() {}
 };
 
 struct IPerModuleInterface
@@ -87,6 +89,7 @@ struct IPerModuleInterface
 	virtual const std::vector<const char*>& GetRequiredSourceFiles() const = 0;
 	virtual void AddRequiredSourceFiles( const char* file_ ) = 0;
     virtual void SetModuleFileName( const char* name ) = 0;
+	virtual ~IPerModuleInterface() {}
 };
 
 #ifdef _WIN32

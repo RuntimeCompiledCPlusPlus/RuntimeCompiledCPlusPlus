@@ -19,6 +19,7 @@
 #ifndef AUARRAY_DEFINED
 #define AUARRAY_DEFINED
 
+#include <stdlib.h>
 #include <vector>
 
 

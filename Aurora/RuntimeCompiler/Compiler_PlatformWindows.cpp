@@ -277,9 +277,9 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 	m_pImplData->m_bCompileIsComplete = false;
 	//optimization and c runtime
 #ifdef _DEBUG
-	std::string flags = "/nologo /Od /Zi /FC /LDd ";
+	std::string flags = "/nologo /Od /Zi /FC /MDd /LDd ";
 #else
-	std::string flags = "/nologo /O2 /Zi /FC /LD ";	//also need debug information in release
+	std::string flags = "/nologo /O2 /Zi /FC /MD /LD ";	//also need debug information in release
 #endif
 	if( NULL == m_pImplData->m_CmdProcessInfo.hProcess )
 	{
@@ -366,7 +366,7 @@ char* pCharTypeFlags = "";
 		+ "/D WIN32 /EHa /Fe" + outputFile.m_string;
 	cmdToSend += " " + strIncludeFiles + " " + strFilesToCompile + strLinkLibraries + linkOptions
 		+ "\necho ";
-	if( m_pImplData->m_pLogger ) m_pImplData->m_pLogger->LogInfo( cmdToSend.c_str() );
+	if( m_pImplData->m_pLogger ) m_pImplData->m_pLogger->LogInfo( "%s", cmdToSend.c_str() ); // use %s to prevent any tokens in compile string being interpreted as formating
 	cmdToSend += c_CompletionToken + "\n";
 	WriteInput( m_pImplData->m_CmdProcessInputWrite, cmdToSend );
 }
