@@ -122,15 +122,16 @@
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.release.165818965" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.release"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.release.318472648" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.release">
-								<option id="gnu.cpp.link.option.libs.1453788816" superClass="gnu.cpp.link.option.libs" valueType="libs">
+								<option id="gnu.cpp.link.option.libs.1453788816" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="RuntimeObjectSystem"/>
 									<listOptionValue builtIn="false" value="RuntimeCompiler"/>
 									<listOptionValue builtIn="false" value="dl"/>
 								</option>
-								<option id="gnu.cpp.link.option.paths.820482508" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
+								<option id="gnu.cpp.link.option.paths.820482508" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/RuntimeObjectSystem/Release}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/RuntimeCompiler/Release}&quot;"/>
 								</option>
+								<option id="gnu.cpp.link.option.flags.439005262" superClass="gnu.cpp.link.option.flags" value="-export-dynamic" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.85499237" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>

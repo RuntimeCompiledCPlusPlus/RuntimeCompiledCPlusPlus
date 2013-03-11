@@ -30,6 +30,7 @@
 #include "../../Systems/IAssetSystem.h"
 
 #include "IEntityObject.h"
+#include <stdio.h>
 
 #define UPDATE_INTERVAL 1.0/25.0 // Update display this often (in seconds)
 

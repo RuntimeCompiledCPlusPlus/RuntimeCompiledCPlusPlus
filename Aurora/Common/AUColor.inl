@@ -19,6 +19,8 @@
 #ifndef AUCOLOR_DEF
 #define AUCOLOR_DEF
 
+#include <string.h> // for memcpy on linux
+
 class AUColor
 {
 public:

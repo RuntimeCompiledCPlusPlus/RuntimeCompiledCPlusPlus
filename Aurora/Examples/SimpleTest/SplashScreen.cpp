@@ -29,7 +29,7 @@
 #include "../../Systems/IAssetSystem.h"
 
 #include <assert.h>
-
+#include <stdio.h>
 
 class SplashScreen: public ISplashScreen, public IFileChangeListener, public IGUIEventListener
 {

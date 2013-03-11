@@ -37,6 +37,7 @@
 #include <assert.h>
 #include <limits>
 #include <algorithm>
+#include <stdio.h>
 
 class InputManager: public IInputManager, public IFileChangeListener, public IGUIEventListener, public IGameEventListener
 {
