@@ -36,7 +36,7 @@
 
 #include "../../Renderer/AURenMesh.h"
 #include "../../Renderer/AURenderContext.h"
-#include "../../RunTimeCompiler/BuildTool.h"
+#include "../../RuntimeCompiler/BuildTool.h"
 #include "../../RuntimeCompiler/ICompilerLogger.h"
 #include "../../Systems/ILogSystem.h"
 #include "../../Systems/IEntitySystem.h"

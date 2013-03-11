@@ -37,6 +37,7 @@
 
 #include <assert.h>
 #include <vector>
+#include <stdio.h>
 
 const AUVec3f ZERO(0,0,0);
 

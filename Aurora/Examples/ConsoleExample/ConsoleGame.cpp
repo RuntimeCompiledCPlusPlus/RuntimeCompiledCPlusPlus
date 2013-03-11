@@ -19,7 +19,7 @@
 
 
 #include "../../Common/AUArray.inl"
-#include "../../RunTimeCompiler/BuildTool.h"
+#include "../../RuntimeCompiler/BuildTool.h"
 #include "../../RuntimeCompiler/ICompilerLogger.h"
 #include "../../RuntimeCompiler/FileChangeNotifier.h"
 #include "../../RuntimeObjectSystem/IObjectFactorySystem.h"

@@ -33,6 +33,7 @@
 #include "../../Systems/IAssetSystem.h"
 
 #include "IEntityObject.h"
+#include <stdio.h>
 
 const float UPDATE_INTERVAL = 0.1f; // Update display this often (in seconds)
 const float SHOW_COMPLETE_INTERVAL = 1.0f;

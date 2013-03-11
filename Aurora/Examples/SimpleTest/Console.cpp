@@ -17,7 +17,7 @@
 
 #include "Console.h"
 
-#include "../../RunTimeCompiler/BuildTool.h"
+#include "../../RuntimeCompiler/BuildTool.h"
 #include "../../RuntimeCompiler/ICompilerLogger.h"
 #include "../../RuntimeObjectSystem/ObjectInterface.h"
 #include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
