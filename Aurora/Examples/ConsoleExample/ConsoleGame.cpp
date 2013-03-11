@@ -68,8 +68,8 @@ using FileSystemUtils::Path;
 
 ConsoleGame::ConsoleGame()
 	: m_pCompilerLogger(0)
-	, m_pUpdateable(0)
 	, m_pRuntimeObjectSystem(0)
+	, m_pUpdateable(0)
 {
 }
 

@@ -81,6 +81,7 @@ struct ISimpleSerializer
 	// User should generally use the templated methods above rather than these ones
 	virtual void SetISerializedValue(const char* propertyName, const ISerializedValue* pValue) = 0;
 	virtual const ISerializedValue* GetISerializedValue(const char* propertyName) const = 0;
+	virtual ~ISimpleSerializer() {}
 };
 
 

@@ -36,11 +36,11 @@ class ObjectFactorySystem : public IObjectFactorySystem , public RuntimeProtecto
 public:
 	ObjectFactorySystem()
 		: m_pLogger( 0 )
+		, m_pRuntimeObjectSystem( 0 )
 		, m_pNewConstructors( 0 )
-		, m_ProtectedPhase(PHASE_NONE)
 		, m_pSerializer( 0 )
-        , m_pRuntimeObjectSystem( 0 )
-	{
+		, m_ProtectedPhase(PHASE_NONE)
+ 	{
 	}
 
 	virtual IObjectConstructor* GetConstructor( const char* type ) const;
@@ -69,11 +69,11 @@ private:
 	typedef std::map<std::string,ConstructorId> CONSTRUCTORMAP;
 	typedef std::set<IObjectFactoryListener*> TObjectFactoryListeners;
 
-	CONSTRUCTORMAP m_ConstructorIds;
-	std::vector<IObjectConstructor*> m_Constructors;
-	TObjectFactoryListeners m_Listeners;
-	ICompilerLogger* m_pLogger;
-    IRuntimeObjectSystem* m_pRuntimeObjectSystem;
+	CONSTRUCTORMAP 						m_ConstructorIds;
+	std::vector<IObjectConstructor*> 	m_Constructors;
+	TObjectFactoryListeners 			m_Listeners;
+	ICompilerLogger* 					m_pLogger;
+    IRuntimeObjectSystem* 				m_pRuntimeObjectSystem;
 
 	// temp data needed during object swap
 	IAUDynArray<IObjectConstructor*>*	m_pNewConstructors;

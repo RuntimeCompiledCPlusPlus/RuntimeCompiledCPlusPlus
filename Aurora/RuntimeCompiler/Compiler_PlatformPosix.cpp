@@ -29,6 +29,7 @@
 #include <vector>
 #include <iostream>
 #include "assert.h"
+#include <sys/wait.h>
 
 #include "ICompilerLogger.h"
 
@@ -198,12 +199,20 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
     m_pImplData->m_PipeStdOut[0] = 0;
     close( m_pImplData->m_PipeStdErr[0] );
     m_pImplData->m_PipeStdErr[0] = 0;
-   
-#ifdef DEBUG
-    std::string compileString = "clang++ -g -O0 -fvisibility=hidden -Xlinker -dylib ";
+
+#ifdef __APPLE__
+	#ifdef DEBUG
+		std::string compileString = "clang++ -g -O0 -fvisibility=hidden -Xlinker -dylib ";
+	#else
+		std::string compileString = "clang++ -g -Os -fvisibility=hidden -Xlinker -dylib ";
+	#endif
 #else
-    std::string compileString = "clang++ -g -Os -fvisibility=hidden -Xlinker -dylib ";   
-#endif
+	#ifdef DEBUG
+		std::string compileString = "g++ -g -O0 -fPIC -fvisibility=hidden -shared ";
+	#else
+		std::string compileString = "g++ -g -Os -fPIC -fvisibility=hidden -shared ";
+	#endif
+#endif //__APPLE__
     
     // include directories
     for( size_t i = 0; i < includeDirList.size(); ++i )

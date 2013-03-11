@@ -8,9 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		9106B90116AE8B9A003D2CD9 /* FileSystemUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 9106B90016AE8B9A003D2CD9 /* FileSystemUtils.h */; };
+		915C293416EB817400654B4E /* Compiler_PlatformPosix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 915C293316EB817400654B4E /* Compiler_PlatformPosix.cpp */; };
 		91CDEF8D1619F0D70061B76E /* BuildTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 91CDEF7D1619F0D70061B76E /* BuildTool.cpp */; };
 		91CDEF8E1619F0D70061B76E /* BuildTool.h in Headers */ = {isa = PBXBuildFile; fileRef = 91CDEF7E1619F0D70061B76E /* BuildTool.h */; };
-		91CDEF8F1619F0D70061B76E /* Compiler_PlatformMacOSX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 91CDEF7F1619F0D70061B76E /* Compiler_PlatformMacOSX.cpp */; };
 		91CDEF901619F0D70061B76E /* Compiler.h in Headers */ = {isa = PBXBuildFile; fileRef = 91CDEF801619F0D70061B76E /* Compiler.h */; };
 		91CDEF911619F0D70061B76E /* FileChangeNotifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 91CDEF811619F0D70061B76E /* FileChangeNotifier.cpp */; };
 		91CDEF921619F0D70061B76E /* FileChangeNotifier.h in Headers */ = {isa = PBXBuildFile; fileRef = 91CDEF821619F0D70061B76E /* FileChangeNotifier.h */; };
@@ -28,10 +28,10 @@
 
 /* Begin PBXFileReference section */
 		9106B90016AE8B9A003D2CD9 /* FileSystemUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileSystemUtils.h; sourceTree = "<group>"; };
+		915C293316EB817400654B4E /* Compiler_PlatformPosix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Compiler_PlatformPosix.cpp; sourceTree = "<group>"; };
 		919FE7001619F04600A269B6 /* libRuntimeCompiler.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRuntimeCompiler.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		91CDEF7D1619F0D70061B76E /* BuildTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BuildTool.cpp; sourceTree = "<group>"; };
 		91CDEF7E1619F0D70061B76E /* BuildTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BuildTool.h; sourceTree = "<group>"; };
-		91CDEF7F1619F0D70061B76E /* Compiler_PlatformMacOSX.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Compiler_PlatformMacOSX.cpp; sourceTree = "<group>"; };
 		91CDEF801619F0D70061B76E /* Compiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Compiler.h; sourceTree = "<group>"; };
 		91CDEF811619F0D70061B76E /* FileChangeNotifier.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileChangeNotifier.cpp; sourceTree = "<group>"; };
 		91CDEF821619F0D70061B76E /* FileChangeNotifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileChangeNotifier.h; sourceTree = "<group>"; };
@@ -61,11 +61,11 @@
 		919FE6F51619F04600A269B6 = {
 			isa = PBXGroup;
 			children = (
+				915C293316EB817400654B4E /* Compiler_PlatformPosix.cpp */,
 				9106B90016AE8B9A003D2CD9 /* FileSystemUtils.h */,
 				91CDEF9E1619F0E30061B76E /* SimpleFileWatcher */,
 				91CDEF7D1619F0D70061B76E /* BuildTool.cpp */,
 				91CDEF7E1619F0D70061B76E /* BuildTool.h */,
-				91CDEF7F1619F0D70061B76E /* Compiler_PlatformMacOSX.cpp */,
 				91CDEF801619F0D70061B76E /* Compiler.h */,
 				91CDEF811619F0D70061B76E /* FileChangeNotifier.cpp */,
 				91CDEF821619F0D70061B76E /* FileChangeNotifier.h */,
@@ -171,11 +171,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				91CDEF8D1619F0D70061B76E /* BuildTool.cpp in Sources */,
-				91CDEF8F1619F0D70061B76E /* Compiler_PlatformMacOSX.cpp in Sources */,
 				91CDEF911619F0D70061B76E /* FileChangeNotifier.cpp in Sources */,
 				91CDEF931619F0D70061B76E /* FileMonitor.cpp in Sources */,
 				91CDEF981619F0D70061B76E /* FileWatcher.cpp in Sources */,
 				91CDEF9B1619F0D70061B76E /* FileWatcherOSX.cpp in Sources */,
+				915C293416EB817400654B4E /* Compiler_PlatformPosix.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

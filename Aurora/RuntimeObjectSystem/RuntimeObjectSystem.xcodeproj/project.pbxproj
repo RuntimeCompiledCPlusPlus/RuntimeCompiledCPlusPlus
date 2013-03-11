@@ -8,8 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		910584A816D67FF600FDEAC3 /* RuntimeProtector.h in Headers */ = {isa = PBXBuildFile; fileRef = 910584A716D67FF600FDEAC3 /* RuntimeProtector.h */; };
-		910584AA16D6801B00FDEAC3 /* RuntimeObjectSystem_PlatformMacOSX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 910584A916D6801B00FDEAC3 /* RuntimeObjectSystem_PlatformMacOSX.cpp */; };
 		910987F416441841006315D5 /* RuntimeLinkLibrary.h in Headers */ = {isa = PBXBuildFile; fileRef = 910987F316441841006315D5 /* RuntimeLinkLibrary.h */; };
+		915C293216EB816D00654B4E /* RuntimeObjectSystem_PlatformPosix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 915C293116EB816D00654B4E /* RuntimeObjectSystem_PlatformPosix.cpp */; };
 		91B4FC2E161A027C0029E1A5 /* IObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 91B4FC1C161A027C0029E1A5 /* IObject.h */; };
 		91B4FC2F161A027C0029E1A5 /* IObjectFactorySystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 91B4FC1D161A027C0029E1A5 /* IObjectFactorySystem.h */; };
 		91B4FC30161A027C0029E1A5 /* IRuntimeObjectSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 91B4FC1E161A027C0029E1A5 /* IRuntimeObjectSystem.h */; };
@@ -28,9 +28,9 @@
 
 /* Begin PBXFileReference section */
 		910584A716D67FF600FDEAC3 /* RuntimeProtector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RuntimeProtector.h; sourceTree = "<group>"; };
-		910584A916D6801B00FDEAC3 /* RuntimeObjectSystem_PlatformMacOSX.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RuntimeObjectSystem_PlatformMacOSX.cpp; sourceTree = "<group>"; };
 		910987F316441841006315D5 /* RuntimeLinkLibrary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RuntimeLinkLibrary.h; sourceTree = "<group>"; };
 		913A25D21619FB7D006AF4C1 /* libRuntimeObjectSystem.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRuntimeObjectSystem.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		915C293116EB816D00654B4E /* RuntimeObjectSystem_PlatformPosix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RuntimeObjectSystem_PlatformPosix.cpp; sourceTree = "<group>"; };
 		91B4FC1C161A027C0029E1A5 /* IObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IObject.h; sourceTree = "<group>"; };
 		91B4FC1D161A027C0029E1A5 /* IObjectFactorySystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IObjectFactorySystem.h; sourceTree = "<group>"; };
 		91B4FC1E161A027C0029E1A5 /* IRuntimeObjectSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IRuntimeObjectSystem.h; sourceTree = "<group>"; };
@@ -61,6 +61,7 @@
 		913A25C71619FB7D006AF4C1 = {
 			isa = PBXGroup;
 			children = (
+				915C293116EB816D00654B4E /* RuntimeObjectSystem_PlatformPosix.cpp */,
 				910987F316441841006315D5 /* RuntimeLinkLibrary.h */,
 				910584A716D67FF600FDEAC3 /* RuntimeProtector.h */,
 				91B4FC1C161A027C0029E1A5 /* IObject.h */,
@@ -72,7 +73,6 @@
 				91B4FC24161A027C0029E1A5 /* ObjectInterfacePerModule.h */,
 				91B4FC25161A027C0029E1A5 /* ObjectInterfacePerModuleSource.cpp */,
 				91B4FC26161A027C0029E1A5 /* RuntimeInclude.h */,
-				910584A916D6801B00FDEAC3 /* RuntimeObjectSystem_PlatformMacOSX.cpp */,
 				91B4FC27161A027C0029E1A5 /* RuntimeObjectSystem.cpp */,
 				91B4FC28161A027C0029E1A5 /* RuntimeObjectSystem.h */,
 				91B4FC29161A027C0029E1A5 /* SimpleSerializer */,
@@ -183,7 +183,7 @@
 				91B4FC36161A027C0029E1A5 /* ObjectInterfacePerModuleSource.cpp in Sources */,
 				91B4FC38161A027C0029E1A5 /* RuntimeObjectSystem.cpp in Sources */,
 				91B4FC3A161A027C0029E1A5 /* SimpleSerializer.cpp in Sources */,
-				910584AA16D6801B00FDEAC3 /* RuntimeObjectSystem_PlatformMacOSX.cpp in Sources */,
+				915C293216EB816D00654B4E /* RuntimeObjectSystem_PlatformPosix.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

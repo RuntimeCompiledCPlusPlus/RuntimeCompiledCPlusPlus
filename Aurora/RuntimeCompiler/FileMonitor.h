@@ -100,6 +100,7 @@ private:
 
 		WatchedDir( const FileSystemUtils::Path& dir_ )
 			: dir(dir_)
+			, pListener(0)
 			, bWatchDirItself(false)
 		{}
 	};
@@ -112,12 +113,11 @@ private:
 	void ProcessChangeNotification( const FileSystemUtils::Path& file );
 	bool ArePathsEqual( const FileSystemUtils::Path& file1, const FileSystemUtils::Path& file2 ) const;
 
-	FW::FileWatcher* m_pFileWatcher;
-	TDirList m_DirWatchList;
-	std::vector<FileSystemUtils::Path> m_FileChangedList;
-	TNotifications m_changeNotifications;
-
-	bool m_bChangeFlag;
+	TDirList 							m_DirWatchList;
+	std::vector<FileSystemUtils::Path>	m_FileChangedList;
+	TNotifications						m_changeNotifications;
+	FW::FileWatcher* 					m_pFileWatcher;
+	bool 								m_bChangeFlag;
 };
 
 
