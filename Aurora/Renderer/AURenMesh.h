@@ -78,8 +78,8 @@ public:
 		return m_pMesh;
 	}
 private:
-	AUColor		m_Color;
 	AURenMesh*	m_pMesh;
+	AUColor		m_Color;
 };
 
 #endif //AURENDMESH_DEF

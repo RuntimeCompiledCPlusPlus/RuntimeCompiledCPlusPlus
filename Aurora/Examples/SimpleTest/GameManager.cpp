@@ -26,7 +26,7 @@
 
 #include "../../Common/AUVec3f.inl"
 #include "../../RuntimeObjectSystem/ObjectInterfacePerModule.h"
-#include "../../RunTimeCompiler/IFileChangeNotifier.h"
+#include "../../RuntimeCompiler/IFileChangeNotifier.h"
 #include "../../Systems/SystemTable.h"
 #include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
 #include "../../Systems/IEntitySystem.h"
@@ -39,7 +39,7 @@
 #include <vector>
 #include <set>
 #include <algorithm>
-
+#include <stdio.h>
 
 class GameManager: public IGameManager
 {

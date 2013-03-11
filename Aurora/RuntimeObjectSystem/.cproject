@@ -31,6 +31,7 @@
 								<option id="gnu.cpp.compiler.option.preprocessor.def.2124317057" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="COMPILE_PATH=\&quot;$(PWD)/\&quot;"/>
 								</option>
+								<option id="gnu.cpp.compiler.option.include.paths.119856938" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1976600625" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.lib.debug.384391127" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.lib.debug">

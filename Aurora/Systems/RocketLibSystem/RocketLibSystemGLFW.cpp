@@ -35,9 +35,9 @@
 #include "../Systems.h"
 #include "../IAssetSystem.h"
 
-#ifndef _WIN32
-#include <libproc.h>
-#endif
+//#ifndef _WIN32
+//#include <libproc.h>
+//#endif
 
 void GLFWCALL WindowResize( int width, int height );
 

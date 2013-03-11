@@ -1,7 +1,7 @@
 # binaries
 *.exe
 *.o
-*.so
+
 *.obj
 
 # archives

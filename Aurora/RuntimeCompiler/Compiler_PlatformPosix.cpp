@@ -77,7 +77,7 @@ bool Compiler::GetIsComplete() const
     if( !m_pImplData->m_bCompileIsComplete && m_pImplData->m_ChildForCompilationPID )
     {
         
-        // check for wether process is closed
+        // check for whether process is closed
         int procStatus;
         pid_t ret = waitpid( m_pImplData->m_ChildForCompilationPID, &procStatus, WNOHANG);
         if( ret && ( WIFEXITED(procStatus) || WIFSIGNALED(procStatus) ) )
