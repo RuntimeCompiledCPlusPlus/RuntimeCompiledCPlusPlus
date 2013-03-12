@@ -46,8 +46,8 @@
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.405055214" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.1890000143" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug">
 								<option id="gnu.cpp.link.option.paths.1299448631" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/RuntimeObjectSystem/Release}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/RuntimeCompiler/Release}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/RuntimeObjectSystem/Debug}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/RuntimeCompiler/Debug}&quot;"/>
 								</option>
 								<option id="gnu.cpp.link.option.libs.766766320" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="RuntimeObjectSystem"/>
@@ -75,14 +75,14 @@
 				<externalSettings containerId="RuntimeCompiler;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/RuntimeCompiler"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/RuntimeCompiler/Release"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/RuntimeCompiler/Debug"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="RuntimeCompiler" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
 				<externalSettings containerId="RuntimeObjectSystem;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/RuntimeObjectSystem"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/RuntimeObjectSystem/Release"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/RuntimeObjectSystem/Debug"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="RuntimeObjectSystem" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>

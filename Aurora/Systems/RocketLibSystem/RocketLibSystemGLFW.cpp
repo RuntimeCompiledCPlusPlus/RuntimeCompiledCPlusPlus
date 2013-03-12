@@ -110,12 +110,15 @@ void RocketLibSystem::EventLoop(RocketLibSystemIdleFunction idle_function)
 		{
 			running = false;
 		}
-
-		idle_function();
-
-		if( !glfwGetWindowParam( GLFW_ACTIVE ) )
+		else
 		{
-            glfwSleep( 0.1 );
+
+			idle_function();
+
+			if( !glfwGetWindowParam( GLFW_ACTIVE ) )
+			{
+				glfwSleep( 0.1 );
+			}
 		}
 	}
 }
