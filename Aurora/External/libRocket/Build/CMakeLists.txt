@@ -161,7 +161,7 @@ endif()
 
 target_link_libraries(RocketCore ${CORE_LINK_LIBS})
 target_link_libraries(RocketControls RocketCore)
-target_link_libraries(RocketDebugger RocketCore)
+target_link_libraries(RocketDebugger RocketCore RocketControls)
 
 if(BUILD_PYTHON_BINDINGS)
     target_link_libraries(_rocketcore RocketCore ${PY_BINDINGS_LINK_LIBS})
