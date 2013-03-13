@@ -91,6 +91,8 @@ set(SIMPLE_TEST_SOURCE
 	Systems/RocketLibSystem/RocketLibSystemSystemInterface.cpp
 	Systems/Systems.cpp
 	Systems/TimeSystem/TimeSystem.cpp
+	Renderer/AURenderContext.cpp
+	Renderer/AURenMesh.cpp
 )
 
 add_library(RCC SHARED ${RCC_SOURCE} )
