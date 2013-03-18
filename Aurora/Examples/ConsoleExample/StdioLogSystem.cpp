@@ -51,8 +51,7 @@ void StdioLogSystem::LogInfo(const char * format, ...)
 }
 void StdioLogSystem::LogInternal(const char * format, va_list args)
 {
-	int result = vsnprintf(m_buff, LOGSYSTEM_MAX_BUFFER, format, args);
-	assert(result != -1);
+	int result = vsnprintf(m_buff, LOGSYSTEM_MAX_BUFFER-1, format, args);
 	// Make sure there's a limit to the amount of rubbish we can output
 	m_buff[LOGSYSTEM_MAX_BUFFER-1] = '\0';
 
