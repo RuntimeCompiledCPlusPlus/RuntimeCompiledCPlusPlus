@@ -1,104 +1,140 @@
 cmake_minimum_required(VERSION 2.8)
 
-add_subdirectory(External/libRocket/Build)
+#
+# Options
+#
+option(BUILD_EXAMPLES "Build example applications" ON)
+option(GLFW_SYSTEM    "Use the oprating system glfw library" OFF)
 
-include_directories(
-	External/libRocket/Include
-)
+find_package(OpenGL REQUIRED)
 
-set(RCC_SOURCE
-	Renderer/AURenderContext.cpp
-	Renderer/AURenMesh.cpp
-	RuntimeCompiler/BuildTool.cpp
-	RuntimeCompiler/Compiler_PlatformPosix.cpp
-	RuntimeCompiler/FileChangeNotifier.cpp
-	RuntimeCompiler/FileMonitor.cpp
-	RuntimeCompiler/SimpleFileWatcher/FileWatcher.cpp
-	RuntimeCompiler/SimpleFileWatcher/FileWatcherLinux.cpp
-	RuntimeObjectSystem/ObjectFactorySystem/ObjectFactorySystem.cpp
-	RuntimeObjectSystem/ObjectInterfacePerModuleSource.cpp
-	RuntimeObjectSystem/RuntimeObjectSystem.cpp
-	RuntimeObjectSystem/RuntimeObjectSystem_PlatformPosix.cpp
-	RuntimeObjectSystem/SimpleSerializer/SimpleSerializer.cpp
-)
+if(UNIX)
+	set(BUILD_TYPE SHARED)
+else()
+	set(BUILD_TYPE STATIC)
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+endif()
 
+include(cmake/ProjectFiles.cmake)
 
-set(CONSOLE_EXAMPLE_SOURCE
-	Examples/ConsoleExample/ConsoleExample.cpp
-	Examples/ConsoleExample/ConsoleGame.cpp
-	Examples/ConsoleExample/RuntimeObject01.cpp
-	Examples/ConsoleExample/StdioLogSystem.cpp
-)
+#
+# RuntimeCompiler
+#
+add_library(RuntimeCompiler ${BUILD_TYPE} ${RuntimeCompiler_SRCS})
 
-set(SIMPLE_TEST_SOURCE
-	Examples/SimpleTest/Behavior_Infected_Approach.cpp
-	Examples/SimpleTest/Behavior_Infected_Combat.cpp
-	Examples/SimpleTest/Behavior_Infected_HuntRBC.cpp
-	Examples/SimpleTest/Behavior_Infected_HuntWBC.cpp
-	Examples/SimpleTest/Behavior_Infected_Idle.cpp
-	Examples/SimpleTest/Behavior_RBC_Approach.cpp
-	Examples/SimpleTest/Behavior_RBC_Combat.cpp
-	Examples/SimpleTest/Behavior_RBC_Evade.cpp
-	Examples/SimpleTest/Behavior_RBC_Idle.cpp
-	Examples/SimpleTest/BehaviorTree_Infected.cpp
-	Examples/SimpleTest/BehaviorTreeManager.cpp
-	Examples/SimpleTest/BehaviorTree_RBC.cpp
-	Examples/SimpleTest/BehaviorTree_Virus.cpp
-	Examples/SimpleTest/BehaviorTree_WBC.cpp
-	Examples/SimpleTest/Behavior_Virus_Approach.cpp
-	Examples/SimpleTest/Behavior_Virus_Combat.cpp
-	Examples/SimpleTest/Behavior_Virus_HuntRBC.cpp
-	Examples/SimpleTest/Behavior_Virus_HuntWBC.cpp
-	Examples/SimpleTest/Behavior_Virus_Idle.cpp
-	Examples/SimpleTest/Behavior_WBC_Approach.cpp
-	Examples/SimpleTest/Behavior_WBC_Combat.cpp
-	Examples/SimpleTest/Behavior_WBC_Idle.cpp
-	Examples/SimpleTest/Behavior_WBC_Patrol.cpp
-	Examples/SimpleTest/BlackboardManager.cpp
-	Examples/SimpleTest/CameraControl.cpp
-	Examples/SimpleTest/CompilerLogger.cpp
-	Examples/SimpleTest/CompilingNotification.cpp
-	Examples/SimpleTest/Console.cpp
-	Examples/SimpleTest/Environment.cpp
-	Examples/SimpleTest/FPSCounter.cpp
-	Examples/SimpleTest/Game.cpp
-	Examples/SimpleTest/GameManager.cpp
-	Examples/SimpleTest/GameObject.cpp
-	Examples/SimpleTest/InputManager.cpp
-	Examples/SimpleTest/LightingControl.cpp
-	Examples/SimpleTest/Main.cpp
-	Examples/SimpleTest/MainMenu.cpp
-	Examples/SimpleTest/MainObject.cpp
-	Examples/SimpleTest/PerceptionManager.cpp
-	Examples/SimpleTest/PhysicsManager.cpp
-	Examples/SimpleTest/SplashScreen.cpp
-	Systems/AssetSystem/AssetSystem.cpp
-	Systems/EntitySystem/EntitySystem.cpp
-	Systems/GUISystem/GUIDocument.cpp
-	Systems/GUISystem/GUIElement.cpp
-	Systems/GUISystem/GUISystem.cpp
-	Systems/GUISystem/ReferenceCountable.cpp
-	Systems/LogSystem/FileLogSystem/FileLogSystem.cpp
-	Systems/LogSystem/MultiLogSystem/MultiLogSystem.cpp
-	Systems/LogSystem/RocketLogSystem/RocketLogSystem.cpp
-	Systems/LogSystem/ThreadsafeLogSystem/ThreadsafeLogSystem_PlatformWindows.cpp
-	Systems/RocketLibSystem/Input.cpp
-	Systems/RocketLibSystem/InputGLFW.cpp
-	Systems/RocketLibSystem/RocketLibSystem.cpp
-	Systems/RocketLibSystem/RocketLibSystemFileInterface.cpp
-	Systems/RocketLibSystem/RocketLibSystemGLFW.cpp
-	Systems/RocketLibSystem/RocketLibSystemRenderInterfaceOpenGL.cpp
-	Systems/RocketLibSystem/RocketLibSystemSystemInterface.cpp
-	Systems/Systems.cpp
-	Systems/TimeSystem/TimeSystem.cpp
-	Renderer/AURenderContext.cpp
-	Renderer/AURenMesh.cpp
-)
+#
+# RuntimeObjectSystem
+#
+add_library(RuntimeObjectSystem ${BUILD_TYPE} ${RuntimeObjectSystem_SRCS})
+target_link_libraries(RuntimeObjectSystem RuntimeCompiler)
+if(UNIX)
+	target_link_libraries(RuntimeObjectSystem dl)
+endif()
 
-add_library(RCC SHARED ${RCC_SOURCE} )
+if(BUILD_EXAMPLES)
 
-add_executable(ConsoleExample ${CONSOLE_EXAMPLE_SOURCE})
-target_link_libraries(ConsoleExample RCC RocketCore RocketControls RocketDebugger GL glfw)
+	#
+	# ConsoleExample
+	#
 
-add_executable(SimpleTest ${SIMPLE_TEST_SOURCE})
-target_link_libraries(SimpleTest RCC RocketCore RocketControls RocketDebugger GL glfw)
+	add_executable(ConsoleExample ${ConsoleExample_SRCS})
+	target_link_libraries(ConsoleExample RuntimeCompiler RuntimeObjectSystem)
+
+	#
+	# Renderer
+	#
+
+	add_library(Renderer ${BUILD_TYPE} ${Renderer_SRCS})
+	target_link_libraries(Renderer ${OPENGL_LIBRARIES} ${ASSIMP_LIBRARIES})
+
+	#
+	# Systems
+	#
+
+	add_library(Systems ${BUILD_TYPE} ${Systems_SRCS})
+	
+	#
+	# Freetype WIN32
+	#
+
+	if(WIN32)
+		set(FREETYPE_INCLUDE_DIR_freetype2 ${CMAKE_SOURCE_DIR}/External/support/freetype/include/freetype)
+		set(FREETYPE_INCLUDE_DIR_ft2build ${CMAKE_SOURCE_DIR}/External/support/freetype/include)
+		if(${CMAKE_CL_64})
+			set(FREETYPE_LIBRARY ${CMAKE_SOURCE_DIR}/External/support/lib/freetype2410MTx64.lib)
+		else()
+			set(FREETYPE_LIBRARY ${CMAKE_SOURCE_DIR}/External/support/lib/freetype2410MT.lib)
+		endif()
+	endif()
+
+	#
+	# glfw
+	#
+	if(GLFW_SYSTEM)
+		set(GLFW_LIBRARIES glfw)
+	else()
+		include_directories(External/glfw/include)
+		add_library( glfw STATIC IMPORTED )
+		if(APPLE)
+			set_target_properties( glfw PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/External/glfw/libOSX/libglfw.a )
+			set(GLFW_LIBRARIES glfw)
+		elseif(WIN32)
+			set(GLFW_LIBRARIES glfw)
+			if(${CMAKE_CL_64})
+				set_target_properties( glfw PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/External/glfw/libWin/GLFWx64.lib )
+			else()
+				set_target_properties( glfw PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/External/glfw/libWin/GLFWx86.lib )
+			endif()
+		else()
+			set_target_properties( glfw PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/External/glfw/libX11/libglfw.a )
+			set(GLFW_LIBRARIES glfw X11)
+		endif()
+	endif()
+
+	#
+	# assimp
+	#
+
+	if(WIN32)
+		add_library( assimp STATIC IMPORTED )
+		set(ASSIMP_LIBRARIES assimp)
+		if(${CMAKE_CL_64})
+			set_target_properties( assimp PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/External/assimp/lib/assimp_release-dll_x64/assimp.lib )
+			file(COPY ${CMAKE_SOURCE_DIR}/External/assimp/bin/assimp_release-dll_win32/Assimp64.dll DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE})
+		else()
+			set_target_properties( assimp PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/External/assimp/lib/assimp_release-dll_win32/assimp.lib )
+			file(COPY ${CMAKE_SOURCE_DIR}/External/assimp/bin/assimp_release-dll_win32/Assimp32.dll DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE})
+		endif()
+	endif()
+
+	#
+	# SimpleTest
+	#
+
+	add_subdirectory(External/libRocket/Build)
+	include_directories(
+		${OPENGL_INCLUDE_DIR} 
+		External/libRocket/Include
+		External/assimp/include
+	)
+	if(WIN32)
+		add_executable(SimpleTest WIN32 ${SimpleTest_SRCS})
+	else()
+		add_executable(SimpleTest ${SimpleTest_SRCS})
+	endif()
+	target_link_libraries(SimpleTest 
+			RuntimeCompiler 
+			RuntimeObjectSystem 
+			Renderer
+			Systems
+			RocketCore 
+			RocketControls 
+			RocketDebugger
+			${OPENGL_LIBRARIES} 
+			${GLFW_LIBRARIES}
+			${ASSIMP_LIBRARIES}
+		)
+	
+endif()
