@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 2.8)
 # Options
 #
 option(BUILD_EXAMPLES "Build example applications" ON)
-option(GLFW_SYSTEM    "Use the oprating system glfw library" OFF)
+option(GLFW_SYSTEM    "Use the operating system glfw library" OFF)
 
 find_package(OpenGL REQUIRED)
 
@@ -89,7 +89,7 @@ if(BUILD_EXAMPLES)
 			endif()
 		else()
 			set_target_properties( glfw PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/External/glfw/libX11/libglfw.a )
-			set(GLFW_LIBRARIES glfw X11)
+			set(GLFW_LIBRARIES glfw X11 pthread)
 		endif()
 	endif()
 
