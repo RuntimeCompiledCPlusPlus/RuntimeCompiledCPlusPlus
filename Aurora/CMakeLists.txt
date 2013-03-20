@@ -89,7 +89,7 @@ if(BUILD_EXAMPLES)
 			endif()
 		else()
 			set_target_properties( glfw PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/External/glfw/libX11/libglfw.a )
-			set(GLFW_LIBRARIES glfw X11)
+			set(GLFW_LIBRARIES glfw X11 pthread)
 		endif()
 	endif()
 
