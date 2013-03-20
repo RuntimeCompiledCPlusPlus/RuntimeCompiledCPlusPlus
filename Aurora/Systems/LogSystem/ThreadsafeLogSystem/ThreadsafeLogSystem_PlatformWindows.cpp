@@ -29,7 +29,7 @@ typedef pthread_mutex_t CRITICAL_SECTION;
 
 void InitializeCriticalSection( CRITICAL_SECTION* pCrit )
 {
-    *pCrit = PTHREAD_MUTEX_INITIALIZER;
+    pthread_mutex_init(pCrit, NULL);
 }
 
 void DeleteCriticalSection( CRITICAL_SECTION* pCrit )
