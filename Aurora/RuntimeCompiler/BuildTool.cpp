@@ -83,13 +83,13 @@ void BuildTool::BuildModule( const std::vector<FileToBuild>& buildFileList,
 	}
 
 	// Add non forced files, but only if they don't exist in forced compile list
+    Path runtimeFolder = m_Compiler.GetRuntimeIntermediatePath();
 	for( size_t i = 0; i < nonForcedCompileFileList.size(); ++i )
 	{
 		Path buildFile = nonForcedCompileFileList[i];
 		if( find( forcedCompileFileList.begin(), forcedCompileFileList.end(), buildFile ) == forcedCompileFileList.end() )
 		{
 			// Check if we have a pre-compiled object version of this file, and if so use that.
-			Path runtimeFolder = ".\\Runtime";
 			Path objectFileName = runtimeFolder/buildFile.Filename();
 			objectFileName.ReplaceExtension(objectFileExtension.c_str());
 
