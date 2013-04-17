@@ -271,6 +271,6 @@ private:
 	static RuntimeLinkLibrary< __COUNTER__ > g_linkLibraryList_##T; \
 template<> TObjectConstructorConcrete< TActual< T > > TActual< T >::m_Constructor( __FILE__, &g_includeFileList_##T, &g_linkLibraryList_##T );\
 template<> const char* TActual< T >::GetTypeNameStatic() { return #T; } \
-template class TActual< T >; \
+template class TActual< T >;
 
 #endif // OBJECTINTERFACEPERMODULE_INCLUDED
