@@ -257,6 +257,21 @@ void RuntimeObjectSystem::StartRecompile()
 		ourBuildFileList.push_back( reqFile );
 	}
 
+    //Add dependency source files
+    size_t buildListSize = ourBuildFileList.size(); // we will add to the build list, so get the size before the loop
+	for( size_t i = 0; i < buildListSize; ++ i )
+	{
+
+		TFileToFileEqualRange range = m_RuntimeSourceDependencyMap.equal_range( ourBuildFileList[i].filePath );
+		for(TFileToFileIterator it=range.first; it!=range.second; ++it)
+		{
+		    BuildTool::FileToBuild reqFile( it->second, false );	//don't force compile of these
+			ourBuildFileList.push_back( reqFile );
+		}
+	}
+
+
+
 	m_pBuildTool->BuildModule(	ourBuildFileList,
 								m_IncludeDirList,
 								m_LibraryDirList,
@@ -358,6 +373,9 @@ void RuntimeObjectSystem::SetupObjectConstructors(GETPerModuleInterface_PROC pPe
 
             //remove previous link libraries for this file
             m_RuntimeLinkLibraryMap.erase( filePath );
+
+            //remove previous source dependencies
+            m_RuntimeSourceDependencyMap.erase( filePath );
 		}
 
 		//add include file mappings
@@ -387,6 +405,22 @@ void RuntimeObjectSystem::SetupObjectConstructors(GETPerModuleInterface_PROC pPe
 				m_RuntimeLinkLibraryMap.insert( linklibraryPathPair );
 			}
 		}
+
+        //add source dependency file mappings
+        for( size_t num = 0; num <= objectConstructors[i]->GetMaxNumSourceDependencies(); ++num )
+		{
+			const char* pSourceDependency = objectConstructors[i]->GetSourceDependency( num );
+			if( pSourceDependency )
+			{
+                FileSystemUtils::Path path = pSourceDependency;
+                path.ReplaceExtension( ".cpp" );
+				TFileToFilePair sourcePathPair;
+				sourcePathPair.first = filePath;
+				sourcePathPair.second = path;
+				m_RuntimeSourceDependencyMap.insert( sourcePathPair );
+			}
+		}
+
 	}
 	m_pObjectFactorySystem->AddConstructors( constructors );
 }

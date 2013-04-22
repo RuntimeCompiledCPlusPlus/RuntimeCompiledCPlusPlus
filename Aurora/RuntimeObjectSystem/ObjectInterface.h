@@ -74,6 +74,8 @@ struct IObjectConstructor
 	virtual const char* GetIncludeFile( size_t Num_ ) const = 0;
 	virtual size_t GetMaxNumLinkLibraries() const = 0;
 	virtual const char* GetLinkLibrary( size_t Num_ ) const = 0;
+	virtual size_t GetMaxNumSourceDependencies() const = 0;
+	virtual const char* GetSourceDependency( size_t Num_ ) const = 0;
 
 	virtual IObject* GetConstructedObject( PerTypeObjectId num ) const = 0;	//should return 0 for last or deleted object
 	virtual size_t	 GetNumberConstructedObjects() const = 0;
