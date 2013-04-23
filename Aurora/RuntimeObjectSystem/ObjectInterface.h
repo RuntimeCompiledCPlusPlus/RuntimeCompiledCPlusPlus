@@ -70,6 +70,7 @@ struct IObjectConstructor
 	virtual void ConstructNull() = 0;	//for use in object replacement, ensures a deleted object can be replaced
 	virtual const char* GetName() = 0;
 	virtual const char* GetFileName() = 0;
+	virtual const char* GetCompiledPath() = 0;
 	virtual size_t GetMaxNumIncludeFiles() const = 0;
 	virtual const char* GetIncludeFile( size_t Num_ ) const = 0;
 	virtual size_t GetMaxNumLinkLibraries() const = 0;

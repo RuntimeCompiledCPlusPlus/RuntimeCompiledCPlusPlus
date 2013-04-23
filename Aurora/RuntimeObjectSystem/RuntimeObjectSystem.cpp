@@ -379,7 +379,7 @@ void RuntimeObjectSystem::SetupObjectConstructors(GETPerModuleInterface_PROC pPe
 		}
 
         //we need the compile path for some platforms where the __FILE__ path is relative to the compile path
-        FileSystemUtils::Path compileDir = PerModuleInterface::GetInstance()->GetCompiledPath();
+        FileSystemUtils::Path compileDir = objectConstructors[i]->GetCompiledPath();
 
 		//add include file mappings
 		for( size_t includeNum = 0; includeNum <= objectConstructors[i]->GetMaxNumIncludeFiles(); ++includeNum )

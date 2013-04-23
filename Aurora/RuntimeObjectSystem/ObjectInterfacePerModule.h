@@ -140,6 +140,16 @@ public:
 	{
 		return m_FileName.c_str();
 	}
+
+    virtual const char* GetCompiledPath()
+    {
+ 		#ifdef COMPILE_PATH
+			return COMPILE_PATH;
+        #else
+            return "";
+		#endif
+   }
+
 	virtual const char* GetIncludeFile( size_t Num_ ) const
 	{
 		if( m_pIncludeFileList )
