@@ -378,16 +378,20 @@ void RuntimeObjectSystem::SetupObjectConstructors(GETPerModuleInterface_PROC pPe
             m_RuntimeSourceDependencyMap.erase( filePath );
 		}
 
+        //we need the compile path for some platforms where the __FILE__ path is relative to the compile path
+        FileSystemUtils::Path compileDir = PerModuleInterface::GetInstance()->GetCompiledPath();
+
 		//add include file mappings
 		for( size_t includeNum = 0; includeNum <= objectConstructors[i]->GetMaxNumIncludeFiles(); ++includeNum )
 		{
 			const char* pIncludeFile = objectConstructors[i]->GetIncludeFile( includeNum );
 			if( pIncludeFile )
 			{
+                FileSystemUtils::Path fullpath = compileDir / pIncludeFile;
 				TFileToFilePair includePathPair;
-				includePathPair.first = pIncludeFile;
+				includePathPair.first = fullpath;
 				includePathPair.second = filePath;
-				AddToRuntimeFileList( pIncludeFile );
+                AddToRuntimeFileList( fullpath.c_str() );
 				m_RuntimeIncludeMap.insert( includePathPair );
 			}
 		}
@@ -412,7 +416,7 @@ void RuntimeObjectSystem::SetupObjectConstructors(GETPerModuleInterface_PROC pPe
 			const char* pSourceDependency = objectConstructors[i]->GetSourceDependency( num );
 			if( pSourceDependency )
 			{
-                FileSystemUtils::Path path = pSourceDependency;
+                FileSystemUtils::Path path = compileDir / pSourceDependency;
                 path.ReplaceExtension( ".cpp" );
 				TFileToFilePair sourcePathPair;
 				sourcePathPair.first = filePath;
