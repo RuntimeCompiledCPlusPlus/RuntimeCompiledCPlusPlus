@@ -388,6 +388,7 @@ void RuntimeObjectSystem::SetupObjectConstructors(GETPerModuleInterface_PROC pPe
 			if( pIncludeFile )
 			{
                 FileSystemUtils::Path fullpath = compileDir / pIncludeFile;
+                fullpath = fullpath.GetCleanPath();
 				TFileToFilePair includePathPair;
 				includePathPair.first = fullpath;
 				includePathPair.second = filePath;
@@ -417,6 +418,7 @@ void RuntimeObjectSystem::SetupObjectConstructors(GETPerModuleInterface_PROC pPe
 			if( pSourceDependency )
 			{
                 FileSystemUtils::Path path = compileDir / pSourceDependency;
+                path = path.GetCleanPath();
                 path.ReplaceExtension( ".cpp" );
 				TFileToFilePair sourcePathPair;
 				sourcePathPair.first = filePath;
