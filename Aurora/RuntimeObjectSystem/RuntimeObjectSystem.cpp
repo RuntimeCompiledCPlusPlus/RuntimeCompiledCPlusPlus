@@ -189,11 +189,11 @@ void RuntimeObjectSystem::AddToRuntimeFileList( const char* filename )
 {
 	FileSystemUtils::Path path = filename;
 	path = path.GetCleanPath();
-	TFileList::iterator it = std::find( m_RuntimeFileList.begin(), m_RuntimeFileList.end(), filename );
+	TFileList::iterator it = std::find( m_RuntimeFileList.begin(), m_RuntimeFileList.end(), path );
 	if ( it == m_RuntimeFileList.end() )
 	{
-		m_RuntimeFileList.push_back( filename );
-		m_pFileChangeNotifier->Watch( filename, this );
+		m_RuntimeFileList.push_back( path );
+        m_pFileChangeNotifier->Watch( path.c_str(), this );
 	}
 }
 
