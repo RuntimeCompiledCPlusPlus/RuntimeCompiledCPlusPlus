@@ -185,15 +185,14 @@ void RuntimeObjectSystem::SetAutoCompile( bool autoCompile )
 	m_bAutoCompile = autoCompile;
 }
 
+// RuntimeObjectSystem::AddToRuntimeFileList - filename should be cleaned of "/../" etc, see FileSystemUtils::Path::GetCleanPath()
 void RuntimeObjectSystem::AddToRuntimeFileList( const char* filename )
 {
-	FileSystemUtils::Path path = filename;
-	path = path.GetCleanPath();
-	TFileList::iterator it = std::find( m_RuntimeFileList.begin(), m_RuntimeFileList.end(), path );
+	TFileList::iterator it = std::find( m_RuntimeFileList.begin(), m_RuntimeFileList.end(), filename );
 	if ( it == m_RuntimeFileList.end() )
 	{
-		m_RuntimeFileList.push_back( path );
-        m_pFileChangeNotifier->Watch( path.c_str(), this );
+		m_RuntimeFileList.push_back( filename );
+        m_pFileChangeNotifier->Watch( filename, this );
 	}
 }
 
@@ -350,9 +349,11 @@ void RuntimeObjectSystem::SetupObjectConstructors(GETPerModuleInterface_PROC pPe
 	for (size_t i=0, iMax=objectConstructors.size(); i<iMax; ++i)
 	{
 		constructors[i] = objectConstructors[i];
-		AddToRuntimeFileList( objectConstructors[i]->GetFileName() );
-
 		Path filePath = objectConstructors[i]->GetFileName();
+        filePath = filePath.GetCleanPath();
+        AddToRuntimeFileList( filePath.c_str() );
+
+
 		if( !bFirstTime )
 		{
  			//remove old include file mappings for this file
