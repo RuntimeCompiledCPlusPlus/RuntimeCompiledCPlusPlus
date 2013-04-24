@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="RuntimeSourceDependency.h" />
     <ClInclude Include="RuntimeProtector.h" />
     <ClInclude Include="IObject.h" />
     <ClInclude Include="IObjectFactorySystem.h" />

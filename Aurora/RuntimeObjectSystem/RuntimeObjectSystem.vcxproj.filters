@@ -28,6 +28,7 @@
     <ClInclude Include="RuntimeObjectSystem.h" />
     <ClInclude Include="RuntimeLinkLibrary.h" />
     <ClInclude Include="RuntimeProtector.h" />
+    <ClInclude Include="RuntimeSourceDependency.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="SimpleSerializer">

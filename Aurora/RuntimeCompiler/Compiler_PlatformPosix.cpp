@@ -67,7 +67,7 @@ Compiler::~Compiler()
 {
 }
 
-const std::string Compiler::GetObjectFileExtension() const
+std::string Compiler::GetObjectFileExtension() const
 {
 	return ".o";
 }
@@ -140,6 +140,11 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
 	}
      */
 
+}
+
+FileSystemUtils::Path Compiler::GetRuntimeIntermediatePath() const
+{
+    return m_pImplData->m_intermediatePath;
 }
 
 void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToCompile,

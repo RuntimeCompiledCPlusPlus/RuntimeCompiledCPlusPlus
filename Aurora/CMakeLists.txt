@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 2.8)
 # Options
 #
 option(BUILD_EXAMPLES "Build example applications" ON)
-option(GLFW_SYSTEM    "Use the oprating system glfw library" OFF)
+option(GLFW_SYSTEM    "Use the operating system glfw library" OFF)
 
 find_package(OpenGL REQUIRED)
 

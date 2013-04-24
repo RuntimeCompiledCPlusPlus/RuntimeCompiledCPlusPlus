@@ -185,15 +185,14 @@ void RuntimeObjectSystem::SetAutoCompile( bool autoCompile )
 	m_bAutoCompile = autoCompile;
 }
 
+// RuntimeObjectSystem::AddToRuntimeFileList - filename should be cleaned of "/../" etc, see FileSystemUtils::Path::GetCleanPath()
 void RuntimeObjectSystem::AddToRuntimeFileList( const char* filename )
 {
-	FileSystemUtils::Path path = filename;
-	path = path.GetCleanPath();
 	TFileList::iterator it = std::find( m_RuntimeFileList.begin(), m_RuntimeFileList.end(), filename );
 	if ( it == m_RuntimeFileList.end() )
 	{
 		m_RuntimeFileList.push_back( filename );
-		m_pFileChangeNotifier->Watch( filename, this );
+        m_pFileChangeNotifier->Watch( filename, this );
 	}
 }
 
@@ -256,6 +255,21 @@ void RuntimeObjectSystem::StartRecompile()
 		BuildTool::FileToBuild reqFile( fullpath, false );	//don't force compile of these
 		ourBuildFileList.push_back( reqFile );
 	}
+
+    //Add dependency source files
+    size_t buildListSize = ourBuildFileList.size(); // we will add to the build list, so get the size before the loop
+	for( size_t i = 0; i < buildListSize; ++ i )
+	{
+
+		TFileToFileEqualRange range = m_RuntimeSourceDependencyMap.equal_range( ourBuildFileList[i].filePath );
+		for(TFileToFileIterator it=range.first; it!=range.second; ++it)
+		{
+		    BuildTool::FileToBuild reqFile( it->second, false );	//don't force compile of these
+			ourBuildFileList.push_back( reqFile );
+		}
+	}
+
+
 
 	m_pBuildTool->BuildModule(	ourBuildFileList,
 								m_IncludeDirList,
@@ -335,9 +349,11 @@ void RuntimeObjectSystem::SetupObjectConstructors(GETPerModuleInterface_PROC pPe
 	for (size_t i=0, iMax=objectConstructors.size(); i<iMax; ++i)
 	{
 		constructors[i] = objectConstructors[i];
-		AddToRuntimeFileList( objectConstructors[i]->GetFileName() );
-
 		Path filePath = objectConstructors[i]->GetFileName();
+        filePath = filePath.GetCleanPath();
+        AddToRuntimeFileList( filePath.c_str() );
+
+
 		if( !bFirstTime )
 		{
  			//remove old include file mappings for this file
@@ -358,7 +374,13 @@ void RuntimeObjectSystem::SetupObjectConstructors(GETPerModuleInterface_PROC pPe
 
             //remove previous link libraries for this file
             m_RuntimeLinkLibraryMap.erase( filePath );
+
+            //remove previous source dependencies
+            m_RuntimeSourceDependencyMap.erase( filePath );
 		}
+
+        //we need the compile path for some platforms where the __FILE__ path is relative to the compile path
+        FileSystemUtils::Path compileDir = objectConstructors[i]->GetCompiledPath();
 
 		//add include file mappings
 		for( size_t includeNum = 0; includeNum <= objectConstructors[i]->GetMaxNumIncludeFiles(); ++includeNum )
@@ -366,10 +388,12 @@ void RuntimeObjectSystem::SetupObjectConstructors(GETPerModuleInterface_PROC pPe
 			const char* pIncludeFile = objectConstructors[i]->GetIncludeFile( includeNum );
 			if( pIncludeFile )
 			{
+                FileSystemUtils::Path fullpath = compileDir / pIncludeFile;
+                fullpath = fullpath.GetCleanPath();
 				TFileToFilePair includePathPair;
-				includePathPair.first = pIncludeFile;
+				includePathPair.first = fullpath;
 				includePathPair.second = filePath;
-				AddToRuntimeFileList( pIncludeFile );
+                AddToRuntimeFileList( fullpath.c_str() );
 				m_RuntimeIncludeMap.insert( includePathPair );
 			}
 		}
@@ -387,6 +411,23 @@ void RuntimeObjectSystem::SetupObjectConstructors(GETPerModuleInterface_PROC pPe
 				m_RuntimeLinkLibraryMap.insert( linklibraryPathPair );
 			}
 		}
+
+        //add source dependency file mappings
+        for( size_t num = 0; num <= objectConstructors[i]->GetMaxNumSourceDependencies(); ++num )
+		{
+			const char* pSourceDependency = objectConstructors[i]->GetSourceDependency( num );
+			if( pSourceDependency )
+			{
+                FileSystemUtils::Path path = compileDir / pSourceDependency;
+                path = path.GetCleanPath();
+                path.ReplaceExtension( ".cpp" );
+				TFileToFilePair sourcePathPair;
+				sourcePathPair.first = filePath;
+				sourcePathPair.second = path;
+				m_RuntimeSourceDependencyMap.insert( sourcePathPair );
+			}
+		}
+
 	}
 	m_pObjectFactorySystem->AddConstructors( constructors );
 }
