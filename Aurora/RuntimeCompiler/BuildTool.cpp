@@ -35,6 +35,7 @@ BuildTool::~BuildTool()
 
 void BuildTool::Initialise( ICompilerLogger * pLogger )
 {
+    m_InitTime = FileSystemUtils::GetCurrentTime();
 	m_pLogger = pLogger;
 	m_Compiler.Initialise(pLogger);
 }
@@ -82,22 +83,27 @@ void BuildTool::BuildModule( const std::vector<FileToBuild>& buildFileList,
 	}
 
 	// Add non forced files, but only if they don't exist in forced compile list
+    Path runtimeFolder = m_Compiler.GetRuntimeIntermediatePath();
 	for( size_t i = 0; i < nonForcedCompileFileList.size(); ++i )
 	{
 		Path buildFile = nonForcedCompileFileList[i];
 		if( find( forcedCompileFileList.begin(), forcedCompileFileList.end(), buildFile ) == forcedCompileFileList.end() )
 		{
 			// Check if we have a pre-compiled object version of this file, and if so use that.
-			Path runtimeFolder = "./Runtime";
 			Path objectFileName = runtimeFolder/buildFile.Filename();
 			objectFileName.ReplaceExtension(objectFileExtension.c_str());
 
-			if( objectFileName.Exists() && buildFile.Exists()
-				&& objectFileName.GetLastWriteTime() > buildFile.GetLastWriteTime() )
-			{
-				buildFile = objectFileName;
-			}
-
+			if( objectFileName.Exists() && buildFile.Exists() )
+            {
+                FileSystemUtils::filetime_t objTime = objectFileName.GetLastWriteTime();
+                if( objTime > m_InitTime && objTime > buildFile.GetLastWriteTime() )
+ 			    {
+                    // we only want to use the object file if it's newer than our start-up time so
+                    // we know it's from the current session (so likely compiled with same settings),
+                    // and it's newer than the source file
+				    buildFile = objectFileName;
+			    }
+            }
 			compileFileList.push_back(buildFile);
 		}
 	}

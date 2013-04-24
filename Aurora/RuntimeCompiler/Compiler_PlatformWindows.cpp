@@ -224,7 +224,7 @@ Compiler::~Compiler()
 	CloseHandle( m_pImplData->m_CmdProcessOutputRead );
 }
 
-const std::string Compiler::GetObjectFileExtension() const
+std::string Compiler::GetObjectFileExtension() const
 {
 	return ".obj";
 }
@@ -265,6 +265,12 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
 	}
 	*/
 }
+
+FileSystemUtils::Path Compiler::GetRuntimeIntermediatePath() const
+{
+    return m_pImplData->m_intermediatePath;
+}
+
 
 void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToCompile,
 					 const std::vector<FileSystemUtils::Path>& includeDirList,

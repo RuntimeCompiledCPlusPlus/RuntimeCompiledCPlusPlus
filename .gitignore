@@ -50,6 +50,10 @@ Release/
 
 Holding/
 
+# ignore some usual temporary folders/files
+build/
+Log.txt
+
 #XCode Stuff.. see: http://stackoverflow.com/questions/49478/git-ignore-file-for-xcode-projects
 
 #####

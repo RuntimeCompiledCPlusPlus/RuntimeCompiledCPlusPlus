@@ -32,7 +32,7 @@ public:
 	~Compiler();
 	void Initialise( ICompilerLogger * pLogger );
 
-	const std::string GetObjectFileExtension() const;
+    std::string GetObjectFileExtension() const;
 	void RunCompile( const std::vector<FileSystemUtils::Path>& filesToCompile,
 					 const std::vector<FileSystemUtils::Path>& includeDirList,
 					 const std::vector<FileSystemUtils::Path>& libraryDirList,
@@ -41,6 +41,7 @@ public:
 					 const char* pLinkOptions,
 					 const FileSystemUtils::Path& outputFile );
 	bool GetIsComplete() const;
+    FileSystemUtils::Path GetRuntimeIntermediatePath() const;
 private:
 	PlatformCompilerImplData* m_pImplData;
 };

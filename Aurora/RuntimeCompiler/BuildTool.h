@@ -58,7 +58,8 @@ public:
 		return m_Compiler.GetIsComplete();
 	}
 private:
-	Compiler m_Compiler;
-	ICompilerLogger* m_pLogger;
+	Compiler                    m_Compiler;
+	ICompilerLogger*            m_pLogger;
+    FileSystemUtils::filetime_t m_InitTime;
 };
 

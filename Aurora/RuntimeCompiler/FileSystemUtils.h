@@ -23,12 +23,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <time.h>
 
 #ifdef _WIN32
 	#include <direct.h>
 	#include <sys/types.h>
 	#define WIN32_LEAN_AND_MEAN
-	#include <windows.h>
+    #define NOMINMAX
+    #include <windows.h>
 	#undef GetObject
 
 	#define FILESYSTEMUTILS_SEPERATORS "/\\"
@@ -40,6 +42,11 @@
 
 namespace FileSystemUtils
 {
+#ifdef _WIN32
+    typedef __time64_t filetime_t;
+#else
+    typedef time_t filetime_t;
+#endif
 
 	class Path
 	{
@@ -68,7 +75,7 @@ namespace FileSystemUtils
 		bool		Exists()			const;
 		bool		CreateDir()			const;
 		bool		Remove()			const;
-		uint64_t	GetLastWriteTime()	const;
+		filetime_t	GetLastWriteTime()	const;
 		uint64_t	GetFileSize()		const;
 		bool		HasExtension()		const;
 		bool		HasParentPath()		const;
@@ -161,9 +168,9 @@ namespace FileSystemUtils
 		return false;
 	}
 
-	inline uint64_t	Path::GetLastWriteTime()	const
+	inline filetime_t Path::GetLastWriteTime()	const
 	{
-		uint64_t lastwritetime = 0;
+		filetime_t lastwritetime = 0;
 		int error = -1;
 #ifdef _WIN32
 		struct _stat64 buffer;
@@ -178,6 +185,17 @@ namespace FileSystemUtils
 		}
 		return lastwritetime;
 	}
+
+    inline filetime_t GetCurrentTime()
+    {
+        filetime_t timer;
+#ifdef _WIN32
+        _time64(&timer);
+#else
+        time(&timer);
+#endif
+        return timer;
+    }
 
 	inline bool		Path::Remove()			const
 	{
