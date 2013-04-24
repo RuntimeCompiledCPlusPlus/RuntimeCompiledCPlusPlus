@@ -29,7 +29,8 @@
 	#include <direct.h>
 	#include <sys/types.h>
 	#define WIN32_LEAN_AND_MEAN
-	#include <windows.h>
+    #define NOMINMAX
+    #include <windows.h>
 	#undef GetObject
 
 	#define FILESYSTEMUTILS_SEPERATORS "/\\"
