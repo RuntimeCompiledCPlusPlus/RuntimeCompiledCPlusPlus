@@ -96,7 +96,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)\External\assimp\lib\assimp_release-dll_win32</AdditionalLibraryDirectories>
     </Lib>
     <PostBuildEvent>
-      <Command>xcopy /y $(SolutionDir)\External\assimp\bin\assimp_release-dll_win32\*.dll $(OutDir)</Command>
+      <Command>xcopy /y "$(SolutionDir)\External\assimp\bin\assimp_release-dll_win32\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>copy dlls for assimp</Message>
@@ -121,7 +121,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)\External\assimp\lib\assimp_release-dll_x64</AdditionalLibraryDirectories>
     </Lib>
     <PostBuildEvent>
-      <Command>xcopy /y $(SolutionDir)\External\assimp\bin\assimp_release-dll_win32\*.dll $(OutDir)</Command>
+      <Command>xcopy /y "$(SolutionDir)\External\assimp\bin\assimp_release-dll_win32\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>copy dlls for assimp</Message>
@@ -150,7 +150,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)\External\assimp\lib\assimp_release-dll_win32</AdditionalLibraryDirectories>
     </Lib>
     <PostBuildEvent>
-      <Command>xcopy /y $(SolutionDir)\External\assimp\bin\assimp_release-dll_win32\*.dll $(SolutionDir)$(Configuration)\</Command>
+      <Command>xcopy /y "$(SolutionDir)\External\assimp\bin\assimp_release-dll_win32\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>copy dlls for assimp</Message>
@@ -179,7 +179,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)\External\assimp\lib\assimp_release-dll_x64</AdditionalLibraryDirectories>
     </Lib>
     <PostBuildEvent>
-      <Command>xcopy /y $(SolutionDir)\External\assimp\bin\assimp_release-dll_win32\*.dll $(OutDir)</Command>
+      <Command>xcopy /y "$(SolutionDir)\External\assimp\bin\assimp_release-dll_win32\*.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>copy dlls for assimp</Message>
