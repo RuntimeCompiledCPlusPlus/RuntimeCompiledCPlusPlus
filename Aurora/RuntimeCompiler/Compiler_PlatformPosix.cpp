@@ -212,6 +212,7 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 		std::string compileString = "clang++ -g -Os -fvisibility=hidden -Xlinker -dylib ";
 	#endif
 #else
+	// NOTE: we do not need the COMPILE_PATH variable to be set here, as the filenames passed in are all full paths.
 	#ifdef DEBUG
 		std::string compileString = "g++ -g -O0 -fPIC -fvisibility=hidden -shared ";
 	#else
