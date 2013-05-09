@@ -222,6 +222,7 @@ Compiler::~Compiler()
     CloseHandle( m_pImplData->m_CmdProcessInfo.hThread );
 	CloseHandle( m_pImplData->m_CmdProcessInputWrite );
 	CloseHandle( m_pImplData->m_CmdProcessOutputRead );
+	delete m_pImplData;
 }
 
 std::string Compiler::GetObjectFileExtension() const
