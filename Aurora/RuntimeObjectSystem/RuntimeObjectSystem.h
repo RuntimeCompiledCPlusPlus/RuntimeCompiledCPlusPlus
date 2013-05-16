@@ -104,6 +104,7 @@ public:
     }
     virtual bool TryProtectedFunction( RuntimeProtector* pProtectedObject_ );
 
+	void SetupObjectConstructors(IPerModuleInterface* pPerModuleInterface);
 
 
 	// IFileChangeListener
@@ -122,7 +123,6 @@ private:
 	void StartRecompile();
 
 	void InitObjects();
-	void SetupObjectConstructors(IPerModuleInterface* pPerModuleInterface);
 	void DeleteObjects();
 	void ResetGame();
 
