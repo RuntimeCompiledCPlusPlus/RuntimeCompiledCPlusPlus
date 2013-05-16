@@ -122,7 +122,7 @@ private:
 	void StartRecompile();
 
 	void InitObjects();
-	void SetupObjectConstructors(GETPerModuleInterface_PROC pPerModuleInterfaceProcAdd);
+	void SetupObjectConstructors(IPerModuleInterface* pPerModuleInterface);
 	void DeleteObjects();
 	void ResetGame();
 

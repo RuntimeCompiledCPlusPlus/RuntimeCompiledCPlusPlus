@@ -75,24 +75,9 @@ bool RuntimeObjectSystem::Initialise( ICompilerLogger * pLogger, SystemTable* pS
 	m_pBuildTool->Initialise(m_pCompilerLogger);
 
 	// We start by using the code in the current module
-	GETPerModuleInterface_PROC pPerModuleInterfaceProcAdd = NULL;
-#ifdef _WIN32
-	HMODULE module = GetModuleHandle(NULL);
-
-	pPerModuleInterfaceProcAdd = (GETPerModuleInterface_PROC) GetProcAddress(module, "GetPerModuleInterface");
-#else
-    void* this_process = dlopen(NULL,0);
-    pPerModuleInterfaceProcAdd = (GETPerModuleInterface_PROC) dlsym(this_process,"GetPerModuleInterface");
-    
-#endif
-
-	if (!pPerModuleInterfaceProcAdd)
-	{
-		m_pCompilerLogger->LogError( "Failed GetProcAddress for GetPerModuleInterface in current module\n" );
-		return false;
-	}
-    pPerModuleInterfaceProcAdd()->SetModuleFileName( "Main Exe" );
-    pPerModuleInterfaceProcAdd()->SetSystemTable( m_pSystemTable );
+	IPerModuleInterface* pPerModuleInterface = PerModuleInterface::GetInstance();
+    pPerModuleInterface->SetModuleFileName( "Main Exe" );
+    pPerModuleInterface->SetSystemTable( m_pSystemTable );
 
 	m_pObjectFactorySystem = new ObjectFactorySystem();
 	m_pObjectFactorySystem->SetLogger( m_pCompilerLogger );
@@ -101,8 +86,7 @@ bool RuntimeObjectSystem::Initialise( ICompilerLogger * pLogger, SystemTable* pS
 	m_pFileChangeNotifier = new FileChangeNotifier();
 
 
-	SetupObjectConstructors(pPerModuleInterfaceProcAdd);
-
+	SetupObjectConstructors(pPerModuleInterface);
 	//add this dir to list of include dirs
 	FileSystemUtils::Path includeDir( __FILE__ );
 	includeDir = includeDir.ParentPath();
@@ -326,7 +310,7 @@ bool RuntimeObjectSystem::LoadCompiledModule()
 	m_pCompilerLogger->LogInfo( "Compilation Succeeded\n");
     ++m_TotalLoadedModulesEver;
 
-	SetupObjectConstructors(pPerModuleInterfaceProcAdd);
+	SetupObjectConstructors(pPerModuleInterfaceProcAdd());
 	m_BuildFileList.clear();	// clear the files from our compile list
 	m_bLastLoadModuleSuccess = true;
 	if( !m_PendingBuildFileList.empty() )
@@ -337,14 +321,14 @@ bool RuntimeObjectSystem::LoadCompiledModule()
 	return true;
 }
 
-void RuntimeObjectSystem::SetupObjectConstructors(GETPerModuleInterface_PROC pPerModuleInterfaceProcAdd)
+void RuntimeObjectSystem::SetupObjectConstructors(IPerModuleInterface* pPerModuleInterface)
 {
 	// for optimization purposes we skip some actions when running for the first time (i.e. no previous constructors)
 	bool bFirstTime = m_RuntimeFileList.empty();
 	
 
 	// get hold of the constructors
-	const std::vector<IObjectConstructor*> &objectConstructors = pPerModuleInterfaceProcAdd()->GetConstructors();
+	const std::vector<IObjectConstructor*> &objectConstructors = pPerModuleInterface->GetConstructors();
 	AUDynArray<IObjectConstructor*> constructors( objectConstructors.size() );
 	for (size_t i=0, iMax=objectConstructors.size(); i<iMax; ++i)
 	{
