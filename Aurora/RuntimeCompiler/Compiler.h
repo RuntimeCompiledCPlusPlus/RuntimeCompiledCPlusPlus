@@ -32,6 +32,20 @@ public:
 	~Compiler();
 	void Initialise( ICompilerLogger * pLogger );
 
+    // On Win32 the compile command line process can be preserved in between compiles for improved performance,
+    // however this can result in Zombie processes and also prevent handles such as sockets from being closed.
+    // This function is safe to call at any time, but will only have an effect on Win32 compiles from the second
+    // compile on after the call (as the first must launch the process and set the VS environment).
+    //
+    // Defaults to m_bFastCompileMode = false
+    void SetFastCompileMode( bool bFast )
+    {
+        m_bFastCompileMode = bFast;
+
+        // call GetIsComplete() to ensure this stops process
+        GetIsComplete();
+    }
+
     std::string GetObjectFileExtension() const;
 	void RunCompile( const std::vector<FileSystemUtils::Path>& filesToCompile,
 					 const std::vector<FileSystemUtils::Path>& includeDirList,
@@ -44,4 +58,5 @@ public:
     FileSystemUtils::Path GetRuntimeIntermediatePath() const;
 private:
 	PlatformCompilerImplData* m_pImplData;
+    bool                      m_bFastCompileMode;
 };

@@ -86,6 +86,15 @@ public:
 	{
 		return m_bAutoCompile;
 	}
+
+    virtual void SetFastCompileMode( bool bFast )
+    {
+        if( m_pBuildTool )
+        {
+            m_pBuildTool->SetFastCompileMode( bFast );
+        }
+    }
+
 	virtual bool GetLastLoadModuleSuccess() const
 	{
 		return m_bLastLoadModuleSuccess;
@@ -104,6 +113,7 @@ public:
     }
     virtual bool TryProtectedFunction( RuntimeProtector* pProtectedObject_ );
 
+	void SetupObjectConstructors(IPerModuleInterface* pPerModuleInterface);
 
 
 	// IFileChangeListener
@@ -122,7 +132,6 @@ private:
 	void StartRecompile();
 
 	void InitObjects();
-	void SetupObjectConstructors(GETPerModuleInterface_PROC pPerModuleInterfaceProcAdd);
 	void DeleteObjects();
 	void ResetGame();
 

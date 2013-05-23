@@ -151,6 +151,28 @@ public:
 	}
 };
 
+bool g_bFastCompile = false;
+
+
+class OnFastCompile : public IGUIEventListener
+{
+public:
+	virtual void OnEvent( int event_id, const IGUIEvent& event_info )
+	{
+		char FastCompile[100];
+		event_info.GetParameter( "value", FastCompile, sizeof( FastCompile ) );
+		size_t length = strlen( FastCompile );
+		if ( 0 == length )
+		{
+			g_bFastCompile = false;
+		}
+		else
+		{
+			g_bFastCompile = true;
+		}
+        PerModuleInterface::g_pSystemTable->pRuntimeObjectSystem->SetFastCompileMode( g_bFastCompile );
+	}
+};
 
 float g_Speed = 1.0f;
 bool g_Paused = true;
@@ -208,6 +230,7 @@ public:
 		, m_pAutoCompileCheckBox(0)
 		, m_pSpeedSlider(0)
 		, m_pPauseCheckBox(0)
+        , m_pFastCompileCheckBox(0)
 
 	{
 	}
@@ -261,6 +284,12 @@ public:
 			m_pAutoCompileCheckBox->RemoveReference();
 			m_pAutoCompileCheckBox = 0;
 		}
+		if( m_pFastCompileCheckBox )
+		{
+			m_pFastCompileCheckBox->RemoveEventListener( "change", &m_FastCompileCheckBoxEvent, 0 );
+			m_pFastCompileCheckBox->RemoveReference();
+			m_pFastCompileCheckBox = 0;
+		}
 		if( m_pSpeedSlider )
 		{
 			m_pSpeedSlider->RemoveEventListener( "change", &m_SpeedEvent, 0 );
@@ -288,6 +317,7 @@ public:
 		SERIALIZE(m_MenuEvent.m_bVisible);
 		SERIALIZE(m_OptionsEvent.m_bVisible);
 		SERIALIZE( g_bAutoCompile );
+        SERIALIZE( g_bFastCompile );
 		SERIALIZE( g_Speed );
 		SERIALIZE( g_Paused );
 	}
@@ -361,8 +391,6 @@ public:
 
 			m_pAutoCompileCheckBox = pDocument->Element()->GetElementById( "autocompilecheckbox");
 			m_pAutoCompileCheckBox->AddEventListener( "change", &m_AutoCompileCheckBoxEvent, 0 );
-			//TODO: fix below. See other code below for pause and call the game->setAutoCompile with the value
-
 			if( bHaveLoadedDoc )
 			{
 				char AutoCompile[100];
@@ -370,6 +398,17 @@ public:
 				g_bAutoCompile = strlen( AutoCompile ) > 0;
 			}
 			PerModuleInterface::g_pSystemTable->pRuntimeObjectSystem->SetAutoCompile( g_bAutoCompile );
+
+			m_pFastCompileCheckBox = pDocument->Element()->GetElementById( "fastcompilecheckbox");
+			m_pFastCompileCheckBox->AddEventListener( "change", &m_FastCompileCheckBoxEvent, 0 );
+			if( bHaveLoadedDoc )
+			{
+				char FastCompile[100];
+				m_pFastCompileCheckBox->GetAttribute( "checked", FastCompile, sizeof( FastCompile ) );
+				g_bFastCompile = strlen( FastCompile ) > 0;
+			}
+            PerModuleInterface::g_pSystemTable->pRuntimeObjectSystem->SetFastCompileMode( g_bFastCompile );
+
 
 			char Value[80];
 			m_pSpeedSlider = pDocument->Element()->GetElementById( "speedslider");
@@ -415,6 +454,7 @@ public:
 	IGUIElement* m_pMenuButton;
 	IGUIElement* m_pOptionsButton;
 	IGUIElement* m_pAutoCompileCheckBox;
+	IGUIElement* m_pFastCompileCheckBox;
 	IGUIElement* m_pSpeedSlider;
 	IGUIElement* m_pPauseCheckBox;
 
@@ -425,6 +465,7 @@ public:
 	OnClickVisibleButton	m_MenuEvent;
 	OnClickVisibleButton	m_OptionsEvent;
 	OnAutoCompile			m_AutoCompileCheckBoxEvent;
+	OnFastCompile			m_FastCompileCheckBoxEvent;
 	OnChangeSpeed			m_SpeedEvent;
 	OnPauseGame				m_PauseCheckBoxEvent;
 };

@@ -56,6 +56,9 @@ public:
 	virtual void SetAutoCompile( bool autoCompile ) = 0;
 	virtual bool GetAutoCompile() const = 0;
 
+    // see Compiler::SetFastCompileMode
+    virtual void SetFastCompileMode( bool bFast ) = 0;
+
 	//ensure subclasses are deleted correctly
 	virtual ~IRuntimeObjectSystem(){};
 

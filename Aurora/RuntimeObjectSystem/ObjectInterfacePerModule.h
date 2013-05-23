@@ -85,7 +85,7 @@ public:
 	TObjectConstructorConcrete(
 		const char* Filename,
 		IRuntimeIncludeFileList*        pIncludeFileList_,
-        IRuntimeSourceDependancyList*   pSourceDependencyList_,
+        IRuntimeSourceDependencyList*   pSourceDependencyList_,
         IRuntimeLinkLibraryList*        pLinkLibraryList )
 		: m_FileName(                   Filename )
 		, m_pIncludeFileList(           pIncludeFileList_ )
@@ -249,7 +249,7 @@ private:
 	std::vector<PerTypeObjectId>	m_FreeIds;
 	ConstructorId                   m_Id;
 	IRuntimeIncludeFileList*        m_pIncludeFileList;
-    IRuntimeSourceDependancyList*   m_pSourceDependencyList;
+    IRuntimeSourceDependencyList*   m_pSourceDependencyList;
 	IRuntimeLinkLibraryList*        m_pLinkLibraryList;
     PerModuleInterface*             m_pModuleInterface;
 };
@@ -301,7 +301,7 @@ private:
 //NOTE: the file macro will only emit the full path if /FC option is used in visual studio or /ZI (Which forces /FC)
 #define REGISTERCLASS( T )	\
 	static RuntimeIncludeFiles< __COUNTER__ >       g_includeFileList_##T; \
-	static RuntimeSourceDependancy< __COUNTER__ >   g_sourceDependencyList_##T; \
+	static RuntimeSourceDependency< __COUNTER__ >   g_sourceDependencyList_##T; \
 	static RuntimeLinkLibrary< __COUNTER__ >        g_linkLibraryList_##T; \
 template<> TObjectConstructorConcrete< TActual< T > > TActual< T >::m_Constructor( __FILE__, &g_includeFileList_##T, &g_sourceDependencyList_##T, &g_linkLibraryList_##T );\
 template<> const char* TActual< T >::GetTypeNameStatic() { return #T; } \

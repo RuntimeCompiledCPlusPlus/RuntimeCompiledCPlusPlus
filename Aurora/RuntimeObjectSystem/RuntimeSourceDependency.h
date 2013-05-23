@@ -25,9 +25,9 @@
 //requires use of __COUNTER__ predefined macro, which is in gcc 4.3+, clang/llvm and MSVC
 #include "../RuntimeCompiler/FileSystemUtils.h"
 
-struct IRuntimeSourceDependancyList
+struct IRuntimeSourceDependencyList
 {
-	IRuntimeSourceDependancyList( size_t max ) : MaxNum( max )
+	IRuntimeSourceDependencyList( size_t max ) : MaxNum( max )
 	{
 	}
 
@@ -43,12 +43,12 @@ struct IRuntimeSourceDependancyList
 namespace
 {
 
-template< size_t COUNT > struct RuntimeSourceDependancy : public RuntimeSourceDependancy<COUNT-1>
+template< size_t COUNT > struct RuntimeSourceDependency : public RuntimeSourceDependency<COUNT-1>
 {
-	RuntimeSourceDependancy( size_t max ) : RuntimeSourceDependancy<COUNT-1>( max )
+	RuntimeSourceDependency( size_t max ) : RuntimeSourceDependency<COUNT-1>( max )
 	{
 	}
-	RuntimeSourceDependancy() : RuntimeSourceDependancy<COUNT-1>( COUNT )
+	RuntimeSourceDependency() : RuntimeSourceDependency<COUNT-1>( COUNT )
 	{
 	}
 
@@ -56,18 +56,18 @@ template< size_t COUNT > struct RuntimeSourceDependancy : public RuntimeSourceDe
 	{
 		if( Num_ < COUNT )
 		{
-			return this->RuntimeSourceDependancy< COUNT-1 >::GetSourceDependency( Num_ );
+			return this->RuntimeSourceDependency< COUNT-1 >::GetSourceDependency( Num_ );
 		}
 		else return 0;
 	}
 };
 
-template<> struct RuntimeSourceDependancy<0> : public IRuntimeSourceDependancyList
+template<> struct RuntimeSourceDependency<0> : public IRuntimeSourceDependencyList
 {
-	RuntimeSourceDependancy( size_t max ) : IRuntimeSourceDependancyList( max )
+	RuntimeSourceDependency( size_t max ) : IRuntimeSourceDependencyList( max )
 	{
 	}
-	RuntimeSourceDependancy() : IRuntimeSourceDependancyList( 0 )
+	RuntimeSourceDependency() : IRuntimeSourceDependencyList( 0 )
 	{
 	}
 
@@ -79,11 +79,11 @@ template<> struct RuntimeSourceDependancy<0> : public IRuntimeSourceDependancyLi
 
 
 
-#define RUNTIME_COMPILER_SOURCEDEPENENCY_BASE( SOURCEFILE, N ) \
-	template<> struct RuntimeSourceDependancy< N + 1 >  : public RuntimeSourceDependancy< N >\
+#define RUNTIME_COMPILER_SOURCEDEPENDENCY_BASE( SOURCEFILE, N ) \
+	template<> struct RuntimeSourceDependency< N + 1 >  : public RuntimeSourceDependency< N >\
 	{ \
-		RuntimeSourceDependancy( size_t max ) : RuntimeSourceDependancy<N>( max ) {} \
-		RuntimeSourceDependancy< N + 1 >() : RuntimeSourceDependancy<N>( N + 1 ) {} \
+		RuntimeSourceDependency( size_t max ) : RuntimeSourceDependency<N>( max ) {} \
+		RuntimeSourceDependency< N + 1 >() : RuntimeSourceDependency<N>( N + 1 ) {} \
 		virtual const char* GetSourceDependency( size_t Num_ ) const \
 		{ \
 			if( Num_ <= N ) \
@@ -92,15 +92,15 @@ template<> struct RuntimeSourceDependancy<0> : public IRuntimeSourceDependancyLi
 				{ \
 					return SOURCEFILE; \
 				} \
-				else return this->RuntimeSourceDependancy< N >::GetSourceDependency( Num_ ); \
+				else return this->RuntimeSourceDependency< N >::GetSourceDependency( Num_ ); \
 			} \
 			else return 0; \
 		} \
 	}; \
 
-// The RUNTIME_COMPILER_SOURCEDEPENENCY macro will return the name of the current file, which should be a header file.
+// The RUNTIME_COMPILER_SOURCEDEPENDENCY macro will return the name of the current file, which should be a header file.
 // The runtime system will strip off the extension and add .cpp
-#define RUNTIME_COMPILER_SOURCEDEPENENCY namespace { RUNTIME_COMPILER_SOURCEDEPENENCY_BASE( __FILE__, __COUNTER__ ) }
+#define RUNTIME_COMPILER_SOURCEDEPENDENCY namespace { RUNTIME_COMPILER_SOURCEDEPENDENCY_BASE( __FILE__, __COUNTER__ ) }
 
 }
 
