@@ -86,6 +86,15 @@ public:
 	{
 		return m_bAutoCompile;
 	}
+
+    virtual void SetFastCompileMode( bool bFast )
+    {
+        if( m_pBuildTool )
+        {
+            m_pBuildTool->SetFastCompileMode( bFast );
+        }
+    }
+
 	virtual bool GetLastLoadModuleSuccess() const
 	{
 		return m_bLastLoadModuleSuccess;

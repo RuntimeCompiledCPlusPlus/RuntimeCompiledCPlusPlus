@@ -201,6 +201,29 @@ public:
 		CloseHandle( hErrorWrite );
 		hErrorWrite = NULL;
 	}
+
+    void CleanupProcessAndPipes()
+    {
+        // do not reset m_bCompileIsComplete and other members here, just process and pipes
+        if(  m_CmdProcessInfo.hProcess )
+        {
+            TerminateProcess( m_CmdProcessInfo.hProcess, 0 );
+            CloseHandle( m_CmdProcessInfo.hThread );
+		    ZeroMemory( &m_CmdProcessInfo, sizeof(m_CmdProcessInfo) );
+	        CloseHandle( m_CmdProcessInputWrite );
+            m_CmdProcessInputWrite = 0;
+	        CloseHandle( m_CmdProcessOutputRead );
+            m_CmdProcessOutputRead = 0;
+        }
+
+    }
+    
+
+    ~PlatformCompilerImplData()
+    {
+        CleanupProcessAndPipes();
+    }
+
 	std::string			m_VSPath;
 	std::string			m_intermediatePath;
 	PROCESS_INFORMATION m_CmdProcessInfo;
@@ -212,16 +235,12 @@ public:
 
 Compiler::Compiler() 
 	: m_pImplData( 0 )
+    , m_bFastCompileMode( false )
 {
 }
 
 Compiler::~Compiler()
 {
-	BOOL retval = TerminateProcess( m_pImplData->m_CmdProcessInfo.hProcess, 0 );
-	//CloseHandle( m_pImplData->m_CmdProcessInfo.hProcess );
-    CloseHandle( m_pImplData->m_CmdProcessInfo.hThread );
-	CloseHandle( m_pImplData->m_CmdProcessInputWrite );
-	CloseHandle( m_pImplData->m_CmdProcessOutputRead );
 	delete m_pImplData;
 }
 
@@ -232,7 +251,12 @@ std::string Compiler::GetObjectFileExtension() const
 
 bool Compiler::GetIsComplete() const
 {
-	return m_pImplData->m_bCompileIsComplete;
+    bool bComplete = m_pImplData->m_bCompileIsComplete;
+    if( bComplete & !m_bFastCompileMode )
+    {
+        m_pImplData->CleanupProcessAndPipes();
+    }
+	return bComplete;
 }
 
 void Compiler::Initialise( ICompilerLogger * pLogger )

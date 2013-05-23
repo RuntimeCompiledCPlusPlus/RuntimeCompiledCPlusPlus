@@ -26,6 +26,7 @@
           <div class="options">
             <p>
               Auto Compile: <input type="checkbox" id="autocompilecheckbox" value="checked" checked="something"/>
+              Fast Compile: <input type="checkbox" id="fastcompilecheckbox" value="checked"/>
             </p>
           </div>
                     
