@@ -57,6 +57,13 @@ public:
 	{
 		return m_Compiler.GetIsComplete();
 	}
+
+    void SetFastCompileMode( bool bFast )
+    {
+        m_Compiler.SetFastCompileMode( bFast );
+    }
+    
+
 private:
 	Compiler                    m_Compiler;
 	ICompilerLogger*            m_pLogger;

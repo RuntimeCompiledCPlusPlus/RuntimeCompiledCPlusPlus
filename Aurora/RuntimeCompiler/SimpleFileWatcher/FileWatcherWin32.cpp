@@ -120,7 +120,7 @@ namespace FW
 
 			CloseHandle(pWatch->mOverlapped.hEvent);
 			CloseHandle(pWatch->mDirHandle);
-			delete pWatch->mDirName;
+			delete[] pWatch->mDirName;
 			HeapFree(GetProcessHeap(), 0, pWatch);
 		}
 	}

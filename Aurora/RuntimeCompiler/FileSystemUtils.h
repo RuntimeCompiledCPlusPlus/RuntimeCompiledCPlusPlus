@@ -197,6 +197,17 @@ namespace FileSystemUtils
         return timer;
     }
 
+    inline tm GetTimeStruct( filetime_t time )
+    {
+        tm ret;
+#ifdef _WIN32
+        _gmtime64_s(&ret, &time);
+#else
+        gmtime_r(&time, &ret);
+#endif
+        return ret;
+    }
+
 	inline bool		Path::Remove()			const
 	{
 		int error = remove( c_str() );
