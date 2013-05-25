@@ -57,7 +57,7 @@ public:
 
 		if ( m_pSplashElement )
 		{
-			m_pSplashElement->RemoveEventListener( "click", this, 0 );
+			m_pSplashElement->RemoveEventListener( "click", this );
 			m_pSplashElement->RemoveReference();
 		}
 
@@ -184,7 +184,7 @@ public:
 
 	// IGUIEventListener 
 
-	virtual void OnEvent( int event_id, const IGUIEvent& event_info )
+	virtual void OnEvent( const IGUIEvent& event_info )
 	{
 		m_bCloseRequested = true;
 	}
@@ -267,7 +267,7 @@ private:
 		// counting correctly.
 		if (m_pSplashElement)
 		{
-			m_pSplashElement->RemoveEventListener( "click", this, 0 );
+			m_pSplashElement->RemoveEventListener( "click", this );
 			m_pSplashElement->RemoveReference();
 			m_pSplashElement = 0;
 		}
@@ -294,7 +294,7 @@ private:
 		{
 			m_pDocument->Show();
 			m_pSplashElement = m_pDocument->Element()->GetElementById("splash");
-			m_pSplashElement->AddEventListener( "click", this, 0 );
+			m_pSplashElement->AddEventListener( "click", this );
 		}
 	}
 

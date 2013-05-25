@@ -22,6 +22,7 @@
 
 #include <cstring>
 
+
 struct IGUIEvent
 {
 	virtual ~IGUIEvent() {}
@@ -31,7 +32,7 @@ struct IGUIEvent
 struct IGUIEventListener
 {
 	virtual ~IGUIEventListener() {}
-	virtual void OnEvent( int event_id, const IGUIEvent& event_info ) = 0;
+	virtual void OnEvent( const IGUIEvent& event_info ) = 0;
 };
 
 
@@ -52,11 +53,11 @@ struct IGUIElement
 	virtual void AddReference() = 0;
 	virtual void RemoveReference() = 0;
 
-	// Add an event with caller provided id to enable differentiating different event names in callback OnEvent
-	virtual void AddEventListener( const char* eventname, IGUIEventListener* pEventListener, int event_id  ) = 0;
+	// Add an event
+	virtual void AddEventListener( const char* eventname, IGUIEventListener* pEventListener  ) = 0;
 
 	// Remove event
-	virtual void RemoveEventListener( const char* eventname, IGUIEventListener* pEventListener, int event_id ) = 0;
+	virtual void RemoveEventListener( const char* eventname, IGUIEventListener* pEventListener ) = 0;
 };
 
 #endif // IGUIELEMENT_INCLUDED

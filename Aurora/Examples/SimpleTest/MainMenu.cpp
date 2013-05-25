@@ -34,7 +34,7 @@
 class OnClickCompile : public IGUIEventListener
 {
 public:
-	virtual void OnEvent( int event_id, const IGUIEvent& event_info )
+	virtual void OnEvent( const IGUIEvent& event_info )
 	{
 		PerModuleInterface::g_pSystemTable->pRuntimeObjectSystem->CompileAll( true );
 	}
@@ -43,7 +43,7 @@ public:
 class OnClickConsole : public IGUIEventListener
 {
 public:
-	virtual void OnEvent( int event_id, const IGUIEvent& event_info )
+	virtual void OnEvent( const IGUIEvent& event_info )
 	{
 		PerModuleInterface::g_pSystemTable->pGame->ToggleConsoleGUI();
 	}
@@ -52,7 +52,7 @@ public:
 class OnClickNewButton : public IGUIEventListener
 {
 public:
-	virtual void OnEvent( int event_id, const IGUIEvent& event_info )
+	virtual void OnEvent( const IGUIEvent& event_info )
 	{
 		PerModuleInterface::g_pSystemTable->pGame->Reset();
 	}
@@ -62,7 +62,7 @@ public:
 class OnClickRestartButton : public IGUIEventListener
 {
 public:
-	virtual void OnEvent( int event_id, const IGUIEvent& event_info )
+	virtual void OnEvent( const IGUIEvent& event_info )
 	{
 		PerModuleInterface::g_pSystemTable->pGame->Restart();
 	}
@@ -98,14 +98,14 @@ public:
 		m_pChildClose = pChild;
 	}
 
-	virtual void OnEvent( int event_id, const IGUIEvent& event_info )
+	virtual void OnEvent( const IGUIEvent& event_info )
 	{
-		m_bVisible = (event_id == 0) ? !m_bVisible : false; // Toggle or force close
+		m_bVisible = !m_bVisible; // Toggle or force close
 		SetVisibility();
 
 		if ( !m_bVisible && m_pChildClose )
 		{
-			m_pChildClose->OnEvent( 1, event_info );
+			m_pChildClose->OnEvent( event_info );
 		}
 	}
 
@@ -134,7 +134,7 @@ bool g_bAutoCompile = true;
 class OnAutoCompile : public IGUIEventListener
 {
 public:
-	virtual void OnEvent( int event_id, const IGUIEvent& event_info )
+	virtual void OnEvent( const IGUIEvent& event_info )
 	{
 		char AutoCompile[100];
 		event_info.GetParameter( "value", AutoCompile, sizeof( AutoCompile ) );
@@ -157,7 +157,7 @@ bool g_bFastCompile = false;
 class OnFastCompile : public IGUIEventListener
 {
 public:
-	virtual void OnEvent( int event_id, const IGUIEvent& event_info )
+	virtual void OnEvent( const IGUIEvent& event_info )
 	{
 		char FastCompile[100];
 		event_info.GetParameter( "value", FastCompile, sizeof( FastCompile ) );
@@ -181,7 +181,7 @@ class OnChangeSpeed : public IGUIEventListener
 {
 public:
 	float m_MaxSpeed;
-	virtual void OnEvent( int event_id, const IGUIEvent& event_info )
+	virtual void OnEvent( const IGUIEvent& event_info )
 	{
 		char Value[100];
 		event_info.GetParameter( "value", Value, sizeof( Value ) );
@@ -198,7 +198,7 @@ public:
 class OnPauseGame : public IGUIEventListener
 {
 public:
-	virtual void OnEvent( int event_id, const IGUIEvent& event_info )
+	virtual void OnEvent( const IGUIEvent& event_info )
 	{
 		char Pause[100];
 		event_info.GetParameter( "value", Pause, sizeof( Pause ) );
@@ -244,61 +244,61 @@ public:
 	{
 		if( m_pReCompileButton )
 		{
-			m_pReCompileButton->RemoveEventListener( "click", &m_CompileEvent, 0 );
+			m_pReCompileButton->RemoveEventListener( "click", &m_CompileEvent );
 			m_pReCompileButton->RemoveReference();
 			m_pReCompileButton = 0;
 		}
 		if( m_pConsoleButton )
 		{
-			m_pConsoleButton->RemoveEventListener( "click", &m_ConsoleEvent, 0 );
+			m_pConsoleButton->RemoveEventListener( "click", &m_ConsoleEvent );
 			m_pConsoleButton->RemoveReference();
 			m_pConsoleButton = 0;
 		}
 		if( m_pNewButton )
 		{
-			m_pNewButton->RemoveEventListener( "click", &m_NewEvent, 0 );
+			m_pNewButton->RemoveEventListener( "click", &m_NewEvent );
 			m_pNewButton->RemoveReference();
 			m_pNewButton = 0;
 		}
 		if( m_pRestartButton )
 		{
-			m_pRestartButton->RemoveEventListener( "click", &m_RestartEvent, 0 );
+			m_pRestartButton->RemoveEventListener( "click", &m_RestartEvent );
 			m_pRestartButton->RemoveReference();
 			m_pRestartButton = 0;
 		}
 		if( m_pMenuButton )
 		{
-			m_pMenuButton->RemoveEventListener( "click", &m_MenuEvent, 0 );
+			m_pMenuButton->RemoveEventListener( "click", &m_MenuEvent );
 			m_pMenuButton->RemoveReference();
 			m_pMenuButton = 0;
 		}
 		if( m_pOptionsButton )
 		{
-			m_pOptionsButton->RemoveEventListener( "click", &m_OptionsEvent, 0 );
+			m_pOptionsButton->RemoveEventListener( "click", &m_OptionsEvent );
 			m_pOptionsButton->RemoveReference();
 			m_pOptionsButton = 0;
 		}
 		if( m_pAutoCompileCheckBox )
 		{
-			m_pAutoCompileCheckBox->RemoveEventListener( "change", &m_AutoCompileCheckBoxEvent, 0 );
+			m_pAutoCompileCheckBox->RemoveEventListener( "change", &m_AutoCompileCheckBoxEvent );
 			m_pAutoCompileCheckBox->RemoveReference();
 			m_pAutoCompileCheckBox = 0;
 		}
 		if( m_pFastCompileCheckBox )
 		{
-			m_pFastCompileCheckBox->RemoveEventListener( "change", &m_FastCompileCheckBoxEvent, 0 );
+			m_pFastCompileCheckBox->RemoveEventListener( "change", &m_FastCompileCheckBoxEvent );
 			m_pFastCompileCheckBox->RemoveReference();
 			m_pFastCompileCheckBox = 0;
 		}
 		if( m_pSpeedSlider )
 		{
-			m_pSpeedSlider->RemoveEventListener( "change", &m_SpeedEvent, 0 );
+			m_pSpeedSlider->RemoveEventListener( "change", &m_SpeedEvent );
 			m_pSpeedSlider->RemoveReference();
 			m_pSpeedSlider = 0;
 		}
 		if( m_pPauseCheckBox )
 		{
-			m_pPauseCheckBox->RemoveEventListener( "change", &m_PauseCheckBoxEvent, 0 );
+			m_pPauseCheckBox->RemoveEventListener( "change", &m_PauseCheckBoxEvent );
 			m_pPauseCheckBox->RemoveReference();
 			m_pPauseCheckBox = 0;
 		}
@@ -366,31 +366,31 @@ public:
 		if( pDocument )
 		{
 			m_pReCompileButton = pDocument->Element()->GetElementById( "ReCompileButton");
-			m_pReCompileButton->AddEventListener( "click", &m_CompileEvent, 0 );
+			m_pReCompileButton->AddEventListener( "click", &m_CompileEvent );
 
 			m_pConsoleButton = pDocument->Element()->GetElementById( "ConsoleButton");
-			m_pConsoleButton->AddEventListener( "click", &m_ConsoleEvent, 0 );
+			m_pConsoleButton->AddEventListener( "click", &m_ConsoleEvent );
 
 			m_pNewButton = pDocument->Element()->GetElementById( "NewButton");
-			m_pNewButton->AddEventListener( "click", &m_NewEvent, 0 );
+			m_pNewButton->AddEventListener( "click", &m_NewEvent );
 
 			m_pRestartButton = pDocument->Element()->GetElementById( "RestartButton");
-			m_pRestartButton->AddEventListener( "click", &m_RestartEvent, 0 );
+			m_pRestartButton->AddEventListener( "click", &m_RestartEvent );
 
 			m_pMenuButton = pDocument->Element()->GetElementById( "ToggleButton");
-			m_pMenuButton->AddEventListener( "click", &m_MenuEvent, 0 );
+			m_pMenuButton->AddEventListener( "click", &m_MenuEvent );
 			m_MenuEvent.SetChildClose( &m_OptionsEvent );
 			m_MenuEvent.SetElement( pDocument->Element()->GetElementById("menu-group") );
 			m_MenuEvent.SetVisibility();	//force toggle menu to set to default state
 
 			m_pOptionsButton = pDocument->Element()->GetElementById( "ToggleOptions");
-			m_pOptionsButton->AddEventListener( "click", &m_OptionsEvent, 0 );
+			m_pOptionsButton->AddEventListener( "click", &m_OptionsEvent );
 			m_OptionsEvent.SetElement( pDocument->Element()->GetElementById("Options") );
 			m_OptionsEvent.m_bInline = false;
 			m_OptionsEvent.SetVisibility();	//force toggle menu to set to default state
 
 			m_pAutoCompileCheckBox = pDocument->Element()->GetElementById( "autocompilecheckbox");
-			m_pAutoCompileCheckBox->AddEventListener( "change", &m_AutoCompileCheckBoxEvent, 0 );
+			m_pAutoCompileCheckBox->AddEventListener( "change", &m_AutoCompileCheckBoxEvent );
 			if( bHaveLoadedDoc )
 			{
 				char AutoCompile[100];
@@ -400,7 +400,7 @@ public:
 			PerModuleInterface::g_pSystemTable->pRuntimeObjectSystem->SetAutoCompile( g_bAutoCompile );
 
 			m_pFastCompileCheckBox = pDocument->Element()->GetElementById( "fastcompilecheckbox");
-			m_pFastCompileCheckBox->AddEventListener( "change", &m_FastCompileCheckBoxEvent, 0 );
+			m_pFastCompileCheckBox->AddEventListener( "change", &m_FastCompileCheckBoxEvent );
 			if( bHaveLoadedDoc )
 			{
 				char FastCompile[100];
@@ -412,7 +412,7 @@ public:
 
 			char Value[80];
 			m_pSpeedSlider = pDocument->Element()->GetElementById( "speedslider");
-			m_pSpeedSlider->AddEventListener( "change", &m_SpeedEvent, 0 );
+			m_pSpeedSlider->AddEventListener( "change", &m_SpeedEvent );
 			m_pSpeedSlider->GetAttribute( "value", Value, sizeof( Value ) );
 			float val = (float)atof( Value );
 			PerModuleInterface::g_pSystemTable->pGame->SetSpeed( val );
@@ -422,7 +422,7 @@ public:
 			m_SpeedEvent.m_MaxSpeed = max;
 
 			m_pPauseCheckBox = pDocument->Element()->GetElementById( "pausecheckbox");
-			m_pPauseCheckBox->AddEventListener( "change", &m_PauseCheckBoxEvent, 0 );
+			m_pPauseCheckBox->AddEventListener( "change", &m_PauseCheckBoxEvent );
 			
 			if( bHaveLoadedDoc )
 			{
