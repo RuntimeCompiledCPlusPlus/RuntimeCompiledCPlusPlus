@@ -91,6 +91,13 @@ void ObjectFactorySystem::ProtectedFunc()
 		IObjectConstructor* pConstructor = constructors[i];
 		//replace constructor, but if one exists then replace objects
 		IObjectConstructor* pOldConstructor = GetConstructor( pConstructor->GetName() );
+
+        if( pOldConstructor == pConstructor )
+        {
+            // don't add constructor if it's already in existance
+            continue;
+        }
+
 		// Reconstruct objects, starting at end to reduce overhead in factory container
 		if( pOldConstructor )
 		{
