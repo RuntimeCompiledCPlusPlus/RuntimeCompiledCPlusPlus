@@ -67,20 +67,27 @@ Environment::Environment( IGame* pGame )
 
 	pCompilerLogger = new CompilerLogger(this);
 	sys->pRuntimeObjectSystem = new RuntimeObjectSystem();
-	sys->pRuntimeObjectSystem->Initialise( pCompilerLogger, sys );
 	sys->pObjectFactorySystem = sys->pRuntimeObjectSystem->GetObjectFactorySystem();
 	sys->pFileChangeNotifier = sys->pRuntimeObjectSystem->GetFileChangeNotifier();
 
 
 
 	sys->pTimeSystem = new TimeSystem();
-	sys->pTimeSystem->StartSession();
 
 	sys->pEntitySystem = new EntitySystem();
 
 	sys->pGUISystem = new GUISystem();
 
+
 }
+
+
+void Environment::Init()
+{
+	sys->pTimeSystem->StartSession();
+    sys->pRuntimeObjectSystem->Initialise( pCompilerLogger, sys );
+}
+
 
 Environment::~Environment()
 {

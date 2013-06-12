@@ -372,4 +372,4 @@ public:
 	OnPauseGame				m_PauseCheckBoxEvent;
 };
 
-REGISTERSINGLETON(MainMenu);
+REGISTERSINGLETON(MainMenu, false);

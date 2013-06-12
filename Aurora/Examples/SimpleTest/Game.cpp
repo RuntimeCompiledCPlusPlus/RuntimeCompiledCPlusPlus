@@ -159,6 +159,8 @@ bool Game::Init()
 	m_pConsole = new Console(m_pEnv, m_pRocketContext);
 	m_EntityUpdateProtector.pEntitySystem = m_pEnv->sys->pEntitySystem;
 
+    m_pEnv->Init();
+
 	return true;
 }
 
@@ -440,9 +442,7 @@ void Game::RocketLibShutdown()
 }
 
 void Game::InitObjects()
-{
-	IObjectUtils::CreateUniqueObject( "MainObject" );
-	
+{	
 	InitStoredObjectPointers();
 }
 
