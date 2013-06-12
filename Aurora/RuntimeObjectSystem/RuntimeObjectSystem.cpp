@@ -41,9 +41,9 @@ using FileSystemUtils::Path;
 RuntimeObjectSystem::RuntimeObjectSystem()
 	: m_pCompilerLogger(0)
 	, m_pSystemTable(0)
-	, m_pObjectFactorySystem(0)
-	, m_pFileChangeNotifier(0)
-	, m_pBuildTool(0)
+	, m_pObjectFactorySystem(new ObjectFactorySystem())
+	, m_pFileChangeNotifier(new FileChangeNotifier())
+	, m_pBuildTool(new BuildTool())
 	, m_bCompiling( false )
 	, m_bLastLoadModuleSuccess( false )
 	, m_bAutoCompile( true )
@@ -71,7 +71,6 @@ bool RuntimeObjectSystem::Initialise( ICompilerLogger * pLogger, SystemTable* pS
 	m_pCompilerLogger = pLogger;
 	m_pSystemTable = pSystemTable;
 
-	m_pBuildTool = new BuildTool();
 	m_pBuildTool->Initialise(m_pCompilerLogger);
 
 	// We start by using the code in the current module
@@ -79,12 +78,8 @@ bool RuntimeObjectSystem::Initialise( ICompilerLogger * pLogger, SystemTable* pS
     pPerModuleInterface->SetModuleFileName( "Main Exe" );
     pPerModuleInterface->SetSystemTable( m_pSystemTable );
 
-	m_pObjectFactorySystem = new ObjectFactorySystem();
 	m_pObjectFactorySystem->SetLogger( m_pCompilerLogger );
     m_pObjectFactorySystem->SetRuntimeObjectSystem( this );
-
-	m_pFileChangeNotifier = new FileChangeNotifier();
-
 
 	SetupObjectConstructors(pPerModuleInterface);
 	//add this dir to list of include dirs
