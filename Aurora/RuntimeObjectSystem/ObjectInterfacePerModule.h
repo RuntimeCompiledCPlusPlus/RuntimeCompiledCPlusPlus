@@ -87,13 +87,15 @@ public:
 		IRuntimeIncludeFileList*        pIncludeFileList_,
         IRuntimeSourceDependencyList*   pSourceDependencyList_,
         IRuntimeLinkLibraryList*        pLinkLibraryList,
-        bool                            bIsSingleton )
+        bool                            bIsSingleton,
+        bool                            bIsAutoConstructSingleton)
 		: m_FileName(                   Filename )
 		, m_pIncludeFileList(           pIncludeFileList_ )
 		, m_pSourceDependencyList(      pSourceDependencyList_ )
 		, m_pLinkLibraryList(           pLinkLibraryList )
         , m_pModuleInterface(           0 )
         , m_bIsSingleton( bIsSingleton )
+        ,m_bIsAutoConstructSingleton( bIsAutoConstructSingleton )
 	{
 		// add path to filename
 		#ifdef COMPILE_PATH
@@ -217,6 +219,10 @@ public:
     {
         return m_bIsSingleton;
     }
+    virtual bool        GetIsAutoConstructSingleton() const
+    {
+        return m_bIsSingleton && m_bIsAutoConstructSingleton;
+    }
 
 
 	virtual IObject* GetConstructedObject( PerTypeObjectId id ) const
@@ -260,6 +266,7 @@ public:
 	}
 private:
     bool                            m_bIsSingleton;
+    bool                            m_bIsAutoConstructSingleton;
 	std::string                     m_FileName;
 	std::vector<T*>                 m_ConstructedObjects;
 	std::vector<PerTypeObjectId>	m_FreeIds;
@@ -314,18 +321,18 @@ private:
 	static TObjectConstructorConcrete<TActual> m_Constructor;
 };
 
-#define REGISTERBASE( T, bIsSingleton )	\
+#define REGISTERBASE( T, bIsSingleton, bIsAutoConstructSingleton )	\
 	static RuntimeIncludeFiles< __COUNTER__ >       g_includeFileList_##T; \
 	static RuntimeSourceDependency< __COUNTER__ >   g_sourceDependencyList_##T; \
 	static RuntimeLinkLibrary< __COUNTER__ >        g_linkLibraryList_##T; \
-template<> TObjectConstructorConcrete< TActual< T > > TActual< T >::m_Constructor( __FILE__, &g_includeFileList_##T, &g_sourceDependencyList_##T, &g_linkLibraryList_##T, false );\
+template<> TObjectConstructorConcrete< TActual< T > > TActual< T >::m_Constructor( __FILE__, &g_includeFileList_##T, &g_sourceDependencyList_##T, &g_linkLibraryList_##T, bIsSingleton, bIsAutoConstructSingleton );\
 template<> const char* TActual< T >::GetTypeNameStatic() { return #T; } \
 template class TActual< T >;
 
 //NOTE: the file macro will only emit the full path if /FC option is used in visual studio or /ZI (Which forces /FC)
-#define REGISTERCLASS( T )	REGISTERBASE( T, false )
+#define REGISTERCLASS( T )	REGISTERBASE( T, false, false )
 
-#define REGISTERSINGLETON( T )	REGISTERBASE( T, true )
+#define REGISTERSINGLETON( T, bIsAutoConstructSingleton )	REGISTERBASE( T, true, bIsAutoConstructSingleton )
 
 
 #endif // OBJECTINTERFACEPERMODULE_INCLUDED

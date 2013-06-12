@@ -80,6 +80,7 @@ struct IObjectConstructor
 
     // Singleton functions
     virtual bool        GetIsSingleton() const = 0;
+    virtual bool        GetIsAutoConstructSingleton() const = 0;
     IObject*            GetSingleton()
     {
         return Construct();
