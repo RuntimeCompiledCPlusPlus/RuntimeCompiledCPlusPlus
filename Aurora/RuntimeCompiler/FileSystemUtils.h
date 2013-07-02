@@ -416,6 +416,75 @@ namespace FileSystemUtils
 		return path;
 	}
 
+
+        class PathIterator
+    {
+    public:
+        PathIterator( const Path& path_ )
+            : m_dir( path_ )
+        {
+            ImpCtor();
+        }
+        ~PathIterator()
+        {
+            ImpDtor();
+        }
+
+        bool operator++()
+        {
+            return ImpNext();
+        }
+
+        bool IsValid() const
+        {
+            return m_bIsValid;
+        }
+        const Path& GetPath() const
+        {
+            return m_path;
+        }
+
+    private:
+        Path m_dir;
+        Path m_path;
+        bool m_bIsValid;
+#ifdef _WIN32
+        void ImpCtor()
+        {
+            Path test = m_dir / "*";
+            m_path = m_dir;
+            m_hFind = INVALID_HANDLE_VALUE;
+            m_hFind = FindFirstFileA(test.c_str(), &m_ffd);
+            m_bIsValid = INVALID_HANDLE_VALUE != m_hFind;
+        }
+        bool ImpNext()
+        {
+            if( m_bIsValid )
+            {
+                m_bIsValid = 0 != FindNextFileA( m_hFind, &m_ffd );
+                if( m_bIsValid )
+                {
+                    m_path = m_dir / m_ffd.cFileName;
+                    if( m_path.Filename() == ".." )
+                    {
+                        return ImpNext();
+                    }
+                }
+            }
+            return m_bIsValid;
+        }
+        void ImpDtor()
+        {
+            FindClose( m_hFind );
+        }
+
+        HANDLE           m_hFind;
+        WIN32_FIND_DATAA m_ffd;
+#else
+#endif
+    };
+
+
 }
 
 
