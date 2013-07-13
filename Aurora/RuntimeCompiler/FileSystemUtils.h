@@ -155,6 +155,22 @@ namespace FileSystemUtils
 
 	inline bool Path::CreateDir() const
 	{
+        if( m_string.length() == 0 )
+        {
+            return false;
+        }
+        if( Exists() )
+        {
+            return false;
+        }
+
+        // we may need to create the parent path recursively
+        Path parentpath = ParentPath();
+        if( !parentpath.Exists() )
+        {
+            parentpath.CreateDir();
+        }
+
 		int error = -1;
 #ifdef _WIN32
 		error = _mkdir( m_string.c_str() );
@@ -303,7 +319,10 @@ namespace FileSystemUtils
 	{
 		Path parentpath = m_string;
 
-
+        if( parentpath.m_string.length() == 0 )
+        {
+            return parentpath;
+        }
 		//remove any trailing seperators
 		while( parentpath.m_string.find_last_of( FILESYSTEMUTILS_SEPERATORS ) == parentpath.m_string.length()-1 )
 		{
