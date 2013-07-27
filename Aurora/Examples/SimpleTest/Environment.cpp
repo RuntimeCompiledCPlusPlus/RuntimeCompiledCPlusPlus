@@ -94,11 +94,12 @@ Environment::~Environment()
 	// Reverse order as a rule
 
 	delete sys->pGUISystem;
-	delete sys->pAssetSystem;
 	delete sys->pEntitySystem;
 	delete sys->pTimeSystem;
-	delete sys->pLogSystem;
 	delete sys->pRuntimeObjectSystem;
+    delete sys->pLogSystem;
+	delete sys->pAssetSystem;
+
 
 	delete pCompilerLogger;
 	delete sys;
