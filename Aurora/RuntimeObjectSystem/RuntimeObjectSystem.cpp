@@ -115,16 +115,41 @@ void RuntimeObjectSystem::OnFileChange(const IAUDynArray<const char*>& filelist)
 	for( size_t i = 0; i < filelist.Size(); ++ i )
 	{
 		BuildTool::FileToBuild fileToBuild(filelist[i]);
+
+        bool bFindIncludeDependencies = true;  // if this is a header or a source dependency need to find include dependencies
+        bool bForceIncludeDependencies = true;
 		if( fileToBuild.filePath.Extension() != ".h") //TODO: change to check for .cpp and .c as could have .inc files etc.?
 		{
-			pBuildFileList->push_back( fileToBuild );
+            bFindIncludeDependencies = false;
+            // file may be a source dependency, check
+			TFileToFileIterator itrCurr = m_RuntimeSourceDependencyMap.begin();
+			while( itrCurr != m_RuntimeSourceDependencyMap.end() )
+			{
+				if( itrCurr->second == fileToBuild.filePath )
+				{
+                    fileToBuild.filePath.ReplaceExtension(".h");
+                    bFindIncludeDependencies = true;
+                    bForceIncludeDependencies = false; // a src change, not a header change - so no need to force compile (can just link object file if exists)
+                    break;
+				}
+				else
+				{
+					++itrCurr;
+				}
+			}
+
+            if( !bFindIncludeDependencies )
+            {
+    			pBuildFileList->push_back( fileToBuild );
+            }
 		}
-		else
+
+		if( bFindIncludeDependencies )
 		{
 			TFileToFileEqualRange range = m_RuntimeIncludeMap.equal_range( fileToBuild.filePath );
 			for(TFileToFileIterator it=range.first; it!=range.second; ++it)
 			{
-				BuildTool::FileToBuild fileToBuildFromIncludes( (*it).second, true );
+				BuildTool::FileToBuild fileToBuildFromIncludes( (*it).second, bForceIncludeDependencies );
 				pBuildFileList->push_back( fileToBuildFromIncludes );
 			}
 		}
@@ -397,13 +422,22 @@ void RuntimeObjectSystem::SetupObjectConstructors(IPerModuleInterface* pPerModul
 			const char* pSourceDependency = objectConstructors[i]->GetSourceDependency( num );
 			if( pSourceDependency )
 			{
-                FileSystemUtils::Path path = compileDir / pSourceDependency;
-                path = path.GetCleanPath();
-                path.ReplaceExtension( ".cpp" );
+                FileSystemUtils::Path pathInc = compileDir / pSourceDependency;
+                pathInc = pathInc.GetCleanPath();
+                FileSystemUtils::Path pathSrc = pathInc;
+                pathSrc.ReplaceExtension( ".cpp" );
 				TFileToFilePair sourcePathPair;
 				sourcePathPair.first = filePath;
-				sourcePathPair.second = path;
+				sourcePathPair.second = pathSrc;
 				m_RuntimeSourceDependencyMap.insert( sourcePathPair );
+                
+                // if the include file with a source dependancy is logged as an runtime include, then we mark this .cpp as compile dependencies on change
+                TFileToFileEqualRange range = m_RuntimeIncludeMap.equal_range( pathInc );
+                if( range.first != range.second )
+                {
+                    // add source file to runtime file list
+                    AddToRuntimeFileList( pathSrc.c_str() );
+                }
 			}
 		}
 
