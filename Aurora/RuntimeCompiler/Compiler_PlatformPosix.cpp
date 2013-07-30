@@ -207,17 +207,36 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 
 #ifdef __APPLE__
 	#ifdef DEBUG
-		std::string compileString = "clang++ -g -O0 -fvisibility=hidden -Xlinker -dylib ";
-	#else
-		std::string compileString = "clang++ -g -Os -fvisibility=hidden -Xlinker -dylib ";
+        #ifndef __LP64__
+            std::string compileString = "clang++ -g -O0 -m32 -fvisibility=hidden -Xlinker -dylib ";
+        #else
+            std::string compileString = "clang++ -g -O0 -fvisibility=hidden -Xlinker -dylib ";
+        #endif
+    #else
+        #ifndef __LP64__
+            std::string compileString = "clang++ -g -Os -m32 -fvisibility=hidden -Xlinker -dylib ";
+        #else
+            std::string compileString = "clang++ -g -Os -fvisibility=hidden -Xlinker -dylib ";
+        #endif
 	#endif
 #else
 	// NOTE: we do not need the COMPILE_PATH variable to be set here, as the filenames passed in are all full paths.
 	#ifdef DEBUG
-		std::string compileString = "g++ -g -O0 -fPIC -fvisibility=hidden -shared ";
 	#else
-		std::string compileString = "g++ -g -Os -fPIC -fvisibility=hidden -shared ";
 	#endif
+    #ifdef DEBUG
+        #ifndef __LP64__
+            std::string compileString = "g++ -g -O0 -m32 -fPIC -fvisibility=hidden -shared ";
+       #else
+            std::string compileString = "g++ -g -O0 -fPIC -fvisibility=hidden -shared ";
+        #endif
+    #else
+        #ifndef __LP64__
+            std::string compileString = "g++ -g -Os -m32 -fPIC -fvisibility=hidden -shared ";
+        #else
+            std::string compileString = "g++ -g -Os -fPIC -fvisibility=hidden -shared ";
+        #endif
+    #endif
 #endif //__APPLE__
     
     // include directories
