@@ -30,6 +30,9 @@ public:
 	~BuildTool();
 	void Initialise( ICompilerLogger * pLogger );
 
+    // Clean - cleans up the intermediate files
+    void Clean() const;
+
 	struct FileToBuild
 	{
 		FileToBuild( const FileSystemUtils::Path& filePath_ )

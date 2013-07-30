@@ -239,24 +239,8 @@ Compiler::Compiler()
 {
 }
 
-
-void ClearupTempDir( PlatformCompilerImplData* pImpl, const std::string& objectFileExtension )
-{
-	// Remove any existing intermediate directory
-    FileSystemUtils::PathIterator pathIter( pImpl->m_intermediatePath );
-    while( ++pathIter )
-    {
-        if( pathIter.GetPath().Extension() == objectFileExtension )
-        {
-            pImpl->m_pLogger->LogInfo( "Deleting temp RCC++ obj file: %s\n", pathIter.GetPath().c_str() );
-            pathIter.GetPath().Remove();
-        }
-    }
-}
-
 Compiler::~Compiler()
 {
-    ClearupTempDir( m_pImplData, GetObjectFileExtension() );
 	delete m_pImplData;
 }
 
@@ -286,8 +270,6 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
 
     FileSystemUtils::Path intermediatePath = FileSystemUtils::GetCurrentPath() / "Runtime";
     m_pImplData->m_intermediatePath = intermediatePath.m_string;
-
-    ClearupTempDir( m_pImplData, GetObjectFileExtension() );
 }
 
 FileSystemUtils::Path Compiler::GetRuntimeIntermediatePath() const

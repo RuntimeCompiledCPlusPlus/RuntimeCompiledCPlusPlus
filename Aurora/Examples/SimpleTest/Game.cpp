@@ -119,7 +119,6 @@ Game::Game()
 
 Game::~Game()
 {
-
 	delete m_pRenderContext;
 	delete m_pSystemInterface;
 	delete m_pOpenGLRenderer;
@@ -175,7 +174,13 @@ void Game::Run()
 
 void Game::Shutdown()
 {
-	DeleteObjects();
+    // clean up any temp object files
+    if( m_pEnv->sys->pRuntimeObjectSystem )
+    {
+        m_pEnv->sys->pRuntimeObjectSystem->CleanObjectFiles();
+    }
+
+    DeleteObjects();
 	RocketLibShutdown();
 }
 
@@ -434,6 +439,12 @@ void Game::RocketLibInit()
 
 void Game::RocketLibShutdown()
 {
+    // ensure any log messages prior to shutdown are output
+    if( m_pEnv->sys->pRocketLogSystem )
+    {
+        m_pEnv->sys->pRocketLogSystem->Push();
+    }
+    
 	m_pRocketContext->RemoveReference();
 	Rocket::Core::Shutdown();
 
