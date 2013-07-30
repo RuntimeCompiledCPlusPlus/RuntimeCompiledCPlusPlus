@@ -36,6 +36,7 @@
 	#define FILESYSTEMUTILS_SEPERATORS "/\\"
 #else
 	#include <unistd.h>
+    #include <dirent.h>
 	#define FILESYSTEMUTILS_SEPERATORS "/"
 #endif
 
@@ -436,33 +437,8 @@ namespace FileSystemUtils
 	}
 
 
-        class PathIterator
+    class PathIterator
     {
-    public:
-        PathIterator( const Path& path_ )
-            : m_dir( path_ )
-        {
-            ImpCtor();
-        }
-        ~PathIterator()
-        {
-            ImpDtor();
-        }
-
-        bool operator++()
-        {
-            return ImpNext();
-        }
-
-        bool IsValid() const
-        {
-            return m_bIsValid;
-        }
-        const Path& GetPath() const
-        {
-            return m_path;
-        }
-
     private:
         Path m_dir;
         Path m_path;
@@ -500,7 +476,66 @@ namespace FileSystemUtils
         HANDLE           m_hFind;
         WIN32_FIND_DATAA m_ffd;
 #else
+        void ImpCtor()
+        {
+            Path test = m_dir / "*";
+            m_path = m_dir;
+            m_numFilesInList = scandir( m_path.c_str(), &m_paDirFileList, 0, alphasort);
+            m_bIsValid = m_numFilesInList > 0;
+            m_currFile = 0;
+        }
+        bool ImpNext()
+        {
+            if( m_bIsValid )
+            {
+                ++m_currFile;
+                m_bIsValid = m_currFile < m_numFilesInList;
+                if( m_bIsValid )
+                {
+                    m_path = m_dir / m_paDirFileList[ m_currFile ]->d_name;
+                    if( strcmp( m_paDirFileList[ m_currFile ]->d_name, "." )  == 0 ||
+                        strcmp( m_paDirFileList[ m_currFile ]->d_name, ".." ) == 0 )
+                    {
+                        return ImpNext();
+                    }
+                }
+            }
+            return m_bIsValid;
+        }
+        void ImpDtor()
+        {
+            free(m_paDirFileList);
+        }
+        struct dirent **m_paDirFileList;
+        int           m_numFilesInList;
+        int           m_currFile;
+
 #endif
+    public:
+        PathIterator( const Path& path_ )
+        : m_dir( path_ )
+        {
+            ImpCtor();
+        }
+        ~PathIterator()
+        {
+            ImpDtor();
+        }
+        
+        bool operator++()
+        {
+            return ImpNext();
+        }
+        
+        bool IsValid() const
+        {
+            return m_bIsValid;
+        }
+        const Path& GetPath() const
+        {
+            return m_path;
+        }
+        
     };
 
 
