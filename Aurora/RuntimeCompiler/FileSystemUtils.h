@@ -35,7 +35,8 @@
 
 	#define FILESYSTEMUTILS_SEPERATORS "/\\"
 #else
-	#include <unistd.h>
+    #include <string.h>
+    #include <unistd.h>
     #include <dirent.h>
 	#define FILESYSTEMUTILS_SEPERATORS "/"
 #endif
