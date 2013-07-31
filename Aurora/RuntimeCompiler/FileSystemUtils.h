@@ -35,7 +35,9 @@
 
 	#define FILESYSTEMUTILS_SEPERATORS "/\\"
 #else
-	#include <unistd.h>
+    #include <string.h>
+    #include <unistd.h>
+    #include <dirent.h>
 	#define FILESYSTEMUTILS_SEPERATORS "/"
 #endif
 
@@ -155,6 +157,22 @@ namespace FileSystemUtils
 
 	inline bool Path::CreateDir() const
 	{
+        if( m_string.length() == 0 )
+        {
+            return false;
+        }
+        if( Exists() )
+        {
+            return false;
+        }
+
+        // we may need to create the parent path recursively
+        Path parentpath = ParentPath();
+        if( !parentpath.Exists() )
+        {
+            parentpath.CreateDir();
+        }
+
 		int error = -1;
 #ifdef _WIN32
 		error = _mkdir( m_string.c_str() );
@@ -303,7 +321,10 @@ namespace FileSystemUtils
 	{
 		Path parentpath = m_string;
 
-
+        if( parentpath.m_string.length() == 0 )
+        {
+            return parentpath;
+        }
 		//remove any trailing seperators
 		while( parentpath.m_string.find_last_of( FILESYSTEMUTILS_SEPERATORS ) == parentpath.m_string.length()-1 )
 		{
@@ -415,6 +436,109 @@ namespace FileSystemUtils
 
 		return path;
 	}
+
+
+    class PathIterator
+    {
+    private:
+        Path m_dir;
+        Path m_path;
+        bool m_bIsValid;
+#ifdef _WIN32
+        void ImpCtor()
+        {
+            Path test = m_dir / "*";
+            m_path = m_dir;
+            m_hFind = INVALID_HANDLE_VALUE;
+            m_hFind = FindFirstFileA(test.c_str(), &m_ffd);
+            m_bIsValid = INVALID_HANDLE_VALUE != m_hFind;
+        }
+        bool ImpNext()
+        {
+            if( m_bIsValid )
+            {
+                m_bIsValid = 0 != FindNextFileA( m_hFind, &m_ffd );
+                if( m_bIsValid )
+                {
+                    m_path = m_dir / m_ffd.cFileName;
+                    if( m_path.Filename() == ".." )
+                    {
+                        return ImpNext();
+                    }
+                }
+            }
+            return m_bIsValid;
+        }
+        void ImpDtor()
+        {
+            FindClose( m_hFind );
+        }
+
+        HANDLE           m_hFind;
+        WIN32_FIND_DATAA m_ffd;
+#else
+        void ImpCtor()
+        {
+            Path test = m_dir / "*";
+            m_path = m_dir;
+            m_numFilesInList = scandir( m_path.c_str(), &m_paDirFileList, 0, alphasort);
+            m_bIsValid = m_numFilesInList > 0;
+            m_currFile = 0;
+        }
+        bool ImpNext()
+        {
+            if( m_bIsValid )
+            {
+                ++m_currFile;
+                m_bIsValid = m_currFile < m_numFilesInList;
+                if( m_bIsValid )
+                {
+                    m_path = m_dir / m_paDirFileList[ m_currFile ]->d_name;
+                    if( strcmp( m_paDirFileList[ m_currFile ]->d_name, "." )  == 0 ||
+                        strcmp( m_paDirFileList[ m_currFile ]->d_name, ".." ) == 0 )
+                    {
+                        return ImpNext();
+                    }
+                }
+            }
+            return m_bIsValid;
+        }
+        void ImpDtor()
+        {
+            free(m_paDirFileList);
+        }
+        struct dirent **m_paDirFileList;
+        int           m_numFilesInList;
+        int           m_currFile;
+
+#endif
+    public:
+        PathIterator( const Path& path_ )
+        : m_dir( path_ )
+        {
+            ImpCtor();
+        }
+        ~PathIterator()
+        {
+            ImpDtor();
+        }
+        
+        bool operator++()
+        {
+            return ImpNext();
+        }
+        
+        bool IsValid() const
+        {
+            return m_bIsValid;
+        }
+        const Path& GetPath() const
+        {
+            return m_path;
+        }
+        
+    };
+
 
 }
 

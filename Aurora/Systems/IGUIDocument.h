@@ -20,7 +20,7 @@
 #ifndef IGUIDOCUMENT_INCLUDED
 #define IGUIDOCUMENT_INCLUDED
 
-#include "IGUIElement.h"
+struct IGUIElement;
 
 
 struct IGUIDocument

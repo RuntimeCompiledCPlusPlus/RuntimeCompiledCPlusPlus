@@ -33,6 +33,26 @@ BuildTool::~BuildTool()
 {
 }
 
+void BuildTool::Clean() const
+{
+	// Remove any existing intermediate directory
+
+    FileSystemUtils::PathIterator pathIter(  m_Compiler.GetRuntimeIntermediatePath() );
+    std::string obj_extension = m_Compiler.GetObjectFileExtension();
+    while( ++pathIter )
+    {
+        if( pathIter.GetPath().Extension() == obj_extension )
+        {
+            if( m_pLogger )
+            {
+                m_pLogger->LogInfo( "Deleting temp RCC++ obj file: %s\n", pathIter.GetPath().c_str() );
+            }
+            pathIter.GetPath().Remove();
+        }
+    }
+}
+
+
 void BuildTool::Initialise( ICompilerLogger * pLogger )
 {
     m_InitTime = FileSystemUtils::GetCurrentTime();

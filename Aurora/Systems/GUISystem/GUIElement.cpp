@@ -48,15 +48,12 @@ private:
 	Rocket::Core::Event& m_Event;
 };
 
-typedef std::pair<IGUIEventListener*,int> EVENTPAIR;
-
 class EventHolder : public Rocket::Core::EventListener
 {
 public:
-	static EventHolder* GetEventHolder( IGUIEventListener* pEvent, int event_id )
+	static EventHolder* GetEventHolder( IGUIEventListener* pEvent )
 	{
-		EVENTPAIR theEvent( pEvent, event_id );
-		std::map<EVENTPAIR, EventHolder*>::iterator found = m_EventListeners.find( theEvent ) ;
+		std::map<IGUIEventListener*, EventHolder*>::iterator found = m_EventListeners.find( pEvent ) ;
 		if( found != m_EventListeners.end() )
 		{
 			return found->second;
@@ -67,26 +64,23 @@ public:
 		}
 	}
 
-	EventHolder( IGUIEventListener* pEvent, int event_id )
+	EventHolder( IGUIEventListener* pEvent )
 		: m_pEvent( pEvent )
-		, m_EventId( event_id )
 	{
 		//there should be no events registered for this id
-		EVENTPAIR theEvent( m_pEvent, m_EventId );
-		assert( m_EventListeners.find( theEvent ) == m_EventListeners.end());
-		m_EventListeners[ theEvent ] = this;
+		assert( m_EventListeners.find( pEvent ) == m_EventListeners.end());
+		m_EventListeners[ pEvent ] = this;
 	}
 	~EventHolder()
 	{
-		EVENTPAIR theEvent( m_pEvent, m_EventId );
-		m_EventListeners.erase( theEvent );
+		m_EventListeners.erase( m_pEvent );
 	}
 
 
 	virtual void ProcessEvent(Rocket::Core::Event& event)
 	{
 		GUIEvent guiEvent( event );
-		m_pEvent->OnEvent( m_EventId, guiEvent );
+		m_pEvent->OnEvent( guiEvent );
 	}
 
 
@@ -97,11 +91,10 @@ private:
 	EventHolder& operator=( EventHolder& event );
 
 	IGUIEventListener*	m_pEvent;
-	int					m_EventId;
 
-	static std::map<EVENTPAIR, EventHolder*> m_EventListeners;
+	static std::map<IGUIEventListener*, EventHolder*> m_EventListeners;
 };
-std::map<EVENTPAIR, EventHolder*> EventHolder::m_EventListeners;
+std::map<IGUIEventListener*, EventHolder*> EventHolder::m_EventListeners;
 
 
 
@@ -196,17 +189,17 @@ IGUIElement* GUIElement::GetElementById(const char* id)
 	return NULL;
 }
 
-void GUIElement::AddEventListener( const char* eventname, IGUIEventListener* pEventListener, int event_id )
+void GUIElement::AddEventListener( const char* eventname, IGUIEventListener* pEventListener )
 {
 	assert( m_pElement );
-	EventHolder* pEvent = new EventHolder( pEventListener, event_id );
+	EventHolder* pEvent = new EventHolder( pEventListener );
 	m_pElement->AddEventListener( eventname, pEvent );
 }
 
-void GUIElement::RemoveEventListener( const char* eventname, IGUIEventListener* pEventListener, int event_id)
+void GUIElement::RemoveEventListener( const char* eventname, IGUIEventListener* pEventListener)
 {
 	assert( m_pElement );
-	EventHolder* pEvent = EventHolder::GetEventHolder( pEventListener, event_id );
+	EventHolder* pEvent = EventHolder::GetEventHolder( pEventListener );
 	assert( pEvent );
 	m_pElement->RemoveEventListener( eventname, pEvent );
 	delete pEvent;

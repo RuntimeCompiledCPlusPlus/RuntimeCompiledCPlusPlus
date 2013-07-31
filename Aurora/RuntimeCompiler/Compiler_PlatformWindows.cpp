@@ -268,27 +268,8 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
 	GetPathsOfVisualStudioInstalls( &Versions );
 	m_pImplData->m_VSPath = Versions[0].Path;
 
-	m_pImplData->m_intermediatePath = ".\\Runtime";
-
-	// Remove any existing intermediate directory
-	// TODO
-	/*
-	boost::system::error_code ec;
-	FileSystemUtils::Path path(m_pImplData->m_intermediatePath);
-	if (boost::filesystem::is_directory(path))
-	{
-		// In theory remove_all should do the job here, but it doesn't seem to
-		boost::filesystem::directory_iterator dir_iter(path), dir_end;
-		int removed = 0, failed = 0;
-		for(;dir_iter != dir_end; ++dir_iter)
-		{
-			boost::filesystem::remove(*dir_iter, ec);
-			if (ec) failed++;
-			else removed++;
-		}
-		boost::filesystem::remove(path,ec);
-	}
-	*/
+    FileSystemUtils::Path intermediatePath = FileSystemUtils::GetCurrentPath() / "Runtime";
+    m_pImplData->m_intermediatePath = intermediatePath.m_string;
 }
 
 FileSystemUtils::Path Compiler::GetRuntimeIntermediatePath() const
@@ -345,7 +326,7 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 	{
 		bool success = intermediate.CreateDir();
 		if( success && m_pImplData->m_pLogger ) { m_pImplData->m_pLogger->LogInfo("Created intermediate folder \"%s\"\n",intermediate.c_str()); }
-		else { m_pImplData->m_pLogger->LogError("Error creating intermediate folder \"%s\"\n",intermediate.c_str()); }
+		else if( m_pImplData->m_pLogger ) { m_pImplData->m_pLogger->LogError("Error creating intermediate folder \"%s\"\n",intermediate.c_str()); }
 	}
 
 
@@ -408,39 +389,34 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions )
 	//HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\<version>\Setup\VS\<edition>
 	std::string keyName = "SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7";
 
-	const size_t NUMNAMESTOCHECK = 4;
-	std::string valueName[NUMNAMESTOCHECK];
+	const size_t    NUMNAMESTOCHECK = 5;
 
+    // supporting: VS2005, VS2008, VS2010, VS2011, VS2013
+    std::string     valueName[NUMNAMESTOCHECK] = {"8.0","9.0","10.0","11.0","12.0"};
+
+    // we start searching for a compatible compiler from the current version backwards
+    int startVersion = NUMNAMESTOCHECK - 1;
 	//switch around prefered compiler to the one we've used to compile this file
 	const unsigned int MSCVERSION = _MSC_VER;
 	switch( MSCVERSION )
 	{
 	case 1400:	//VS 2005
-		valueName[3] = "8.0";	//VS 2005
-		valueName[2] = "9.0";	//VS 2008
-		valueName[1] = "10.0";	//VS 2010
-		valueName[0] = "11.0";	//VS 2011
+		startVersion = 0;
 		break;
 	case 1500:	//VS 2008
-		valueName[2] = "8.0";	//VS 2005
-		valueName[3] = "9.0";	//VS 2008
-		valueName[1] = "10.0";	//VS 2010
-		valueName[0] = "11.0";	//VS 2011
+		startVersion = 1;
 		break;
 	case 1600:	//VS 2010
-		valueName[1] = "8.0";	//VS 2005
-		valueName[2] = "9.0";	//VS 2008
-		valueName[3] = "10.0";	//VS 2010
-		valueName[0] = "11.0";	//VS 2011
+		startVersion = 2;
 		break;
 	case 1700:	//VS 2011
-		valueName[0] = "8.0";	//VS 2005
-		valueName[1] = "9.0";	//VS 2008
-		valueName[2] = "10.0";	//VS 2010
-		valueName[3] = "11.0";	//VS 2011
+		startVersion = 3;
+		break;
+	case 1800:	//VS 2013
+		startVersion = 4;
 		break;
 	default:
-		assert( false ); //shouldn't happen.
+		assert( false ); //unsupported compiler
 	}
 
 
@@ -457,25 +433,35 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions )
 				  &key					//__out       PHKEY phkResult
 				);
 
-	for( int i = NUMNAMESTOCHECK-1; i >= 0; --i )
-	{
+    int loopCount = 1;
+    if( startVersion != NUMNAMESTOCHECK - 1 )
+    {
+        // we potentially need to restart search from top
+        loopCount = 2;
+    }
+    for( int loop = 0; loop < loopCount; ++loop )
+    {
+	    for( int i = startVersion; i >= 0; --i )
+	    {
 
-		LONG retVal = RegQueryValueExA(
-					  key,					//__in         HKEY hKey,
-					  valueName[i].c_str(),	//__in_opt     LPCTSTR lpValueName,
-					  NULL,					//__reserved   LPDWORD lpReserved,
-					  NULL ,				//__out_opt    LPDWORD lpType,
-					  (LPBYTE)value,			//__out_opt    LPBYTE lpData,
-					  &size					//__inout_opt  LPDWORD lpcbData
-					);
-		if( ERROR_SUCCESS == retVal )
-		{
-			VSVersionInfo vInfo;
-			vInfo.Version = i + 8;
-			vInfo.Path = value;
-			pVersions->push_back( vInfo );
-		}
-	}
+		    LONG retVal = RegQueryValueExA(
+					      key,					//__in         HKEY hKey,
+					      valueName[i].c_str(),	//__in_opt     LPCTSTR lpValueName,
+					      NULL,					//__reserved   LPDWORD lpReserved,
+					      NULL ,				//__out_opt    LPDWORD lpType,
+					      (LPBYTE)value,			//__out_opt    LPBYTE lpData,
+					      &size					//__inout_opt  LPDWORD lpcbData
+					    );
+		    if( ERROR_SUCCESS == retVal )
+		    {
+			    VSVersionInfo vInfo;
+			    vInfo.Version = i + 8;
+			    vInfo.Path = value;
+			    pVersions->push_back( vInfo );
+		    }
+	    }
+        startVersion =  NUMNAMESTOCHECK - 1; // if we loop around again make sure it's from the top
+    }
 
 	RegCloseKey( key );
 

@@ -89,4 +89,4 @@ private:
 	}
 };
 
-REGISTERCLASS(MainObject);
+REGISTERSINGLETON(MainObject, true);

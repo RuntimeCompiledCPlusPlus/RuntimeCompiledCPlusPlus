@@ -145,6 +145,22 @@ void ObjectFactorySystem::ProtectedFunc()
 		}
 	}
 
+    // auto construct singletons
+    m_ProtectedPhase = PHASE_AUTOCONSTRUCTSINGLETONS;
+	if( m_pLogger ) m_pLogger->LogInfo( "Auto Constructing Singletons...\n");
+	for( size_t i = 0; i < m_Constructors.size(); ++i )
+	{
+		IObjectConstructor* pConstructor = m_Constructors[i];
+        if( pConstructor->GetIsAutoConstructSingleton() )
+        {
+            if( 0 == pConstructor->GetNumberConstructedObjects() )
+            {
+                IObject* pObj = pConstructor->GetSingleton();
+                pObj->Init( true );
+            }
+        }
+	}
+
 	// Do a second pass, initializing objects now that they've all been serialized
 	m_ProtectedPhase = PHASE_SERIALIZEOUTTEST;
 	if( m_pLogger ) m_pLogger->LogInfo( "Initialising and testing new serialisation...\n");
@@ -219,6 +235,9 @@ void ObjectFactorySystem::AddConstructors( IAUDynArray<IObjectConstructor*> &con
 			case PHASE_SERIALIZEIN:
 				m_pLogger->LogError( "\tError occured during serialize into the new objects phase.\n" );
 				break;
+			case PHASE_AUTOCONSTRUCTSINGLETONS:
+				m_pLogger->LogError( "\tError occured during auto construct singletons phase.\n" );
+                break;
 			case PHASE_SERIALIZEOUTTEST:
 				m_pLogger->LogError( "\tError occured during serialize test of new objects phase.\n" );
                 break;

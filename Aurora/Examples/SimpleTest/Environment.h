@@ -41,6 +41,7 @@ public:
 
 
 	Environment( IGame* pGame );                            // Create empty environment
+    void Init();                                            // Init is called after setting up pointers in ctor
 	~Environment(void);                                     // Clean up and destroy environment
 };
 

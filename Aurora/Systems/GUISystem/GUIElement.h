@@ -49,8 +49,8 @@ public:
 	virtual void AddReference();
 	virtual void RemoveReference();
 
-	virtual void AddEventListener( const char* eventname, IGUIEventListener* pEventListener, int event_id );
-	virtual void RemoveEventListener( const char* eventname, IGUIEventListener* pEventListener, int event_id );
+	virtual void AddEventListener( const char* eventname, IGUIEventListener* pEventListener );
+	virtual void RemoveEventListener( const char* eventname, IGUIEventListener* pEventListener );
 
 	// ~IGUIElement
 
