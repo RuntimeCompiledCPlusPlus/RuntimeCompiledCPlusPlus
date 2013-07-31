@@ -75,6 +75,12 @@ ConsoleGame::ConsoleGame()
 
 ConsoleGame::~ConsoleGame()
 {
+    if( m_pRuntimeObjectSystem )
+    {
+        // clean temp object files
+        m_pRuntimeObjectSystem->CleanObjectFiles();
+    }
+
     if( m_pRuntimeObjectSystem && m_pRuntimeObjectSystem->GetObjectFactorySystem() )
     {
         m_pRuntimeObjectSystem->GetObjectFactorySystem()->RemoveListener(this);

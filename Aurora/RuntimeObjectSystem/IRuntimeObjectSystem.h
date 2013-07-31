@@ -59,6 +59,9 @@ public:
     // see Compiler::SetFastCompileMode
     virtual void SetFastCompileMode( bool bFast ) = 0;
 
+    // clean up temporary object files
+    virtual void CleanObjectFiles() const = 0;
+
 	//ensure subclasses are deleted correctly
 	virtual ~IRuntimeObjectSystem(){};
 

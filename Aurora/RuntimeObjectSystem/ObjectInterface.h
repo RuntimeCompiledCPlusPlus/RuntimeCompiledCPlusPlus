@@ -78,6 +78,14 @@ struct IObjectConstructor
 	virtual size_t GetMaxNumSourceDependencies() const = 0;
 	virtual const char* GetSourceDependency( size_t Num_ ) const = 0;
 
+    // Singleton functions
+    virtual bool        GetIsSingleton() const = 0;
+    virtual bool        GetIsAutoConstructSingleton() const = 0;
+    IObject*            GetSingleton()
+    {
+        return Construct();
+    }
+
 	virtual IObject* GetConstructedObject( PerTypeObjectId num ) const = 0;	//should return 0 for last or deleted object
 	virtual size_t	 GetNumberConstructedObjects() const = 0;
 	virtual ConstructorId GetConstructorId() const = 0;

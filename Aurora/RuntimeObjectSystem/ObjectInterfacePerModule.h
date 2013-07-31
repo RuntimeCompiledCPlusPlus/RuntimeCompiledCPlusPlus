@@ -86,8 +86,12 @@ public:
 		const char* Filename,
 		IRuntimeIncludeFileList*        pIncludeFileList_,
         IRuntimeSourceDependencyList*   pSourceDependencyList_,
-        IRuntimeLinkLibraryList*        pLinkLibraryList )
-		: m_FileName(                   Filename )
+        IRuntimeLinkLibraryList*        pLinkLibraryList,
+        bool                            bIsSingleton,
+        bool                            bIsAutoConstructSingleton)
+        : m_bIsSingleton(               bIsSingleton )
+        , m_bIsAutoConstructSingleton(  bIsAutoConstructSingleton )
+		, m_FileName(                   Filename )
 		, m_pIncludeFileList(           pIncludeFileList_ )
 		, m_pSourceDependencyList(      pSourceDependencyList_ )
 		, m_pLinkLibraryList(           pLinkLibraryList )
@@ -105,6 +109,11 @@ public:
 	virtual IObject* Construct()
 	{
 		T* pT = 0;
+        if( m_bIsSingleton && m_ConstructedObjects.size() && m_ConstructedObjects[0] )
+        {
+            return m_ConstructedObjects[0];
+        }
+
 		if( m_FreeIds.empty() )
 		{
 			PerTypeObjectId id = m_ConstructedObjects.size();
@@ -128,6 +137,8 @@ public:
 
 	virtual void ConstructNull()
 	{
+        // should not occur for singletons
+        AU_ASSERT( !m_bIsSingleton );
 		m_ConstructedObjects.push_back( NULL );
 	}
 
@@ -204,6 +215,16 @@ public:
 		return 0;
 	}
 
+    virtual bool GetIsSingleton() const
+    {
+        return m_bIsSingleton;
+    }
+    virtual bool        GetIsAutoConstructSingleton() const
+    {
+        return m_bIsSingleton && m_bIsAutoConstructSingleton;
+    }
+
+
 	virtual IObject* GetConstructedObject( PerTypeObjectId id ) const
 	{
 		if( m_ConstructedObjects.size() > id )
@@ -244,6 +265,8 @@ public:
 		}
 	}
 private:
+    bool                            m_bIsSingleton;
+    bool                            m_bIsAutoConstructSingleton;
 	std::string                     m_FileName;
 	std::vector<T*>                 m_ConstructedObjects;
 	std::vector<PerTypeObjectId>	m_FreeIds;
@@ -298,13 +321,18 @@ private:
 	static TObjectConstructorConcrete<TActual> m_Constructor;
 };
 
-//NOTE: the file macro will only emit the full path if /FC option is used in visual studio or /ZI (Which forces /FC)
-#define REGISTERCLASS( T )	\
+#define REGISTERBASE( T, bIsSingleton, bIsAutoConstructSingleton )	\
 	static RuntimeIncludeFiles< __COUNTER__ >       g_includeFileList_##T; \
 	static RuntimeSourceDependency< __COUNTER__ >   g_sourceDependencyList_##T; \
 	static RuntimeLinkLibrary< __COUNTER__ >        g_linkLibraryList_##T; \
-template<> TObjectConstructorConcrete< TActual< T > > TActual< T >::m_Constructor( __FILE__, &g_includeFileList_##T, &g_sourceDependencyList_##T, &g_linkLibraryList_##T );\
+template<> TObjectConstructorConcrete< TActual< T > > TActual< T >::m_Constructor( __FILE__, &g_includeFileList_##T, &g_sourceDependencyList_##T, &g_linkLibraryList_##T, bIsSingleton, bIsAutoConstructSingleton );\
 template<> const char* TActual< T >::GetTypeNameStatic() { return #T; } \
 template class TActual< T >;
+
+//NOTE: the file macro will only emit the full path if /FC option is used in visual studio or /ZI (Which forces /FC)
+#define REGISTERCLASS( T )	REGISTERBASE( T, false, false )
+
+#define REGISTERSINGLETON( T, bIsAutoConstructSingleton )	REGISTERBASE( T, true, bIsAutoConstructSingleton )
+
 
 #endif // OBJECTINTERFACEPERMODULE_INCLUDED

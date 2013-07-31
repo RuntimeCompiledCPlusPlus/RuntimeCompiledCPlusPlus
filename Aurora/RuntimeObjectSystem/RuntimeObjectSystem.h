@@ -95,6 +95,15 @@ public:
         }
     }
 
+    virtual void CleanObjectFiles() const
+    {
+        if( m_pBuildTool )
+        {
+            m_pBuildTool->Clean();
+        }
+    }
+
+
 	virtual bool GetLastLoadModuleSuccess() const
 	{
 		return m_bLastLoadModuleSuccess;

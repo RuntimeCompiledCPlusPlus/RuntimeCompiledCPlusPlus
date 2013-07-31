@@ -66,7 +66,7 @@ public:
 
 		if ( m_pInputElement )
 		{
-			m_pInputElement->RemoveEventListener( "click", this, 0 );
+			m_pInputElement->RemoveEventListener( "click", this );
 			m_pInputElement->RemoveReference();
 		}
 		if ( m_pInfoElement )
@@ -148,7 +148,7 @@ public:
 
 	// IGUIEventListener 
 
-	virtual void OnEvent( int event_id, const IGUIEvent& event_info )
+	virtual void OnEvent( const IGUIEvent& event_info )
 	{
 		AUVec3f selectPos;
 		char buff[16];
@@ -276,7 +276,7 @@ private:
 		// counting correctly.
 		if (m_pInputElement)
 		{
-			m_pInputElement->RemoveEventListener( "click", this, 0 );
+			m_pInputElement->RemoveEventListener( "click", this );
 			m_pInputElement->RemoveReference();
 			m_pInputElement = 0;
 		}
@@ -305,7 +305,7 @@ private:
 		{
 			pDocument->Show();
 			m_pInputElement = pDocument->Element()->GetElementById("input");
-			m_pInputElement->AddEventListener( "click", this, 0 );
+			m_pInputElement->AddEventListener( "click", this );
 
 			// Make input element same size as window
 			char buff[16];
