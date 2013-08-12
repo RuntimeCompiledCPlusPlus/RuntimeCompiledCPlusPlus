@@ -25,6 +25,7 @@ struct IObjectFactorySystem;
 struct IFileChangeNotifier;
 class  BuildTool;
 struct RuntimeProtector;
+struct SystemTable;
 
 struct IRuntimeObjectSystem
 {
