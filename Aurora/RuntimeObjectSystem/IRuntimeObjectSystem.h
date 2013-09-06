@@ -63,6 +63,8 @@ public:
     // clean up temporary object files
     virtual void CleanObjectFiles() const = 0;
 
+	virtual void SetupObjectConstructors(IPerModuleInterface* pPerModuleInterface) = 0;
+
 	//ensure subclasses are deleted correctly
 	virtual ~IRuntimeObjectSystem(){};
 
