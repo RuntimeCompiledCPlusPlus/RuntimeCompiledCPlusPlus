@@ -61,6 +61,7 @@ namespace FW
 	/// Unpacks events and passes them to a user defined callback.
 	void CALLBACK WatchCallback(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOverlapped)
 	{
+#ifndef WIN32_FW_USE_FINDFIRST_API
 		char szFile[MAX_PATH];
 		PFILE_NOTIFY_INFORMATION pNotify;
 		WatchStruct* pWatch = (WatchStruct*) lpOverlapped;
@@ -92,14 +93,19 @@ namespace FW
 		{
 			RefreshWatch(pWatch);
 		}
+#endif
 	}
 
 	/// Refreshes the directory monitoring.
 	bool RefreshWatch(WatchStruct* pWatch, bool _clear)
 	{
+#ifndef WIN32_FW_USE_FINDFIRST_API
 		return ReadDirectoryChangesW(
 			pWatch->mDirHandle, pWatch->mBuffer, sizeof(pWatch->mBuffer), pWatch->mIsRecursive,
 			pWatch->mNotifyFilter, NULL, &pWatch->mOverlapped, _clear ? 0 : WatchCallback) != 0;
+#else
+    return true;
+#endif
 	}
 
 	/// Stops monitoring a directory.
@@ -109,6 +115,7 @@ namespace FW
 		{
 			pWatch->mStopNow = TRUE;
 
+#ifndef WIN32_FW_USE_FINDFIRST_API
 			CancelIo(pWatch->mDirHandle);
 
 			RefreshWatch(pWatch, true);
@@ -120,6 +127,8 @@ namespace FW
 
 			CloseHandle(pWatch->mOverlapped.hEvent);
 			CloseHandle(pWatch->mDirHandle);
+#endif
+
 			delete[] pWatch->mDirName;
 			HeapFree(GetProcessHeap(), 0, pWatch);
 		}
@@ -132,6 +141,7 @@ namespace FW
 		size_t ptrsize = sizeof(*pWatch);
 		pWatch = static_cast<WatchStruct*>(HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, ptrsize));
 
+#ifndef WIN32_FW_USE_FINDFIRST_API
 		pWatch->mDirHandle = CreateFileA(szDirectory, FILE_LIST_DIRECTORY,
 			FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, 
 			OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED, NULL);
@@ -155,6 +165,11 @@ namespace FW
 
 		HeapFree(GetProcessHeap(), 0, pWatch);
 		return NULL;
+#else
+        
+    return pWatch;
+
+#endif
 	}
 
 #pragma endregion
@@ -196,6 +211,10 @@ namespace FW
 
 		mWatches.insert(std::make_pair(watchid, watch));
 
+#ifdef WIN32_FW_USE_FINDFIRST_API
+    fw.add( directory.m_string );
+#endif
+
 		return watchid;
 	}
 
@@ -223,7 +242,12 @@ namespace FW
 			return;
 
 		WatchStruct* watch = iter->second;
-		mWatches.erase(iter);
+
+#ifdef WIN32_FW_USE_FINDFIRST_API
+    fw.remove(watch->mWatchid);
+#endif
+		
+    mWatches.erase(iter);
 
 		DestroyWatch(watch);
 	}
@@ -231,7 +255,73 @@ namespace FW
 	//--------
 	void FileWatcherWin32::update()
 	{
+#ifndef WIN32_FW_USE_FINDFIRST_API
 		MsgWaitForMultipleObjectsEx(0, NULL, 0, QS_ALLINPUT, MWMO_ALERTABLE);
+#endif
+
+#ifdef WIN32_FW_USE_FINDFIRST_API
+    static std::vector<FileWatcherWin32_AltImpl::fw_event> events;
+    events.clear();
+
+    fw.watch(events);
+
+    for( size_t c = 0; c != events.size(); ++c )
+    {
+      switch(events[c].ty)
+      {
+        case FileWatcherWin32_AltImpl::CHANGE_SIZE:
+        {
+          std::string old_name;
+          DWORD fni;
+          std::string new_name = fw.get_event_filename( mWatches[c + 1]->mDirName, events[c].id, events[c].ty, fni, old_name );
+
+          if( !new_name.empty() )
+          {
+            handleAction(mWatches[c + 1], new_name.c_str(), fni );
+          }
+
+          break;
+        }
+        case FileWatcherWin32_AltImpl::CHANGE_FILE_NAME:
+        {
+          std::string old_name;
+          DWORD fni;
+          std::string new_name = fw.get_event_filename( mWatches[c + 1]->mDirName, events[c].id, events[c].ty, fni, old_name );
+
+          if( !new_name.empty() )
+          {
+            //changed from-to
+            if( !old_name.empty() )
+            {
+              handleAction(mWatches[c + 1], old_name.c_str(), FILE_ACTION_RENAMED_OLD_NAME );
+              handleAction(mWatches[c + 1], new_name.c_str(), FILE_ACTION_RENAMED_NEW_NAME );
+            }
+            else
+            {
+              handleAction(mWatches[c + 1], new_name.c_str(), fni );
+            }
+          }
+
+          break;
+        }
+        case FileWatcherWin32_AltImpl::CHANGE_CREATION:
+        {
+          std::string old_name;
+          DWORD fni;
+          std::string new_name = fw.get_event_filename( mWatches[c + 1]->mDirName, events[c].id, events[c].ty, fni, old_name );
+
+          if( !new_name.empty() )
+          {
+            handleAction(mWatches[c + 1], new_name.c_str(), fni );
+          }
+
+          break;
+        }
+        default:
+          break;
+      }
+    }
+#endif
 	}
 
 	//--------
