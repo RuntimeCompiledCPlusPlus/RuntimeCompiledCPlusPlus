@@ -25,6 +25,7 @@
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE.
 */
+
 #ifndef _FW_FILEWATCHERWIN32_H_
 #define _FW_FILEWATCHERWIN32_H_
 #pragma once
@@ -32,6 +33,15 @@
 #include "FileWatcherImpl.h"
 
 #if FILEWATCHER_PLATFORM == FILEWATCHER_PLATFORM_WIN32
+
+// Uncomment define below or include in build options to use FindFirstChangeNotification
+// rather than ReadDirectoryChanges
+// #define WIN32_FW_USE_FINDFIRST_API
+
+#ifdef WIN32_FW_USE_FINDFIRST_API
+#include "FileWatcherWin32_AltImpl.h"
+#endif
+
 
 #include <map>
 
@@ -74,6 +84,10 @@ namespace FW
 		WatchMap mWatches;
 		/// The last watchid
 		WatchID mLastWatchID;
+
+#ifdef WIN32_FW_USE_FINDFIRST_API
+    FileWatcherWin32_AltImpl fw;
+#endif
 
 	};//end FileWatcherWin32
 
