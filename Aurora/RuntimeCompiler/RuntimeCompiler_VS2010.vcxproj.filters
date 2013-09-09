@@ -30,6 +30,9 @@
     </ClInclude>
     <ClInclude Include="FileMonitor.h" />
     <ClInclude Include="FileSystemUtils.h" />
+    <ClInclude Include="SimpleFileWatcher\FileWatcherWin32_AltImpl.h">
+      <Filter>SimpleFileWatcher</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="SimpleFileWatcher">

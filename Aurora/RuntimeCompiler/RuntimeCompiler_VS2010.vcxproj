@@ -127,6 +127,7 @@
     <ClInclude Include="SimpleFileWatcher\FileWatcher.h" />
     <ClInclude Include="SimpleFileWatcher\FileWatcherImpl.h" />
     <ClInclude Include="SimpleFileWatcher\FileWatcherWin32.h" />
+    <ClInclude Include="SimpleFileWatcher\FileWatcherWin32_AltImpl.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

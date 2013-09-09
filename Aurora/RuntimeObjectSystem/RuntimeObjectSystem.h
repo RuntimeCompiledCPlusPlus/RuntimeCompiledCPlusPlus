@@ -113,6 +113,8 @@ public:
          return m_TotalLoadedModulesEver;
      }
  
+	virtual void SetupObjectConstructors(IPerModuleInterface* pPerModuleInterface);
+
      // exception handling to catch and protect main app from crashing when using runtime compiling
     virtual void SetProtectionEnabled( bool bProtectionEnabled_ );
 	
@@ -122,7 +124,6 @@ public:
     }
     virtual bool TryProtectedFunction( RuntimeProtector* pProtectedObject_ );
 
-	void SetupObjectConstructors(IPerModuleInterface* pPerModuleInterface);
 
 
 	// IFileChangeListener
