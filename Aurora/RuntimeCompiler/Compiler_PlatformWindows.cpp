@@ -266,7 +266,19 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
 	// get VS compiler path
 	std::vector<VSVersionInfo> Versions;
 	GetPathsOfVisualStudioInstalls( &Versions );
-	m_pImplData->m_VSPath = Versions[0].Path;
+
+    if( !Versions.empty() )
+    {
+	    m_pImplData->m_VSPath = Versions[0].Path;
+    }
+    else
+    {
+        m_pImplData->m_VSPath = "";
+        if( m_pImplData->m_pLogger )
+        {
+            m_pImplData->m_pLogger->LogError("No Supported Compiler for RCC++ found.\n");
+        }
+    }
 
     FileSystemUtils::Path intermediatePath = FileSystemUtils::GetCurrentPath() / "Runtime";
     m_pImplData->m_intermediatePath = intermediatePath.m_string;
@@ -286,6 +298,12 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 					 const char* pLinkOptions,
 					 const FileSystemUtils::Path& outputFile )
 {
+    if( m_pImplData->m_VSPath.empty() )
+    {
+        m_pImplData->m_pLogger->LogError("No Supported Compiler for RCC++ found, cannot compile changes.\n");
+    	m_pImplData->m_bCompileIsComplete = true;
+        return;
+    }
 	m_pImplData->m_bCompileIsComplete = false;
 	//optimization and c runtime
 #ifdef _DEBUG
