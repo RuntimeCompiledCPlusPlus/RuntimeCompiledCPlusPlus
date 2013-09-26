@@ -28,10 +28,12 @@
 #ifdef _WIN32
 	#include <direct.h>
 	#include <sys/types.h>
+    #include <sys/utime.h>
 	#define WIN32_LEAN_AND_MEAN
     #define NOMINMAX
     #include <windows.h>
 	#undef GetObject
+    #undef GetCurrentTime
 
 	#define FILESYSTEMUTILS_SEPERATORS "/\\"
 #else
@@ -78,6 +80,7 @@ namespace FileSystemUtils
 		bool		CreateDir()			const;
 		bool		Remove()			const;
 		filetime_t	GetLastWriteTime()	const;
+        void        SetLastWriteTime( filetime_t time_ ) const;
 		uint64_t	GetFileSize()		const;
 		bool		HasExtension()		const;
 		bool		HasParentPath()		const;
@@ -203,6 +206,17 @@ namespace FileSystemUtils
 		}
 		return lastwritetime;
 	}
+
+    inline void Path::SetLastWriteTime( filetime_t time_ ) const
+    {
+#ifdef _WIN32
+        __utimbuf64 modtime = { time_, time_ };
+        _utime64( c_str(), &modtime );
+#else
+        utimbuf modtime = { time_, time_ };
+        utime( c_str(), &modtime )
+#endif
+    }
 
     inline filetime_t GetCurrentTime()
     {
