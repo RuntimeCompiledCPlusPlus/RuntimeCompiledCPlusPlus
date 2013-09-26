@@ -124,13 +124,22 @@ public:
     }
     virtual bool TryProtectedFunction( RuntimeProtector* pProtectedObject_ );
 
+    
+    // tests one by one touching each runtime modifiable source file
+    // returns the number of errors - 0 if all passed.
+    virtual int TestBuildAllRuntimeSourceFiles(  RCCppTestBuildFailCallback failCallback );
 
+    // tests touching each header which has RUNTIME_MODIFIABLE_INCLUDE.
+    // returns the number of errors - 0 if all passed.
+    virtual int TestBuildAllRuntimeHeaders(      RCCppTestBuildFailCallback failCallback );
 
 	// IFileChangeListener
 
 	virtual void OnFileChange(const IAUDynArray<const char*>& filelist);
 
 	// ~IFileChangeListener
+
+
 
 private:
 	typedef std::vector<FileSystemUtils::Path> TFileList;

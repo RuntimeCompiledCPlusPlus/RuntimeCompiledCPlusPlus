@@ -27,6 +27,22 @@ class  BuildTool;
 struct RuntimeProtector;
 struct SystemTable;
 
+enum TestBuildFailType
+{
+    TESTBUILDFAILTYPE_NONE,               // should not see this
+    TESTBUILDFAILTYPE_NO_FILES_TO_BUILD,  // file registration error or no runtime files of this type
+    TESTBUILDFAILTYPE_BUILD_FILE_GONE,    // the file is no longer present
+    TESTBUILDFAILTYPE_BUILD_NOT_STARTED,  // file change detection could be broken, or if an include may not be included anywhere
+    TESTBUILDFAILTYPE_BUILD_FAILED,       // a build was started, but it failed or module failed to load. See log.
+    TESTBUILDFAILTYPE_OBJECT_SWAP_FAIL,   // build succeeded, module loaded but errors on swapping
+};
+
+// callback gets name of file which when touched causes a failed
+// build. Return true to continue with testing more files or false to end
+// test. Errors will also be output to log in 'standard' rcc++ way.
+// file may be NULL if type TESTBUILDFAILTYPE_NO_FILES_TO_BUILD 
+typedef bool (*RCCppTestBuildFailCallback)(const char* file, TestBuildFailType type);
+
 struct IRuntimeObjectSystem
 {
 public:
@@ -72,6 +88,14 @@ public:
     virtual void SetProtectionEnabled( bool bProtectionEnabled_ ) = 0;
 	virtual bool IsProtectionEnabled() const = 0;
     virtual bool TryProtectedFunction( RuntimeProtector* pProtectedObject_ ) = 0;
+
+    // tests one by one touching each runtime modifiable source file
+    // returns the number of errors - 0 if all passed.
+   virtual int TestBuildAllRuntimeSourceFiles(  RCCppTestBuildFailCallback failCallback ) = 0;
+
+    // tests touching each header which has RUNTIME_MODIFIABLE_INCLUDE.
+    // returns the number of errors - 0 if all passed.
+    virtual int TestBuildAllRuntimeHeaders(      RCCppTestBuildFailCallback failCallback ) = 0;
 };
 
 #endif // IRUNTIMEOBJECTSYSTEM_INCLUDED

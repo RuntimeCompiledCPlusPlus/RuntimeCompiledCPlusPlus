@@ -111,9 +111,10 @@ void RuntimeObjectSystem::OnFileChange(const IAUDynArray<const char*>& filelist)
 	}
 
 
-	m_pCompilerLogger->LogInfo("FileChangeNotifier triggered recompile of files:\n");
+	m_pCompilerLogger->LogInfo("FileChangeNotifier triggered recompile with changes to:\n");
 	for( size_t i = 0; i < filelist.Size(); ++ i )
 	{
+	    m_pCompilerLogger->LogInfo("    File %s\n",filelist[i]);
 		BuildTool::FileToBuild fileToBuild(filelist[i]);
 
         bool bFindIncludeDependencies = true;  // if this is a header or a source dependency need to find include dependencies
@@ -454,4 +455,150 @@ void RuntimeObjectSystem::AddIncludeDir( const char *path_ )
 void RuntimeObjectSystem::AddLibraryDir( const char *path_ )
 {
 	m_LibraryDirList.push_back(Path(path_));
+}
+
+bool DefaultTestFailCallback(const char* file, TestBuildFailType type)
+{
+    return false;
+}
+
+static void Wait( unsigned int milliseconds )
+{
+#ifdef _WIN32
+    Sleep( milliseconds );
+    MSG msg;
+    while( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )
+    {
+        DispatchMessage( &msg );
+    }
+
+#else
+    sleep( milliseconds * 1000 );
+#endif
+}
+// returns 0 on success, -ve number of errors if there is an error and we should quit,
+// positive number of errors if there is an error but we should continue
+static int TestBuildFile( ICompilerLogger* pLog, RuntimeObjectSystem* pRTObjSys, const Path& file, RCCppTestBuildFailCallback failCallback )
+{
+    assert( failCallback );
+
+    if( pLog ) { pLog->LogInfo("Testing change to file: %s\n", file.c_str()); }
+
+    int numErrors = 0;
+    if( file.Exists() )
+    {
+        file.SetLastWriteTime( FileSystemUtils::GetCurrentTime() );
+        for( int i=0; i<50; ++i )
+        {
+            // wait up to 100 seconds (make configurable?)
+            pRTObjSys->GetFileChangeNotifier()->Update( 1.0f ); // force update by using very large time delta
+            if( pRTObjSys->GetIsCompiling() ) { break; }
+            Wait(100);
+        }
+        if( pRTObjSys->GetIsCompiling() )
+        {
+            while( !pRTObjSys->GetIsCompiledComplete() )
+            {
+                Wait(100);
+            }
+            int numCurrLoadedModules = pRTObjSys->GetNumberLoadedModules();
+            if( pRTObjSys->LoadCompiledModule() )
+            {
+                return 0;
+            }
+            else
+            {
+                ++numErrors;
+                if( pRTObjSys->GetNumberLoadedModules() == numCurrLoadedModules )
+                {
+                    if( pLog ) { pLog->LogError("Failure: TESTBUILDFAILTYPE_BUILD_FAILED\n"); }
+                    if( !failCallback( file.c_str(), TESTBUILDFAILTYPE_BUILD_FAILED ) ) { return -numErrors; }
+                }
+                else
+                {
+                    // loaded the module but some other issue
+                    if( pLog ) { pLog->LogError("Failure: TESTBUILDFAILTYPE_OBJECT_SWAP_FAIL\n"); }
+                    if( !failCallback( file.c_str(), TESTBUILDFAILTYPE_OBJECT_SWAP_FAIL ) ) { return -numErrors; }
+                }
+            }
+        }
+        else
+        {
+            ++numErrors;
+           if( pLog ) { pLog->LogError("Failure: TESTBUILDFAILTYPE_BUILD_NOT_STARTED\n"); }
+           if( !failCallback( file.c_str(), TESTBUILDFAILTYPE_BUILD_NOT_STARTED ) ) { return -numErrors; }
+        }
+    }
+    else
+    {
+        ++numErrors;
+           if( pLog ) { pLog->LogError("Failure: TESTBUILDFAILTYPE_BUILD_FILE_GONE\n"); }
+        if( !failCallback( file.c_str(), TESTBUILDFAILTYPE_BUILD_FILE_GONE ) ) { return -numErrors; }
+    }
+    return numErrors;
+}
+
+// tests one by one touching each runtime modifiable source file
+// returns the number of errors - 0 if all passed.
+int RuntimeObjectSystem::TestBuildAllRuntimeSourceFiles(  RCCppTestBuildFailCallback failCallback )
+{
+    RCCppTestBuildFailCallback failCallbackLocal = failCallback;
+    if( !failCallbackLocal )
+    {
+        failCallbackLocal = &DefaultTestFailCallback;
+    }
+
+    int numErrors = 0;
+    if( m_RuntimeFileList.empty() )
+    {
+        if( !failCallbackLocal( NULL, TESTBUILDFAILTYPE_NO_FILES_TO_BUILD ) ) { return numErrors; } //not an error as such
+    }
+
+	for( TFileList::iterator it = m_RuntimeFileList.begin(); it != m_RuntimeFileList.end(); ++it )
+    {
+        const Path& file = *it;
+        if( file.Extension() != ".h") // exclude headers, use TestBuildAllRuntimeHeaders
+        {
+            int fileErrors = TestBuildFile( this->m_pCompilerLogger, this, file, failCallbackLocal );
+            if( fileErrors < 0 )
+            {
+                // this means exit, and the number of errors is -ve so remove
+                return numErrors - fileErrors;
+            }
+            numErrors += fileErrors;
+        }
+    }
+
+
+    return numErrors;
+}
+
+// tests touching each header which has RUNTIME_MODIFIABLE_INCLUDE.
+// returns the number of errors - 0 if all passed.
+int RuntimeObjectSystem::TestBuildAllRuntimeHeaders(      RCCppTestBuildFailCallback failCallback )
+{
+    RCCppTestBuildFailCallback failCallbackLocal = failCallback;
+    if( !failCallbackLocal )
+    {
+        failCallbackLocal = &DefaultTestFailCallback;
+    }
+
+    int numErrors = 0;
+
+	for( TFileList::iterator it = m_RuntimeFileList.begin(); it != m_RuntimeFileList.end(); ++it )
+    {
+        const Path& file = *it;
+        if( file.Extension() == ".h") // exclude headers, use TestBuildAllRuntimeHeaders
+        {
+            int fileErrors = TestBuildFile( this->m_pCompilerLogger, this, file, failCallbackLocal );
+            if( fileErrors < 0 )
+            {
+                // this means exit, and the number of errors is -ve so remove
+                return numErrors - fileErrors;
+            }
+            numErrors += fileErrors;
+        }
+    }
+
+    return numErrors;
 }
