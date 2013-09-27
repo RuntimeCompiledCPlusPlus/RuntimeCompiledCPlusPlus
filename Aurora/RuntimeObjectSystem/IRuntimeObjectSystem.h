@@ -27,25 +27,37 @@ class  BuildTool;
 struct RuntimeProtector;
 struct SystemTable;
 
-enum TestBuildFailType
+enum TestBuildResult
 {
-    TESTBUILDFAILTYPE_NONE,               // should not see this
-    TESTBUILDFAILTYPE_NO_FILES_TO_BUILD,  // file registration error or no runtime files of this type
-    TESTBUILDFAILTYPE_BUILD_FILE_GONE,    // the file is no longer present
-    TESTBUILDFAILTYPE_BUILD_NOT_STARTED,  // file change detection could be broken, or if an include may not be included anywhere
-    TESTBUILDFAILTYPE_BUILD_FAILED,       // a build was started, but it failed or module failed to load. See log.
-    TESTBUILDFAILTYPE_OBJECT_SWAP_FAIL,   // build succeeded, module loaded but errors on swapping
+    TESTBUILDRRESULT_SUCCESS,            // SUCCESS, yay!
+    TESTBUILDRRESULT_NO_FILES_TO_BUILD,  // file registration error or no runtime files of this type
+    TESTBUILDRRESULT_BUILD_FILE_GONE,    // the file is no longer present
+    TESTBUILDRRESULT_BUILD_NOT_STARTED,  // file change detection could be broken, or if an include may not be included anywhere
+    TESTBUILDRRESULT_BUILD_FAILED,       // a build was started, but it failed or module failed to load. See log.
+    TESTBUILDRRESULT_OBJECT_SWAP_FAIL,   // build succeeded, module loaded but errors on swapping
 };
 
-// callback gets name of file which when touched causes a failed
-// build. Return true to continue with testing more files or false to end
-// test. Errors will also be output to log in 'standard' rcc++ way.
-// file may be NULL if type TESTBUILDFAILTYPE_NO_FILES_TO_BUILD 
-typedef bool (*RCCppTestBuildFailCallback)(const char* file, TestBuildFailType type);
+struct ITestBuildNotifier
+{
+    // Notifier gets name of file which and result type.
+    // Errors will also be output to log in 'standard' RCC++ way.
+    // file may be NULL if type TESTBUILDFAILTYPE_NO_FILES_TO_BUILD.
+    // The default callback outputs result and file to log, and returns true.
+    //
+    // Return true to continue with testing more files or false to end test.
+    virtual bool TestBuildCallback(const char* file, TestBuildResult type) = 0;
+
+    // Notifier should implement sleep function for a small interval - say 10-100ms.
+    // Additionally, any message queues / view updates should be handled here, especially
+    // on Win32 where the file change notifiers need the message queue to be processed.
+    // Default uses usleep or Sleep, dispatches messages on Win32 and returns true.
+    //
+    // Return true to continue with testing or false to end test.
+    virtual bool TestBuildWaitAndUpdate() = 0;
+};
 
 struct IRuntimeObjectSystem
 {
-public:
 	// Initialise RuntimeObjectSystem. pLogger and pSystemTable should be deleted by creator. 
 	// Both pLogger and pSystemTable can be 0
 	virtual bool Initialise( ICompilerLogger * pLogger, SystemTable* pSystemTable  ) = 0;
@@ -91,11 +103,11 @@ public:
 
     // tests one by one touching each runtime modifiable source file
     // returns the number of errors - 0 if all passed.
-   virtual int TestBuildAllRuntimeSourceFiles(  RCCppTestBuildFailCallback failCallback ) = 0;
+   virtual int TestBuildAllRuntimeSourceFiles(  ITestBuildNotifier* callback, bool bTestFileTracking ) = 0;
 
     // tests touching each header which has RUNTIME_MODIFIABLE_INCLUDE.
     // returns the number of errors - 0 if all passed.
-    virtual int TestBuildAllRuntimeHeaders(      RCCppTestBuildFailCallback failCallback ) = 0;
+    virtual int TestBuildAllRuntimeHeaders(     ITestBuildNotifier* callback, bool bTestFileTracking ) = 0;
 };
 
 #endif // IRUNTIMEOBJECTSYSTEM_INCLUDED

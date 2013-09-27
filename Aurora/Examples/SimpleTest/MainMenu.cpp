@@ -31,13 +31,29 @@
 #include "../../Systems/IGame.h"
 #include "../../Systems/IAssetSystem.h"
 
-class OnClickCompile : public IGUISingleEventListener
+// OnCheckbox Handy checkbox class
+struct OnCheckbox : public IGUISingleEventListener
 {
-public:
 	virtual void OnEvent( const IGUIEvent& event_info )
 	{
-		PerModuleInterface::g_pSystemTable->pRuntimeObjectSystem->CompileAll( true );
+        char value[100];
+		event_info.GetParameter( "value", value, sizeof( value ) );
+        bool bCheck =  strlen( value ) > 0;
+        OnCheckChanged(bCheck);
 	}
+
+    virtual void OnAdd()
+    {
+        if( GetElement() )
+        {
+            char value[100];
+            GetElement()->GetAttribute( "checked", value, sizeof( value ) );
+            bool bCheck = strlen( value ) > 0;
+            OnCheckChanged(bCheck);
+        }
+    }
+
+    virtual void OnCheckChanged( bool bCheck ) = 0;
 };
 
 class OnClickConsole : public IGUISingleEventListener
@@ -68,6 +84,26 @@ public:
 	}
 };
 
+bool g_bTestFileTracking = true;
+
+class OnClickTestRCCppButton : public IGUISingleEventListener
+{
+public:
+	virtual void OnEvent( const IGUIEvent& event_info )
+	{
+        PerModuleInterface::g_pSystemTable->pGame->RunRCCppTests(g_bTestFileTracking);
+	}
+};
+
+
+class OnTestFileTracking : public OnCheckbox
+{
+public:
+    virtual void OnCheckChanged( bool bCheck )
+    {
+        g_bTestFileTracking = bCheck;
+    }
+};
 
 
 class OnClickVisibleButton : public IGUISingleEventListener
@@ -78,6 +114,7 @@ public:
 		, m_pTargetElement(0)
 		, m_bInline(true)
 		, m_pChildClose(0)
+        , m_bChildWasVisible(false)
 	{
 	}
 	~OnClickVisibleButton()
@@ -93,7 +130,7 @@ public:
 		m_pTargetElement = pElement;
 	}
 
-	void SetChildClose( IGUIEventListener* pChild )
+	void SetChildClose( OnClickVisibleButton* pChild )
 	{
 		m_pChildClose = pChild;
 	}
@@ -103,8 +140,9 @@ public:
 		m_bVisible = !m_bVisible; // Toggle or force close
 		SetVisibility();
 
-		if ( !m_bVisible && m_pChildClose )
+        if ( m_pChildClose && ( ( !m_bVisible && m_pChildClose->m_bVisible ) ||  ( m_bChildWasVisible && m_bVisible ) ) )
 		{
+            m_bChildWasVisible = m_pChildClose->m_bVisible;
 			m_pChildClose->OnEvent( event_info );
 		}
 	}
@@ -122,56 +160,29 @@ public:
 	}
 
 	bool m_bVisible;
-	bool		m_bInline;
+	bool m_bChildWasVisible;
+	bool m_bInline;
 private:
 	IGUIElement*        m_pTargetElement;
-	IGUIEventListener*  m_pChildClose;
+	OnClickVisibleButton*  m_pChildClose;
 };
 
-bool g_bAutoCompile = true;
-
-
-class OnAutoCompile : public IGUISingleEventListener
+class OnAutoCompile : public OnCheckbox
 {
 public:
-	virtual void OnEvent( const IGUIEvent& event_info )
-	{
-		char AutoCompile[100];
-		event_info.GetParameter( "value", AutoCompile, sizeof( AutoCompile ) );
-		size_t length = strlen( AutoCompile );
-		if ( 0 == length )
-		{
-			g_bAutoCompile = false;
-		}
-		else
-		{
-			g_bAutoCompile = true;
-		}
-		PerModuleInterface::g_pSystemTable->pRuntimeObjectSystem->SetAutoCompile( g_bAutoCompile );
-	}
+    virtual void OnCheckChanged( bool bCheck )
+    {
+		PerModuleInterface::g_pSystemTable->pRuntimeObjectSystem->SetAutoCompile( bCheck );
+    }
 };
 
-bool g_bFastCompile = false;
-
-
-class OnFastCompile : public IGUISingleEventListener
+class OnFastCompile : public OnCheckbox
 {
 public:
-	virtual void OnEvent( const IGUIEvent& event_info )
-	{
-		char FastCompile[100];
-		event_info.GetParameter( "value", FastCompile, sizeof( FastCompile ) );
-		size_t length = strlen( FastCompile );
-		if ( 0 == length )
-		{
-			g_bFastCompile = false;
-		}
-		else
-		{
-			g_bFastCompile = true;
-		}
-        PerModuleInterface::g_pSystemTable->pRuntimeObjectSystem->SetFastCompileMode( g_bFastCompile );
-	}
+    virtual void OnCheckChanged( bool bCheck )
+    {
+        PerModuleInterface::g_pSystemTable->pRuntimeObjectSystem->SetFastCompileMode( bCheck );
+    }
 };
 
 float g_Speed = 1.0f;
@@ -194,27 +205,23 @@ public:
 
 };
 
-
-class OnPauseGame : public IGUISingleEventListener
+class OnPauseGame : public OnCheckbox
 {
 public:
-	virtual void OnEvent( const IGUIEvent& event_info )
-	{
-		char Pause[100];
-		event_info.GetParameter( "value", Pause, sizeof( Pause ) );
-		size_t length = strlen( Pause );
-		if ( length == 0 )
-		{
-			g_Paused = false;
-			PerModuleInterface::g_pSystemTable->pGame->SetSpeed( g_Speed );
-		}
-		else
-		{
-			g_Paused = true;
+    virtual void OnCheckChanged( bool bCheck )
+    {
+		g_Paused = bCheck;
+        if( g_Paused )
+        {
 			PerModuleInterface::g_pSystemTable->pGame->SetSpeed( 0.0f );
-		}
-	}
+        }
+        else
+        {
+    		PerModuleInterface::g_pSystemTable->pGame->SetSpeed( g_Speed );
+        }
+    }
 };
+
 
 class MainMenu : public IObject, public IFileChangeListener
 {
@@ -241,10 +248,9 @@ public:
 	{
 		SERIALIZE( m_MenuEvent.m_bVisible);
 		SERIALIZE( m_OptionsEvent.m_bVisible);
-		SERIALIZE( g_bAutoCompile );
-        SERIALIZE( g_bFastCompile );
 		SERIALIZE( g_Speed );
 		SERIALIZE( g_Paused );
+        SERIALIZE( g_bTestFileTracking );
 	}
 
 	virtual void OnFileChange(const IAUDynArray<const char*>& filelist) 
@@ -288,8 +294,6 @@ public:
 
 		if( pDocument )
 		{
-            m_CompileEvent.AddEventToElementInDoc( "click", "ReCompileButton", pDocument );
-
             m_ConsoleEvent.AddEventToElementInDoc( "click", "ConsoleButton", pDocument );
 
             m_NewEvent.AddEventToElementInDoc( "click", "NewButton", pDocument );
@@ -307,51 +311,31 @@ public:
 			m_OptionsEvent.SetVisibility();	//force toggle menu to set to default state
 
             m_AutoCompileCheckBoxEvent.AddEventToElementInDoc( "change", "autocompilecheckbox", pDocument );
-			if( bHaveLoadedDoc )
-			{
-				char AutoCompile[100];
-                m_AutoCompileCheckBoxEvent.GetElement()->GetAttribute( "checked", AutoCompile, sizeof( AutoCompile ) );
-				g_bAutoCompile = strlen( AutoCompile ) > 0;
-			}
-			PerModuleInterface::g_pSystemTable->pRuntimeObjectSystem->SetAutoCompile( g_bAutoCompile );
 
             m_FastCompileCheckBoxEvent.AddEventToElementInDoc( "change", "fastcompilecheckbox", pDocument );
-			if( bHaveLoadedDoc )
-			{
-				char FastCompile[100];
-                m_FastCompileCheckBoxEvent.GetElement()->GetAttribute( "checked", FastCompile, sizeof( FastCompile ) );
-				g_bFastCompile = strlen( FastCompile ) > 0;
-			}
-            PerModuleInterface::g_pSystemTable->pRuntimeObjectSystem->SetFastCompileMode( g_bFastCompile );
 
 
 			char Value[80];
             m_SpeedEvent.AddEventToElementInDoc( "change", "speedslider", pDocument );
             m_SpeedEvent.GetElement()->GetAttribute( "value", Value, sizeof( Value ) );
 			float val = (float)atof( Value );
-			PerModuleInterface::g_pSystemTable->pGame->SetSpeed( val );
 			char Max[100];
 			m_SpeedEvent.GetElement()->GetAttribute( "max", Max, sizeof( Max ) );
 			float max = (float)atof( Max );
 			m_SpeedEvent.m_MaxSpeed = max;
 
             m_PauseCheckBoxEvent.AddEventToElementInDoc( "change", "pausecheckbox", pDocument );
-			
-			if( bHaveLoadedDoc )
-			{
-				char Pause[100];
-                m_PauseCheckBoxEvent.GetElement()->GetAttribute( "checked", Pause, sizeof( Pause ) );
-				g_Paused = strlen( Pause ) > 0;
-			}
-			
-			if( g_Paused )
-			{
-				PerModuleInterface::g_pSystemTable->pGame->SetSpeed( 0.0f );
-			}
-			else
-			{
-				PerModuleInterface::g_pSystemTable->pGame->SetSpeed( g_Speed );					
-			}
+
+            m_TestRCCpp.AddEventToElementInDoc( "click", "TestRCCpp", pDocument );
+            m_testFileTracking.AddEventToElementInDoc( "change", "TestFileTracking", pDocument );
+
+            if( bHaveLoadedDoc )
+            {
+                m_PauseCheckBoxEvent.OnAdd();
+                m_FastCompileCheckBoxEvent.OnAdd();
+                m_AutoCompileCheckBoxEvent.OnAdd();
+                m_testFileTracking.OnAdd();
+            }
 
 			pDocument->Show();
 			pDocument->RemoveReference();
@@ -360,7 +344,6 @@ public:
 	}
 
 
-	OnClickCompile			m_CompileEvent;
 	OnClickConsole			m_ConsoleEvent;
 	OnClickNewButton		m_NewEvent;
 	OnClickRestartButton	m_RestartEvent;
@@ -370,6 +353,8 @@ public:
 	OnFastCompile			m_FastCompileCheckBoxEvent;
 	OnChangeSpeed			m_SpeedEvent;
 	OnPauseGame				m_PauseCheckBoxEvent;
+    OnClickTestRCCppButton  m_TestRCCpp;
+    OnTestFileTracking      m_testFileTracking;
 };
 
 REGISTERSINGLETON(MainMenu, false);

@@ -40,7 +40,7 @@
 struct ICompilerLogger;
 struct IObjectFactorySystem;
 
-class RuntimeObjectSystem : public IRuntimeObjectSystem, public IFileChangeListener
+class RuntimeObjectSystem : public IRuntimeObjectSystem, public IFileChangeListener, public ITestBuildNotifier
 {
 public:
 	RuntimeObjectSystem();
@@ -127,11 +127,16 @@ public:
     
     // tests one by one touching each runtime modifiable source file
     // returns the number of errors - 0 if all passed.
-    virtual int TestBuildAllRuntimeSourceFiles(  RCCppTestBuildFailCallback failCallback );
+   virtual int TestBuildAllRuntimeSourceFiles(  ITestBuildNotifier* callback, bool bTestFileTracking );
 
     // tests touching each header which has RUNTIME_MODIFIABLE_INCLUDE.
     // returns the number of errors - 0 if all passed.
-    virtual int TestBuildAllRuntimeHeaders(      RCCppTestBuildFailCallback failCallback );
+    virtual int TestBuildAllRuntimeHeaders(     ITestBuildNotifier* callback, bool bTestFileTracking );
+
+
+    virtual bool TestBuildCallback(const char* file, TestBuildResult type);
+    virtual bool TestBuildWaitAndUpdate();
+
 
 	// IFileChangeListener
 
