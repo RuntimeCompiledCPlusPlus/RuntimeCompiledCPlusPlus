@@ -243,7 +243,7 @@ namespace FW
                 int fd = open(mDirName.c_str(), O_RDONLY);
                 EV_SET(&mDirKevent, fd, EVFILT_VNODE,
                        EV_ADD | EV_ENABLE | EV_CLEAR,
-                       NOTE_DELETE | NOTE_EXTEND | NOTE_WRITE | NOTE_ATTRIB,
+                       NOTE_DELETE | NOTE_EXTEND | NOTE_WRITE | NOTE_ATTRIB | NOTE_RENAME | NOTE_REVOKE,
                        0, 0);
             }
 			
