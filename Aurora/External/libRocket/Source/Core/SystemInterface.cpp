@@ -58,6 +58,10 @@ bool SystemInterface::LogMessage(Log::Type logtype, const String& message)
 	else
 	{
 		OutputDebugStringA(message.CString());
+        if( message.Length() && message[ message.Length()-1 ] != '\n' )
+        {
+            OutputDebugStringA("\n");
+        }
 		//OutputDebugStringA("\r\n");
 	}
 #else
