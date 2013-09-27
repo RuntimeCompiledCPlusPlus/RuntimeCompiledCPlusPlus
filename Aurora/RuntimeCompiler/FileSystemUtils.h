@@ -23,11 +23,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <time.h>
 
 #ifdef _WIN32
 	#include <direct.h>
-	#include <sys/types.h>
     #include <sys/utime.h>
 	#define WIN32_LEAN_AND_MEAN
     #define NOMINMAX
@@ -37,6 +37,7 @@
 
 	#define FILESYSTEMUTILS_SEPERATORS "/\\"
 #else
+    #include <utime.h>
     #include <string.h>
     #include <unistd.h>
     #include <dirent.h>
@@ -214,7 +215,7 @@ namespace FileSystemUtils
         _utime64( c_str(), &modtime );
 #else
         utimbuf modtime = { time_, time_ };
-        utime( c_str(), &modtime )
+        utime( c_str(), &modtime );
 #endif
     }
 
@@ -498,6 +499,10 @@ namespace FileSystemUtils
             m_numFilesInList = scandir( m_path.c_str(), &m_paDirFileList, 0, alphasort);
             m_bIsValid = m_numFilesInList > 0;
             m_currFile = 0;
+            if( !m_bIsValid )
+            {
+                m_paDirFileList = 0;
+            }
         }
         bool ImpNext()
         {
