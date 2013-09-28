@@ -506,3 +506,61 @@ void Game::InitStoredObjectPointers()
 	m_pLightingControl = (ILightingControl*)IObjectUtils::GetUniqueInterface( "LightingControl", IID_ILIGHTINGCONTROL );
 	AU_ASSERT(m_pLightingControl);
 }
+
+void Game::RunRCCppTests( bool bTestFileTracking )
+{
+    m_pEnv->sys->pRuntimeObjectSystem->TestBuildAllRuntimeSourceFiles( this, bTestFileTracking );
+    m_pEnv->sys->pRuntimeObjectSystem->TestBuildAllRuntimeHeaders( this, bTestFileTracking );
+}
+
+
+bool Game::TestBuildCallback(const char* file, TestBuildResult type)
+{
+    switch( type )
+    {
+    case TESTBUILDRRESULT_SUCCESS:            // SUCCESS, yay!
+        m_pEnv->sys->pLogSystem->Log(eLV_EVENTS, "TESTBUILDRRESULT_SUCCESS: %s\n", file);
+        break;
+    case TESTBUILDRRESULT_NO_FILES_TO_BUILD:  // file registration error or no runtime files of this type
+        m_pEnv->sys->pLogSystem->Log(eLV_WARNINGS, "TESTBUILDRRESULT_NO_FILES_TO_BUILD\n");
+        break;
+    case TESTBUILDRRESULT_BUILD_FILE_GONE:    // the file is no longer present
+        m_pEnv->sys->pLogSystem->Log(eLV_ERRORS, "TESTBUILDRRESULT_BUILD_FILE_GONE: %s\n", file);
+        break;
+    case TESTBUILDRRESULT_BUILD_NOT_STARTED:  // file change detection could be broken, or if an include may not be included anywhere
+        m_pEnv->sys->pLogSystem->Log(eLV_ERRORS, "TESTBUILDRRESULT_BUILD_NOT_STARTED: %s\n", file);
+        break;
+    case TESTBUILDRRESULT_BUILD_FAILED:       // a build was started, but it failed or module failed to load. See log.
+        m_pEnv->sys->pLogSystem->Log(eLV_ERRORS, "TESTBUILDRRESULT_BUILD_FAILED: %s\n", file);
+        break;
+    case TESTBUILDRRESULT_OBJECT_SWAP_FAIL:   // build succeeded, module loaded but errors on swapping
+        m_pEnv->sys->pLogSystem->Log(eLV_ERRORS, "TESTBUILDRRESULT_OBJECT_SWAP_FAIL: %s\n", file);
+        break;
+    default:
+        assert(false);
+        break;
+    }
+    return true;
+}
+
+bool Game::TestBuildWaitAndUpdate()
+{
+	double dTimeStart = glfwGetTime();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    RocketLibUpdate();
+    double dTimeEnd = glfwGetTime();
+
+    const double dGoodWaitTime = 0.05;
+    double dTimeLeft = dGoodWaitTime - (dTimeEnd - dTimeStart);
+	if( dTimeLeft > 0.0 )
+	{
+        glfwSleep( dTimeLeft );
+	}
+
+    if( !glfwGetWindowParam( GLFW_OPENED ) )
+    {
+        // closed window so stop
+        return false;
+    }
+    return true;
+}

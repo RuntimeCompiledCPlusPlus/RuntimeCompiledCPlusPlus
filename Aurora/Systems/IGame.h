@@ -31,6 +31,7 @@ struct IGame : public ISystem
 	virtual void ToggleConsoleGUI() = 0;
 	virtual void Exit() = 0;
 	virtual void GetWindowSize( float& width, float& height ) const = 0;
+    virtual void RunRCCppTests( bool bTestFileTracking ) = 0;
 
 	virtual void SetSpeed( float speed ) = 0; 
 };

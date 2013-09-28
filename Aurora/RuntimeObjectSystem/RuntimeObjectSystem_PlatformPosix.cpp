@@ -154,3 +154,10 @@ bool RuntimeObjectSystem::TryProtectedFunction( RuntimeProtector* pProtectedObje
     m_pCurrProtector = pProtectedObject_->m_pPrevious;
     return !bHasJustHadException;
 }
+
+
+bool RuntimeObjectSystem::TestBuildWaitAndUpdate()
+{
+    usleep( 100 * 1000 );
+    return true;
+}
