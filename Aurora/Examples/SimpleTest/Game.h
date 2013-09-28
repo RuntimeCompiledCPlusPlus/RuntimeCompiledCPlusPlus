@@ -49,7 +49,7 @@ typedef int AUEntityId;
 struct IEntitySystem;
 
 
-class Game : public IGame, public IObjectFactoryListener
+class Game : public IGame, public IObjectFactoryListener, public ITestBuildNotifier
 {
 public:
 	Game();
@@ -76,8 +76,11 @@ public:
 	virtual void Exit();
 	virtual void GetWindowSize( float& width, float& height ) const;
 	virtual void SetSpeed( float speed );
+	virtual void RunRCCppTests( bool bTestFileTracking );
 
 	// ~IGame
+    virtual bool TestBuildCallback(const char* file, TestBuildResult type);
+    virtual bool TestBuildWaitAndUpdate();
 
 private:
 

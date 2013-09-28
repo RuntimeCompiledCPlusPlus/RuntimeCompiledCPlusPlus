@@ -140,7 +140,7 @@ void RocketLogSystem::LogInternal(ELogVerbosity eVerbosity, const char * format,
 
 	int result = vsnprintf(&m_buff[m_buffIndex], LOGSYSTEM_MAX_BUFFER-1, format, args);
 	// Make sure there's a limit to the amount of rubbish we can output
-	m_buff[LOGSYSTEM_MAX_BUFFER-1] = '\0';
+	m_buff[m_buffIndex+LOGSYSTEM_MAX_BUFFER-1] = 0;
 
 	m_buffIndex += result + 1;
 	m_pImpl->messageTypes.push_back(rocketVerbosity);

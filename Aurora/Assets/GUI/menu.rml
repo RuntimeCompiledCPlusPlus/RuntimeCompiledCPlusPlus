@@ -9,7 +9,6 @@
 			<button id="ToggleButton" class="square"></button>
 		</div>
 		<div id="menu-group">
-      <button id="ReCompileButton">Recompile</button>
       <button id="ConsoleButton">Console</button>
 			<button id="NewButton">New Game</button>
       <button id="RestartButton">Restart</button>
@@ -25,9 +24,14 @@
           </div>
           <div class="options">
             <p>
-              Auto Compile: <input type="checkbox" id="autocompilecheckbox" value="checked" checked="something"/>
+              Auto Compile: <input type="checkbox" id="autocompilecheckbox" value="checked" checked="y"/>
               Fast Compile: <input type="checkbox" id="fastcompilecheckbox" value="checked"/>
             </p>
+            <p>
+            <button id="TestRCCpp">Test RCC++</button>
+            Test File Tracking: <input type="checkbox" id="TestFileTracking" value="checked" checked="y"/>
+            </p>
+            <p>Testing RCC++ will touch each RCC++ file in turn to test compilation. This can take significant time.</p>
           </div>
                     
           <div>
