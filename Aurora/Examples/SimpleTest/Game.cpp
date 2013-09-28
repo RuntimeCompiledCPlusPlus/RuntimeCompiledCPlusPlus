@@ -509,6 +509,7 @@ void Game::InitStoredObjectPointers()
 
 void Game::RunRCCppTests( bool bTestFileTracking )
 {
+    m_pEnv->sys->pRuntimeObjectSystem->CleanObjectFiles();
     m_pEnv->sys->pRuntimeObjectSystem->TestBuildAllRuntimeSourceFiles( this, bTestFileTracking );
     m_pEnv->sys->pRuntimeObjectSystem->TestBuildAllRuntimeHeaders( this, bTestFileTracking );
 }
