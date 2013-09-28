@@ -154,7 +154,7 @@ namespace FW
 		if(!watch->mListener)
 			return;
 
-		if( (IN_CLOSE_WRITE & action) || (IN_MODIFY & action) || ( IN_ATTRIB & action ) )
+		if( (IN_CLOSE_WRITE & action) || (IN_MODIFY & action) )
 		{
 			watch->mListener->handleFileAction(watch->mWatchID, watch->mDirName, filename,
 								Actions::Modified);
