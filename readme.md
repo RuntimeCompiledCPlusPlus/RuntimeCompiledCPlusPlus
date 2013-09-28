@@ -20,7 +20,7 @@ Linux requires the following dependencies installed for the SimpleTest project (
 - libfreetype6-dev
 - libx11-dev
 - libgl1-mesa-dev
-- libgl1u-mesa-dev
+- libglu1-mesa-dev
 - libglfw-dev, if using system glfw, otherwise this comes prebuilt for 64bit Linux. To use the system glfw set the option GLFW_SYSTEM to ON - cmake .. -DGLFW_SYSTEM=ON
 
 For Eclipse use File->Import->General->Existing Projects into Workspace and select the RuntimeCompiledCPlusPlus directory and import all projects it finds (best not to copy so you can keep everything up to date with git).
