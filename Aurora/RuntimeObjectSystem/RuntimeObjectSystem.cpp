@@ -81,7 +81,11 @@ bool RuntimeObjectSystem::Initialise( ICompilerLogger * pLogger, SystemTable* pS
 	m_pObjectFactorySystem->SetLogger( m_pCompilerLogger );
     m_pObjectFactorySystem->SetRuntimeObjectSystem( this );
 
+    FileSystemUtils::Path initialDir = FileSystemUtils::GetCurrentPath();
+    m_FoundSourceDirectoryMappings[initialDir] = initialDir;
+
 	SetupObjectConstructors(pPerModuleInterface);
+
 	//add this dir to list of include dirs
 	FileSystemUtils::Path includeDir( __FILE__ );
 	includeDir = includeDir.ParentPath();
@@ -462,8 +466,113 @@ void RuntimeObjectSystem::AddLibraryDir( const char *path_ )
 
 FileSystemUtils::Path RuntimeObjectSystem::FindFile( const FileSystemUtils::Path& input )
 {
-    // initial dummy implemenetation
-   return input;
+    FileSystemUtils::Path requestedDirectory = input;
+    FileSystemUtils::Path foundFile = input;
+    bool bIsFile = input.HasExtension();
+    if( bIsFile )
+    {
+        requestedDirectory = requestedDirectory.ParentPath();
+    }
+
+    // Step 1: Try input directory
+    if( requestedDirectory.Exists() )
+    {
+        m_FoundSourceDirectoryMappings[ requestedDirectory ] = requestedDirectory;
+    }
+    else
+    {
+        // Step 2: Attempt to find a pre-existing mapping
+        bool bFoundMapping = false;
+        if( m_FoundSourceDirectoryMappings.size() )
+        {
+            FileSystemUtils::Path testDir = requestedDirectory;
+            FileSystemUtils::Path foundDir;
+            unsigned int depth = 0;
+            bool bFound = false;
+            while( testDir.HasParentPath() )
+            {
+                TFileMapIterator itrFind = m_FoundSourceDirectoryMappings.find( testDir );
+                if( itrFind != m_FoundSourceDirectoryMappings.end() )
+                {
+                    foundDir = itrFind->second;
+                    bFound = true;
+                    break;
+                }
+
+                testDir = testDir.ParentPath();
+                ++depth;
+            }
+
+            if( bFound )
+            {
+                if( depth )
+                {
+                    // not an exact match
+                    FileSystemUtils::Path directory = requestedDirectory;
+                    directory.m_string.replace( 0, testDir.m_string.length(), foundDir.m_string );
+                    if( directory.Exists() )
+                    {
+                        m_FoundSourceDirectoryMappings[ requestedDirectory ] = directory;
+                        foundFile = directory / input.Filename();
+                        bFoundMapping = true;
+                    }
+
+                }
+                else
+                {
+                    // exact match
+                    foundFile = foundDir / input.Filename();
+                    bFoundMapping = true;
+                }
+            }
+            
+            if( !bFoundMapping )
+            {
+                // Step 3: Attempt to find a mapping from a known path
+                TFileList requestedSubPaths;
+                FileSystemUtils::Path requestedSubPath = requestedDirectory;
+                while( requestedSubPath.HasParentPath() )
+                {
+                    requestedSubPaths.push_back( requestedSubPath );
+                    requestedSubPath = requestedSubPath.ParentPath();
+                }
+
+                TFileMapIterator itr = m_FoundSourceDirectoryMappings.begin();
+                while( ( itr != m_FoundSourceDirectoryMappings.end() ) && !bFoundMapping )
+                {
+                    FileSystemUtils::Path existingPath = itr->second;
+                    while( ( existingPath.HasParentPath() ) && !bFoundMapping )
+                    {
+                        // check all potentials
+                        for( int i=0; i<requestedSubPaths.size(); ++i )
+                        {
+                            FileSystemUtils::Path toCheck = existingPath / requestedSubPaths[i].Filename();
+                            if( toCheck.Exists() )
+                            {
+                                // potential mapping
+                                FileSystemUtils::Path directory = requestedDirectory;
+                                directory.m_string.replace( 0, requestedSubPaths[i].m_string.length(), toCheck.m_string );
+                                if( directory.Exists() )
+                                {
+                                    m_FoundSourceDirectoryMappings[ requestedDirectory ] = directory;
+                                    foundFile = directory / input.Filename();
+                                    bFoundMapping = true;
+                                }
+                                break;
+                            }
+                        }
+                        existingPath = existingPath.ParentPath();
+                    }
+                }
+            }
+        }
+    }
+
+    if( !foundFile.Exists() )
+    {
+        ++m_NumNotFoundSourceFiles;
+    }
+    return foundFile;
 }
 
 bool RuntimeObjectSystem::TestBuildCallback(const char* file, TestBuildResult type)
