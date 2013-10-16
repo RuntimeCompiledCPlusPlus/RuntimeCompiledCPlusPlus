@@ -137,6 +137,8 @@ public:
     virtual bool TestBuildCallback(const char* file, TestBuildResult type);
     virtual bool TestBuildWaitAndUpdate();
 
+    // FindFile - attempts to find the file in a source directory
+    virtual FileSystemUtils::Path   FindFile( const FileSystemUtils::Path& input );
 
 	// IFileChangeListener
 
@@ -192,8 +194,6 @@ private:
 
     // File mappings - we need to map from compiled path to a potentially different path
     // on the system the code is running on
-    // FindFile - attempts to find the file in a source directory
-    FileSystemUtils::Path   FindFile( const FileSystemUtils::Path& input );
     TFileMap                m_FoundSourceDirectoryMappings; // mappings between directories found and requested
     unsigned int            m_NumNotFoundSourceFiles;       // count of source directories not found
 

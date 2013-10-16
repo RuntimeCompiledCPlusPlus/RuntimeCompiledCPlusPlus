@@ -87,13 +87,11 @@ Console::Console(Environment* pEnv, Rocket::Core::Context* pRocketContext)
 	AU_ASSERT(m_pEnv && m_pRocketContext);
 
 	Path basepath = Path(__FILE__).ParentPath();
+    basepath = m_pEnv->sys->pRuntimeObjectSystem->FindFile( basepath );
 	m_inputFile = basepath / Path(CONSOLE_INPUT_FILE);
 	m_contextFile = basepath / Path(CONSOLE_CONTEXT_FILE); 
 	
-#ifdef _WINDOWS_
-	// make filename lowercase to avoid case sensitivity issues
-	FileSystemUtils::ToLowerInPlace( m_contextFile.m_string );
-#endif
+    m_contextFile.ToOSCanonicalCase();
 
 	if( CreateConsoleContextFile() )
 	{

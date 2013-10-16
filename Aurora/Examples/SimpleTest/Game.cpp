@@ -155,10 +155,10 @@ bool Game::Init()
 
 	m_pEnv->sys->pObjectFactorySystem->AddListener(this);
 
-	m_pConsole = new Console(m_pEnv, m_pRocketContext);
 	m_EntityUpdateProtector.pEntitySystem = m_pEnv->sys->pEntitySystem;
 
     m_pEnv->Init();
+	m_pConsole = new Console(m_pEnv, m_pRocketContext);
 
 	return true;
 }

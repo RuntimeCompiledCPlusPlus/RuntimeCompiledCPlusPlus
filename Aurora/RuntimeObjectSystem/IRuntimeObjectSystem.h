@@ -56,6 +56,11 @@ struct ITestBuildNotifier
     virtual bool TestBuildWaitAndUpdate() = 0;
 };
 
+namespace FileSystemUtils
+{
+    class Path;
+}
+
 struct IRuntimeObjectSystem
 {
 	// Initialise RuntimeObjectSystem. pLogger and pSystemTable should be deleted by creator. 
@@ -108,6 +113,10 @@ struct IRuntimeObjectSystem
     // tests touching each header which has RUNTIME_MODIFIABLE_INCLUDE.
     // returns the number of errors - 0 if all passed.
     virtual int TestBuildAllRuntimeHeaders(     ITestBuildNotifier* callback, bool bTestFileTracking ) = 0;
+
+    // FindFile - attempts to find the file in a source directory
+    virtual FileSystemUtils::Path   FindFile( const FileSystemUtils::Path& input ) = 0;
+
 };
 
 #endif // IRUNTIMEOBJECTSYSTEM_INCLUDED

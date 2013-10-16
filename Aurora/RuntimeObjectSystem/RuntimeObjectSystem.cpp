@@ -467,12 +467,17 @@ void RuntimeObjectSystem::AddLibraryDir( const char *path_ )
 FileSystemUtils::Path RuntimeObjectSystem::FindFile( const FileSystemUtils::Path& input )
 {
     FileSystemUtils::Path requestedDirectory = input;
+    FileSystemUtils::Path filename;
     FileSystemUtils::Path foundFile = input;
     bool bIsFile = input.HasExtension();
     if( bIsFile )
     {
         requestedDirectory = requestedDirectory.ParentPath();
+        filename = input.Filename();
     }
+    requestedDirectory.ToOSCanonicalCase();
+    filename.ToOSCanonicalCase();
+    foundFile.ToOSCanonicalCase();
 
     // Step 1: Try input directory
     if( requestedDirectory.Exists() )
@@ -513,7 +518,8 @@ FileSystemUtils::Path RuntimeObjectSystem::FindFile( const FileSystemUtils::Path
                     if( directory.Exists() )
                     {
                         m_FoundSourceDirectoryMappings[ requestedDirectory ] = directory;
-                        foundFile = directory / input.Filename();
+                        if( m_pCompilerLogger ) {  m_pCompilerLogger->LogInfo( "Found Directory Mapping: %s to %s\n", requestedDirectory.c_str(), directory.c_str() ); }
+                        foundFile = directory / filename;
                         bFoundMapping = true;
                     }
 
@@ -521,7 +527,7 @@ FileSystemUtils::Path RuntimeObjectSystem::FindFile( const FileSystemUtils::Path
                 else
                 {
                     // exact match
-                    foundFile = foundDir / input.Filename();
+                    foundFile = foundDir / filename;
                     bFoundMapping = true;
                 }
             }
@@ -555,7 +561,8 @@ FileSystemUtils::Path RuntimeObjectSystem::FindFile( const FileSystemUtils::Path
                                 if( directory.Exists() )
                                 {
                                     m_FoundSourceDirectoryMappings[ requestedDirectory ] = directory;
-                                    foundFile = directory / input.Filename();
+                                    if( m_pCompilerLogger ) {  m_pCompilerLogger->LogInfo( "Found Directory Mapping: %s to %s\n", requestedDirectory.c_str(), directory.c_str() ); }
+                                    foundFile = directory / filename;
                                     bFoundMapping = true;
                                 }
                                 break;
@@ -570,6 +577,7 @@ FileSystemUtils::Path RuntimeObjectSystem::FindFile( const FileSystemUtils::Path
 
     if( !foundFile.Exists() )
     {
+        if( m_pCompilerLogger ) {  m_pCompilerLogger->LogWarning( "Could not find Directory Mapping for: %s\n", input.c_str() ); }
         ++m_NumNotFoundSourceFiles;
     }
     return foundFile;
@@ -708,8 +716,8 @@ int RuntimeObjectSystem::TestBuildAllRuntimeSourceFiles(  ITestBuildNotifier* ca
         failCallbackLocal->TestBuildCallback( NULL, TESTBUILDRRESULT_NO_FILES_TO_BUILD );
     }
     
-
-	for( TFileList::iterator it = m_RuntimeFileList.begin(); it != m_RuntimeFileList.end(); ++it )
+    TFileList filesToTest = m_RuntimeFileList; // m_RuntimeFileList could change if file content changes (new includes or source dependencies) so make copy to ensure iterators valid.
+	for( TFileList::iterator it = filesToTest.begin(); it != filesToTest.end(); ++it )
     {
         const Path& file = *it;
         if( file.Extension() != ".h") // exclude headers, use TestBuildAllRuntimeHeaders
