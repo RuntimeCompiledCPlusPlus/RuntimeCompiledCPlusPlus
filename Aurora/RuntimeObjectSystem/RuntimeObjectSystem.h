@@ -147,11 +147,13 @@ public:
 
 
 private:
-	typedef std::vector<FileSystemUtils::Path> TFileList;
-	typedef std::multimap<FileSystemUtils::Path,FileSystemUtils::Path> TFileToFileMap;
-	typedef TFileToFileMap::iterator TFileToFileIterator;
-	typedef std::pair<FileSystemUtils::Path,FileSystemUtils::Path> TFileToFilePair;
-	typedef std::pair<TFileToFileMap::iterator,TFileToFileMap::iterator> TFileToFileEqualRange;
+	typedef std::vector<FileSystemUtils::Path>                              TFileList;
+	typedef std::map<FileSystemUtils::Path,FileSystemUtils::Path>           TFileMap;
+	typedef TFileMap::iterator                                              TFileMapIterator;
+	typedef std::multimap<FileSystemUtils::Path,FileSystemUtils::Path>      TFileToFilesMap;
+	typedef TFileToFilesMap::iterator                                       TFileToFilesIterator;
+	typedef std::pair<FileSystemUtils::Path,FileSystemUtils::Path>          TFileToFilePair;
+	typedef std::pair<TFileToFilesMap::iterator,TFileToFilesMap::iterator>  TFileToFilesEqualRange;
 
 	void StartRecompile();
 
@@ -173,9 +175,9 @@ private:
 	bool					m_bLastLoadModuleSuccess;
 	std::vector<HMODULE>	m_Modules;	// Stores runtime created modules, but not the exe module.
 	TFileList				m_RuntimeFileList;
-	TFileToFileMap			m_RuntimeIncludeMap;
-	TFileToFileMap			m_RuntimeLinkLibraryMap;
-	TFileToFileMap			m_RuntimeSourceDependencyMap;
+	TFileToFilesMap			m_RuntimeIncludeMap;
+	TFileToFilesMap			m_RuntimeLinkLibraryMap;
+	TFileToFilesMap			m_RuntimeSourceDependencyMap;
 	bool					m_bAutoCompile;
 	FileSystemUtils::Path m_CurrentlyCompilingModuleName;
 	std::vector<BuildTool::FileToBuild> m_BuildFileList;
@@ -186,6 +188,15 @@ private:
 	std::string				m_LinkOptions;
     unsigned int            m_TotalLoadedModulesEver;
     bool                    m_bProtectionEnabled;
+
+
+    // File mappings - we need to map from compiled path to a potentially different path
+    // on the system the code is running on
+    // FindFile - attempts to find the file in a source directory
+    FileSystemUtils::Path FindFile( const FileSystemUtils::Path& input );
+    TFileList               m_FoundSourceDirectories;       // found source directories
+    TFileMap                m_FoundSourceDirectoryMappings; // mappings between directories found and requested
+    unsigned int            m_NumNotFoundSourceFiles;       // count of source directories not found
 
     // platform implementation in RuntimeObjectSystem_Plaform*.cpp
 public:

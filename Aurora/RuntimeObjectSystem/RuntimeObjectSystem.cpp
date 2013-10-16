@@ -123,7 +123,7 @@ void RuntimeObjectSystem::OnFileChange(const IAUDynArray<const char*>& filelist)
 		{
             bFindIncludeDependencies = false;
             // file may be a source dependency, check
-			TFileToFileIterator itrCurr = m_RuntimeSourceDependencyMap.begin();
+			TFileToFilesIterator itrCurr = m_RuntimeSourceDependencyMap.begin();
 			while( itrCurr != m_RuntimeSourceDependencyMap.end() )
 			{
 				if( itrCurr->second == fileToBuild.filePath )
@@ -147,8 +147,8 @@ void RuntimeObjectSystem::OnFileChange(const IAUDynArray<const char*>& filelist)
 
 		if( bFindIncludeDependencies )
 		{
-			TFileToFileEqualRange range = m_RuntimeIncludeMap.equal_range( fileToBuild.filePath );
-			for(TFileToFileIterator it=range.first; it!=range.second; ++it)
+			TFileToFilesEqualRange range = m_RuntimeIncludeMap.equal_range( fileToBuild.filePath );
+			for(TFileToFilesIterator it=range.first; it!=range.second; ++it)
 			{
 				BuildTool::FileToBuild fileToBuildFromIncludes( (*it).second, bForceIncludeDependencies );
 				pBuildFileList->push_back( fileToBuildFromIncludes );
@@ -243,8 +243,8 @@ void RuntimeObjectSystem::StartRecompile()
 	for( size_t i = 0; i < ourBuildFileList.size(); ++ i )
 	{
 
-		TFileToFileEqualRange range = m_RuntimeLinkLibraryMap.equal_range( ourBuildFileList[i].filePath );
-		for(TFileToFileIterator it=range.first; it!=range.second; ++it)
+		TFileToFilesEqualRange range = m_RuntimeLinkLibraryMap.equal_range( ourBuildFileList[i].filePath );
+		for(TFileToFilesIterator it=range.first; it!=range.second; ++it)
 		{
 			linkLibraryList.push_back( it->second );
 		}
@@ -257,6 +257,7 @@ void RuntimeObjectSystem::StartRecompile()
 	for( size_t i = 0; i < vecRequiredFiles.size(); ++i )
 	{
 		FileSystemUtils::Path fullpath = compileDir / vecRequiredFiles[i];
+        fullpath = FindFile( fullpath );
 		BuildTool::FileToBuild reqFile( fullpath, false );	//don't force compile of these
 		ourBuildFileList.push_back( reqFile );
 	}
@@ -266,8 +267,8 @@ void RuntimeObjectSystem::StartRecompile()
 	for( size_t i = 0; i < buildListSize; ++ i )
 	{
 
-		TFileToFileEqualRange range = m_RuntimeSourceDependencyMap.equal_range( ourBuildFileList[i].filePath );
-		for(TFileToFileIterator it=range.first; it!=range.second; ++it)
+		TFileToFilesEqualRange range = m_RuntimeSourceDependencyMap.equal_range( ourBuildFileList[i].filePath );
+		for(TFileToFilesIterator it=range.first; it!=range.second; ++it)
 		{
 		    BuildTool::FileToBuild reqFile( it->second, false );	//don't force compile of these
 			ourBuildFileList.push_back( reqFile );
@@ -354,20 +355,21 @@ void RuntimeObjectSystem::SetupObjectConstructors(IPerModuleInterface* pPerModul
 	for (size_t i=0, iMax=objectConstructors.size(); i<iMax; ++i)
 	{
 		constructors[i] = objectConstructors[i];
-		Path filePath = objectConstructors[i]->GetFileName();
+		Path filePath = objectConstructors[i]->GetFileName(); // GetFileName returns full path including GetCompiledPath()
         filePath = filePath.GetCleanPath();
+        filePath = FindFile( filePath );
         AddToRuntimeFileList( filePath.c_str() );
 
 
 		if( !bFirstTime )
 		{
  			//remove old include file mappings for this file
-			TFileToFileIterator itrCurr = m_RuntimeIncludeMap.begin();
+			TFileToFilesIterator itrCurr = m_RuntimeIncludeMap.begin();
 			while( itrCurr != m_RuntimeIncludeMap.end() )
 			{
 				if( itrCurr->second == filePath )
 				{
-                    TFileToFileIterator itrErase = itrCurr;
+                    TFileToFilesIterator itrErase = itrCurr;
                     ++itrCurr;
 					m_RuntimeIncludeMap.erase( itrErase );
 				}
@@ -394,7 +396,7 @@ void RuntimeObjectSystem::SetupObjectConstructors(IPerModuleInterface* pPerModul
 			if( pIncludeFile )
 			{
                 FileSystemUtils::Path fullpath = compileDir / pIncludeFile;
-                fullpath = fullpath.GetCleanPath();
+                fullpath = FindFile( fullpath.GetCleanPath() );
 				TFileToFilePair includePathPair;
 				includePathPair.first = fullpath;
 				includePathPair.second = filePath;
@@ -412,7 +414,7 @@ void RuntimeObjectSystem::SetupObjectConstructors(IPerModuleInterface* pPerModul
 			{
 				TFileToFilePair linklibraryPathPair;
 				linklibraryPathPair.first = filePath;
-				linklibraryPathPair.second = pLinkLibrary;
+				linklibraryPathPair.second = FindFile( pLinkLibrary );
 				m_RuntimeLinkLibraryMap.insert( linklibraryPathPair );
 			}
 		}
@@ -424,7 +426,7 @@ void RuntimeObjectSystem::SetupObjectConstructors(IPerModuleInterface* pPerModul
 			if( pSourceDependency )
 			{
                 FileSystemUtils::Path pathInc = compileDir / pSourceDependency;
-                pathInc = pathInc.GetCleanPath();
+                pathInc = FindFile( pathInc.GetCleanPath() );
                 FileSystemUtils::Path pathSrc = pathInc;
                 pathSrc.ReplaceExtension( ".cpp" );
 				TFileToFilePair sourcePathPair;
@@ -433,7 +435,7 @@ void RuntimeObjectSystem::SetupObjectConstructors(IPerModuleInterface* pPerModul
 				m_RuntimeSourceDependencyMap.insert( sourcePathPair );
                 
                 // if the include file with a source dependancy is logged as an runtime include, then we mark this .cpp as compile dependencies on change
-                TFileToFileEqualRange range = m_RuntimeIncludeMap.equal_range( pathInc );
+                TFileToFilesEqualRange range = m_RuntimeIncludeMap.equal_range( pathInc );
                 if( range.first != range.second )
                 {
                     // add source file to runtime file list
@@ -448,13 +450,20 @@ void RuntimeObjectSystem::SetupObjectConstructors(IPerModuleInterface* pPerModul
 
 void RuntimeObjectSystem::AddIncludeDir( const char *path_ )
 {
-	m_IncludeDirList.push_back(Path(path_));
+	m_IncludeDirList.push_back(FindFile(path_));
 }
 
 
 void RuntimeObjectSystem::AddLibraryDir( const char *path_ )
 {
-	m_LibraryDirList.push_back(Path(path_));
+
+	m_LibraryDirList.push_back(FindFile(path_));
+}
+
+FileSystemUtils::Path RuntimeObjectSystem::FindFile( const FileSystemUtils::Path& input )
+{
+    // initial dummy implemenetation
+   return input;
 }
 
 bool RuntimeObjectSystem::TestBuildCallback(const char* file, TestBuildResult type)
