@@ -416,9 +416,11 @@ void RuntimeObjectSystem::SetupObjectConstructors(IPerModuleInterface* pPerModul
 			const char* pLinkLibrary = objectConstructors[i]->GetLinkLibrary( linklibraryNum );
 			if( pLinkLibrary )
 			{
+                // We do not use FindFiles for Linked Libraries as these are searched for on
+                // the library paths, which are themselves searched for.
 				TFileToFilePair linklibraryPathPair;
 				linklibraryPathPair.first = filePath;
-				linklibraryPathPair.second = FindFile( pLinkLibrary );
+				linklibraryPathPair.second = pLinkLibrary;
 				m_RuntimeLinkLibraryMap.insert( linklibraryPathPair );
 			}
 		}
