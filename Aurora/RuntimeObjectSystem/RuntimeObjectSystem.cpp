@@ -87,7 +87,7 @@ bool RuntimeObjectSystem::Initialise( ICompilerLogger * pLogger, SystemTable* pS
 	SetupObjectConstructors(pPerModuleInterface);
 
 	//add this dir to list of include dirs
-	FileSystemUtils::Path includeDir( __FILE__ );
+	FileSystemUtils::Path includeDir = FindFile(__FILE__);
 	includeDir = includeDir.ParentPath();
 	AddIncludeDir(includeDir.c_str());
 
@@ -456,14 +456,13 @@ void RuntimeObjectSystem::SetupObjectConstructors(IPerModuleInterface* pPerModul
 
 void RuntimeObjectSystem::AddIncludeDir( const char *path_ )
 {
-	m_IncludeDirList.push_back(FindFile(path_));
+	m_IncludeDirList.push_back(path_);
 }
 
 
 void RuntimeObjectSystem::AddLibraryDir( const char *path_ )
 {
-
-	m_LibraryDirList.push_back(FindFile(path_));
+	m_LibraryDirList.push_back(path_);
 }
 
 FileSystemUtils::Path RuntimeObjectSystem::FindFile( const FileSystemUtils::Path& input )
