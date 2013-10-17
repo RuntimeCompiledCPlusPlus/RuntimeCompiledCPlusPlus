@@ -578,6 +578,7 @@ FileSystemUtils::Path RuntimeObjectSystem::FindFile( const FileSystemUtils::Path
                         }
                         existingPath = existingPath.ParentPath();
                     }
+                    ++itr;
                 }
             }
         }
