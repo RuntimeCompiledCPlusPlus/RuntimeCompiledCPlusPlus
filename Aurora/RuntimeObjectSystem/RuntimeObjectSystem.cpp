@@ -517,10 +517,13 @@ FileSystemUtils::Path RuntimeObjectSystem::FindFile( const FileSystemUtils::Path
                     directory.m_string.replace( 0, testDir.m_string.length(), foundDir.m_string );
                     if( directory.Exists() )
                     {
-                        m_FoundSourceDirectoryMappings[ requestedDirectory ] = directory;
-                        if( m_pCompilerLogger ) {  m_pCompilerLogger->LogInfo( "Found Directory Mapping: %s to %s\n", requestedDirectory.c_str(), directory.c_str() ); }
                         foundFile = directory / filename;
-                        bFoundMapping = true;
+                        if( foundFile.Exists() )
+                        {
+                            m_FoundSourceDirectoryMappings[ requestedDirectory ] = directory;
+                            if( m_pCompilerLogger ) {  m_pCompilerLogger->LogInfo( "Found Directory Mapping: %s to %s\n", requestedDirectory.c_str(), directory.c_str() ); }
+                            bFoundMapping = true;
+                        }
                     }
 
                 }
@@ -560,12 +563,15 @@ FileSystemUtils::Path RuntimeObjectSystem::FindFile( const FileSystemUtils::Path
                                 directory.m_string.replace( 0, requestedSubPaths[i].m_string.length(), toCheck.m_string );
                                 if( directory.Exists() )
                                 {
-                                    m_FoundSourceDirectoryMappings[ requestedDirectory ] = directory;
-                                    if( m_pCompilerLogger ) {  m_pCompilerLogger->LogInfo( "Found Directory Mapping: %s to %s\n", requestedDirectory.c_str(), directory.c_str() ); }
                                     foundFile = directory / filename;
-                                    bFoundMapping = true;
+                                    if( foundFile.Exists() )
+                                    {
+                                        m_FoundSourceDirectoryMappings[ requestedDirectory ] = directory;
+                                        if( m_pCompilerLogger ) {  m_pCompilerLogger->LogInfo( "Found Directory Mapping: %s to %s\n", requestedDirectory.c_str(), directory.c_str() ); }
+                                        bFoundMapping = true;
+                                        break;
+                                    }
                                 }
-                                break;
                             }
                         }
                         existingPath = existingPath.ParentPath();
