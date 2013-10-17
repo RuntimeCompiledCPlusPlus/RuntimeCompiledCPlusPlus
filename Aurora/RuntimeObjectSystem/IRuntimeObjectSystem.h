@@ -117,6 +117,9 @@ struct IRuntimeObjectSystem
     // FindFile - attempts to find the file in a source directory
     virtual FileSystemUtils::Path   FindFile( const FileSystemUtils::Path& input ) = 0;
 
+    // AddPathToSourceSearch - adds a path to help source search. Can be called multiple times to add paths.
+    virtual void AddPathToSourceSearch( const char* path ) = 0;
+
 };
 
 #endif // IRUNTIMEOBJECTSYSTEM_INCLUDED

@@ -550,7 +550,7 @@ FileSystemUtils::Path RuntimeObjectSystem::FindFile( const FileSystemUtils::Path
                     while( ( existingPath.HasParentPath() ) && !bFoundMapping )
                     {
                         // check all potentials
-                        for( int i=0; i<requestedSubPaths.size(); ++i )
+                        for( size_t i=0; i<requestedSubPaths.size(); ++i )
                         {
                             FileSystemUtils::Path toCheck = existingPath / requestedSubPaths[i].Filename();
                             if( toCheck.Exists() )
@@ -582,6 +582,13 @@ FileSystemUtils::Path RuntimeObjectSystem::FindFile( const FileSystemUtils::Path
     }
     return foundFile;
 }
+
+
+void RuntimeObjectSystem::AddPathToSourceSearch( const char* path )
+{
+    m_FoundSourceDirectoryMappings[ path ] = path;
+}
+
 
 bool RuntimeObjectSystem::TestBuildCallback(const char* file, TestBuildResult type)
 {
