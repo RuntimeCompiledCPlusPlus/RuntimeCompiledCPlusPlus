@@ -161,7 +161,7 @@ private:
 	typedef std::pair<TFileToFilesMap::iterator,TFileToFilesMap::iterator>  TFileToFilesEqualRange;
 
 	void StartRecompile();
-
+	void SetupRuntimeFileTracking( const IAUDynArray<IObjectConstructor*>& constructors_ );
 
 
 	// Members set in initialise

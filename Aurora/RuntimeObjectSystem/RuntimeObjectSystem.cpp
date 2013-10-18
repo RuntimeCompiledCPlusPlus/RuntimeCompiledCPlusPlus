@@ -192,6 +192,13 @@ void RuntimeObjectSystem::CompileAll( bool bForceRecompile )
 void RuntimeObjectSystem::SetAutoCompile( bool autoCompile )
 {
 	m_bAutoCompile = autoCompile;
+
+	if (m_bAutoCompile)
+	{
+		AUDynArray<IObjectConstructor*> constructors;
+		m_pObjectFactorySystem->GetAll(constructors);
+		SetupRuntimeFileTracking(constructors);
+	}
 }
 
 // RuntimeObjectSystem::AddToRuntimeFileList - filename should be cleaned of "/../" etc, see FileSystemUtils::Path::GetCleanPath()
@@ -349,17 +356,33 @@ bool RuntimeObjectSystem::LoadCompiledModule()
 
 void RuntimeObjectSystem::SetupObjectConstructors(IPerModuleInterface* pPerModuleInterface)
 {
-	// for optimization purposes we skip some actions when running for the first time (i.e. no previous constructors)
-	bool bFirstTime = m_RuntimeFileList.empty();
-	
 
 	// get hold of the constructors
 	const std::vector<IObjectConstructor*> &objectConstructors = pPerModuleInterface->GetConstructors();
-	AUDynArray<IObjectConstructor*> constructors( objectConstructors.size() );
-	for (size_t i=0, iMax=objectConstructors.size(); i<iMax; ++i)
+	AUDynArray<IObjectConstructor*> constructors(objectConstructors.size());
+	for (size_t i = 0, iMax = objectConstructors.size(); i < iMax; ++i)
 	{
 		constructors[i] = objectConstructors[i];
-		Path filePath = objectConstructors[i]->GetFileName(); // GetFileName returns full path including GetCompiledPath()
+	}
+
+	if (m_bAutoCompile)
+	{
+		SetupRuntimeFileTracking(constructors);
+	}
+
+	m_pObjectFactorySystem->AddConstructors(constructors);
+
+}
+
+void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectConstructor*>& constructors_)
+{
+	// for optimization purposes we skip some actions when running for the first time (i.e. no previous constructors)
+	bool bFirstTime = m_RuntimeFileList.empty();
+
+	for (size_t i = 0, iMax = constructors_.Size(); i < iMax; ++i)
+	{
+
+		Path filePath = constructors_[i]->GetFileName(); // GetFileName returns full path including GetCompiledPath()
         filePath = filePath.GetCleanPath();
         filePath = FindFile( filePath );
         AddToRuntimeFileList( filePath.c_str() );
@@ -391,12 +414,12 @@ void RuntimeObjectSystem::SetupObjectConstructors(IPerModuleInterface* pPerModul
 		}
 
         //we need the compile path for some platforms where the __FILE__ path is relative to the compile path
-        FileSystemUtils::Path compileDir = objectConstructors[i]->GetCompiledPath();
+		FileSystemUtils::Path compileDir = constructors_[i]->GetCompiledPath();
 
 		//add include file mappings
-		for( size_t includeNum = 0; includeNum <= objectConstructors[i]->GetMaxNumIncludeFiles(); ++includeNum )
+		for (size_t includeNum = 0; includeNum <= constructors_[i]->GetMaxNumIncludeFiles(); ++includeNum)
 		{
-			const char* pIncludeFile = objectConstructors[i]->GetIncludeFile( includeNum );
+			const char* pIncludeFile = constructors_[i]->GetIncludeFile(includeNum);
 			if( pIncludeFile )
 			{
                 FileSystemUtils::Path fullpath = compileDir / pIncludeFile;
@@ -411,9 +434,9 @@ void RuntimeObjectSystem::SetupObjectConstructors(IPerModuleInterface* pPerModul
             
 
  		//add link library file mappings
-		for( size_t linklibraryNum = 0; linklibraryNum <= objectConstructors[i]->GetMaxNumLinkLibraries(); ++linklibraryNum )
+		for (size_t linklibraryNum = 0; linklibraryNum <= constructors_[i]->GetMaxNumLinkLibraries(); ++linklibraryNum)
 		{
-			const char* pLinkLibrary = objectConstructors[i]->GetLinkLibrary( linklibraryNum );
+			const char* pLinkLibrary = constructors_[i]->GetLinkLibrary(linklibraryNum);
 			if( pLinkLibrary )
 			{
                 // We do not use FindFiles for Linked Libraries as these are searched for on
@@ -426,9 +449,9 @@ void RuntimeObjectSystem::SetupObjectConstructors(IPerModuleInterface* pPerModul
 		}
 
         //add source dependency file mappings
-        for( size_t num = 0; num <= objectConstructors[i]->GetMaxNumSourceDependencies(); ++num )
+		for (size_t num = 0; num <= constructors_[i]->GetMaxNumSourceDependencies(); ++num)
 		{
-			const char* pSourceDependency = objectConstructors[i]->GetSourceDependency( num );
+			const char* pSourceDependency = constructors_[i]->GetSourceDependency(num);
 			if( pSourceDependency )
 			{
                 FileSystemUtils::Path pathInc = compileDir / pSourceDependency;
@@ -451,7 +474,6 @@ void RuntimeObjectSystem::SetupObjectConstructors(IPerModuleInterface* pPerModul
 		}
 
 	}
-	m_pObjectFactorySystem->AddConstructors( constructors );
 }
 
 void RuntimeObjectSystem::AddIncludeDir( const char *path_ )
