@@ -162,9 +162,6 @@ private:
 
 	void StartRecompile();
 
-	void InitObjects();
-	void DeleteObjects();
-	void ResetGame();
 
 
 	// Members set in initialise
