@@ -376,13 +376,18 @@ void RuntimeObjectSystem::SetupObjectConstructors(IPerModuleInterface* pPerModul
 
 void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectConstructor*>& constructors_)
 {
+#ifndef RCCPPOFF
 	// for optimization purposes we skip some actions when running for the first time (i.e. no previous constructors)
 	bool bFirstTime = m_RuntimeFileList.empty();
 
 	for (size_t i = 0, iMax = constructors_.Size(); i < iMax; ++i)
 	{
-
-		Path filePath = constructors_[i]->GetFileName(); // GetFileName returns full path including GetCompiledPath()
+		const char* pFilename = constructors_[i]->GetFileName(); // GetFileName returns full path including GetCompiledPath()
+		if( !pFilename )
+		{
+			continue;
+		}
+		Path filePath = pFilename;
         filePath = filePath.GetCleanPath();
         filePath = FindFile( filePath );
         AddToRuntimeFileList( filePath.c_str() );
@@ -472,8 +477,8 @@ void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectCons
                 }
 			}
 		}
-
 	}
+#endif
 }
 
 void RuntimeObjectSystem::AddIncludeDir( const char *path_ )

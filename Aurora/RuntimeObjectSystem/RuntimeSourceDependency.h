@@ -25,6 +25,8 @@
 //requires use of __COUNTER__ predefined macro, which is in gcc 4.3+, clang/llvm and MSVC
 #include "../RuntimeCompiler/FileSystemUtils.h"
 
+#ifndef RCCPPOFF
+
 struct IRuntimeSourceDependencyList
 {
 	IRuntimeSourceDependencyList( size_t max ) : MaxNum( max )
@@ -103,5 +105,8 @@ template<> struct RuntimeSourceDependency<0> : public IRuntimeSourceDependencyLi
 #define RUNTIME_COMPILER_SOURCEDEPENDENCY namespace { RUNTIME_COMPILER_SOURCEDEPENDENCY_BASE( __FILE__, __COUNTER__ ) }
 
 }
+#else
+#define RUNTIME_COMPILER_SOURCEDEPENDENCY
+#endif //RCCPPOFF
 
 #endif //RUNTIMESOURCEDEPENDENCY_INCLUDED

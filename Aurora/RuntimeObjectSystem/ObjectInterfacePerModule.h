@@ -83,24 +83,30 @@ template<typename T> class TObjectConstructorConcrete: public IObjectConstructor
 {
 public:
 	TObjectConstructorConcrete(
+#ifndef RCCPPOFF
 		const char* Filename,
 		IRuntimeIncludeFileList*        pIncludeFileList_,
         IRuntimeSourceDependencyList*   pSourceDependencyList_,
         IRuntimeLinkLibraryList*        pLinkLibraryList,
+#endif
         bool                            bIsSingleton,
         bool                            bIsAutoConstructSingleton)
         : m_bIsSingleton(               bIsSingleton )
         , m_bIsAutoConstructSingleton(  bIsAutoConstructSingleton )
+		, m_pModuleInterface(0)
+#ifndef RCCPPOFF
 		, m_FileName(                   Filename )
-		, m_pIncludeFileList(           pIncludeFileList_ )
-		, m_pSourceDependencyList(      pSourceDependencyList_ )
-		, m_pLinkLibraryList(           pLinkLibraryList )
-        , m_pModuleInterface(           0 )
+		, m_pIncludeFileList(pIncludeFileList_)
+		, m_pSourceDependencyList(pSourceDependencyList_)
+		, m_pLinkLibraryList(pLinkLibraryList)
+#endif
 	{
+#ifndef RCCPPOFF
 		// add path to filename
 		#ifdef COMPILE_PATH
 			m_FileName = COMPILE_PATH + m_FileName;
 		#endif
+#endif
 	    PerModuleInterface::GetInstance()->AddConstructor( this );
         m_pModuleInterface = PerModuleInterface::GetInstance();
 		m_Id = InvalidId;
@@ -149,69 +155,89 @@ public:
 
 	virtual const char* GetFileName()
 	{
+#ifndef RCCPPOFF
 		return m_FileName.c_str();
+#else
+		return 0;
+#endif
 	}
 
     virtual const char* GetCompiledPath()
     {
+#ifndef RCCPPOFF
  		#ifdef COMPILE_PATH
 			return COMPILE_PATH;
         #else
             return "";
 		#endif
+#else
+		return 0;
+#endif
    }
 
 	virtual const char* GetIncludeFile( size_t Num_ ) const
 	{
+#ifndef RCCPPOFF
 		if( m_pIncludeFileList )
 		{
 			return m_pIncludeFileList->GetIncludeFile( Num_ );
 		}
+#endif
 		return 0;
 	}
 
 	virtual size_t GetMaxNumIncludeFiles() const
 	{
+#ifndef RCCPPOFF
 		if( m_pIncludeFileList )
 		{
 			return m_pIncludeFileList->MaxNum;
 		}
+#endif
 		return 0;
 	}
 
 	virtual const char* GetLinkLibrary( size_t Num_ ) const
 	{
+#ifndef RCCPPOFF
 		if( m_pLinkLibraryList )
 		{
 			return m_pLinkLibraryList->GetLinkLibrary( Num_ );
 		}
+#endif
 		return 0;
 	}
 
 	virtual size_t GetMaxNumLinkLibraries() const
 	{
+#ifndef RCCPPOFF
 		if( m_pLinkLibraryList )
 		{
 			return m_pLinkLibraryList->MaxNum;
 		}
+#endif
 		return 0;
 	}
 
 	virtual const char* GetSourceDependency( size_t Num_ ) const
 	{
+#ifndef RCCPPOFF
 		if( m_pSourceDependencyList )
 		{
 			return m_pSourceDependencyList->GetSourceDependency( Num_ );
 		}
+#endif
 		return 0;
 	}
 
 	virtual size_t GetMaxNumSourceDependencies() const
 	{
+#ifndef RCCPPOFF
 		if( m_pSourceDependencyList )
 		{
 			return m_pSourceDependencyList->MaxNum;
 		}
+#endif
 		return 0;
 	}
 
@@ -265,16 +291,18 @@ public:
 		}
 	}
 private:
-    bool                            m_bIsSingleton;
-    bool                            m_bIsAutoConstructSingleton;
-	std::string                     m_FileName;
+	bool                            m_bIsSingleton;
+	bool                            m_bIsAutoConstructSingleton;
 	std::vector<T*>                 m_ConstructedObjects;
 	std::vector<PerTypeObjectId>	m_FreeIds;
 	ConstructorId                   m_Id;
+	PerModuleInterface*             m_pModuleInterface;
+#ifndef RCCPPOFF
+	std::string                     m_FileName;
 	IRuntimeIncludeFileList*        m_pIncludeFileList;
-    IRuntimeSourceDependencyList*   m_pSourceDependencyList;
+	IRuntimeSourceDependencyList*   m_pSourceDependencyList;
 	IRuntimeLinkLibraryList*        m_pLinkLibraryList;
-    PerModuleInterface*             m_pModuleInterface;
+#endif
 };
 
 
@@ -320,14 +348,20 @@ private:
 	PerTypeObjectId m_Id;
 	static TObjectConstructorConcrete<TActual> m_Constructor;
 };
-
-#define REGISTERBASE( T, bIsSingleton, bIsAutoConstructSingleton )	\
-	static RuntimeIncludeFiles< __COUNTER__ >       g_includeFileList_##T; \
-	static RuntimeSourceDependency< __COUNTER__ >   g_sourceDependencyList_##T; \
-	static RuntimeLinkLibrary< __COUNTER__ >        g_linkLibraryList_##T; \
-template<> TObjectConstructorConcrete< TActual< T > > TActual< T >::m_Constructor( __FILE__, &g_includeFileList_##T, &g_sourceDependencyList_##T, &g_linkLibraryList_##T, bIsSingleton, bIsAutoConstructSingleton );\
-template<> const char* TActual< T >::GetTypeNameStatic() { return #T; } \
-template class TActual< T >;
+#ifndef RCCPPOFF
+	#define REGISTERBASE( T, bIsSingleton, bIsAutoConstructSingleton )	\
+		static RuntimeIncludeFiles< __COUNTER__ >       g_includeFileList_##T; \
+		static RuntimeSourceDependency< __COUNTER__ >   g_sourceDependencyList_##T; \
+		static RuntimeLinkLibrary< __COUNTER__ >        g_linkLibraryList_##T; \
+	template<> TObjectConstructorConcrete< TActual< T > > TActual< T >::m_Constructor( __FILE__, &g_includeFileList_##T, &g_sourceDependencyList_##T, &g_linkLibraryList_##T, bIsSingleton, bIsAutoConstructSingleton );\
+	template<> const char* TActual< T >::GetTypeNameStatic() { return #T; } \
+	template class TActual< T >;
+#else
+	#define REGISTERBASE( T, bIsSingleton, bIsAutoConstructSingleton )	\
+	template<> TObjectConstructorConcrete< TActual< T > > TActual< T >::m_Constructor( bIsSingleton, bIsAutoConstructSingleton); \
+	template<> const char* TActual< T >::GetTypeNameStatic() { return #T; } \
+	template class TActual< T >;
+#endif
 
 //NOTE: the file macro will only emit the full path if /FC option is used in visual studio or /ZI (Which forces /FC)
 #define REGISTERCLASS( T )	REGISTERBASE( T, false, false )
