@@ -20,6 +20,8 @@
 #ifndef RUNTIMELINKLIBRARY_INCLUDED
 #define RUNTIMELINKLIBRARY_INCLUDED
 
+
+#ifndef RCCPPOFF
 //NOTE: the file macro will only emit the full path if /FC option is used in visual studio or /ZI (Which forces /FC)
 //Following creates a list of files which are runtime modifiable, to be used in headers
 //requires use of __COUNTER__ predefined macro, which is in gcc 4.3+, clang/llvm and MSVC
@@ -101,5 +103,9 @@ template<> struct RuntimeLinkLibrary<0> : public IRuntimeLinkLibraryList
 #define RUNTIME_COMPILER_LINKLIBRARY( LIBRARY ) namespace { RUNTIME_COMPILER_LINKLIBRARY_BASE( LIBRARY, __COUNTER__ ) }
 
 }
+#else
+#define RUNTIME_COMPILER_LINKLIBRARY( LIBRARY )
+#endif //RCCPPOFF
+
 
 #endif //RUNTIMELINKLIBRARY_INCLUDED

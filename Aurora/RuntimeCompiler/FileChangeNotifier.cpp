@@ -75,10 +75,7 @@ void FileChangeNotifier::Watch( const FileSystemUtils::Path& filename, IFileChan
 {
 	FileSystemUtils::Path fixedFilename = filename.DelimitersToOSDefault(); // Note this doesn't handle ../
 	
-#ifdef _WIN32
-	// make filename lowercase to avoid case sensitivity issues with __FILE__ and ReadDirectoryChangesW output
-	FileSystemUtils::ToLowerInPlace( fixedFilename.m_string );
-#endif
+    fixedFilename.ToOSCanonicalCase();
 
 	m_pFileMonitor->Watch(fixedFilename, this);
 	m_fileListenerMap[fixedFilename].insert(pListener);
@@ -117,16 +114,10 @@ void FileChangeNotifier::OnFileChange( const FileSystemUtils::Path& filename )
 
 		if (!bIgnoreFileChange)
 		{
-			const FileSystemUtils::Path* pFilename = &filename;
+			FileSystemUtils::Path filePath = filename;
+            filePath.ToOSCanonicalCase();
 
-#ifdef _WIN32
-			// make filename lowercase to avoid case sensitivity issues with __FILE__ and ReadDirectoryChangesW output
-			FileSystemUtils::Path lowerFilename = filename;
-			FileSystemUtils::ToLowerInPlace( lowerFilename.m_string );
-			pFilename = &lowerFilename;
-#endif
-
-			m_changedFileList.push_back(pFilename->m_string);
+			m_changedFileList.push_back(filePath.m_string);
 
 			if (!m_bRecompilePending)
 			{

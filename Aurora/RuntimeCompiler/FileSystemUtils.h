@@ -71,6 +71,7 @@ namespace FileSystemUtils
 			: m_string( rhs_ )
 		{
 		}
+        virtual ~Path() {}  // for RCC++
 
 		const char* c_str()             const;
 
@@ -94,6 +95,7 @@ namespace FileSystemUtils
 
 		// returns a path cleaned of /../ by removing prior dir
 		Path GetCleanPath()				const;
+        void ToOSCanonicalCase();  // lower case on Windows, preserve case on Linux
 
 		// replaces extension if one exists, or adds it if not
 		void ReplaceExtension( const std::string& ext );
@@ -394,6 +396,10 @@ namespace FileSystemUtils
         {
             return rhs_;
         }
+        if( 0 == rhs_.m_string.length() )
+        {
+            return lhs_;
+        }
         std::string strlhs = lhs_.m_string;
         while( strlhs.length() && strlhs.find_last_of( FILESYSTEMUTILS_SEPERATORS ) == strlhs.length()-1 )
         {
@@ -451,6 +457,13 @@ namespace FileSystemUtils
 
 		return path;
 	}
+
+    inline void Path::ToOSCanonicalCase()
+    {
+#ifdef _WIN32
+        ToLowerInPlace( m_string );
+#endif
+    }
 
 
     class PathIterator

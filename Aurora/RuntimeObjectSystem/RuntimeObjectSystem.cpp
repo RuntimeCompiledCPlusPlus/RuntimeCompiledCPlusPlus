@@ -81,9 +81,13 @@ bool RuntimeObjectSystem::Initialise( ICompilerLogger * pLogger, SystemTable* pS
 	m_pObjectFactorySystem->SetLogger( m_pCompilerLogger );
     m_pObjectFactorySystem->SetRuntimeObjectSystem( this );
 
+    FileSystemUtils::Path initialDir = FileSystemUtils::GetCurrentPath();
+    m_FoundSourceDirectoryMappings[initialDir] = initialDir;
+
 	SetupObjectConstructors(pPerModuleInterface);
+
 	//add this dir to list of include dirs
-	FileSystemUtils::Path includeDir( __FILE__ );
+	FileSystemUtils::Path includeDir = FindFile(__FILE__);
 	includeDir = includeDir.ParentPath();
 	AddIncludeDir(includeDir.c_str());
 
@@ -123,7 +127,7 @@ void RuntimeObjectSystem::OnFileChange(const IAUDynArray<const char*>& filelist)
 		{
             bFindIncludeDependencies = false;
             // file may be a source dependency, check
-			TFileToFileIterator itrCurr = m_RuntimeSourceDependencyMap.begin();
+			TFileToFilesIterator itrCurr = m_RuntimeSourceDependencyMap.begin();
 			while( itrCurr != m_RuntimeSourceDependencyMap.end() )
 			{
 				if( itrCurr->second == fileToBuild.filePath )
@@ -147,8 +151,8 @@ void RuntimeObjectSystem::OnFileChange(const IAUDynArray<const char*>& filelist)
 
 		if( bFindIncludeDependencies )
 		{
-			TFileToFileEqualRange range = m_RuntimeIncludeMap.equal_range( fileToBuild.filePath );
-			for(TFileToFileIterator it=range.first; it!=range.second; ++it)
+			TFileToFilesEqualRange range = m_RuntimeIncludeMap.equal_range( fileToBuild.filePath );
+			for(TFileToFilesIterator it=range.first; it!=range.second; ++it)
 			{
 				BuildTool::FileToBuild fileToBuildFromIncludes( (*it).second, bForceIncludeDependencies );
 				pBuildFileList->push_back( fileToBuildFromIncludes );
@@ -188,6 +192,13 @@ void RuntimeObjectSystem::CompileAll( bool bForceRecompile )
 void RuntimeObjectSystem::SetAutoCompile( bool autoCompile )
 {
 	m_bAutoCompile = autoCompile;
+
+	if (m_bAutoCompile)
+	{
+		AUDynArray<IObjectConstructor*> constructors;
+		m_pObjectFactorySystem->GetAll(constructors);
+		SetupRuntimeFileTracking(constructors);
+	}
 }
 
 // RuntimeObjectSystem::AddToRuntimeFileList - filename should be cleaned of "/../" etc, see FileSystemUtils::Path::GetCleanPath()
@@ -243,8 +254,8 @@ void RuntimeObjectSystem::StartRecompile()
 	for( size_t i = 0; i < ourBuildFileList.size(); ++ i )
 	{
 
-		TFileToFileEqualRange range = m_RuntimeLinkLibraryMap.equal_range( ourBuildFileList[i].filePath );
-		for(TFileToFileIterator it=range.first; it!=range.second; ++it)
+		TFileToFilesEqualRange range = m_RuntimeLinkLibraryMap.equal_range( ourBuildFileList[i].filePath );
+		for(TFileToFilesIterator it=range.first; it!=range.second; ++it)
 		{
 			linkLibraryList.push_back( it->second );
 		}
@@ -257,6 +268,7 @@ void RuntimeObjectSystem::StartRecompile()
 	for( size_t i = 0; i < vecRequiredFiles.size(); ++i )
 	{
 		FileSystemUtils::Path fullpath = compileDir / vecRequiredFiles[i];
+        fullpath = FindFile( fullpath );
 		BuildTool::FileToBuild reqFile( fullpath, false );	//don't force compile of these
 		ourBuildFileList.push_back( reqFile );
 	}
@@ -266,8 +278,8 @@ void RuntimeObjectSystem::StartRecompile()
 	for( size_t i = 0; i < buildListSize; ++ i )
 	{
 
-		TFileToFileEqualRange range = m_RuntimeSourceDependencyMap.equal_range( ourBuildFileList[i].filePath );
-		for(TFileToFileIterator it=range.first; it!=range.second; ++it)
+		TFileToFilesEqualRange range = m_RuntimeSourceDependencyMap.equal_range( ourBuildFileList[i].filePath );
+		for(TFileToFilesIterator it=range.first; it!=range.second; ++it)
 		{
 		    BuildTool::FileToBuild reqFile( it->second, false );	//don't force compile of these
 			ourBuildFileList.push_back( reqFile );
@@ -344,30 +356,52 @@ bool RuntimeObjectSystem::LoadCompiledModule()
 
 void RuntimeObjectSystem::SetupObjectConstructors(IPerModuleInterface* pPerModuleInterface)
 {
-	// for optimization purposes we skip some actions when running for the first time (i.e. no previous constructors)
-	bool bFirstTime = m_RuntimeFileList.empty();
-	
 
 	// get hold of the constructors
 	const std::vector<IObjectConstructor*> &objectConstructors = pPerModuleInterface->GetConstructors();
-	AUDynArray<IObjectConstructor*> constructors( objectConstructors.size() );
-	for (size_t i=0, iMax=objectConstructors.size(); i<iMax; ++i)
+	AUDynArray<IObjectConstructor*> constructors(objectConstructors.size());
+	for (size_t i = 0, iMax = objectConstructors.size(); i < iMax; ++i)
 	{
 		constructors[i] = objectConstructors[i];
-		Path filePath = objectConstructors[i]->GetFileName();
+	}
+
+	if (m_bAutoCompile)
+	{
+		SetupRuntimeFileTracking(constructors);
+	}
+
+	m_pObjectFactorySystem->AddConstructors(constructors);
+
+}
+
+void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectConstructor*>& constructors_)
+{
+#ifndef RCCPPOFF
+	// for optimization purposes we skip some actions when running for the first time (i.e. no previous constructors)
+	bool bFirstTime = m_RuntimeFileList.empty();
+
+	for (size_t i = 0, iMax = constructors_.Size(); i < iMax; ++i)
+	{
+		const char* pFilename = constructors_[i]->GetFileName(); // GetFileName returns full path including GetCompiledPath()
+		if( !pFilename )
+		{
+			continue;
+		}
+		Path filePath = pFilename;
         filePath = filePath.GetCleanPath();
+        filePath = FindFile( filePath );
         AddToRuntimeFileList( filePath.c_str() );
 
 
 		if( !bFirstTime )
 		{
  			//remove old include file mappings for this file
-			TFileToFileIterator itrCurr = m_RuntimeIncludeMap.begin();
+			TFileToFilesIterator itrCurr = m_RuntimeIncludeMap.begin();
 			while( itrCurr != m_RuntimeIncludeMap.end() )
 			{
 				if( itrCurr->second == filePath )
 				{
-                    TFileToFileIterator itrErase = itrCurr;
+                    TFileToFilesIterator itrErase = itrCurr;
                     ++itrCurr;
 					m_RuntimeIncludeMap.erase( itrErase );
 				}
@@ -385,16 +419,16 @@ void RuntimeObjectSystem::SetupObjectConstructors(IPerModuleInterface* pPerModul
 		}
 
         //we need the compile path for some platforms where the __FILE__ path is relative to the compile path
-        FileSystemUtils::Path compileDir = objectConstructors[i]->GetCompiledPath();
+		FileSystemUtils::Path compileDir = constructors_[i]->GetCompiledPath();
 
 		//add include file mappings
-		for( size_t includeNum = 0; includeNum <= objectConstructors[i]->GetMaxNumIncludeFiles(); ++includeNum )
+		for (size_t includeNum = 0; includeNum <= constructors_[i]->GetMaxNumIncludeFiles(); ++includeNum)
 		{
-			const char* pIncludeFile = objectConstructors[i]->GetIncludeFile( includeNum );
+			const char* pIncludeFile = constructors_[i]->GetIncludeFile(includeNum);
 			if( pIncludeFile )
 			{
                 FileSystemUtils::Path fullpath = compileDir / pIncludeFile;
-                fullpath = fullpath.GetCleanPath();
+                fullpath = FindFile( fullpath.GetCleanPath() );
 				TFileToFilePair includePathPair;
 				includePathPair.first = fullpath;
 				includePathPair.second = filePath;
@@ -405,11 +439,13 @@ void RuntimeObjectSystem::SetupObjectConstructors(IPerModuleInterface* pPerModul
             
 
  		//add link library file mappings
-		for( size_t linklibraryNum = 0; linklibraryNum <= objectConstructors[i]->GetMaxNumLinkLibraries(); ++linklibraryNum )
+		for (size_t linklibraryNum = 0; linklibraryNum <= constructors_[i]->GetMaxNumLinkLibraries(); ++linklibraryNum)
 		{
-			const char* pLinkLibrary = objectConstructors[i]->GetLinkLibrary( linklibraryNum );
+			const char* pLinkLibrary = constructors_[i]->GetLinkLibrary(linklibraryNum);
 			if( pLinkLibrary )
 			{
+                // We do not use FindFiles for Linked Libraries as these are searched for on
+                // the library paths, which are themselves searched for.
 				TFileToFilePair linklibraryPathPair;
 				linklibraryPathPair.first = filePath;
 				linklibraryPathPair.second = pLinkLibrary;
@@ -418,13 +454,13 @@ void RuntimeObjectSystem::SetupObjectConstructors(IPerModuleInterface* pPerModul
 		}
 
         //add source dependency file mappings
-        for( size_t num = 0; num <= objectConstructors[i]->GetMaxNumSourceDependencies(); ++num )
+		for (size_t num = 0; num <= constructors_[i]->GetMaxNumSourceDependencies(); ++num)
 		{
-			const char* pSourceDependency = objectConstructors[i]->GetSourceDependency( num );
+			const char* pSourceDependency = constructors_[i]->GetSourceDependency(num);
 			if( pSourceDependency )
 			{
                 FileSystemUtils::Path pathInc = compileDir / pSourceDependency;
-                pathInc = pathInc.GetCleanPath();
+                pathInc = FindFile( pathInc.GetCleanPath() );
                 FileSystemUtils::Path pathSrc = pathInc;
                 pathSrc.ReplaceExtension( ".cpp" );
 				TFileToFilePair sourcePathPair;
@@ -433,7 +469,7 @@ void RuntimeObjectSystem::SetupObjectConstructors(IPerModuleInterface* pPerModul
 				m_RuntimeSourceDependencyMap.insert( sourcePathPair );
                 
                 // if the include file with a source dependancy is logged as an runtime include, then we mark this .cpp as compile dependencies on change
-                TFileToFileEqualRange range = m_RuntimeIncludeMap.equal_range( pathInc );
+                TFileToFilesEqualRange range = m_RuntimeIncludeMap.equal_range( pathInc );
                 if( range.first != range.second )
                 {
                     // add source file to runtime file list
@@ -441,21 +477,153 @@ void RuntimeObjectSystem::SetupObjectConstructors(IPerModuleInterface* pPerModul
                 }
 			}
 		}
-
 	}
-	m_pObjectFactorySystem->AddConstructors( constructors );
+#endif
 }
 
 void RuntimeObjectSystem::AddIncludeDir( const char *path_ )
 {
-	m_IncludeDirList.push_back(Path(path_));
+	m_IncludeDirList.push_back(path_);
 }
 
 
 void RuntimeObjectSystem::AddLibraryDir( const char *path_ )
 {
-	m_LibraryDirList.push_back(Path(path_));
+	m_LibraryDirList.push_back(path_);
 }
+
+FileSystemUtils::Path RuntimeObjectSystem::FindFile( const FileSystemUtils::Path& input )
+{
+    FileSystemUtils::Path requestedDirectory = input;
+    FileSystemUtils::Path filename;
+    FileSystemUtils::Path foundFile = input;
+    bool bIsFile = input.HasExtension();
+    if( bIsFile )
+    {
+        requestedDirectory = requestedDirectory.ParentPath();
+        filename = input.Filename();
+    }
+    requestedDirectory.ToOSCanonicalCase();
+    filename.ToOSCanonicalCase();
+    foundFile.ToOSCanonicalCase();
+
+    // Step 1: Try input directory
+    if( requestedDirectory.Exists() )
+    {
+        m_FoundSourceDirectoryMappings[ requestedDirectory ] = requestedDirectory;
+    }
+    else
+    {
+        // Step 2: Attempt to find a pre-existing mapping
+        bool bFoundMapping = false;
+        if( m_FoundSourceDirectoryMappings.size() )
+        {
+            FileSystemUtils::Path testDir = requestedDirectory;
+            FileSystemUtils::Path foundDir;
+            unsigned int depth = 0;
+            bool bFound = false;
+            while( testDir.HasParentPath() )
+            {
+                TFileMapIterator itrFind = m_FoundSourceDirectoryMappings.find( testDir );
+                if( itrFind != m_FoundSourceDirectoryMappings.end() )
+                {
+                    foundDir = itrFind->second;
+                    bFound = true;
+                    break;
+                }
+
+                testDir = testDir.ParentPath();
+                ++depth;
+            }
+
+            if( bFound )
+            {
+                if( depth )
+                {
+                    // not an exact match
+                    FileSystemUtils::Path directory = requestedDirectory;
+                    directory.m_string.replace( 0, testDir.m_string.length(), foundDir.m_string );
+                    if( directory.Exists() )
+                    {
+                        foundFile = directory / filename;
+                        if( foundFile.Exists() )
+                        {
+                            m_FoundSourceDirectoryMappings[ requestedDirectory ] = directory;
+                            if( m_pCompilerLogger ) {  m_pCompilerLogger->LogInfo( "Found Directory Mapping: %s to %s\n", requestedDirectory.c_str(), directory.c_str() ); }
+                            bFoundMapping = true;
+                        }
+                    }
+
+                }
+                else
+                {
+                    // exact match
+                    foundFile = foundDir / filename;
+                    bFoundMapping = true;
+                }
+            }
+            
+            if( !bFoundMapping )
+            {
+                // Step 3: Attempt to find a mapping from a known path
+                TFileList requestedSubPaths;
+                FileSystemUtils::Path requestedSubPath = requestedDirectory;
+                while( requestedSubPath.HasParentPath() )
+                {
+                    requestedSubPaths.push_back( requestedSubPath );
+                    requestedSubPath = requestedSubPath.ParentPath();
+                }
+
+                TFileMapIterator itr = m_FoundSourceDirectoryMappings.begin();
+                while( ( itr != m_FoundSourceDirectoryMappings.end() ) && !bFoundMapping )
+                {
+                    FileSystemUtils::Path existingPath = itr->second;
+                    while( ( existingPath.HasParentPath() ) && !bFoundMapping )
+                    {
+                        // check all potentials
+                        for( size_t i=0; i<requestedSubPaths.size(); ++i )
+                        {
+                            FileSystemUtils::Path toCheck = existingPath / requestedSubPaths[i].Filename();
+                            if( toCheck.Exists() )
+                            {
+                                // potential mapping
+                                FileSystemUtils::Path directory = requestedDirectory;
+                                directory.m_string.replace( 0, requestedSubPaths[i].m_string.length(), toCheck.m_string );
+                                if( directory.Exists() )
+                                {
+                                    foundFile = directory / filename;
+                                    if( foundFile.Exists() )
+                                    {
+                                        m_FoundSourceDirectoryMappings[ requestedDirectory ] = directory;
+                                        if( m_pCompilerLogger ) {  m_pCompilerLogger->LogInfo( "Found Directory Mapping: %s to %s\n", requestedDirectory.c_str(), directory.c_str() ); }
+                                        bFoundMapping = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        existingPath = existingPath.ParentPath();
+                    }
+                    ++itr;
+                }
+            }
+        }
+    }
+
+    if( !foundFile.Exists() )
+    {
+        if( m_pCompilerLogger ) {  m_pCompilerLogger->LogWarning( "Could not find Directory Mapping for: %s\n", input.c_str() ); }
+        ++m_NumNotFoundSourceFiles;
+    }
+    return foundFile;
+}
+
+
+void RuntimeObjectSystem::AddPathToSourceSearch( const char* path )
+{
+    m_FoundSourceDirectoryMappings[ path ] = path;
+}
+
 
 bool RuntimeObjectSystem::TestBuildCallback(const char* file, TestBuildResult type)
 {
@@ -590,8 +758,8 @@ int RuntimeObjectSystem::TestBuildAllRuntimeSourceFiles(  ITestBuildNotifier* ca
         failCallbackLocal->TestBuildCallback( NULL, TESTBUILDRRESULT_NO_FILES_TO_BUILD );
     }
     
-
-	for( TFileList::iterator it = m_RuntimeFileList.begin(); it != m_RuntimeFileList.end(); ++it )
+    TFileList filesToTest = m_RuntimeFileList; // m_RuntimeFileList could change if file content changes (new includes or source dependencies) so make copy to ensure iterators valid.
+	for( TFileList::iterator it = filesToTest.begin(); it != filesToTest.end(); ++it )
     {
         const Path& file = *it;
         if( file.Extension() != ".h") // exclude headers, use TestBuildAllRuntimeHeaders
