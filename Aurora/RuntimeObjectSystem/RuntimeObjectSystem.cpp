@@ -176,6 +176,14 @@ void RuntimeObjectSystem::CompileAll( bool bForceRecompile )
 	// since this is a compile all we can clear any pending compiles
 	m_BuildFileList.clear();
 
+	// ensure we have an up to date list of files to commpile if autocompile is off
+	if( !m_bAutoCompile )
+	{
+		AUDynArray<IObjectConstructor*> constructors;
+		m_pObjectFactorySystem->GetAll(constructors);
+		SetupRuntimeFileTracking(constructors);
+	}
+
 	// add all files except headers
 	for( size_t i = 0; i < m_RuntimeFileList.size(); ++ i )
 	{
