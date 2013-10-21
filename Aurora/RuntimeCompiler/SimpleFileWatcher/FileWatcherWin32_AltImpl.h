@@ -33,9 +33,11 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
-static int fw_types[] = { FILE_NOTIFY_CHANGE_CREATION, FILE_NOTIFY_CHANGE_SIZE, FILE_NOTIFY_CHANGE_FILE_NAME };
 namespace FW
 {
+    const static int fw_types[] = { FILE_NOTIFY_CHANGE_LAST_WRITE, FILE_NOTIFY_CHANGE_CREATION, FILE_NOTIFY_CHANGE_SIZE, FILE_NOTIFY_CHANGE_FILE_NAME };
+    const static size_t NUMTYPES = sizeof(fw_types)/sizeof(int);
+
     class FileWatcherWin32_AltImpl
     {
       struct filedata
@@ -43,15 +45,17 @@ namespace FW
         std::string fname;
         LARGE_INTEGER fsize;
         FILETIME ftime;
-        filedata( std::string n = std::string(), LARGE_INTEGER s = LARGE_INTEGER(), FILETIME t = FILETIME() )
+        FILETIME fwritetime;
+        filedata( std::string n = std::string(), LARGE_INTEGER s = LARGE_INTEGER(), FILETIME t = FILETIME(),  FILETIME tw = FILETIME())
         {
           fname = n;
           fsize = s;
           ftime = t;
+          fwritetime = tw;
         }
       };
 
-      std::vector< HANDLE > handles[3];
+      std::vector< HANDLE > handles[NUMTYPES];
       std::vector< std::vector< filedata > > dir_contents;
 
       void get_dir_contents( const std::string& path, std::vector< filedata >& contents )
@@ -73,9 +77,10 @@ namespace FW
             fsize.LowPart = fd.nFileSizeLow;
             fsize.HighPart = fd.nFileSizeHigh;
             FILETIME ftime;
-            ftime.dwLowDateTime = fd.ftCreationTime.dwLowDateTime;
-            ftime.dwHighDateTime = fd.ftCreationTime.dwHighDateTime;
-            contents.push_back(filedata( fd.cFileName, fsize, ftime ));
+            ftime = fd.ftCreationTime;
+            FILETIME fwritetime;
+            fwritetime = fd.ftLastWriteTime;
+            contents.push_back(filedata( fd.cFileName, fsize, ftime, fwritetime ));
           }
         }
         while(FindNextFileA(dir_lister, &fd) != 0);
@@ -86,7 +91,7 @@ namespace FW
 
       ~FileWatcherWin32_AltImpl()
       {
-        for( int c = 0; c < 3; ++c )
+        for( int c = 0; c < NUMTYPES; ++c )
         {
           for( size_t d = 0; d != handles[c].size(); ++d )
           {
@@ -97,7 +102,7 @@ namespace FW
 
       enum type
       {
-        CHANGE_CREATION = 0, CHANGE_SIZE, CHANGE_FILE_NAME, CHANGE_NONE
+        CHANGE_LAST_WRITE = 0, CHANGE_CREATION, CHANGE_SIZE, CHANGE_FILE_NAME, CHANGE_NONE
       };
 
       struct fw_event
@@ -115,12 +120,12 @@ namespace FW
       {
         size_t id = handles[0].size();
 
-        for( int c = 0; c < 3; ++c )
+        for( int c = 0; c < NUMTYPES; ++c )
         {
           handles[c].push_back( FindFirstChangeNotificationA( path.c_str(), false, fw_types[c] ) );
         }
 
-        for( int c = 0; c < 3; ++c )
+        for( int c = 0; c < NUMTYPES; ++c )
         {
           if( handles[c][id] == INVALID_HANDLE_VALUE )
           {
@@ -137,7 +142,7 @@ namespace FW
 
       bool watch(std::vector<fw_event>& ids)
       {
-        for( int c = 0; c < 3; ++c )
+        for( int c = 0; c < NUMTYPES; ++c )
         {
           DWORD status = WaitForMultipleObjects(handles[c].size(), &handles[c][0], false, 0);
 
@@ -166,7 +171,30 @@ namespace FW
 
         switch(ty)
         {
-        //change in file creation time
+        //change in file write time
+        //find the not matching write time
+        case CHANGE_LAST_WRITE:
+          {
+            for( auto c = contents.begin(); c != contents.end(); ++c )
+            {
+              for( auto d = dir_contents[id].begin(); d != dir_contents[id].end(); ++d )
+              {
+                if( c->fname == d->fname &&
+                    ( c->fwritetime.dwLowDateTime != d->fwritetime.dwLowDateTime ||
+                      c->fwritetime.dwHighDateTime != d->fwritetime.dwHighDateTime )
+                  )
+                {
+                  //make sure we 'neutralize' the event
+                  d->fwritetime.dwLowDateTime = c->fwritetime.dwLowDateTime;
+                  d->fwritetime.dwHighDateTime = c->fwritetime.dwHighDateTime;
+                  fni = FILE_ACTION_MODIFIED;
+                  return d->fname;
+                }
+              }
+            }
+            break;
+          }
+         //change in file creation time
         //find the not matching creation time
         case CHANGE_CREATION:
           {
@@ -175,8 +203,8 @@ namespace FW
               for( auto d = dir_contents[id].begin(); d != dir_contents[id].end(); ++d )
               {
                 if( c->fname == d->fname &&
-                    c->ftime.dwLowDateTime != d->ftime.dwLowDateTime ||
-                    c->ftime.dwHighDateTime != d->ftime.dwHighDateTime
+                    ( c->ftime.dwLowDateTime != d->ftime.dwLowDateTime ||
+                      c->ftime.dwHighDateTime != d->ftime.dwHighDateTime )
                   )
                 {
                   //make sure we 'neutralize' the event
@@ -272,7 +300,7 @@ namespace FW
               {
                 if( c->fname == d->fname &&
                     ( c->fsize.LowPart != d->fsize.LowPart ||
-                    c->fsize.HighPart != d->fsize.HighPart )
+                      c->fsize.HighPart != d->fsize.HighPart )
                   )
                 {
                   //make sure we 'neutralize' the event
@@ -316,7 +344,7 @@ namespace FW
 
       void remove( size_t id )
       {
-        for( int c = 0; c < 3; ++c )
+        for( int c = 0; c < NUMTYPES; ++c )
         {
           auto it = handles[c].begin();
           auto it2 = dir_contents.begin();
