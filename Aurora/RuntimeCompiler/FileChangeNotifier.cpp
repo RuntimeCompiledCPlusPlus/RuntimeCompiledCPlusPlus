@@ -75,6 +75,7 @@ void FileChangeNotifier::Watch( const FileSystemUtils::Path& filename, IFileChan
 {
 	FileSystemUtils::Path fixedFilename = filename.DelimitersToOSDefault(); // Note this doesn't handle ../
 	
+    fixedFilename = fixedFilename.GetCleanPath();
     fixedFilename.ToOSCanonicalCase();
 
 	m_pFileMonitor->Watch(fixedFilename, this);

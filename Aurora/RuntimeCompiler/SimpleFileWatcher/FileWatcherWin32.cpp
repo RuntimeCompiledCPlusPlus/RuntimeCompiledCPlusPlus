@@ -195,10 +195,14 @@ namespace FW
 	//--------
 	WatchID FileWatcherWin32::addWatch(const String& directory, FileWatchListener* watcher, bool recursive)
 	{
-		WatchID watchid = ++mLastWatchID;
-
 		WatchStruct* watch = CreateWatch(directory.c_str(), recursive,
 			FILE_NOTIFY_CHANGE_LAST_WRITE | FILE_NOTIFY_CHANGE_CREATION | FILE_NOTIFY_CHANGE_SIZE | FILE_NOTIFY_CHANGE_FILE_NAME);
+
+         #ifdef WIN32_FW_USE_FINDFIRST_API
+            WatchID watchid = (unsigned long)fw.add( directory.m_string );
+        #else
+            WatchID watchid = ++mLastWatchID;
+        #endif
 
 		if(watch)
 		{
@@ -209,11 +213,10 @@ namespace FW
 			strcpy(watch->mDirName, directory.c_str());
 		}
 
-		mWatches.insert(std::make_pair(watchid, watch));
 
-#ifdef WIN32_FW_USE_FINDFIRST_API
-    fw.add( directory.m_string );
-#endif
+        mWatches.insert(std::make_pair(watchid, watch));
+
+
 
 		return watchid;
 	}
@@ -267,17 +270,22 @@ namespace FW
 
     for( size_t c = 0; c != events.size(); ++c )
     {
+        WatchMap::iterator iter = mWatches.find(events[c].id);
+		if(iter == mWatches.end())
+			continue;
+
+
       switch(events[c].ty)
       {
         case FileWatcherWin32_AltImpl::CHANGE_SIZE:
         {
           std::string old_name;
           DWORD fni;
-          std::string new_name = fw.get_event_filename( mWatches[c + 1]->mDirName, events[c].id, events[c].ty, fni, old_name );
+          std::string new_name = fw.get_event_filename( iter->second->mDirName, events[c].id, events[c].ty, fni, old_name );
 
           if( !new_name.empty() )
           {
-            handleAction(mWatches[c + 1], new_name.c_str(), fni );
+            handleAction(iter->second, new_name.c_str(), fni );
           }
 
           break;
@@ -286,33 +294,34 @@ namespace FW
         {
           std::string old_name;
           DWORD fni;
-          std::string new_name = fw.get_event_filename( mWatches[c + 1]->mDirName, events[c].id, events[c].ty, fni, old_name );
+          std::string new_name = fw.get_event_filename( iter->second->mDirName, events[c].id, events[c].ty, fni, old_name );
 
           if( !new_name.empty() )
           {
             //changed from-to
             if( !old_name.empty() )
             {
-              handleAction(mWatches[c + 1], old_name.c_str(), FILE_ACTION_RENAMED_OLD_NAME );
-              handleAction(mWatches[c + 1], new_name.c_str(), FILE_ACTION_RENAMED_NEW_NAME );
+              handleAction(iter->second, old_name.c_str(), FILE_ACTION_RENAMED_OLD_NAME );
+              handleAction(iter->second, new_name.c_str(), FILE_ACTION_RENAMED_NEW_NAME );
             }
             else
             {
-              handleAction(mWatches[c + 1], new_name.c_str(), fni );
+              handleAction(iter->second, new_name.c_str(), fni );
             }
           }
 
           break;
         }
-        case FileWatcherWin32_AltImpl::CHANGE_CREATION:
+       case FileWatcherWin32_AltImpl::CHANGE_LAST_WRITE:
+       case FileWatcherWin32_AltImpl::CHANGE_CREATION:
         {
           std::string old_name;
           DWORD fni;
-          std::string new_name = fw.get_event_filename( mWatches[c + 1]->mDirName, events[c].id, events[c].ty, fni, old_name );
+          std::string new_name = fw.get_event_filename( iter->second->mDirName, events[c].id, events[c].ty, fni, old_name );
 
           if( !new_name.empty() )
           {
-            handleAction(mWatches[c + 1], new_name.c_str(), fni );
+            handleAction(iter->second, new_name.c_str(), fni );
           }
 
           break;
