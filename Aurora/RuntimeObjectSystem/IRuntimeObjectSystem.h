@@ -26,6 +26,7 @@ struct IFileChangeNotifier;
 class  BuildTool;
 struct RuntimeProtector;
 struct SystemTable;
+struct IPerModuleInterface;
 
 enum TestBuildResult
 {
