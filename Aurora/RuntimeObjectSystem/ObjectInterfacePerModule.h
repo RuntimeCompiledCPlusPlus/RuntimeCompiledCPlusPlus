@@ -28,7 +28,11 @@
 #include <vector>
 #include <assert.h>
 
-#define AU_ASSERT( statement )  do { if (!(statement)) { volatile int* p = 0; int a = *p; if(a) {} } } while(0)
+#ifndef RCCPPOFF
+    #define AU_ASSERT( statement )  do { if (!(statement)) { volatile int* p = 0; int a = *p; if(a) {} } } while(0)
+#else
+    #define AU_ASSERT( statement ) assert( statement )
+#endif //RCCPPOFF
 
 class PerModuleInterface : public IPerModuleInterface
 {
