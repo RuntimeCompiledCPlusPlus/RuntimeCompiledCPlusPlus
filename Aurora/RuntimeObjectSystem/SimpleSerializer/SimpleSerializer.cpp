@@ -103,10 +103,10 @@ void SimpleSerializer::SetISerializedValue(const char* propertyName, const ISeri
 	{
 		ObjectId ownerId;
 		m_pCurrentObject->GetObjectId(ownerId);
-		m_map[ownerId][propertyName] = pValue->Clone();
+		m_map[ownerId][propertyName] = pValue;
 		m_CurrentSerialization = m_map.find(ownerId);
 	}
-	m_CurrentSerialization->second[propertyName] = pValue->Clone(); // create a copy, must delete it later
+	m_CurrentSerialization->second[propertyName] = pValue;
 }
 
 const ISerializedValue* SimpleSerializer::GetISerializedValue(const char* propertyName) const
@@ -114,7 +114,7 @@ const ISerializedValue* SimpleSerializer::GetISerializedValue(const char* proper
 	assert( m_pCurrentObject );
 	assert( propertyName );
 	assert( m_bLoading );
-	ISerializedValue* pRet = NULL;
+	const ISerializedValue* pRet = NULL;
 
 	//TSerializationMap::const_iterator found = m_map.find(ownerId);
 	if (m_CurrentSerialization != m_map.end())

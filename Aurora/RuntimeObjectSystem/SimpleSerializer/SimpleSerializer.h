@@ -59,7 +59,7 @@ public:
 
 private:
 
-	typedef std::map<std::string, ISerializedValue*> TValueGroup;
+	typedef std::map<std::string, const ISerializedValue*> TValueGroup;
 	typedef std::map<ObjectId, TValueGroup> TSerializationMap;
 
 	TSerializationMap			m_map;
