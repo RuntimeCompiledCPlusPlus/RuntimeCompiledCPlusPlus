@@ -70,6 +70,5 @@ public:
 private:
 	Compiler                    m_Compiler;
 	ICompilerLogger*            m_pLogger;
-    FileSystemUtils::filetime_t m_InitTime;
 };
 
