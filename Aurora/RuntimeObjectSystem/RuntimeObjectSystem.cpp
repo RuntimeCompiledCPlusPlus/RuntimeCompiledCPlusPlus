@@ -394,7 +394,8 @@ bool RuntimeObjectSystem::LoadCompiledModule()
 
     pPerModuleInterfaceProcAdd()->SetModuleFileName( m_CurrentlyCompilingModuleName.c_str() );
 	pPerModuleInterfaceProcAdd()->SetSystemTable( m_pSystemTable );
-	m_Modules.push_back( module );
+    pPerModuleInterfaceProcAdd( )->SetProjectIdForAllConstructors( m_CurrentlyBuildingProject );
+    m_Modules.push_back( module );
 
 	m_pCompilerLogger->LogInfo( "Compilation Succeeded\n");
     ++m_TotalLoadedModulesEver;
