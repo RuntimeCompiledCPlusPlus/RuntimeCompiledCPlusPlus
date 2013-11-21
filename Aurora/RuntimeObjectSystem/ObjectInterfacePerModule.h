@@ -43,6 +43,7 @@ public:
 	void AddConstructor( IObjectConstructor* pConstructor );
 
 	virtual std::vector<IObjectConstructor*>& GetConstructors();
+    virtual void SetProjectIdForAllConstructors( unsigned short projectId_ );
 	virtual void SetSystemTable( SystemTable* pSystemTable );
 
 	SystemTable* GetSystemTable()
@@ -98,6 +99,7 @@ public:
         : m_bIsSingleton(               bIsSingleton )
         , m_bIsAutoConstructSingleton(  bIsAutoConstructSingleton )
 		, m_pModuleInterface(0)
+        , m_Project(0)
 #ifndef RCCPPOFF
 		, m_FileName(                   Filename )
 		, m_pIncludeFileList(pIncludeFileList_)
@@ -155,7 +157,17 @@ public:
 	virtual const char* GetName()
 	{
 		return T::GetTypeNameStatic();
-	}
+    }
+
+    virtual void SetProjectId( unsigned short projectId_ )
+    {
+        m_Project = projectId_;
+    }
+
+    virtual unsigned short GetProjectId() const
+    {
+        return m_Project;
+    }
 
 	virtual const char* GetFileName()
 	{
@@ -301,6 +313,7 @@ private:
 	std::vector<PerTypeObjectId>	m_FreeIds;
 	ConstructorId                   m_Id;
 	PerModuleInterface*             m_pModuleInterface;
+    unsigned short                  m_Project;
 #ifndef RCCPPOFF
 	std::string                     m_FileName;
 	IRuntimeIncludeFileList*        m_pIncludeFileList;
