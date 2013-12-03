@@ -146,6 +146,7 @@ void ObjectFactorySystem::ProtectedFunc()
 	}
 
     // auto construct singletons
+    // now in 2 phases - construct then init
     m_ProtectedPhase = PHASE_AUTOCONSTRUCTSINGLETONS;
 	if( m_pLogger ) m_pLogger->LogInfo( "Auto Constructing Singletons...\n");
 	for( size_t i = 0; i < m_Constructors.size(); ++i )
@@ -156,10 +157,20 @@ void ObjectFactorySystem::ProtectedFunc()
             if( 0 == pConstructor->GetNumberConstructedObjects() )
             {
                 IObject* pObj = pConstructor->GetSingleton();
-                pObj->Init( true );
             }
         }
 	}
+    // now init
+	for( size_t i = 0; i < m_Constructors.size(); ++i )
+	{
+		IObjectConstructor* pConstructor = m_Constructors[i];
+        if( pConstructor->GetIsAutoConstructSingleton() )
+        {
+            IObject* pObj = pConstructor->GetSingleton();
+            pObj->Init( true );
+        }
+	}
+
 
 	// Do a second pass, initializing objects now that they've all been serialized
 	m_ProtectedPhase = PHASE_SERIALIZEOUTTEST;
