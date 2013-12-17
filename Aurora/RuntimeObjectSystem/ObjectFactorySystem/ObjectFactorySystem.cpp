@@ -162,17 +162,6 @@ void ObjectFactorySystem::ProtectedFunc()
             }
         }
 	}
-    // now init
-	for( size_t i = 0; i < m_Constructors.size(); ++i )
-	{
-		IObjectConstructor* pConstructor = m_Constructors[i];
-        if( bSingletonConstructed[i] )
-        {
-            assert( pConstructor->GetIsAutoConstructSingleton() ); //standard assert, as this is internal required for rcc++ to work
-            IObject* pObj = pConstructor->GetSingleton();
-            pObj->Init( true );
-        }
-	}
 
 
 	// Do a second pass, initializing objects now that they've all been serialized
@@ -187,7 +176,8 @@ void ObjectFactorySystem::ProtectedFunc()
 			IObject* pObject = pConstructor->GetConstructedObject( objId );
 			if (pObject)
 			{
-				pObject->Init(false);
+                // if a singleton was newly constructed in earlier phase, pass true to init.
+				pObject->Init( bSingletonConstructed[i] );
 
 				if( m_PrevConstructors.size() <= i || m_PrevConstructors[ i ] != m_Constructors[ i ] )
 				{
