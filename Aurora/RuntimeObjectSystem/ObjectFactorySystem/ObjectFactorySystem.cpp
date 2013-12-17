@@ -148,6 +148,7 @@ void ObjectFactorySystem::ProtectedFunc()
     // auto construct singletons
     // now in 2 phases - construct then init
     m_ProtectedPhase = PHASE_AUTOCONSTRUCTSINGLETONS;
+    std::vector<bool> bSingletonConstructed( m_Constructors.size(), false );
 	if( m_pLogger ) m_pLogger->LogInfo( "Auto Constructing Singletons...\n");
 	for( size_t i = 0; i < m_Constructors.size(); ++i )
 	{
@@ -157,6 +158,7 @@ void ObjectFactorySystem::ProtectedFunc()
             if( 0 == pConstructor->GetNumberConstructedObjects() )
             {
                 IObject* pObj = pConstructor->GetSingleton();
+                bSingletonConstructed[i] = true;
             }
         }
 	}
@@ -164,8 +166,9 @@ void ObjectFactorySystem::ProtectedFunc()
 	for( size_t i = 0; i < m_Constructors.size(); ++i )
 	{
 		IObjectConstructor* pConstructor = m_Constructors[i];
-        if( pConstructor->GetIsAutoConstructSingleton() )
+        if( bSingletonConstructed[i] )
         {
+            assert( pConstructor->GetIsAutoConstructSingleton() ); //standard assert, as this is internal required for rcc++ to work
             IObject* pObj = pConstructor->GetSingleton();
             pObj->Init( true );
         }
