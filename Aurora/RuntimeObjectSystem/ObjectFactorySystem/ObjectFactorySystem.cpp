@@ -157,7 +157,7 @@ void ObjectFactorySystem::ProtectedFunc()
         {
             if( 0 == pConstructor->GetNumberConstructedObjects() )
             {
-                IObject* pObj = pConstructor->GetSingleton();
+                pConstructor->GetSingleton();
                 bSingletonConstructed[i] = true;
             }
         }
