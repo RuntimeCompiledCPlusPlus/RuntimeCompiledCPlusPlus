@@ -55,7 +55,6 @@ void BuildTool::Clean() const
 
 void BuildTool::Initialise( ICompilerLogger * pLogger )
 {
-    m_InitTime = FileSystemUtils::GetCurrentTime();
 	m_pLogger = pLogger;
 	m_Compiler.Initialise(pLogger);
 }
@@ -116,11 +115,9 @@ void BuildTool::BuildModule( const std::vector<FileToBuild>& buildFileList,
 			if( objectFileName.Exists() && buildFile.Exists() )
             {
                 FileSystemUtils::filetime_t objTime = objectFileName.GetLastWriteTime();
-                if( objTime > m_InitTime && objTime > buildFile.GetLastWriteTime() )
+                if( objTime > buildFile.GetLastWriteTime() )
  			    {
-                    // we only want to use the object file if it's newer than our start-up time so
-                    // we know it's from the current session (so likely compiled with same settings),
-                    // and it's newer than the source file
+                    // we only want to use the object file if it's newer than the source file
 				    buildFile = objectFileName;
 			    }
             }

@@ -52,6 +52,15 @@ std::vector<IObjectConstructor*>& PerModuleInterface::GetConstructors()
 	return m_ObjectConstructors;
 }
 
+void PerModuleInterface::SetProjectIdForAllConstructors( unsigned short projectId_ )
+{
+    for( size_t i = 0; i < m_ObjectConstructors.size(); ++i )
+    {
+        m_ObjectConstructors[ i ]->SetProjectId( projectId_ );
+    }
+}
+
+
 void PerModuleInterface::SetSystemTable( SystemTable* pSystemTable )
 {
 	g_pSystemTable = pSystemTable;

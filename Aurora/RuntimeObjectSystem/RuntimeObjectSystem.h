@@ -29,6 +29,7 @@
 #ifdef _WIN32
     #define WIN32_LEAN_AND_MEAN
     #include <Windows.h>
+	#undef GetObject
 #else
     typedef void* HMODULE;
 #endif
@@ -68,18 +69,14 @@ public:
 	}
 
 	virtual void CompileAll( bool bForceRecompile );
-	virtual void AddToRuntimeFileList( const char* filename );
-	virtual void RemoveFromRuntimeFileList( const char* filename );
-	virtual void AddIncludeDir( const char *path_ );
-	virtual void AddLibraryDir( const char *path_ );
-	virtual void SetAdditionalCompileOptions( const char *options )
-	{
-		m_CompileOptions = options;
-	}
-	virtual void SetAdditionalLinkOptions( const char *options )
-	{
-		m_LinkOptions = options;
-	}
+
+    virtual void CompileAllInProject(           bool bForcerecompile_,  unsigned short projectId_ = 0 );
+    virtual void AddToRuntimeFileList(          const char* filename,   unsigned short projectId_ = 0 );
+    virtual void RemoveFromRuntimeFileList(     const char* filename,   unsigned short projectId_ = 0 );
+    virtual void AddIncludeDir(                 const char* path_,      unsigned short projectId_ = 0 );
+    virtual void AddLibraryDir(                 const char* path_,      unsigned short projectId_ = 0 );
+    virtual void SetAdditionalCompileOptions(   const char* options,    unsigned short projectId_ = 0 );
+    virtual void SetAdditionalLinkOptions(      const char* options,    unsigned short projectId_ = 0 );
 
 	virtual void SetAutoCompile( bool autoCompile );
 	virtual bool GetAutoCompile() const
@@ -152,7 +149,7 @@ public:
 
 
 private:
-	typedef std::vector<FileSystemUtils::Path>                              TFileList;
+    typedef std::vector<FileSystemUtils::Path>                              TFileList;
 	typedef std::map<FileSystemUtils::Path,FileSystemUtils::Path>           TFileMap;
 	typedef TFileMap::iterator                                              TFileMapIterator;
 	typedef std::multimap<FileSystemUtils::Path,FileSystemUtils::Path>      TFileToFilesMap;
@@ -176,18 +173,30 @@ private:
 	bool					m_bCompiling;
 	bool					m_bLastLoadModuleSuccess;
 	std::vector<HMODULE>	m_Modules;	// Stores runtime created modules, but not the exe module.
-	TFileList				m_RuntimeFileList;
-	TFileToFilesMap			m_RuntimeIncludeMap;
-	TFileToFilesMap			m_RuntimeLinkLibraryMap;
-	TFileToFilesMap			m_RuntimeSourceDependencyMap;
+
 	bool					m_bAutoCompile;
-	FileSystemUtils::Path m_CurrentlyCompilingModuleName;
-	std::vector<BuildTool::FileToBuild> m_BuildFileList;
-	std::vector<BuildTool::FileToBuild> m_PendingBuildFileList; // if a compile is already underway, store files here.
-	TFileList				m_IncludeDirList;
-	TFileList				m_LibraryDirList;
-	std::string				m_CompileOptions;
-	std::string				m_LinkOptions;
+	FileSystemUtils::Path   m_CurrentlyCompilingModuleName;
+
+    // per project information
+    struct ProjectSettings
+    {
+        TFileList                           m_RuntimeFileList;
+        TFileToFilesMap                     m_RuntimeIncludeMap;
+        TFileToFilesMap			            m_RuntimeLinkLibraryMap;
+        TFileToFilesMap                     m_RuntimeSourceDependencyMap;
+
+        std::vector<BuildTool::FileToBuild> m_BuildFileList;
+        std::vector<BuildTool::FileToBuild> m_PendingBuildFileList; // if a compile is already underway, store files here.
+
+        TFileList                           m_IncludeDirList;
+        TFileList                           m_LibraryDirList;
+        std::string                         m_CompileOptions;
+        std::string                         m_LinkOptions;
+    };
+    std::vector<ProjectSettings>            m_Projects;
+    ProjectSettings&                        GetProject( unsigned short projectId_ );
+    unsigned short                          m_CurrentlyBuildingProject;
+
     unsigned int            m_TotalLoadedModulesEver;
     bool                    m_bProtectionEnabled;
 

@@ -50,6 +50,7 @@ RuntimeObjectSystem::RuntimeObjectSystem()
     , m_TotalLoadedModulesEver(1) // starts at one for current exe
     , m_bProtectionEnabled( true )
     , m_pImpl( 0 )
+    , m_CurrentlyBuildingProject( 0 )
 {
     CreatePlatformImpl();
 }
@@ -108,57 +109,68 @@ void RuntimeObjectSystem::OnFileChange(const IAUDynArray<const char*>& filelist)
 		return;
 	}
 
-	std::vector<BuildTool::FileToBuild>* pBuildFileList = &m_BuildFileList;
-	if( m_bCompiling )
-	{
-		pBuildFileList = &m_PendingBuildFileList;
-	}
+    for( unsigned short proj = 0; proj < m_Projects.size(); ++proj )
+    {
+
+        std::vector<BuildTool::FileToBuild>* pBuildFileList = &m_Projects[ proj ].m_BuildFileList;
+        if( m_bCompiling )
+        {
+            pBuildFileList = &m_Projects[ proj ].m_PendingBuildFileList;
+        }
 
 
-	m_pCompilerLogger->LogInfo("FileChangeNotifier triggered recompile with changes to:\n");
-	for( size_t i = 0; i < filelist.Size(); ++ i )
-	{
-	    m_pCompilerLogger->LogInfo("    File %s\n",filelist[i]);
-		BuildTool::FileToBuild fileToBuild(filelist[i]);
-
-        bool bFindIncludeDependencies = true;  // if this is a header or a source dependency need to find include dependencies
-        bool bForceIncludeDependencies = true;
-		if( fileToBuild.filePath.Extension() != ".h") //TODO: change to check for .cpp and .c as could have .inc files etc.?
-		{
-            bFindIncludeDependencies = false;
-            // file may be a source dependency, check
-			TFileToFilesIterator itrCurr = m_RuntimeSourceDependencyMap.begin();
-			while( itrCurr != m_RuntimeSourceDependencyMap.end() )
-			{
-				if( itrCurr->second == fileToBuild.filePath )
-				{
-                    fileToBuild.filePath.ReplaceExtension(".h");
-                    bFindIncludeDependencies = true;
-                    bForceIncludeDependencies = false; // a src change, not a header change - so no need to force compile (can just link object file if exists)
-                    break;
-				}
-				else
-				{
-					++itrCurr;
-				}
-			}
-
-            if( !bFindIncludeDependencies )
+        m_pCompilerLogger->LogInfo( "FileChangeNotifier triggered recompile with changes to:\n" );
+        for( size_t i = 0; i < filelist.Size(); ++i )
+        {
+            // check this file is in our project list
+            TFileList::iterator it = std::find( m_Projects[ proj ].m_RuntimeFileList.begin( ), m_Projects[ proj ].m_RuntimeFileList.end( ), filelist[i] );
+            if( it == m_Projects[ proj ].m_RuntimeFileList.end() )
             {
-    			pBuildFileList->push_back( fileToBuild );
+                continue;
             }
-		}
 
-		if( bFindIncludeDependencies )
-		{
-			TFileToFilesEqualRange range = m_RuntimeIncludeMap.equal_range( fileToBuild.filePath );
-			for(TFileToFilesIterator it=range.first; it!=range.second; ++it)
-			{
-				BuildTool::FileToBuild fileToBuildFromIncludes( (*it).second, bForceIncludeDependencies );
-				pBuildFileList->push_back( fileToBuildFromIncludes );
-			}
-		}
-	}
+            m_pCompilerLogger->LogInfo( "    File %s\n", filelist[ i ] );
+            BuildTool::FileToBuild fileToBuild( filelist[ i ] );
+
+            bool bFindIncludeDependencies = true;  // if this is a header or a source dependency need to find include dependencies
+            bool bForceIncludeDependencies = true;
+            if( fileToBuild.filePath.Extension() != ".h" ) //TODO: change to check for .cpp and .c as could have .inc files etc.?
+            {
+                bFindIncludeDependencies = false;
+                // file may be a source dependency, check
+                TFileToFilesIterator itrCurr = m_Projects[ proj ].m_RuntimeSourceDependencyMap.begin( );
+                while( itrCurr != m_Projects[ proj ].m_RuntimeSourceDependencyMap.end( ) )
+                {
+                    if( itrCurr->second == fileToBuild.filePath )
+                    {
+                        fileToBuild.filePath.ReplaceExtension( ".h" );
+                        bFindIncludeDependencies = true;
+                        bForceIncludeDependencies = false; // a src change, not a header change - so no need to force compile (can just link object file if exists)
+                        break;
+                    }
+                    else
+                    {
+                        ++itrCurr;
+                    }
+                }
+
+                if( !bFindIncludeDependencies )
+                {
+                    pBuildFileList->push_back( fileToBuild );
+                }
+            }
+
+            if( bFindIncludeDependencies )
+            {
+                TFileToFilesEqualRange range = m_Projects[ proj ].m_RuntimeIncludeMap.equal_range( fileToBuild.filePath );
+                for( TFileToFilesIterator it = range.first; it != range.second; ++it )
+                {
+                    BuildTool::FileToBuild fileToBuildFromIncludes( ( *it ).second, bForceIncludeDependencies );
+                    pBuildFileList->push_back( fileToBuildFromIncludes );
+                }
+            }
+        }
+    }
 
 	if( !m_bCompiling )
 	{
@@ -171,10 +183,11 @@ bool RuntimeObjectSystem::GetIsCompiledComplete()
 	return m_bCompiling && m_pBuildTool->GetIsComplete();
 }
 
-void RuntimeObjectSystem::CompileAll( bool bForceRecompile )
+void RuntimeObjectSystem::CompileAllInProject( bool bForceRecompile, unsigned short projectId_ )
 {
-	// since this is a compile all we can clear any pending compiles
-	m_BuildFileList.clear();
+    ProjectSettings& project = GetProject( projectId_ );
+    // since this is a compile all we can clear any pending compiles
+    project.m_BuildFileList.clear( );
 
 	// ensure we have an up to date list of files to commpile if autocompile is off
 	if( !m_bAutoCompile )
@@ -185,16 +198,24 @@ void RuntimeObjectSystem::CompileAll( bool bForceRecompile )
 	}
 
 	// add all files except headers
-	for( size_t i = 0; i < m_RuntimeFileList.size(); ++ i )
+    for( size_t i = 0; i < m_Projects[ projectId_ ].m_RuntimeFileList.size( ); ++i )
 	{
-		BuildTool::FileToBuild fileToBuild(m_RuntimeFileList[i], true ); //force re-compile on compile all
+        BuildTool::FileToBuild fileToBuild( project.m_RuntimeFileList[ i ], true ); //force re-compile on compile all
 		if( fileToBuild.filePath.Extension() != ".h") //TODO: change to check for .cpp and .c as could have .inc files etc.?
 		{
-			m_BuildFileList.push_back( fileToBuild );
+            project.m_BuildFileList.push_back( fileToBuild );
 		}
 	}
 
 	StartRecompile();
+}
+
+void RuntimeObjectSystem::CompileAll( bool bForceRecompile )
+{
+    for( unsigned short proj = 0; proj < m_Projects.size(); ++proj )
+    {
+        CompileAllInProject( bForceRecompile, proj );
+    }
 }
 
 void RuntimeObjectSystem::SetAutoCompile( bool autoCompile )
@@ -210,51 +231,79 @@ void RuntimeObjectSystem::SetAutoCompile( bool autoCompile )
 }
 
 // RuntimeObjectSystem::AddToRuntimeFileList - filename should be cleaned of "/../" etc, see FileSystemUtils::Path::GetCleanPath()
-void RuntimeObjectSystem::AddToRuntimeFileList( const char* filename )
+void RuntimeObjectSystem::AddToRuntimeFileList( const char* filename, unsigned short projectId_ )
 {
-	TFileList::iterator it = std::find( m_RuntimeFileList.begin(), m_RuntimeFileList.end(), filename );
-	if ( it == m_RuntimeFileList.end() )
+    ProjectSettings& project = GetProject( projectId_ );
+    TFileList::iterator it = std::find( project.m_RuntimeFileList.begin( ), project.m_RuntimeFileList.end( ), filename );
+    if( it == project.m_RuntimeFileList.end( ) )
 	{
-		m_RuntimeFileList.push_back( filename );
+        project.m_RuntimeFileList.push_back( filename );
         m_pFileChangeNotifier->Watch( filename, this );
 	}
 }
 
-void RuntimeObjectSystem::RemoveFromRuntimeFileList( const char* filename )
+void RuntimeObjectSystem::RemoveFromRuntimeFileList( const char* filename, unsigned short projectId_ )
 {
-	TFileList::iterator it = std::find( m_RuntimeFileList.begin(), m_RuntimeFileList.end(), filename );
-	if ( it != m_RuntimeFileList.end() )
+    ProjectSettings& project = GetProject( projectId_ );
+    TFileList::iterator it = std::find( project.m_RuntimeFileList.begin( ), project.m_RuntimeFileList.end( ), filename );
+    if( it != project.m_RuntimeFileList.end( ) )
 	{
-		m_RuntimeFileList.erase( it );
+        project.m_RuntimeFileList.erase( it );
 	}
 }
 
 void RuntimeObjectSystem::StartRecompile()
 {
-	m_bCompiling = true;
-	m_pCompilerLogger->LogInfo( "Compiling...\n");
+    m_bCompiling = true;
+    if( m_pCompilerLogger ) { m_pCompilerLogger->LogInfo( "Compiling...\n" ); }
 
-	//Use a temporary filename for the dll
+    //Use a temporary filename for the dll
 #ifdef _WIN32
-	char tempPath[MAX_PATH];
-	GetTempPathA( MAX_PATH, tempPath );
-	char tempFileName[MAX_PATH]; 
-	GetTempFileNameA( tempPath, "", 0, tempFileName );
-	std::string strTempFileName( tempFileName );
-	m_CurrentlyCompilingModuleName= strTempFileName;
+    char tempPath[ MAX_PATH ];
+    GetTempPathA( MAX_PATH, tempPath );
+    char tempFileName[ MAX_PATH ];
+    GetTempFileNameA( tempPath, "", 0, tempFileName );
+    std::string strTempFileName( tempFileName );
+    m_CurrentlyCompilingModuleName = strTempFileName;
 #else
     char tempPath[] = "/tmp/RCCppTempDylibXXXXXX";
     int fileDesc = mkstemp(tempPath);
     assert( fileDesc != -1 ); //TODO: should really handle the error
     close( fileDesc ); //we don't actually want to make the file as yet
     m_CurrentlyCompilingModuleName = tempPath;
-    
+
 #endif
 
+    // we step through and build each project in turn if there is anything to build, starting from m_PreviousBuildProject
+    bool bHaveProjectToBuild = false;
+    unsigned short project = m_CurrentlyBuildingProject;
+    if( m_Projects.size( ) )
+    {
+        do
+        {
+            ++project;
+            if( project >= m_Projects.size( ) )
+            {
+                project = 0;
+            }
+            if( m_Projects[ project ].m_BuildFileList.size() || m_Projects[ project ].m_PendingBuildFileList.size() )
+            {
+                bHaveProjectToBuild = true;
+            }
+        } while( !bHaveProjectToBuild && m_CurrentlyBuildingProject != project );
+        m_CurrentlyBuildingProject = project;
+    }
 
-	m_BuildFileList.insert( m_BuildFileList.end(), m_PendingBuildFileList.begin(), m_PendingBuildFileList.end() );
-	m_PendingBuildFileList.clear();
-	std::vector<BuildTool::FileToBuild> ourBuildFileList( m_BuildFileList );
+    if( !bHaveProjectToBuild )
+    {
+        if( m_pCompilerLogger ) { m_pCompilerLogger->LogError( "Error - could not find any files to build in any projects\n" ); }
+        m_bCompiling = false;
+        return;
+    }
+
+    m_Projects[ project ].m_BuildFileList.insert( m_Projects[ project ].m_BuildFileList.end( ), m_Projects[ project ].m_PendingBuildFileList.begin( ), m_Projects[ project ].m_PendingBuildFileList.end( ) );
+    m_Projects[ project ].m_PendingBuildFileList.clear( );
+    std::vector<BuildTool::FileToBuild> ourBuildFileList( m_Projects[ project ].m_BuildFileList );
 
 
 	//Add libraries which need linking
@@ -262,7 +311,7 @@ void RuntimeObjectSystem::StartRecompile()
 	for( size_t i = 0; i < ourBuildFileList.size(); ++ i )
 	{
 
-		TFileToFilesEqualRange range = m_RuntimeLinkLibraryMap.equal_range( ourBuildFileList[i].filePath );
+        TFileToFilesEqualRange range = m_Projects[ project ].m_RuntimeLinkLibraryMap.equal_range( ourBuildFileList[ i ].filePath );
 		for(TFileToFilesIterator it=range.first; it!=range.second; ++it)
 		{
 			linkLibraryList.push_back( it->second );
@@ -286,7 +335,7 @@ void RuntimeObjectSystem::StartRecompile()
 	for( size_t i = 0; i < buildListSize; ++ i )
 	{
 
-		TFileToFilesEqualRange range = m_RuntimeSourceDependencyMap.equal_range( ourBuildFileList[i].filePath );
+        TFileToFilesEqualRange range = m_Projects[ project ].m_RuntimeSourceDependencyMap.equal_range( ourBuildFileList[ i ].filePath );
 		for(TFileToFilesIterator it=range.first; it!=range.second; ++it)
 		{
 		    BuildTool::FileToBuild reqFile( it->second, false );	//don't force compile of these
@@ -295,13 +344,12 @@ void RuntimeObjectSystem::StartRecompile()
 	}
 
 
-
 	m_pBuildTool->BuildModule(	ourBuildFileList,
-								m_IncludeDirList,
-								m_LibraryDirList,
+                                m_Projects[ project ].m_IncludeDirList,
+                                m_Projects[ project ].m_LibraryDirList,
 								linkLibraryList,
-								m_CompileOptions.c_str(),
-								m_LinkOptions.c_str(),
+                                m_Projects[ project ].m_CompileOptions.c_str( ),
+                                m_Projects[ project ].m_LinkOptions.c_str( ),
 								m_CurrentlyCompilingModuleName );
 }
 
@@ -346,15 +394,27 @@ bool RuntimeObjectSystem::LoadCompiledModule()
 
     pPerModuleInterfaceProcAdd()->SetModuleFileName( m_CurrentlyCompilingModuleName.c_str() );
 	pPerModuleInterfaceProcAdd()->SetSystemTable( m_pSystemTable );
-	m_Modules.push_back( module );
+    pPerModuleInterfaceProcAdd( )->SetProjectIdForAllConstructors( m_CurrentlyBuildingProject );
+    m_Modules.push_back( module );
 
 	m_pCompilerLogger->LogInfo( "Compilation Succeeded\n");
     ++m_TotalLoadedModulesEver;
 
 	SetupObjectConstructors(pPerModuleInterfaceProcAdd());
-	m_BuildFileList.clear();	// clear the files from our compile list
+    m_Projects[ m_CurrentlyBuildingProject ].m_BuildFileList.clear( );	// clear the files from our compile list
 	m_bLastLoadModuleSuccess = true;
-	if( !m_PendingBuildFileList.empty() )
+
+    // check if there is another project to build
+    bool bNeedAnotherCompile = false;
+    for( unsigned short proj = 0; proj < m_Projects.size( ); ++proj )
+    {
+        if( m_Projects[ proj ].m_BuildFileList.size( ) || m_Projects[ proj ].m_PendingBuildFileList.size( ) )
+        {
+            bNeedAnotherCompile = true;
+        }
+    }
+
+    if( bNeedAnotherCompile )//
 	{
 		// we have pending files to compile, go ahead and compile them
 		StartRecompile();
@@ -386,7 +446,7 @@ void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectCons
 {
 #ifndef RCCPPOFF
 	// for optimization purposes we skip some actions when running for the first time (i.e. no previous constructors)
-	bool bFirstTime = m_RuntimeFileList.empty();
+	static bool bFirstTime = true;
 
 	for (size_t i = 0, iMax = constructors_.Size(); i < iMax; ++i)
 	{
@@ -398,20 +458,22 @@ void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectCons
 		Path filePath = pFilename;
         filePath = filePath.GetCleanPath();
         filePath = FindFile( filePath );
-        AddToRuntimeFileList( filePath.c_str() );
 
+        unsigned short projectId = constructors_[ i ]->GetProjectId();
+        ProjectSettings& project = GetProject( projectId );
+        AddToRuntimeFileList( filePath.c_str( ), projectId );
 
 		if( !bFirstTime )
 		{
  			//remove old include file mappings for this file
-			TFileToFilesIterator itrCurr = m_RuntimeIncludeMap.begin();
-			while( itrCurr != m_RuntimeIncludeMap.end() )
+            TFileToFilesIterator itrCurr = project.m_RuntimeIncludeMap.begin( );
+            while( itrCurr != project.m_RuntimeIncludeMap.end( ) )
 			{
 				if( itrCurr->second == filePath )
 				{
                     TFileToFilesIterator itrErase = itrCurr;
                     ++itrCurr;
-					m_RuntimeIncludeMap.erase( itrErase );
+                    project.m_RuntimeIncludeMap.erase( itrErase );
 				}
 				else
 				{
@@ -420,10 +482,10 @@ void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectCons
 			}
 
             //remove previous link libraries for this file
-            m_RuntimeLinkLibraryMap.erase( filePath );
+            project.m_RuntimeLinkLibraryMap.erase( filePath );
 
             //remove previous source dependencies
-            m_RuntimeSourceDependencyMap.erase( filePath );
+            project.m_RuntimeSourceDependencyMap.erase( filePath );
 		}
 
         //we need the compile path for some platforms where the __FILE__ path is relative to the compile path
@@ -440,8 +502,8 @@ void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectCons
 				TFileToFilePair includePathPair;
 				includePathPair.first = fullpath;
 				includePathPair.second = filePath;
-                AddToRuntimeFileList( fullpath.c_str() );
-				m_RuntimeIncludeMap.insert( includePathPair );
+                AddToRuntimeFileList( fullpath.c_str(), projectId );
+                project.m_RuntimeIncludeMap.insert( includePathPair );
 			}
 		}
             
@@ -457,7 +519,7 @@ void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectCons
 				TFileToFilePair linklibraryPathPair;
 				linklibraryPathPair.first = filePath;
 				linklibraryPathPair.second = pLinkLibrary;
-				m_RuntimeLinkLibraryMap.insert( linklibraryPathPair );
+                project.m_RuntimeLinkLibraryMap.insert( linklibraryPathPair );
 			}
 		}
 
@@ -474,30 +536,52 @@ void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectCons
 				TFileToFilePair sourcePathPair;
 				sourcePathPair.first = filePath;
 				sourcePathPair.second = pathSrc;
-				m_RuntimeSourceDependencyMap.insert( sourcePathPair );
+                project.m_RuntimeSourceDependencyMap.insert( sourcePathPair );
                 
                 // if the include file with a source dependancy is logged as an runtime include, then we mark this .cpp as compile dependencies on change
-                TFileToFilesEqualRange range = m_RuntimeIncludeMap.equal_range( pathInc );
+                TFileToFilesEqualRange range = project.m_RuntimeIncludeMap.equal_range( pathInc );
                 if( range.first != range.second )
                 {
                     // add source file to runtime file list
-                    AddToRuntimeFileList( pathSrc.c_str() );
+                    AddToRuntimeFileList( pathSrc.c_str(), projectId );
                 }
 			}
 		}
 	}
+
+    bFirstTime = false;
 #endif
 }
 
-void RuntimeObjectSystem::AddIncludeDir( const char *path_ )
+RuntimeObjectSystem::ProjectSettings& RuntimeObjectSystem::GetProject( unsigned short projectId_ )
 {
-	m_IncludeDirList.push_back(path_);
+    if( projectId_ >= m_Projects.size() )
+    {
+        m_Projects.resize(projectId_ + 1);
+    }
+    return m_Projects[ projectId_ ];
 }
 
 
-void RuntimeObjectSystem::AddLibraryDir( const char *path_ )
+void RuntimeObjectSystem::AddIncludeDir( const char *path_, unsigned short projectId_ )
 {
-	m_LibraryDirList.push_back(path_);
+    GetProject( projectId_).m_IncludeDirList.push_back( path_ );
+}
+
+
+void RuntimeObjectSystem::AddLibraryDir( const char *path_, unsigned short projectId_ )
+{
+    GetProject( projectId_ ).m_LibraryDirList.push_back( path_ );
+}
+
+void RuntimeObjectSystem::SetAdditionalCompileOptions( const char *options, unsigned short projectId_ )
+{
+    GetProject( projectId_ ).m_CompileOptions = options;
+}
+
+void RuntimeObjectSystem::SetAdditionalLinkOptions( const char *options, unsigned short projectId_ )
+{
+    GetProject( projectId_).m_LinkOptions = options;
 }
 
 FileSystemUtils::Path RuntimeObjectSystem::FindFile( const FileSystemUtils::Path& input )
@@ -761,28 +845,38 @@ int RuntimeObjectSystem::TestBuildAllRuntimeSourceFiles(  ITestBuildNotifier* ca
     }
 
     int numErrors = 0;
-    if( m_RuntimeFileList.empty() )
+
+    size_t numFilesToBuild = 0;
+    for( unsigned short proj = 0; proj < m_Projects.size( ); ++proj )
+    {
+        numFilesToBuild += m_Projects[ proj ].m_RuntimeFileList.size( );
+    }
+
+    if( 0 == numFilesToBuild )
     {
         failCallbackLocal->TestBuildCallback( NULL, TESTBUILDRRESULT_NO_FILES_TO_BUILD );
     }
     
-    TFileList filesToTest = m_RuntimeFileList; // m_RuntimeFileList could change if file content changes (new includes or source dependencies) so make copy to ensure iterators valid.
-	for( TFileList::iterator it = filesToTest.begin(); it != filesToTest.end(); ++it )
+    for( unsigned short proj = 0; proj < m_Projects.size(); ++proj )
     {
-        const Path& file = *it;
-        if( file.Extension() != ".h") // exclude headers, use TestBuildAllRuntimeHeaders
+        TFileList filesToTest = m_Projects[ proj ].m_RuntimeFileList; // m_RuntimeFileList could change if file content changes (new includes or source dependencies) so make copy to ensure iterators valid.
+        for( TFileList::iterator it = filesToTest.begin(); it != filesToTest.end(); ++it )
         {
-            int fileErrors = TestBuildFile( m_pCompilerLogger, this, file, failCallbackLocal, bTestFileTracking );
-            if( fileErrors < 0 )
+            const Path& file = *it;
+            if( file.Extension() != ".h" ) // exclude headers, use TestBuildAllRuntimeHeaders
             {
-                // this means exit, and the number of errors is -ve so remove, unless -0xD1E is the response (for no error die)
-                if( fileErrors != -0xD1E )
+                int fileErrors = TestBuildFile( m_pCompilerLogger, this, file, failCallbackLocal, bTestFileTracking );
+                if( fileErrors < 0 )
                 {
-                    numErrors -= fileErrors;
+                    // this means exit, and the number of errors is -ve so remove, unless -0xD1E is the response (for no error die)
+                    if( fileErrors != -0xD1E )
+                    {
+                        numErrors -= fileErrors;
+                    }
+                    return numErrors;
                 }
-                return numErrors;
+                numErrors += fileErrors;
             }
-            numErrors += fileErrors;
         }
     }
 
@@ -808,23 +902,34 @@ int RuntimeObjectSystem::TestBuildAllRuntimeHeaders(      ITestBuildNotifier* ca
     }
 
     int numErrors = 0;
-    if( m_RuntimeFileList.empty() )
+
+    size_t numFilesToBuild = 0;
+    for( unsigned short proj = 0; proj < m_Projects.size( ); ++proj )
+    {
+        numFilesToBuild += m_Projects[ proj ].m_RuntimeFileList.size( );
+    }
+
+    if( 0 == numFilesToBuild )
     {
         failCallbackLocal->TestBuildCallback( NULL, TESTBUILDRRESULT_NO_FILES_TO_BUILD );
     }
 
-	for( TFileList::iterator it = m_RuntimeFileList.begin(); it != m_RuntimeFileList.end(); ++it )
+    for( unsigned short proj = 0; proj < m_Projects.size(); ++proj )
     {
-        const Path& file = *it;
-        if( file.Extension() == ".h") // exclude headers, use TestBuildAllRuntimeHeaders
+        TFileList filesToTest = m_Projects[ proj ].m_RuntimeFileList; // m_RuntimeFileList could change if file content changes (new includes or source dependencies) so make copy to ensure iterators valid.
+        for( TFileList::iterator it = filesToTest.begin( ); it != filesToTest.end( ); ++it )
         {
-            int fileErrors = TestBuildFile( m_pCompilerLogger, this, file, failCallbackLocal, bTestFileTracking );
-            if( fileErrors < 0 )
+            const Path& file = *it;
+            if( file.Extension() == ".h" ) // exclude headers, use TestBuildAllRuntimeHeaders
             {
-                // this means exit, and the number of errors is -ve so remove
-                return numErrors - fileErrors;
+                int fileErrors = TestBuildFile( m_pCompilerLogger, this, file, failCallbackLocal, bTestFileTracking );
+                if( fileErrors < 0 )
+                {
+                    // this means exit, and the number of errors is -ve so remove
+                    return numErrors - fileErrors;
+                }
+                numErrors += fileErrors;
             }
-            numErrors += fileErrors;
         }
     }
 

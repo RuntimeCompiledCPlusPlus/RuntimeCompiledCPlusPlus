@@ -77,6 +77,8 @@ struct IObjectConstructor
 	virtual const char* GetLinkLibrary( size_t Num_ ) const = 0;
 	virtual size_t GetMaxNumSourceDependencies() const = 0;
 	virtual const char* GetSourceDependency( size_t Num_ ) const = 0;
+    virtual void SetProjectId( unsigned short projectId_ ) = 0;
+    virtual unsigned short GetProjectId() const = 0;
 
     // Singleton functions
     virtual bool        GetIsSingleton() const = 0;
@@ -96,6 +98,7 @@ struct IObjectConstructor
 struct IPerModuleInterface
 {
 	virtual std::vector<IObjectConstructor*>& GetConstructors() = 0;
+    virtual void SetProjectIdForAllConstructors( unsigned short projectId_ ) = 0;
 	virtual void SetSystemTable( SystemTable* pSystemTable ) = 0;
 	virtual const std::vector<const char*>& GetRequiredSourceFiles() const = 0;
 	virtual void AddRequiredSourceFiles( const char* file_ ) = 0;

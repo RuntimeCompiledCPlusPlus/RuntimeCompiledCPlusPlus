@@ -146,7 +146,9 @@ void ObjectFactorySystem::ProtectedFunc()
 	}
 
     // auto construct singletons
+    // now in 2 phases - construct then init
     m_ProtectedPhase = PHASE_AUTOCONSTRUCTSINGLETONS;
+    std::vector<bool> bSingletonConstructed( m_Constructors.size(), false );
 	if( m_pLogger ) m_pLogger->LogInfo( "Auto Constructing Singletons...\n");
 	for( size_t i = 0; i < m_Constructors.size(); ++i )
 	{
@@ -155,11 +157,12 @@ void ObjectFactorySystem::ProtectedFunc()
         {
             if( 0 == pConstructor->GetNumberConstructedObjects() )
             {
-                IObject* pObj = pConstructor->GetSingleton();
-                pObj->Init( true );
+                pConstructor->GetSingleton();
+                bSingletonConstructed[i] = true;
             }
         }
 	}
+
 
 	// Do a second pass, initializing objects now that they've all been serialized
 	m_ProtectedPhase = PHASE_SERIALIZEOUTTEST;
@@ -173,7 +176,8 @@ void ObjectFactorySystem::ProtectedFunc()
 			IObject* pObject = pConstructor->GetConstructedObject( objId );
 			if (pObject)
 			{
-				pObject->Init(false);
+                // if a singleton was newly constructed in earlier phase, pass true to init.
+				pObject->Init( bSingletonConstructed[i] );
 
 				if( m_PrevConstructors.size() <= i || m_PrevConstructors[ i ] != m_Constructors[ i ] )
 				{
