@@ -62,7 +62,6 @@ void ObjectFactorySystem::ProtectedFunc()
 
 	// use a temporary serializer in case there is an exception, so preserving any old state (if there is any)
 	SimpleSerializer* pSerializer = new SimpleSerializer;
-	// currently we don't protect the serialize out... should perhaps do so.
 	pSerializer->SetIsLoading( false );
 	for( size_t i = 0; i < m_Constructors.size(); ++i )
 	{
@@ -165,8 +164,16 @@ void ObjectFactorySystem::ProtectedFunc()
 
 
 	// Do a second pass, initializing objects now that they've all been serialized
-	m_ProtectedPhase = PHASE_SERIALIZEOUTTEST;
-	if( m_pLogger ) m_pLogger->LogInfo( "Initialising and testing new serialisation...\n");
+    // and testing serialization if required
+	m_ProtectedPhase = PHASE_INITANDSERIALIZEOUTTEST;
+    if( m_bTestSerialization )
+    {
+	    if( m_pLogger ) m_pLogger->LogInfo( "Initialising and testing new serialisation...\n");
+    }
+    else
+    {
+	    if( m_pLogger ) m_pLogger->LogInfo( "Initialising...\n");
+    }
 
 	for( size_t i = 0; i < m_Constructors.size(); ++i )
 	{
@@ -179,7 +186,7 @@ void ObjectFactorySystem::ProtectedFunc()
                 // if a singleton was newly constructed in earlier phase, pass true to init.
 				pObject->Init( bSingletonConstructed[i] );
 
-				if( m_PrevConstructors.size() <= i || m_PrevConstructors[ i ] != m_Constructors[ i ] )
+				if( m_bTestSerialization && ( m_PrevConstructors.size() <= i || m_PrevConstructors[ i ] != m_Constructors[ i ] ) )
 				{
 					//test serialize out for all new objects, we assume old objects are OK.
 					SimpleSerializer tempSerializer;
@@ -242,8 +249,15 @@ void ObjectFactorySystem::AddConstructors( IAUDynArray<IObjectConstructor*> &con
 			case PHASE_AUTOCONSTRUCTSINGLETONS:
 				m_pLogger->LogError( "\tError occured during auto construct singletons phase.\n" );
                 break;
-			case PHASE_SERIALIZEOUTTEST:
-				m_pLogger->LogError( "\tError occured during serialize test of new objects phase.\n" );
+			case PHASE_INITANDSERIALIZEOUTTEST:
+                if( m_bTestSerialization )
+                {
+				    m_pLogger->LogError( "\tError occured during Initialization and serialize test of new objects phase.\n" );
+                }
+                else
+                {
+				    m_pLogger->LogError( "\tError occured during Initialization phase.\n" );
+                }
                 break;
            case PHASE_DELETEOLD:
                 break;
