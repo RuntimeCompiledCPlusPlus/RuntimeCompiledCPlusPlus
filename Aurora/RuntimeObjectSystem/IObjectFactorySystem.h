@@ -47,6 +47,8 @@ struct IObjectFactorySystem
 	virtual void RemoveListener(IObjectFactoryListener* pListener) = 0;
 	virtual void SetLogger( ICompilerLogger* pLogger ) = 0;
 	virtual void SetRuntimeObjectSystem( IRuntimeObjectSystem* pRuntimeObjectSystem ) = 0;
+    virtual void SetTestSerialization( bool bTest ) = 0;
+    virtual bool GetTestSerialization() const = 0;
     virtual ~IObjectFactorySystem() {}
 
 };

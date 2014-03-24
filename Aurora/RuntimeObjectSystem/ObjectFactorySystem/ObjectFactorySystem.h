@@ -40,6 +40,7 @@ public:
 		, m_pNewConstructors( 0 )
 		, m_pSerializer( 0 )
 		, m_ProtectedPhase(PHASE_NONE)
+        , m_bTestSerialization(true)
  	{
 	}
 
@@ -59,6 +60,14 @@ public:
     virtual void SetRuntimeObjectSystem( IRuntimeObjectSystem* pRuntimeObjectSystem )
     {
         m_pRuntimeObjectSystem = pRuntimeObjectSystem;
+    }
+    virtual void SetTestSerialization( bool bTest )
+    {
+        m_bTestSerialization = bTest;
+    }
+    virtual bool GetTestSerialization() const
+    {
+        return m_bTestSerialization;
     }
 
 
@@ -86,10 +95,11 @@ private:
 		PHASE_CONSTRUCTNEW,
 		PHASE_SERIALIZEIN,
 		PHASE_AUTOCONSTRUCTSINGLETONS,
-		PHASE_SERIALIZEOUTTEST,
+		PHASE_INITANDSERIALIZEOUTTEST,
 		PHASE_DELETEOLD,
 	};
 	ProtectedPhase						m_ProtectedPhase;
+    bool                                m_bTestSerialization;
 
 };
 
