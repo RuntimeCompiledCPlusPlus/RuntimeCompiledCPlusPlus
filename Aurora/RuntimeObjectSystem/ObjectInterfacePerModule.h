@@ -360,10 +360,11 @@ public:
 	{
 		return GetTypeNameStatic();
 	}
+	static TObjectConstructorConcrete<TActual> m_Constructor;
 private:
 	void SetPerTypeId( PerTypeObjectId id ) { m_Id = id; }
 	PerTypeObjectId m_Id;
-	static TObjectConstructorConcrete<TActual> m_Constructor;
+	
 };
 #ifndef RCCPPOFF
 	#define REGISTERBASE( T, bIsSingleton, bIsAutoConstructSingleton )	\
