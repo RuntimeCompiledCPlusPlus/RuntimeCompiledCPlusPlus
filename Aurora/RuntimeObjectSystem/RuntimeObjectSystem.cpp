@@ -77,7 +77,6 @@ bool RuntimeObjectSystem::Initialise( ICompilerLogger * pLogger, SystemTable* pS
 	// We start by using the code in the current module
 	IPerModuleInterface* pPerModuleInterface = PerModuleInterface::GetInstance();
     pPerModuleInterface->SetModuleFileName( "Main Exe" );
-    pPerModuleInterface->SetSystemTable( m_pSystemTable );
 
 	m_pObjectFactorySystem->SetLogger( m_pCompilerLogger );
     m_pObjectFactorySystem->SetRuntimeObjectSystem( this );
@@ -393,7 +392,6 @@ bool RuntimeObjectSystem::LoadCompiledModule()
 	}
 
     pPerModuleInterfaceProcAdd()->SetModuleFileName( m_CurrentlyCompilingModuleName.c_str() );
-	pPerModuleInterfaceProcAdd()->SetSystemTable( m_pSystemTable );
     pPerModuleInterfaceProcAdd( )->SetProjectIdForAllConstructors( m_CurrentlyBuildingProject );
     m_Modules.push_back( module );
 
@@ -424,6 +422,8 @@ bool RuntimeObjectSystem::LoadCompiledModule()
 
 void RuntimeObjectSystem::SetupObjectConstructors(IPerModuleInterface* pPerModuleInterface)
 {
+    // Set system Table
+    pPerModuleInterface->SetSystemTable( m_pSystemTable );
 
 	// get hold of the constructors
 	const std::vector<IObjectConstructor*> &objectConstructors = pPerModuleInterface->GetConstructors();
