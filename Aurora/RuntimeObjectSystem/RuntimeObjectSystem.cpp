@@ -118,7 +118,7 @@ void RuntimeObjectSystem::OnFileChange(const IAUDynArray<const char*>& filelist)
         }
 
 
-        m_pCompilerLogger->LogInfo( "FileChangeNotifier triggered recompile with changes to:\n" );
+        if (m_pCompilerLogger) { m_pCompilerLogger->LogInfo( "FileChangeNotifier triggered recompile with changes to:\n" ); }
         for( size_t i = 0; i < filelist.Size(); ++i )
         {
             // check this file is in our project list
@@ -128,7 +128,7 @@ void RuntimeObjectSystem::OnFileChange(const IAUDynArray<const char*>& filelist)
                 continue;
             }
 
-            m_pCompilerLogger->LogInfo( "    File %s\n", filelist[ i ] );
+            if (m_pCompilerLogger) { m_pCompilerLogger->LogInfo( "    File %s\n", filelist[ i ] ); }
             BuildTool::FileToBuild fileToBuild( filelist[ i ] );
 
             bool bFindIncludeDependencies = true;  // if this is a header or a source dependency need to find include dependencies
@@ -374,7 +374,7 @@ bool RuntimeObjectSystem::LoadCompiledModule()
 
 	if (!module)
 	{
-		m_pCompilerLogger->LogError( "Failed to load module %s\n",m_CurrentlyCompilingModuleName.c_str());
+		if (m_pCompilerLogger) { m_pCompilerLogger->LogError( "Failed to load module %s\n",m_CurrentlyCompilingModuleName.c_str()); }
 		return false;
 	}
 
@@ -387,7 +387,7 @@ bool RuntimeObjectSystem::LoadCompiledModule()
 #endif
 	if (!pPerModuleInterfaceProcAdd)
 	{
-		m_pCompilerLogger->LogError( "Failed GetProcAddress\n");
+		if (m_pCompilerLogger) { m_pCompilerLogger->LogError( "Failed GetProcAddress\n"); }
 		return false;
 	}
 
@@ -395,7 +395,7 @@ bool RuntimeObjectSystem::LoadCompiledModule()
     pPerModuleInterfaceProcAdd( )->SetProjectIdForAllConstructors( m_CurrentlyBuildingProject );
     m_Modules.push_back( module );
 
-	m_pCompilerLogger->LogInfo( "Compilation Succeeded\n");
+	if (m_pCompilerLogger) { m_pCompilerLogger->LogInfo( "Compilation Succeeded\n"); }
     ++m_TotalLoadedModulesEver;
 
 	SetupObjectConstructors(pPerModuleInterfaceProcAdd());
