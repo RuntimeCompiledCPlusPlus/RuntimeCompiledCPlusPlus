@@ -208,6 +208,7 @@ public:
         if(  m_CmdProcessInfo.hProcess )
         {
             TerminateProcess( m_CmdProcessInfo.hProcess, 0 );
+			TerminateThread( m_CmdProcessInfo.hThread, 0 );
             CloseHandle( m_CmdProcessInfo.hThread );
 		    ZeroMemory( &m_CmdProcessInfo, sizeof(m_CmdProcessInfo) );
 	        CloseHandle( m_CmdProcessInputWrite );
