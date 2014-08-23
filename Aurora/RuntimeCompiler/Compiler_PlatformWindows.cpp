@@ -300,7 +300,7 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 {
     if( m_pImplData->m_VSPath.empty() )
     {
-        m_pImplData->m_pLogger->LogError("No Supported Compiler for RCC++ found, cannot compile changes.\n");
+        if (m_pImplData->m_pLogger) { m_pImplData->m_pLogger->LogError("No Supported Compiler for RCC++ found, cannot compile changes.\n"); }
     	m_pImplData->m_bCompileIsComplete = true;
         return;
     }
