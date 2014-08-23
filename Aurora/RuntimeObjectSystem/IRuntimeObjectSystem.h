@@ -62,7 +62,7 @@ namespace FileSystemUtils
     class Path;
 }
 
-struct IRuntimeObjectSystem
+struct IRuntimeObjectSystem : public ITestBuildNotifier
 {
 	// Initialise RuntimeObjectSystem. pLogger and pSystemTable should be deleted by creator. 
 	// Both pLogger and pSystemTable can be 0
