@@ -41,7 +41,7 @@
 struct ICompilerLogger;
 struct IObjectFactorySystem;
 
-class RuntimeObjectSystem : public IRuntimeObjectSystem, public IFileChangeListener, public ITestBuildNotifier
+class RuntimeObjectSystem : public IRuntimeObjectSystem, IFileChangeListener
 {
 public:
 	RuntimeObjectSystem();
