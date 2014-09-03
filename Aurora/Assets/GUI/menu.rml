@@ -32,6 +32,8 @@
             Test File Tracking: <input type="checkbox" id="TestFileTracking" value="checked" checked="y"/>
             </p>
             <p>Testing RCC++ will touch each RCC++ file in turn to test compilation. This can take significant time.</p>
+            <button id="UndoRCCpp">Undo RCC++</button>
+            <button id="RedoRCCpp">Redo RCC++</button>
           </div>
                     
           <div>

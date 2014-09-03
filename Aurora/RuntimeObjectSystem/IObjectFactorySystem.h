@@ -37,20 +37,37 @@ struct IObjectFactoryListener
 struct IObjectFactorySystem
 {
 	virtual IObjectConstructor* GetConstructor( const char* type ) const = 0;
-	virtual ConstructorId GetConstructorId( const char* type ) const = 0;
+	virtual ConstructorId		GetConstructorId( const char* type ) const = 0;
 	virtual IObjectConstructor* GetConstructor( ConstructorId id ) const = 0;
-	virtual void AddConstructors(IAUDynArray<IObjectConstructor*> &constructors) = 0;
-	virtual void GetAll(IAUDynArray<IObjectConstructor*> &constructors) const = 0;
-	virtual IObject* GetObject( ObjectId id ) const = 0;
+	virtual void				AddConstructors(IAUDynArray<IObjectConstructor*> &constructors) = 0;
+	virtual void				GetAll(IAUDynArray<IObjectConstructor*> &constructors) const = 0;
+	virtual IObject*			GetObject( ObjectId id ) const = 0;
 
-	virtual void AddListener(IObjectFactoryListener* pListener) = 0;
-	virtual void RemoveListener(IObjectFactoryListener* pListener) = 0;
-	virtual void SetLogger( ICompilerLogger* pLogger ) = 0;
-	virtual void SetRuntimeObjectSystem( IRuntimeObjectSystem* pRuntimeObjectSystem ) = 0;
-    virtual void SetTestSerialization( bool bTest ) = 0;
-    virtual bool GetTestSerialization() const = 0;
-    virtual ~IObjectFactorySystem() {}
+	virtual void				AddListener(IObjectFactoryListener* pListener) = 0;
+	virtual void				RemoveListener(IObjectFactoryListener* pListener) = 0;
+	virtual void				SetLogger( ICompilerLogger* pLogger ) = 0;
+	virtual void				SetRuntimeObjectSystem( IRuntimeObjectSystem* pRuntimeObjectSystem ) = 0;
+    virtual void				SetTestSerialization( bool bTest ) = 0;
+    virtual bool				GetTestSerialization() const = 0;
+    virtual						~IObjectFactorySystem() {}
 
+	// sets the history of object constructors to a given size
+	// if set to smaller than before, will preserve the latest
+	// will not resize smaller than required to preserve current undo state
+	// default history size is 0, which means history is off (no undo & redo)
+	// if AddConstructors is called when the current history location is -ve,
+	// the constructors are updated to locatin 0 (current) prior to adding.
+	virtual void				SetObjectConstructorHistorySize( int num_ ) = 0;
+	virtual int					GetObjectConstructorHistorySize() = 0;
+
+	// undo & redo object constructor changes
+	// this will only undo swapped constructors, not new ones
+	virtual bool				UndoObjectConstructorChange() = 0;
+	virtual bool				RedoObjectConstructorChange() = 0;
+
+	// history location is 0 for current, +ve number for a previous location
+	// undo calls causes location +1, redo -1 bounded by HistorySize and 0.
+	virtual int					GetObjectContstructorHistoryLocation() = 0;
 };
 
 
