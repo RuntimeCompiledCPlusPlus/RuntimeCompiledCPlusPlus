@@ -52,44 +52,40 @@ IObjectConstructor* ObjectFactorySystem::GetConstructor( ConstructorId id ) cons
 	return 0;
 }
 
-void ObjectFactorySystem::ProtectedFunc()
+void ObjectFactorySystem::ProtectedObjectSwapper::ProtectedFunc()
 {
 	m_ProtectedPhase = PHASE_SERIALIZEOUT;
-	IAUDynArray<IObjectConstructor*>& constructors = *m_pNewConstructors;
 
 	// serialize all out
-	if( m_pLogger ) m_pLogger->LogInfo( "Serializing out from %d old constructors...\n", (int)m_Constructors.size());
+	if( m_pLogger ) m_pLogger->LogInfo( "Serializing out from %d old constructors...\n", (int)m_ConstructorsOld.size());
 
 	// use a temporary serializer in case there is an exception, so preserving any old state (if there is any)
-	SimpleSerializer* pSerializer = new SimpleSerializer;
-	pSerializer->SetIsLoading( false );
-	for( size_t i = 0; i < m_Constructors.size(); ++i )
+	m_Serializer.SetIsLoading( false );
+	for( size_t i = 0; i < m_ConstructorsOld.size(); ++i )
 	{
-		IObjectConstructor* pOldConstructor = m_Constructors[i];
+		IObjectConstructor* pOldConstructor = m_ConstructorsOld[i];
 		size_t numObjects = pOldConstructor->GetNumberConstructedObjects();
 		for( size_t j = 0; j < numObjects; ++j )
 		{
 			IObject* pOldObject = pOldConstructor->GetConstructedObject( j );
 			if (pOldObject)
 			{
-				pSerializer->Serialize( pOldObject );
+				m_Serializer.Serialize( pOldObject );
 			}		
 		}
 	}
 	// swap serializer
-	delete m_pSerializer;
-	m_pSerializer = pSerializer;
-	if( m_pLogger ) m_pLogger->LogInfo( "Swapping in and creating objects for %d new constructors...\n", (int)constructors.Size());
+	if( m_pLogger ) m_pLogger->LogInfo( "Swapping in and creating objects for %d new constructors...\n", (int)m_ConstructorsToAdd.size());
 
 	m_ProtectedPhase = PHASE_CONSTRUCTNEW;
-	m_PrevConstructors = m_Constructors;
+	TConstructors& constructorsNew = m_pObjectFactorySystem->m_Constructors;
 
 	//swap old constructors with new ones and create new objects
-	for( size_t i = 0; i < constructors.Size(); ++i )
+	for( size_t i = 0; i < m_ConstructorsToAdd.size(); ++i )
 	{
-		IObjectConstructor* pConstructor = constructors[i];
+		IObjectConstructor* pConstructor = m_ConstructorsToAdd[i];
 		//replace constructor, but if one exists then replace objects
-		IObjectConstructor* pOldConstructor = GetConstructor( pConstructor->GetName() );
+		IObjectConstructor* pOldConstructor = m_pObjectFactorySystem->GetConstructor( pConstructor->GetName() );
 
         if( pOldConstructor == pConstructor )
         {
@@ -102,7 +98,7 @@ void ObjectFactorySystem::ProtectedFunc()
 		{
 			// replace and construct
 			pConstructor->SetConstructorId( pOldConstructor->GetConstructorId() );
-			m_Constructors[ pConstructor->GetConstructorId() ] = pConstructor;
+			constructorsNew[ pConstructor->GetConstructorId() ] = pConstructor;
 			for( PerTypeObjectId objId = 0; objId < pOldConstructor->GetNumberConstructedObjects(); ++ objId )
 			{
 				// create new object
@@ -115,12 +111,13 @@ void ObjectFactorySystem::ProtectedFunc()
 					pConstructor->ConstructNull();
 				}
 			}
+			m_ConstructorsReplaced.push_back( pOldConstructor );
 		}
 		else
 		{
-			ConstructorId id = m_Constructors.size();
-			m_ConstructorIds[ pConstructor->GetName() ] = id;
-			m_Constructors.push_back( pConstructor );
+            ConstructorId id = constructorsNew.size();
+			m_pObjectFactorySystem->m_ConstructorIds[ pConstructor->GetName() ] = id;
+			constructorsNew.push_back( pConstructor );
 			pConstructor->SetConstructorId( id );
 		}
 	}
@@ -129,17 +126,17 @@ void ObjectFactorySystem::ProtectedFunc()
 
 	//serialize back
 	m_ProtectedPhase = PHASE_SERIALIZEIN;
-	m_pSerializer->SetIsLoading( true );
-	for( size_t i = 0; i < m_Constructors.size(); ++i )
+	m_Serializer.SetIsLoading( true );
+	for( size_t i = 0; i < constructorsNew.size(); ++i )
 	{
-		IObjectConstructor* pConstructor = m_Constructors[i];
+		IObjectConstructor* pConstructor = constructorsNew[i];
 		for( PerTypeObjectId objId = 0; objId < pConstructor->GetNumberConstructedObjects(); ++ objId )
 		{
 			// Serialize new object
 			IObject* pObject = pConstructor->GetConstructedObject( objId );
 			if (pObject)
 			{
-				m_pSerializer->Serialize( pObject );
+				m_Serializer.Serialize( pObject );
 			}
 		}
 	}
@@ -147,11 +144,11 @@ void ObjectFactorySystem::ProtectedFunc()
     // auto construct singletons
     // now in 2 phases - construct then init
     m_ProtectedPhase = PHASE_AUTOCONSTRUCTSINGLETONS;
-    std::vector<bool> bSingletonConstructed( m_Constructors.size(), false );
+    std::vector<bool> bSingletonConstructed( constructorsNew.size(), false );
 	if( m_pLogger ) m_pLogger->LogInfo( "Auto Constructing Singletons...\n");
-	for( size_t i = 0; i < m_Constructors.size(); ++i )
+	for( size_t i = 0; i < constructorsNew.size(); ++i )
 	{
-		IObjectConstructor* pConstructor = m_Constructors[i];
+		IObjectConstructor* pConstructor = constructorsNew[i];
         if( pConstructor->GetIsAutoConstructSingleton() )
         {
             if( 0 == pConstructor->GetNumberConstructedObjects() )
@@ -175,9 +172,9 @@ void ObjectFactorySystem::ProtectedFunc()
 	    if( m_pLogger ) m_pLogger->LogInfo( "Initialising...\n");
     }
 
-	for( size_t i = 0; i < m_Constructors.size(); ++i )
+	for( size_t i = 0; i < constructorsNew.size(); ++i )
 	{
-		IObjectConstructor* pConstructor = m_Constructors[i];
+		IObjectConstructor* pConstructor = constructorsNew[i];
 		for( PerTypeObjectId objId = 0; objId < pConstructor->GetNumberConstructedObjects(); ++ objId )
 		{
 			IObject* pObject = pConstructor->GetConstructedObject( objId );
@@ -186,7 +183,7 @@ void ObjectFactorySystem::ProtectedFunc()
                 // if a singleton was newly constructed in earlier phase, pass true to init.
 				pObject->Init( bSingletonConstructed[i] );
 
-				if( m_bTestSerialization && ( m_PrevConstructors.size() <= i || m_PrevConstructors[ i ] != m_Constructors[ i ] ) )
+				if( m_bTestSerialization && ( m_ConstructorsOld.size() <= i || m_ConstructorsOld[ i ] != constructorsNew[ i ] ) )
 				{
 					//test serialize out for all new objects, we assume old objects are OK.
 					SimpleSerializer tempSerializer;
@@ -199,13 +196,13 @@ void ObjectFactorySystem::ProtectedFunc()
 
 	m_ProtectedPhase = PHASE_DELETEOLD;
 	//delete old objects which have been replaced
-	for( size_t i = 0; i < m_PrevConstructors.size(); ++i )
+	for( size_t i = 0; i < m_ConstructorsOld.size(); ++i )
 	{
-		if( m_PrevConstructors[i] != m_Constructors[i] )
+		if( m_ConstructorsOld[i] != constructorsNew[i] )
 		{
 			//TODO: could put a constructor around this.
 			//constructor has been replaced
-			IObjectConstructor* pOldConstructor = m_PrevConstructors[i];
+			IObjectConstructor* pOldConstructor = m_ConstructorsOld[i];
 			size_t numObjects = pOldConstructor->GetNumberConstructedObjects();
 			for( size_t j = 0; j < numObjects; ++j )
 			{
@@ -220,19 +217,76 @@ void ObjectFactorySystem::ProtectedFunc()
 	}
 }
 
+bool ObjectFactorySystem::HandleRedoUndo( const TConstructors& constructors )
+{
+	if( constructors.size() == 0 )
+	{
+		m_pLogger->LogInfo( "ObjectFactorySystem::HandleRedoUndo() called with no constructors.\n" );
+		return true;
+	}
+
+	ProtectedObjectSwapper swapper;
+	swapper.m_ConstructorsToAdd = constructors;
+	swapper.m_ConstructorsOld = m_Constructors;
+	swapper.m_pLogger = m_pLogger;
+	swapper.m_pObjectFactorySystem = this;
+	swapper.m_bTestSerialization = false; // we don't need to test as this should alraedy have been done
+
+	swapper.m_ProtectedPhase = PHASE_NONE;
+	// we use the protected function to do all serialization
+    m_pRuntimeObjectSystem->TryProtectedFunction( &swapper );
+
+	CompleteConstructorSwap( swapper );
+
+	return !swapper.HasHadException() || ( PHASE_DELETEOLD == swapper.m_ProtectedPhase );
+}
+
 void ObjectFactorySystem::AddConstructors( IAUDynArray<IObjectConstructor*> &constructors )
 {
-	m_ProtectedPhase = PHASE_NONE;
-	m_pNewConstructors = &constructors;
-	// we use the protected function to do all serialization
-    m_pRuntimeObjectSystem->TryProtectedFunction( this );
+	if( constructors.Size() == 0 )
+	{
+		m_pLogger->LogInfo( "ObjectFactorySystem::AddConstructors() called with no constructors.\n" );
+		return;
+	}
 
-	if( HasHadException() && PHASE_DELETEOLD != m_ProtectedPhase )
+	if( m_HistoryCurrentLocation )
+	{
+		m_pLogger->LogInfo( "Need to fast forward undo system to current state of source code.\n" );
+		while( RedoObjectConstructorChange() ) {}
+	}
+
+	ProtectedObjectSwapper swapper;
+	swapper.m_ConstructorsToAdd.assign( &constructors[0], &constructors[constructors.Size() - 1] + 1 );
+	swapper.m_ConstructorsOld = m_Constructors;
+	swapper.m_pLogger = m_pLogger;
+	swapper.m_pObjectFactorySystem = this;
+	swapper.m_bTestSerialization = m_bTestSerialization;
+
+	swapper.m_ProtectedPhase = PHASE_NONE;
+	// we use the protected function to do all serialization
+    m_pRuntimeObjectSystem->TryProtectedFunction( &swapper );
+
+	CompleteConstructorSwap( swapper );
+
+	if( m_HistoryMaxSize )
+	{
+		HistoryPoint historyPoint = { swapper.m_ConstructorsReplaced, swapper.m_ConstructorsToAdd };
+		m_HistoryConstructors.push_back( historyPoint );
+		if( (int)m_HistoryConstructors.size() > m_HistoryMaxSize )
+		{
+			m_HistoryConstructors.erase( m_HistoryConstructors.begin() );
+		}
+	}
+}
+
+void ObjectFactorySystem::CompleteConstructorSwap( ProtectedObjectSwapper& swapper )
+{
+	if( swapper.HasHadException() && PHASE_DELETEOLD != swapper.m_ProtectedPhase )
 	{
 		if( m_pLogger )
 		{
 			m_pLogger->LogError( "Exception during object swapping, switching back to previous objects.\n" );
-			switch( m_ProtectedPhase  )
+			switch( swapper.m_ProtectedPhase  )
 			{
             case PHASE_NONE:
                 AU_ASSERT( false );
@@ -265,12 +319,11 @@ void ObjectFactorySystem::AddConstructors( IAUDynArray<IObjectConstructor*> &con
 		}
 
 		//swap back to new constructors before everything is serialized back in
-		m_Constructors = m_PrevConstructors;
-
-		if( m_pSerializer && PHASE_SERIALIZEOUT != m_ProtectedPhase )
+		m_Constructors = swapper.m_ConstructorsOld;
+		if( PHASE_SERIALIZEOUT != swapper.m_ProtectedPhase )
 		{
 			//serialize back with old objects - could cause exception which isn't handled, but hopefully not.
-			m_pSerializer->SetIsLoading( true );
+			swapper.m_Serializer.SetIsLoading( true );
 			for( size_t i = 0; i < m_Constructors.size(); ++i )
 			{
 				IObjectConstructor* pConstructor = m_Constructors[i];
@@ -280,7 +333,7 @@ void ObjectFactorySystem::AddConstructors( IAUDynArray<IObjectConstructor*> &con
 					IObject* pObject = pConstructor->GetConstructedObject( objId );
 					if (pObject)
 					{
-						m_pSerializer->Serialize( pObject );
+						swapper.m_Serializer.Serialize( pObject );
 					}			
 				}
 			}
@@ -303,15 +356,11 @@ void ObjectFactorySystem::AddConstructors( IAUDynArray<IObjectConstructor*> &con
 	else
 	{
 		if( m_pLogger ) m_pLogger->LogInfo( "Object swap completed\n");
-		if( HasHadException() && PHASE_DELETEOLD == m_ProtectedPhase )
+		if( swapper.HasHadException() && PHASE_DELETEOLD == swapper.m_ProtectedPhase )
 		{
 			if( m_pLogger ) m_pLogger->LogError( "Exception during object destruction of old objects, leaking.\n" );
 		}
 	}
-	m_ProtectedPhase = PHASE_NONE;
-	ClearExceptions();
-	delete m_pSerializer;
-	m_pSerializer = 0;
 
 	// Notify any listeners that constructors have changed
 	TObjectFactoryListeners::iterator it = m_Listeners.begin();
@@ -352,4 +401,52 @@ void ObjectFactorySystem::AddListener(IObjectFactoryListener* pListener)
 void ObjectFactorySystem::RemoveListener(IObjectFactoryListener* pListener)
 {
 	m_Listeners.erase(pListener);
+}
+
+
+void ObjectFactorySystem::SetObjectConstructorHistorySize( int num_ )
+{
+	if( num_ >= m_HistoryCurrentLocation )
+	{
+		m_HistoryMaxSize = num_;
+	}
+
+	while( m_HistoryMaxSize < (int)m_HistoryConstructors.size() )
+	{
+		m_HistoryConstructors.erase( m_HistoryConstructors.begin() );
+	}
+}
+
+int ObjectFactorySystem::GetObjectConstructorHistorySize()
+{
+	return m_HistoryMaxSize;
+}
+
+bool ObjectFactorySystem::UndoObjectConstructorChange()
+{
+	if( m_HistoryCurrentLocation < m_HistoryMaxSize )
+	{
+		++m_HistoryCurrentLocation;
+		int loc = m_HistoryConstructors.size() - m_HistoryCurrentLocation;
+		return HandleRedoUndo( m_HistoryConstructors[ loc ].before );
+	}
+
+	return false;
+}
+
+bool ObjectFactorySystem::RedoObjectConstructorChange()
+{
+	if( m_HistoryCurrentLocation > 0 )
+	{
+		int loc = m_HistoryConstructors.size() - m_HistoryCurrentLocation;
+		--m_HistoryCurrentLocation;
+		return HandleRedoUndo( m_HistoryConstructors[ loc ].after );
+	}
+
+	return false;
+}
+
+int ObjectFactorySystem::GetObjectContstructorHistoryLocation()
+{
+	return m_HistoryCurrentLocation;
 }

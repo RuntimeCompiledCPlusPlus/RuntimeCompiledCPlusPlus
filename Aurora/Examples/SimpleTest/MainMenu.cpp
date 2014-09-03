@@ -95,6 +95,23 @@ public:
 	}
 };
 
+class OnClickUndoRCCppButton : public IGUISingleEventListener
+{
+public:
+	virtual void OnEvent( const IGUIEvent& event_info )
+	{
+        PerModuleInterface::g_pSystemTable->pObjectFactorySystem->UndoObjectConstructorChange();
+	}
+};
+
+class OnClickRedoRCCppButton : public IGUISingleEventListener
+{
+public:
+	virtual void OnEvent( const IGUIEvent& event_info )
+	{
+        PerModuleInterface::g_pSystemTable->pObjectFactorySystem->RedoObjectConstructorChange();
+	}
+};
 
 class OnTestFileTracking : public OnCheckbox
 {
@@ -328,6 +345,8 @@ public:
 
             m_TestRCCpp.AddEventToElementInDoc( "click", "TestRCCpp", pDocument );
             m_testFileTracking.AddEventToElementInDoc( "change", "TestFileTracking", pDocument );
+            m_UndoRCCpp.AddEventToElementInDoc( "click", "UndoRCCpp", pDocument );
+            m_RedoRCCpp.AddEventToElementInDoc( "click", "RedoRCCpp", pDocument );
 
             if( bHaveLoadedDoc )
             {
@@ -355,6 +374,8 @@ public:
 	OnPauseGame				m_PauseCheckBoxEvent;
     OnClickTestRCCppButton  m_TestRCCpp;
     OnTestFileTracking      m_testFileTracking;
+	OnClickUndoRCCppButton	m_UndoRCCpp;
+	OnClickRedoRCCppButton	m_RedoRCCpp;
 };
 
 REGISTERSINGLETON(MainMenu, false);
