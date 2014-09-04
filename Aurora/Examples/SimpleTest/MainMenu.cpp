@@ -202,6 +202,21 @@ public:
     }
 };
 
+class OnOptimizeDebug : public OnCheckbox
+{
+public:
+    virtual void OnCheckChanged( bool bCheck )
+    {
+		RCppOptimizationLevel optlevel = RCCPPOPTIMIZATIONLEVEL_DEFAULT;
+		if( bCheck )
+		{
+			optlevel = RCCPPOPTIMIZATIONLEVEL_DEBUG;
+		}
+		PerModuleInterface::g_pSystemTable->pRuntimeObjectSystem->SetOptimizationLevel( optlevel );
+		
+    }
+};
+
 float g_Speed = 1.0f;
 bool g_Paused = true;
 
@@ -327,9 +342,9 @@ public:
 			m_OptionsEvent.m_bInline = false;
 			m_OptionsEvent.SetVisibility();	//force toggle menu to set to default state
 
-            m_AutoCompileCheckBoxEvent.AddEventToElementInDoc( "change", "autocompilecheckbox", pDocument );
-
-            m_FastCompileCheckBoxEvent.AddEventToElementInDoc( "change", "fastcompilecheckbox", pDocument );
+            m_AutoCompileCheckBoxEvent.AddEventToElementInDoc(   "change", "autocompilecheckbox", pDocument );
+            m_FastCompileCheckBoxEvent.AddEventToElementInDoc(   "change", "fastcompilecheckbox", pDocument );
+			m_OptimizeDebugCheckBoxEvent.AddEventToElementInDoc( "change", "optimizefordebug", pDocument );
 
 
 			char Value[80];
@@ -353,6 +368,7 @@ public:
                 m_PauseCheckBoxEvent.OnAdd();
                 m_FastCompileCheckBoxEvent.OnAdd();
                 m_AutoCompileCheckBoxEvent.OnAdd();
+				m_OptimizeDebugCheckBoxEvent.OnAdd();
                 m_testFileTracking.OnAdd();
             }
 
@@ -370,6 +386,7 @@ public:
 	OnClickVisibleButton	m_OptionsEvent;
 	OnAutoCompile			m_AutoCompileCheckBoxEvent;
 	OnFastCompile			m_FastCompileCheckBoxEvent;
+	OnOptimizeDebug			m_OptimizeDebugCheckBoxEvent;
 	OnChangeSpeed			m_SpeedEvent;
 	OnPauseGame				m_PauseCheckBoxEvent;
     OnClickTestRCCppButton  m_TestRCCpp;

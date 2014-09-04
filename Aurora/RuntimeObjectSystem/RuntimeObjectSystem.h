@@ -77,6 +77,8 @@ public:
     virtual void AddLibraryDir(                 const char* path_,      unsigned short projectId_ = 0 );
     virtual void SetAdditionalCompileOptions(   const char* options,    unsigned short projectId_ = 0 );
     virtual void SetAdditionalLinkOptions(      const char* options,    unsigned short projectId_ = 0 );
+    virtual void SetOptimizationLevel( RCppOptimizationLevel optimizationLevel_,	unsigned short projectId_ = 0 );
+    virtual RCppOptimizationLevel GetOptimizationLevel(					unsigned short projectId_ = 0 );
 
 	virtual void SetAutoCompile( bool autoCompile );
 	virtual bool GetAutoCompile() const
@@ -180,6 +182,7 @@ private:
     // per project information
     struct ProjectSettings
     {
+		ProjectSettings() : m_OptimizationLevel( RCCPPOPTIMIZATIONLEVEL_DEFAULT ) { }
         TFileList                           m_RuntimeFileList;
         TFileToFilesMap                     m_RuntimeIncludeMap;
         TFileToFilesMap			            m_RuntimeLinkLibraryMap;
@@ -192,6 +195,7 @@ private:
         TFileList                           m_LibraryDirList;
         std::string                         m_CompileOptions;
         std::string                         m_LinkOptions;
+		RCppOptimizationLevel				m_OptimizationLevel;
     };
     std::vector<ProjectSettings>            m_Projects;
     ProjectSettings&                        GetProject( unsigned short projectId_ );

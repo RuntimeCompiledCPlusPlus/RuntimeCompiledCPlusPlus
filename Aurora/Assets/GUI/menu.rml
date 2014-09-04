@@ -24,12 +24,13 @@
           </div>
           <div class="options">
             <p>
-              Auto Compile: <input type="checkbox" id="autocompilecheckbox" value="checked" checked="y"/>
-              Fast Compile: <input type="checkbox" id="fastcompilecheckbox" value="checked"/>
+              Auto Compile:<input type="checkbox" id="autocompilecheckbox" value="checked" checked="y"/>
+              Fast Compile:<input type="checkbox" id="fastcompilecheckbox" value="checked"/>
+              Optimize for Debug:<input type="checkbox" id="optimizefordebug" value="checked"/>
             </p>
             <p>
             <button id="TestRCCpp">Test RCC++</button>
-            Test File Tracking: <input type="checkbox" id="TestFileTracking" value="checked" checked="y"/>
+            Test File Tracking:<input type="checkbox" id="TestFileTracking" value="checked" checked="y"/>
             </p>
             <p>Testing RCC++ will touch each RCC++ file in turn to test compilation. This can take significant time.</p>
             <button id="UndoRCCpp">Undo RCC++</button>
@@ -42,7 +43,7 @@
           <div class="options">
             <p>
               Speed:&nbsp;&nbsp; <input type="range" id="speedslider" name="speed" value="1" min="0" max="5" step="0.05" />
-              &nbsp;&nbsp;&nbsp;Pause: <input type="checkbox" id="pausecheckbox" value="checked"/>
+              &nbsp;&nbsp;&nbsp;Pause:<input type="checkbox" id="pausecheckbox" value="checked"/>
             </p>
           </div>
           

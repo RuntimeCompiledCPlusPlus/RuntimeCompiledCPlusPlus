@@ -295,6 +295,7 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 					 const std::vector<FileSystemUtils::Path>& includeDirList,
 					 const std::vector<FileSystemUtils::Path>& libraryDirList,
 					 const std::vector<FileSystemUtils::Path>& linkLibraryList,
+					 RCppOptimizationLevel optimizationLevel_,
 					 const char* pCompileOptions,
 					 const char* pLinkOptions,
 					 const FileSystemUtils::Path& outputFile )
@@ -308,10 +309,31 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 	m_pImplData->m_bCompileIsComplete = false;
 	//optimization and c runtime
 #ifdef _DEBUG
-	std::string flags = "/nologo /Od /Zi /FC /MDd /LDd ";
+	std::string flags = "/nologo /Zi /FC /MDd /LDd ";
+	if( RCCPPOPTIMIZATIONLEVEL_DEFAULT == optimizationLevel_ )
+	{
+		optimizationLevel_ = RCCPPOPTIMIZATIONLEVEL_DEBUG;
+	}
 #else
-	std::string flags = "/nologo /O2 /Zi /FC /MD /LD ";	//also need debug information in release
+	std::string flags = "/nologo /Zi /FC /MD /LD ";	//also need debug information in release
+	if( RCCPPOPTIMIZATIONLEVEL_DEFAULT == optimizationLevel_ )
+	{
+		optimizationLevel_ = RCCPPOPTIMIZATIONLEVEL_PERF;
+	}
 #endif
+	switch( optimizationLevel_ )
+	{
+	case RCCPPOPTIMIZATIONLEVEL_DEFAULT:
+		assert(false);
+	case RCCPPOPTIMIZATIONLEVEL_DEBUG:
+		flags += "/Od ";
+		break;
+	case RCCPPOPTIMIZATIONLEVEL_PERF:
+		flags += "/O2 ";
+		break;
+	case RCCPPOPTIMIZATIONLEVEL_NOT_SET:;
+	}
+
 	if( NULL == m_pImplData->m_CmdProcessInfo.hProcess )
 	{
 		m_pImplData->InitialiseProcess();
