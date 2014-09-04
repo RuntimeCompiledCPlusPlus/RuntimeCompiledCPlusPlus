@@ -127,7 +127,7 @@ private:
 		// RuntimeProtector implementation
 		virtual void ProtectedFunc();
 	};
-	friend class ProtectedObjectSwapper;
+	friend struct ProtectedObjectSwapper;
 
 	void CompleteConstructorSwap( ProtectedObjectSwapper& swapper );
 };
