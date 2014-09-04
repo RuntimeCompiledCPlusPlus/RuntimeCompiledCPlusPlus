@@ -63,6 +63,7 @@ void BuildTool::BuildModule( const std::vector<FileToBuild>& buildFileList,
 							 const std::vector<FileSystemUtils::Path>& includeDirList,
 							 const std::vector<FileSystemUtils::Path>& libraryDirList,
 							 const std::vector<FileSystemUtils::Path>& linkLibraryList,
+							 RCppOptimizationLevel optimizationLevel_,
 							 const char* pCompileOptions,
 							 const char* pLinkOptions,
 							 const FileSystemUtils::Path& moduleName )
@@ -125,5 +126,5 @@ void BuildTool::BuildModule( const std::vector<FileToBuild>& buildFileList,
 		}
 	}
 
-	m_Compiler.RunCompile( compileFileList, includeDirList, libraryDirList, linkLibraryList, pCompileOptions, pLinkOptions, moduleName );
+	m_Compiler.RunCompile( compileFileList, includeDirList, libraryDirList, linkLibraryList, optimizationLevel_, pCompileOptions, pLinkOptions, moduleName );
 }

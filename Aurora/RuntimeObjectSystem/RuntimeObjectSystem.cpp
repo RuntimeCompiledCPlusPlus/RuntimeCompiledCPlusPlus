@@ -347,6 +347,7 @@ void RuntimeObjectSystem::StartRecompile()
                                 m_Projects[ project ].m_IncludeDirList,
                                 m_Projects[ project ].m_LibraryDirList,
 								linkLibraryList,
+								m_Projects[ project ].m_OptimizationLevel,
                                 m_Projects[ project ].m_CompileOptions.c_str( ),
                                 m_Projects[ project ].m_LinkOptions.c_str( ),
 								m_CurrentlyCompilingModuleName );
@@ -581,7 +582,17 @@ void RuntimeObjectSystem::SetAdditionalCompileOptions( const char *options, unsi
 
 void RuntimeObjectSystem::SetAdditionalLinkOptions( const char *options, unsigned short projectId_ )
 {
-    GetProject( projectId_).m_LinkOptions = options;
+    GetProject( projectId_ ).m_LinkOptions = options;
+}
+
+void RuntimeObjectSystem::SetOptimizationLevel( RCppOptimizationLevel optimizationLevel_,	unsigned short projectId_ )
+{
+    GetProject( projectId_ ).m_OptimizationLevel = optimizationLevel_;
+}
+
+RCppOptimizationLevel RuntimeObjectSystem::GetOptimizationLevel(					unsigned short projectId_ )
+{
+	return GetProject( projectId_ ).m_OptimizationLevel;
 }
 
 FileSystemUtils::Path RuntimeObjectSystem::FindFile( const FileSystemUtils::Path& input )

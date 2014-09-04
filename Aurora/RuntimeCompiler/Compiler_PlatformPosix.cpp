@@ -221,24 +221,40 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 	#endif
 #else
 	// NOTE: we do not need the COMPILE_PATH variable to be set here, as the filenames passed in are all full paths.
-	#ifdef DEBUG
-	#else
-	#endif
+	
     #ifdef DEBUG
         #ifndef __LP64__
-            std::string compileString = "g++ -g -O0 -m32 -fPIC -fvisibility=hidden -shared ";
+            std::string compileString = "g++ -g -m32 -fPIC -fvisibility=hidden -shared ";
        #else
-            std::string compileString = "g++ -g -O0 -fPIC -fvisibility=hidden -shared ";
+            std::string compileString = "g++ -g -fPIC -fvisibility=hidden -shared ";
         #endif
     #else
         #ifndef __LP64__
-            std::string compileString = "g++ -g -Os -m32 -fPIC -fvisibility=hidden -shared ";
+            std::string compileString = "g++ -g -m32 -fPIC -fvisibility=hidden -shared ";
         #else
-            std::string compileString = "g++ -g -Os -fPIC -fvisibility=hidden -shared ";
+            std::string compileString = "g++ -g -fPIC -fvisibility=hidden -shared ";
         #endif
     #endif
 #endif //__APPLE__
-    
+
+#ifdef DEBUG
+	optimizationLevel_ = RCCPPOPTIMIZATIONLEVEL_DEBUG;
+#else
+	optimizationLevel_ = RCCPPOPTIMIZATIONLEVEL_PERF;
+#endif
+	switch( optimizationLevel_ )
+	{
+	case RCCPPOPTIMIZATIONLEVEL_DEFAULT:
+		assert(false);
+	case RCCPPOPTIMIZATIONLEVEL_DEBUG:
+		compileString += "-O0 ";
+		break;
+	case RCCPPOPTIMIZATIONLEVEL_PERF:
+		compileString += "-Os ";
+		break;
+	case RCCPPOPTIMIZATIONLEVEL_NOT_SET:;
+	}
+	
     // include directories
     for( size_t i = 0; i < includeDirList.size(); ++i )
 	{
@@ -255,6 +271,16 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
     // output file
     compileString += "-o " + outputFile.m_string + " ";
 
+
+	if( pCompileOptions )
+	{
+		compileString += pCompileOptions;
+	}
+	if( pLinkOptions )
+	{
+		compileString += pLinkOptions;
+	}
+	
     // files to compile
     for( size_t i = 0; i < filesToCompile.size(); ++i )
 	{

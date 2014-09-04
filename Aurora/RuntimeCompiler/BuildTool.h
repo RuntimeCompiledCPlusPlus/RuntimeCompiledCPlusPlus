@@ -53,6 +53,7 @@ public:
 					  const std::vector<FileSystemUtils::Path>& includeDirList, 
 					  const std::vector<FileSystemUtils::Path>& libraryDirList,
 					  const std::vector<FileSystemUtils::Path>& linkLibraryList,
+					  RCppOptimizationLevel optimizationLevel_,
 					  const char* pCompileOptions,
 					  const char* pLinkOptions,
 					  const FileSystemUtils::Path& moduleName );
