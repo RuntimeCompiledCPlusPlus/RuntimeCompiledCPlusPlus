@@ -186,42 +186,24 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
     m_pImplData->m_PipeStdErr[0] = 0;
 
 #ifdef __APPLE__
-	#ifdef DEBUG
-        #ifndef __LP64__
-            std::string compileString = "clang++ -g -O0 -m32 -fvisibility=hidden -Xlinker -dylib ";
-        #else
-            std::string compileString = "clang++ -g -O0 -fvisibility=hidden -Xlinker -dylib ";
-        #endif
-    #else
-        #ifndef __LP64__
-            std::string compileString = "clang++ -g -Os -m32 -fvisibility=hidden -Xlinker -dylib ";
-        #else
-            std::string compileString = "clang++ -g -Os -fvisibility=hidden -Xlinker -dylib ";
-        #endif
-	#endif
+        std::string compileString = "clang++ -g -fvisibility=hidden -Xlinker -dylib ";
 #else
-	// NOTE: we do not need the COMPILE_PATH variable to be set here, as the filenames passed in are all full paths.
-	
-    #ifdef DEBUG
-        #ifndef __LP64__
-            std::string compileString = "g++ -g -m32 -fPIC -fvisibility=hidden -shared ";
-       #else
-            std::string compileString = "g++ -g -fPIC -fvisibility=hidden -shared ";
-        #endif
-    #else
-        #ifndef __LP64__
-            std::string compileString = "g++ -g -m32 -fPIC -fvisibility=hidden -shared ";
-        #else
-            std::string compileString = "g++ -g -fPIC -fvisibility=hidden -shared ";
-        #endif
-    #endif
+	std::string compileString = "g++ -g -fPIC -fvisibility=hidden -shared ";
 #endif //__APPLE__
 
-#ifdef DEBUG
-	optimizationLevel_ = RCCPPOPTIMIZATIONLEVEL_DEBUG;
-#else
-	optimizationLevel_ = RCCPPOPTIMIZATIONLEVEL_PERF;
+#ifndef __LP64__
+	compileString += "-m32 ";
 #endif
+
+	if( RCCPPOPTIMIZATIONLEVEL_DEFAULT == optimizationLevel_ )
+	{
+	#ifdef DEBUG
+		optimizationLevel_ = RCCPPOPTIMIZATIONLEVEL_DEBUG;
+	#else
+		optimizationLevel_ = RCCPPOPTIMIZATIONLEVEL_PERF;
+	#endif
+	}
+	
 	switch( optimizationLevel_ )
 	{
 	case RCCPPOPTIMIZATIONLEVEL_DEFAULT:
