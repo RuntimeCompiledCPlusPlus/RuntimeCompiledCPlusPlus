@@ -116,30 +116,9 @@ bool Compiler::GetIsComplete() const
 
 void Compiler::Initialise( ICompilerLogger * pLogger )
 {
-
     m_pImplData = new PlatformCompilerImplData;
     m_pImplData->m_pLogger = pLogger;
 	m_pImplData->m_intermediatePath = "./Runtime";
-
-	// Remove any existing intermediate directory
-    /*
-	boost::system::error_code ec;
-	boost::filesystem::path path(m_pImplData->m_intermediatePath);
-	if (boost::filesystem::is_directory(path))
-	{
-		// In theory remove_all should do the job here, but it doesn't seem to
-		boost::filesystem::directory_iterator dir_iter(path), dir_end;
-		int removed = 0, failed = 0;
-		for(;dir_iter != dir_end; ++dir_iter)
-		{
-			boost::filesystem::remove(*dir_iter, ec);
-			if (ec) failed++;
-			else removed++;
-		}
-		boost::filesystem::remove(path,ec);
-	}
-     */
-
 }
 
 FileSystemUtils::Path Compiler::GetRuntimeIntermediatePath() const
@@ -277,8 +256,9 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 	{
 		compileString += pCompileOptions;
 	}
-	if( pLinkOptions )
+	if( pLinkOptions && strlen(pLinkOptions) )
 	{
+		compileString += "-Wl,";
 		compileString += pLinkOptions;
 	}
 	
