@@ -213,6 +213,8 @@ void ObjectFactorySystem::ProtectedObjectSwapper::ProtectedFunc()
 					delete pOldObject;
 				}
 			}
+			pOldConstructor->ClearIfAllDeleted();
+			assert( 0 == pOldConstructor->GetNumberConstructedObjects() );
 		}
 	}
 }
