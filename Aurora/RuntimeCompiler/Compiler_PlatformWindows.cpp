@@ -333,7 +333,7 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 
 // Add improved debugging options if available: http://randomascii.wordpress.com/2013/09/11/debugging-optimized-codenew-in-visual-studio-2012/
 #if   (_MSC_VER >= 1700)
-		flags += "/d2Zi+";
+		flags += "/d2Zi+ ";
 #endif
 		break;
 	case RCCPPOPTIMIZATIONLEVEL_NOT_SET:;
