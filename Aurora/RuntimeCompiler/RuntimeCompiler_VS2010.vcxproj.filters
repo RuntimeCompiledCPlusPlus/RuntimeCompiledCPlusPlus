@@ -33,6 +33,7 @@
     <ClInclude Include="SimpleFileWatcher\FileWatcherWin32_AltImpl.h">
       <Filter>SimpleFileWatcher</Filter>
     </ClInclude>
+    <ClInclude Include="CompileOptions.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="SimpleFileWatcher">

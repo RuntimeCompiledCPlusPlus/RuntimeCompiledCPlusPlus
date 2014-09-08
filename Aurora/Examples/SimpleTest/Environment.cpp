@@ -70,7 +70,7 @@ Environment::Environment( IGame* pGame )
 	sys->pObjectFactorySystem = sys->pRuntimeObjectSystem->GetObjectFactorySystem();
 	sys->pFileChangeNotifier = sys->pRuntimeObjectSystem->GetFileChangeNotifier();
 
-
+	sys->pObjectFactorySystem->SetObjectConstructorHistorySize( 5 );
 
 	sys->pTimeSystem = new TimeSystem();
 

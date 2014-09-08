@@ -116,30 +116,9 @@ bool Compiler::GetIsComplete() const
 
 void Compiler::Initialise( ICompilerLogger * pLogger )
 {
-
     m_pImplData = new PlatformCompilerImplData;
     m_pImplData->m_pLogger = pLogger;
 	m_pImplData->m_intermediatePath = "./Runtime";
-
-	// Remove any existing intermediate directory
-    /*
-	boost::system::error_code ec;
-	boost::filesystem::path path(m_pImplData->m_intermediatePath);
-	if (boost::filesystem::is_directory(path))
-	{
-		// In theory remove_all should do the job here, but it doesn't seem to
-		boost::filesystem::directory_iterator dir_iter(path), dir_end;
-		int removed = 0, failed = 0;
-		for(;dir_iter != dir_end; ++dir_iter)
-		{
-			boost::filesystem::remove(*dir_iter, ec);
-			if (ec) failed++;
-			else removed++;
-		}
-		boost::filesystem::remove(path,ec);
-	}
-     */
-
 }
 
 FileSystemUtils::Path Compiler::GetRuntimeIntermediatePath() const
@@ -151,6 +130,7 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 					 const std::vector<FileSystemUtils::Path>& includeDirList,
 					 const std::vector<FileSystemUtils::Path>& libraryDirList,
                      const std::vector<FileSystemUtils::Path>& linkLibraryList,
+                     RCppOptimizationLevel optimizationLevel_,
 					 const char* pCompileOptions,
 					 const char* pLinkOptions,
 					 const FileSystemUtils::Path& outputFile )
@@ -206,39 +186,37 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
     m_pImplData->m_PipeStdErr[0] = 0;
 
 #ifdef __APPLE__
-	#ifdef DEBUG
-        #ifndef __LP64__
-            std::string compileString = "clang++ -g -O0 -m32 -fvisibility=hidden -Xlinker -dylib ";
-        #else
-            std::string compileString = "clang++ -g -O0 -fvisibility=hidden -Xlinker -dylib ";
-        #endif
-    #else
-        #ifndef __LP64__
-            std::string compileString = "clang++ -g -Os -m32 -fvisibility=hidden -Xlinker -dylib ";
-        #else
-            std::string compileString = "clang++ -g -Os -fvisibility=hidden -Xlinker -dylib ";
-        #endif
-	#endif
+        std::string compileString = "clang++ -g -fvisibility=hidden -Xlinker -dylib ";
 #else
-	// NOTE: we do not need the COMPILE_PATH variable to be set here, as the filenames passed in are all full paths.
-	#ifdef DEBUG
-	#else
-	#endif
-    #ifdef DEBUG
-        #ifndef __LP64__
-            std::string compileString = "g++ -g -O0 -m32 -fPIC -fvisibility=hidden -shared ";
-       #else
-            std::string compileString = "g++ -g -O0 -fPIC -fvisibility=hidden -shared ";
-        #endif
-    #else
-        #ifndef __LP64__
-            std::string compileString = "g++ -g -Os -m32 -fPIC -fvisibility=hidden -shared ";
-        #else
-            std::string compileString = "g++ -g -Os -fPIC -fvisibility=hidden -shared ";
-        #endif
-    #endif
+	std::string compileString = "g++ -g -fPIC -fvisibility=hidden -shared ";
 #endif //__APPLE__
-    
+
+#ifndef __LP64__
+	compileString += "-m32 ";
+#endif
+
+	if( RCCPPOPTIMIZATIONLEVEL_DEFAULT == optimizationLevel_ )
+	{
+	#ifdef DEBUG
+		optimizationLevel_ = RCCPPOPTIMIZATIONLEVEL_DEBUG;
+	#else
+		optimizationLevel_ = RCCPPOPTIMIZATIONLEVEL_PERF;
+	#endif
+	}
+	
+	switch( optimizationLevel_ )
+	{
+	case RCCPPOPTIMIZATIONLEVEL_DEFAULT:
+		assert(false);
+	case RCCPPOPTIMIZATIONLEVEL_DEBUG:
+		compileString += "-O0 ";
+		break;
+	case RCCPPOPTIMIZATIONLEVEL_PERF:
+		compileString += "-Os ";
+		break;
+	case RCCPPOPTIMIZATIONLEVEL_NOT_SET:;
+	}
+	
     // include directories
     for( size_t i = 0; i < includeDirList.size(); ++i )
 	{
@@ -255,6 +233,17 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
     // output file
     compileString += "-o " + outputFile.m_string + " ";
 
+
+	if( pCompileOptions )
+	{
+		compileString += pCompileOptions;
+	}
+	if( pLinkOptions && strlen(pLinkOptions) )
+	{
+		compileString += "-Wl,";
+		compileString += pLinkOptions;
+	}
+	
     // files to compile
     for( size_t i = 0; i < filesToCompile.size(); ++i )
 	{

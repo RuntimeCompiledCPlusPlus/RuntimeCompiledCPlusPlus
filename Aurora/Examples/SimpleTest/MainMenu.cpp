@@ -95,6 +95,23 @@ public:
 	}
 };
 
+class OnClickUndoRCCppButton : public IGUISingleEventListener
+{
+public:
+	virtual void OnEvent( const IGUIEvent& event_info )
+	{
+        PerModuleInterface::g_pSystemTable->pObjectFactorySystem->UndoObjectConstructorChange();
+	}
+};
+
+class OnClickRedoRCCppButton : public IGUISingleEventListener
+{
+public:
+	virtual void OnEvent( const IGUIEvent& event_info )
+	{
+        PerModuleInterface::g_pSystemTable->pObjectFactorySystem->RedoObjectConstructorChange();
+	}
+};
 
 class OnTestFileTracking : public OnCheckbox
 {
@@ -182,6 +199,21 @@ public:
     virtual void OnCheckChanged( bool bCheck )
     {
         PerModuleInterface::g_pSystemTable->pRuntimeObjectSystem->SetFastCompileMode( bCheck );
+    }
+};
+
+class OnOptimizeDebug : public OnCheckbox
+{
+public:
+    virtual void OnCheckChanged( bool bCheck )
+    {
+		RCppOptimizationLevel optlevel = RCCPPOPTIMIZATIONLEVEL_DEFAULT;
+		if( bCheck )
+		{
+			optlevel = RCCPPOPTIMIZATIONLEVEL_DEBUG;
+		}
+		PerModuleInterface::g_pSystemTable->pRuntimeObjectSystem->SetOptimizationLevel( optlevel );
+		
     }
 };
 
@@ -310,9 +342,9 @@ public:
 			m_OptionsEvent.m_bInline = false;
 			m_OptionsEvent.SetVisibility();	//force toggle menu to set to default state
 
-            m_AutoCompileCheckBoxEvent.AddEventToElementInDoc( "change", "autocompilecheckbox", pDocument );
-
-            m_FastCompileCheckBoxEvent.AddEventToElementInDoc( "change", "fastcompilecheckbox", pDocument );
+            m_AutoCompileCheckBoxEvent.AddEventToElementInDoc(   "change", "autocompilecheckbox", pDocument );
+            m_FastCompileCheckBoxEvent.AddEventToElementInDoc(   "change", "fastcompilecheckbox", pDocument );
+			m_OptimizeDebugCheckBoxEvent.AddEventToElementInDoc( "change", "optimizefordebug", pDocument );
 
 
 			char Value[80];
@@ -328,12 +360,15 @@ public:
 
             m_TestRCCpp.AddEventToElementInDoc( "click", "TestRCCpp", pDocument );
             m_testFileTracking.AddEventToElementInDoc( "change", "TestFileTracking", pDocument );
+            m_UndoRCCpp.AddEventToElementInDoc( "click", "UndoRCCpp", pDocument );
+            m_RedoRCCpp.AddEventToElementInDoc( "click", "RedoRCCpp", pDocument );
 
             if( bHaveLoadedDoc )
             {
                 m_PauseCheckBoxEvent.OnAdd();
                 m_FastCompileCheckBoxEvent.OnAdd();
                 m_AutoCompileCheckBoxEvent.OnAdd();
+				m_OptimizeDebugCheckBoxEvent.OnAdd();
                 m_testFileTracking.OnAdd();
             }
 
@@ -351,10 +386,13 @@ public:
 	OnClickVisibleButton	m_OptionsEvent;
 	OnAutoCompile			m_AutoCompileCheckBoxEvent;
 	OnFastCompile			m_FastCompileCheckBoxEvent;
+	OnOptimizeDebug			m_OptimizeDebugCheckBoxEvent;
 	OnChangeSpeed			m_SpeedEvent;
 	OnPauseGame				m_PauseCheckBoxEvent;
     OnClickTestRCCppButton  m_TestRCCpp;
     OnTestFileTracking      m_testFileTracking;
+	OnClickUndoRCCppButton	m_UndoRCCpp;
+	OnClickRedoRCCppButton	m_RedoRCCpp;
 };
 
 REGISTERSINGLETON(MainMenu, false);

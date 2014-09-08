@@ -295,6 +295,7 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 					 const std::vector<FileSystemUtils::Path>& includeDirList,
 					 const std::vector<FileSystemUtils::Path>& libraryDirList,
 					 const std::vector<FileSystemUtils::Path>& linkLibraryList,
+					 RCppOptimizationLevel optimizationLevel_,
 					 const char* pCompileOptions,
 					 const char* pLinkOptions,
 					 const FileSystemUtils::Path& outputFile )
@@ -308,10 +309,36 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 	m_pImplData->m_bCompileIsComplete = false;
 	//optimization and c runtime
 #ifdef _DEBUG
-	std::string flags = "/nologo /Od /Zi /FC /MDd /LDd ";
+	std::string flags = "/nologo /Zi /FC /MDd /LDd ";
+	if( RCCPPOPTIMIZATIONLEVEL_DEFAULT == optimizationLevel_ )
+	{
+		optimizationLevel_ = RCCPPOPTIMIZATIONLEVEL_DEBUG;
+	}
 #else
-	std::string flags = "/nologo /O2 /Zi /FC /MD /LD ";	//also need debug information in release
+	std::string flags = "/nologo /Zi /FC /MD /LD ";	//also need debug information in release
+	if( RCCPPOPTIMIZATIONLEVEL_DEFAULT == optimizationLevel_ )
+	{
+		optimizationLevel_ = RCCPPOPTIMIZATIONLEVEL_PERF;
+	}
 #endif
+	switch( optimizationLevel_ )
+	{
+	case RCCPPOPTIMIZATIONLEVEL_DEFAULT:
+		assert(false);
+	case RCCPPOPTIMIZATIONLEVEL_DEBUG:
+		flags += "/Od ";
+		break;
+	case RCCPPOPTIMIZATIONLEVEL_PERF:
+		flags += "/O2 /Oi ";
+
+// Add improved debugging options if available: http://randomascii.wordpress.com/2013/09/11/debugging-optimized-codenew-in-visual-studio-2012/
+#if   (_MSC_VER >= 1700)
+		flags += "/d2Zi+ ";
+#endif
+		break;
+	case RCCPPOPTIMIZATIONLEVEL_NOT_SET:;
+	}
+
 	if( NULL == m_pImplData->m_CmdProcessInfo.hProcess )
 	{
 		m_pImplData->InitialiseProcess();
@@ -408,10 +435,10 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions )
 	//HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\<version>\Setup\VS\<edition>
 	std::string keyName = "SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7";
 
-	const size_t    NUMNAMESTOCHECK = 5;
+	const size_t    NUMNAMESTOCHECK = 6;
 
     // supporting: VS2005, VS2008, VS2010, VS2011, VS2013
-    std::string     valueName[NUMNAMESTOCHECK] = {"8.0","9.0","10.0","11.0","12.0"};
+    std::string     valueName[NUMNAMESTOCHECK] = {"8.0","9.0","10.0","11.0","12.0","13.0"};
 
     // we start searching for a compatible compiler from the current version backwards
     int startVersion = NUMNAMESTOCHECK - 1;
@@ -428,14 +455,17 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions )
 	case 1600:	//VS 2010
 		startVersion = 2;
 		break;
-	case 1700:	//VS 2011
+	case 1700:	//VS 2012
 		startVersion = 3;
 		break;
 	case 1800:	//VS 2013
 		startVersion = 4;
 		break;
+	case 1900:	//VS 2014
+		startVersion = 5;
+		break;
 	default:
-		assert( false ); //unsupported compiler
+		assert( false ); //unsupported compiler, find MSCVERSION to add case, increase NUMNAMESTOCHECK and add valueName.
 	}
 
 

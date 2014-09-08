@@ -31,16 +31,15 @@
 // implements interface IObjectFactorySystem
 // also implements RuntimeProtector so that when new constructors are added and used,
 // exceptions can be caught by the runtime system to allow fixing on the fly.
-class ObjectFactorySystem : public IObjectFactorySystem , public RuntimeProtector
+class ObjectFactorySystem : public IObjectFactorySystem
 {
 public:
 	ObjectFactorySystem()
 		: m_pLogger( 0 )
 		, m_pRuntimeObjectSystem( 0 )
-		, m_pNewConstructors( 0 )
-		, m_pSerializer( 0 )
-		, m_ProtectedPhase(PHASE_NONE)
         , m_bTestSerialization(true)
+		, m_HistoryMaxSize( 0 )
+		, m_HistoryCurrentLocation( 0 )
  	{
 	}
 
@@ -70,24 +69,37 @@ public:
         return m_bTestSerialization;
     }
 
+	virtual void				SetObjectConstructorHistorySize( int num_ );
+	virtual int					GetObjectConstructorHistorySize();
+	virtual bool				UndoObjectConstructorChange();
+	virtual bool				RedoObjectConstructorChange();
+	virtual int					GetObjectContstructorHistoryLocation();
 
-	// RuntimeProtector implementation
-	virtual void ProtectedFunc();
 
 private:
 	typedef std::map<std::string,ConstructorId> CONSTRUCTORMAP;
-	typedef std::set<IObjectFactoryListener*> TObjectFactoryListeners;
+	typedef std::set<IObjectFactoryListener*>	TObjectFactoryListeners;
+	typedef std::vector<IObjectConstructor*>	TConstructors;
 
 	CONSTRUCTORMAP 						m_ConstructorIds;
-	std::vector<IObjectConstructor*> 	m_Constructors;
+	TConstructors 						m_Constructors;
 	TObjectFactoryListeners 			m_Listeners;
 	ICompilerLogger* 					m_pLogger;
     IRuntimeObjectSystem* 				m_pRuntimeObjectSystem;
+	bool                                m_bTestSerialization;
 
-	// temp data needed during object swap
-	IAUDynArray<IObjectConstructor*>*	m_pNewConstructors;
-	std::vector<IObjectConstructor*>	m_PrevConstructors;
-	SimpleSerializer*					m_pSerializer;
+	// History
+	int									m_HistoryMaxSize;
+	int									m_HistoryCurrentLocation;	// positive non-zero number means previous
+	struct HistoryPoint
+	{
+		TConstructors before;
+		TConstructors after;
+	};
+	std::vector<HistoryPoint>			m_HistoryConstructors;
+
+	bool HandleRedoUndo( const TConstructors& constructors );
+
 	enum ProtectedPhase
 	{
 		PHASE_NONE,
@@ -98,9 +110,26 @@ private:
 		PHASE_INITANDSERIALIZEOUTTEST,
 		PHASE_DELETEOLD,
 	};
-	ProtectedPhase						m_ProtectedPhase;
-    bool                                m_bTestSerialization;
 
+	// temp data needed during object swap
+	struct ProtectedObjectSwapper:  public RuntimeProtector
+	{
+		TConstructors						m_ConstructorsToAdd;
+		TConstructors						m_ConstructorsOld;
+		TConstructors						m_ConstructorsReplaced;
+		SimpleSerializer					m_Serializer;
+		ICompilerLogger*					m_pLogger;
+		ObjectFactorySystem*				m_pObjectFactorySystem;
+		bool								m_bTestSerialization;
+
+		ProtectedPhase						m_ProtectedPhase;
+
+		// RuntimeProtector implementation
+		virtual void ProtectedFunc();
+	};
+	friend struct ProtectedObjectSwapper;
+
+	void CompleteConstructorSwap( ProtectedObjectSwapper& swapper );
 };
 
 

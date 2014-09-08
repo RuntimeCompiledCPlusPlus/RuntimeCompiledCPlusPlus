@@ -306,6 +306,12 @@ public:
 			m_ConstructedObjects[ id ] = 0;
 		}
 	}
+	virtual void ClearIfAllDeleted()
+	{
+		m_FreeIds.clear();
+		m_ConstructedObjects.clear();
+	}
+
 private:
 	bool                            m_bIsSingleton;
 	bool                            m_bIsAutoConstructSingleton;
