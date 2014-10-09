@@ -161,6 +161,10 @@ void RuntimeObjectSystem::OnFileChange(const IAUDynArray<const char*>& filelist)
 
             if( bFindIncludeDependencies )
             {
+				if( bForceIncludeDependencies )
+				{
+					// we should force any depdendent source file with the same name to build.
+				}
                 TFileToFilesEqualRange range = m_Projects[ proj ].m_RuntimeIncludeMap.equal_range( fileToBuild.filePath );
                 for( TFileToFilesIterator it = range.first; it != range.second; ++it )
                 {
@@ -498,12 +502,12 @@ void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectCons
 			const char* pIncludeFile = constructors_[i]->GetIncludeFile(includeNum);
 			if( pIncludeFile )
 			{
-                FileSystemUtils::Path fullpath = compileDir / pIncludeFile;
-                fullpath = FindFile( fullpath.GetCleanPath() );
+                FileSystemUtils::Path pathInc = compileDir / pIncludeFile;
+                pathInc = FindFile( pathInc.GetCleanPath() );
 				TFileToFilePair includePathPair;
-				includePathPair.first = fullpath;
+				includePathPair.first = pathInc;
 				includePathPair.second = filePath;
-                AddToRuntimeFileList( fullpath.c_str(), projectId );
+                AddToRuntimeFileList( pathInc.c_str(), projectId );
                 project.m_RuntimeIncludeMap.insert( includePathPair );
 			}
 		}
@@ -545,6 +549,12 @@ void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectCons
                 {
                     // add source file to runtime file list
                     AddToRuntimeFileList( pathSrc.c_str(), projectId );
+
+					// also add this as a source dependency, so it gets force compiled on change of header (and not just compiled)
+					TFileToFilePair includePathPair;
+					includePathPair.first = pathInc;
+					includePathPair.second = pathSrc;
+					project.m_RuntimeIncludeMap.insert( includePathPair );
                 }
 			}
 		}
