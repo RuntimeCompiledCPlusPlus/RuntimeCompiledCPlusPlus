@@ -226,7 +226,6 @@ public:
     }
 
 	std::string			m_VSPath;
-	std::string			m_intermediatePath;
 	PROCESS_INFORMATION m_CmdProcessInfo;
 	HANDLE				m_CmdProcessOutputRead;
 	HANDLE				m_CmdProcessInputWrite;
@@ -280,14 +279,6 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
             m_pImplData->m_pLogger->LogError("No Supported Compiler for RCC++ found.\n");
         }
     }
-
-    FileSystemUtils::Path intermediatePath = FileSystemUtils::GetCurrentPath() / "Runtime";
-    m_pImplData->m_intermediatePath = intermediatePath.m_string;
-}
-
-FileSystemUtils::Path Compiler::GetRuntimeIntermediatePath() const
-{
-    return m_pImplData->m_intermediatePath;
 }
 
 
@@ -298,7 +289,8 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 					 RCppOptimizationLevel optimizationLevel_,
 					 const char* pCompileOptions,
 					 const char* pLinkOptions,
-					 const FileSystemUtils::Path& outputFile )
+					 const FileSystemUtils::Path& outputFile,
+					 const FileSystemUtils::Path& intermediatePath )
 {
     if( m_pImplData->m_VSPath.empty() )
     {
@@ -367,12 +359,11 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 
 	// Check for intermediate directory, create it if required
 	// There are a lot more checks and robustness that could be added here
-	FileSystemUtils::Path intermediate = m_pImplData->m_intermediatePath;
-	if ( !intermediate.Exists() )
+	if ( !intermediatePath.Exists() )
 	{
-		bool success = intermediate.CreateDir();
-		if( success && m_pImplData->m_pLogger ) { m_pImplData->m_pLogger->LogInfo("Created intermediate folder \"%s\"\n",intermediate.c_str()); }
-		else if( m_pImplData->m_pLogger ) { m_pImplData->m_pLogger->LogError("Error creating intermediate folder \"%s\"\n",intermediate.c_str()); }
+		bool success = intermediatePath.CreateDir();
+		if( success && m_pImplData->m_pLogger ) { m_pImplData->m_pLogger->LogInfo("Created intermediate folder \"%s\"\n",intermediatePath.c_str()); }
+		else if( m_pImplData->m_pLogger ) { m_pImplData->m_pLogger->LogError("Error creating intermediate folder \"%s\"\n",intermediatePath.c_str()); }
 	}
 
 
@@ -420,7 +411,7 @@ char* pCharTypeFlags = "";
 
 	// /MP - use multiple processes to compile if possible. Only speeds up compile for multiple files and not link
 	std::string cmdToSend = "cl " + flags + pCharTypeFlags
-		+ " /MP /Fo\"" + intermediate.m_string + "\\\\\" "
+		+ " /MP /Fo\"" + intermediatePath.m_string + "\\\\\" "
 		+ "/D WIN32 /EHa /Fe" + outputFile.m_string;
 	cmdToSend += " " + strIncludeFiles + " " + strFilesToCompile + strLinkLibraries + linkOptions
 		+ "\necho ";

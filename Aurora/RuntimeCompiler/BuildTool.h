@@ -71,5 +71,6 @@ public:
 private:
 	Compiler                    m_Compiler;
 	ICompilerLogger*            m_pLogger;
+	FileSystemUtils::Path		m_BaseIntermediatePath;	//full intermediate path includes opt level
 };
 
