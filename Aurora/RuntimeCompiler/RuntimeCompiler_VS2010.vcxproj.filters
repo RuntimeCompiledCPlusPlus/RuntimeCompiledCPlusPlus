@@ -11,6 +11,13 @@
       <Filter>SimpleFileWatcher</Filter>
     </ClCompile>
     <ClCompile Include="FileMonitor.cpp" />
+    <ClCompile Include="Compiler_PlatformPosix.cpp" />
+    <ClCompile Include="SimpleFileWatcher\FileWatcherLinux.cpp">
+      <Filter>SimpleFileWatcher</Filter>
+    </ClCompile>
+    <ClCompile Include="SimpleFileWatcher\FileWatcherOSX.cpp">
+      <Filter>SimpleFileWatcher</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FileChangeNotifier.h" />
@@ -34,6 +41,12 @@
       <Filter>SimpleFileWatcher</Filter>
     </ClInclude>
     <ClInclude Include="CompileOptions.h" />
+    <ClInclude Include="SimpleFileWatcher\FileWatcherLinux.h">
+      <Filter>SimpleFileWatcher</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleFileWatcher\FileWatcherOSX.h">
+      <Filter>SimpleFileWatcher</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="SimpleFileWatcher">
