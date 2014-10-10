@@ -89,7 +89,7 @@ public:
 		//redirection of output
 		si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
 		si.wShowWindow = SW_HIDE;
-		HANDLE hOutputReadTmp,hOutputWrite;
+		HANDLE hOutputReadTmp = NULL, hOutputWrite  = NULL, hErrorWrite = NULL;
 		if (!CreatePipe(&hOutputReadTmp,&hOutputWrite,&sa,20*1024))
 		{
 			if( m_pLogger ) m_pLogger->LogError("[RuntimeCompiler] Failed to create output redirection pipe\n");
@@ -100,7 +100,6 @@ public:
 		// Create a duplicate of the output write handle for the std error
 		// write handle. This is necessary in case the child application
 		// closes one of its std output handles.
-		HANDLE hErrorWrite;
 		if (!DuplicateHandle(GetCurrentProcess(),hOutputWrite,
 							   GetCurrentProcess(),&hErrorWrite,0,
 							   TRUE,DUPLICATE_SAME_ACCESS))
@@ -115,22 +114,23 @@ public:
 		// the Properties to FALSE. Otherwise, the child inherits the
 		// properties and, as a result, non-closeable handles to the pipes
 		// are created.
- 		HANDLE hOutputRead;
  		if( si.hStdOutput )
 		{
 			 if (!DuplicateHandle(GetCurrentProcess(),hOutputReadTmp,
 								   GetCurrentProcess(),
-								   &hOutputRead, // Address of new handle.
+								   &m_CmdProcessOutputRead, // Address of new handle.
 								   0,FALSE, // Make it uninheritable.
 								   DUPLICATE_SAME_ACCESS))
 			 {
 				   if( m_pLogger ) m_pLogger->LogError("[RuntimeCompiler] Failed to duplicate output read pipe\n");
 				   goto ERROR_EXIT;
 			 }
+			CloseHandle( hOutputReadTmp );
+			hOutputReadTmp = NULL;
 		}
 
 
-		HANDLE hInputRead,hInputWriteTmp,hInputWrite;
+		HANDLE hInputRead,hInputWriteTmp;
 		// Create a pipe for the child process's STDIN. 
 		if (!CreatePipe(&hInputRead, &hInputWriteTmp, &sa, 4096))
 		{
@@ -147,7 +147,7 @@ public:
 		{
 			 if (!DuplicateHandle(GetCurrentProcess(),hInputWriteTmp,
 								   GetCurrentProcess(),
-								   &hInputWrite, // Address of new handle.
+								   &m_CmdProcessInputWrite, // Address of new handle.
 								   0,FALSE, // Make it uninheritable.
 								   DUPLICATE_SAME_ACCESS))
 			 {
@@ -181,11 +181,6 @@ public:
 			  &m_CmdProcessInfo				//__out        LPPROCESS_INFORMATION lpProcessInformation
 			);
 
-
-
-		m_CmdProcessInputWrite = hInputWrite;
-		m_CmdProcessOutputRead = hOutputRead;
-
 		//send initial set up command
 		WriteInput( m_CmdProcessInputWrite, cmdSetParams );
 
@@ -194,12 +189,18 @@ public:
 
 
 	ERROR_EXIT:
-		CloseHandle( hOutputReadTmp );
-		hOutputReadTmp = NULL;
-		CloseHandle( hOutputWrite );
-		hOutputWrite = NULL;
-		CloseHandle( hErrorWrite );
-		hErrorWrite = NULL;
+		if( hOutputReadTmp ) 
+		{
+			CloseHandle( hOutputReadTmp );
+		}
+		if( hOutputWrite ) 
+		{
+			CloseHandle( hOutputWrite );
+		}
+		if( hErrorWrite )
+		{
+			CloseHandle( hErrorWrite );
+		}
 	}
 
     void CleanupProcessAndPipes()
