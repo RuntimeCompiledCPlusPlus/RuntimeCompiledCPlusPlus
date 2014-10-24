@@ -303,17 +303,11 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 	//optimization and c runtime
 #ifdef _DEBUG
 	std::string flags = "/nologo /Zi /FC /MDd /LDd ";
-	if( RCCPPOPTIMIZATIONLEVEL_DEFAULT == optimizationLevel_ )
-	{
-		optimizationLevel_ = RCCPPOPTIMIZATIONLEVEL_DEBUG;
-	}
 #else
 	std::string flags = "/nologo /Zi /FC /MD /LD ";	//also need debug information in release
-	if( RCCPPOPTIMIZATIONLEVEL_DEFAULT == optimizationLevel_ )
-	{
-		optimizationLevel_ = RCCPPOPTIMIZATIONLEVEL_PERF;
-	}
 #endif
+
+	optimizationLevel_ = GetActualOptimizationLevel( optimizationLevel_ );
 	switch( optimizationLevel_ )
 	{
 	case RCCPPOPTIMIZATIONLEVEL_DEFAULT:
