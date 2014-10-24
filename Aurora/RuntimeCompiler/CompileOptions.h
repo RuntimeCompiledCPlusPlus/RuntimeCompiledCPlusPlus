@@ -33,3 +33,17 @@ static const char* RCppOptimizationLevelStrings[] =
 	"PERF",			
 	"NOT_SET",			
 };
+
+// GetActualOptimizationLevel - translates DEFAULT into DEUG or PERF
+inline RCppOptimizationLevel GetActualOptimizationLevel( RCppOptimizationLevel optimizationLevel_ )
+{
+	if( RCCPPOPTIMIZATIONLEVEL_DEFAULT == optimizationLevel_ )
+	{
+	#ifdef _DEBUG
+		optimizationLevel_ = RCCPPOPTIMIZATIONLEVEL_DEBUG;
+	#else
+		optimizationLevel_ = RCCPPOPTIMIZATIONLEVEL_PERF;
+	#endif
+	}
+	return optimizationLevel_;
+}

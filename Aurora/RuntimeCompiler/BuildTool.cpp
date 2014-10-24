@@ -24,6 +24,20 @@
 using namespace std;
 using namespace FileSystemUtils;
 
+
+Path GetRuntimeFolder( Path basePath_, RCppOptimizationLevel optimizationLevel_ )
+{
+	string folder;
+#ifdef _DEBUG
+	folder = "DEBUG_";
+#else
+	folder = "RELEASE_";
+#endif
+	folder +=  RCppOptimizationLevelStrings[ GetActualOptimizationLevel( optimizationLevel_ ) ];
+	Path runtimeFolder = basePath_ / folder;
+	return runtimeFolder;
+}
+
 BuildTool::BuildTool()
 {
 }
@@ -40,8 +54,7 @@ void BuildTool::Clean() const
 			optimizationLevel < RCCPPOPTIMIZATIONLEVEL_SIZE;
 			++optimizationLevel )
 	{
-		Path runtimeFolder = m_BaseIntermediatePath / RCppOptimizationLevelStrings[optimizationLevel];
-
+		Path runtimeFolder = GetRuntimeFolder( m_BaseIntermediatePath, RCppOptimizationLevel( optimizationLevel ) );
 		FileSystemUtils::PathIterator pathIter( runtimeFolder );
 		std::string obj_extension = m_Compiler.GetObjectFileExtension();
 		while( ++pathIter )
@@ -110,8 +123,10 @@ void BuildTool::BuildModule( const std::vector<FileToBuild>& buildFileList,
 		compileFileList.push_back(  forcedCompileFileList[i] );
 	}
 
+	// runtime folder needs to be aware of compilation level and debug/
+
 	// Add non forced files, but only if they don't exist in forced compile list
-    Path runtimeFolder = m_BaseIntermediatePath / RCppOptimizationLevelStrings[optimizationLevel_];
+	Path runtimeFolder = GetRuntimeFolder( m_BaseIntermediatePath, optimizationLevel_ );
 	for( size_t i = 0; i < nonForcedCompileFileList.size(); ++i )
 	{
 		Path buildFile = nonForcedCompileFileList[i];

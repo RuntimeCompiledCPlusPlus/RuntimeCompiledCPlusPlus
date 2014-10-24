@@ -189,15 +189,7 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 	compileString += "-m32 ";
 #endif
 
-	if( RCCPPOPTIMIZATIONLEVEL_DEFAULT == optimizationLevel_ )
-	{
-	#ifdef DEBUG
-		optimizationLevel_ = RCCPPOPTIMIZATIONLEVEL_DEBUG;
-	#else
-		optimizationLevel_ = RCCPPOPTIMIZATIONLEVEL_PERF;
-	#endif
-	}
-	
+	optimizationLevel_ = GetActualOptimizationLevel( optimizationLevel_ );
 	switch( optimizationLevel_ )
 	{
 	case RCCPPOPTIMIZATIONLEVEL_DEFAULT:
