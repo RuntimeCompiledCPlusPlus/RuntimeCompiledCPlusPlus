@@ -101,6 +101,10 @@ struct IRuntimeObjectSystem : public ITestBuildNotifier
     virtual void SetOptimizationLevel( RCppOptimizationLevel optimizationLevel_,	unsigned short projectId_ = 0 ) = 0;
     virtual RCppOptimizationLevel GetOptimizationLevel(					unsigned short projectId_ = 0 ) = 0;
 
+	// Intermediate Dir has DEBUG in debug or RELEASE plus project optimization level appended to it.
+	// defaults to current directory plus /Runtime
+    virtual void SetIntermediateDir(            const char* path_,      unsigned short projectId_ = 0 ) = 0;
+
 	virtual void SetAutoCompile( bool autoCompile ) = 0;
 	virtual bool GetAutoCompile() const = 0;
 

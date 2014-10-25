@@ -31,7 +31,7 @@ public:
 	void Initialise( ICompilerLogger * pLogger );
 
     // Clean - cleans up the intermediate files
-    void Clean() const;
+    void Clean( const FileSystemUtils::Path& temporaryPath_ ) const;
 
 	struct FileToBuild
 	{
@@ -49,14 +49,15 @@ public:
 		bool					forceCompile; //if true the file is compiled even if object file is present
 	};
 
-	void BuildModule( const std::vector<FileToBuild>& buildFileList, 
-					  const std::vector<FileSystemUtils::Path>& includeDirList, 
-					  const std::vector<FileSystemUtils::Path>& libraryDirList,
-					  const std::vector<FileSystemUtils::Path>& linkLibraryList,
+	void BuildModule( const std::vector<FileToBuild>& buildFileList_, 
+					  const std::vector<FileSystemUtils::Path>& includeDirList_, 
+					  const std::vector<FileSystemUtils::Path>& libraryDirList_,
+					  const std::vector<FileSystemUtils::Path>& linkLibraryList_,
 					  RCppOptimizationLevel optimizationLevel_,
-					  const char* pCompileOptions,
-					  const char* pLinkOptions,
-					  const FileSystemUtils::Path& moduleName );
+					  const char* pCompileOptions_,
+					  const char* pLinkOptions_,
+					  const FileSystemUtils::Path& moduleName_,
+					  const FileSystemUtils::Path& intermediatePath_ );
 	bool GetIsComplete()
 	{
 		return m_Compiler.GetIsComplete();
@@ -71,6 +72,5 @@ public:
 private:
 	Compiler                    m_Compiler;
 	ICompilerLogger*            m_pLogger;
-	FileSystemUtils::Path		m_BaseIntermediatePath;	//full intermediate path includes opt level
 };
 

@@ -38,6 +38,22 @@
 
 using FileSystemUtils::Path;
 
+FileSystemUtils::Path RuntimeObjectSystem::ProjectSettings::ms_DefaultIntermediatePath;
+
+static Path GetIntermediateFolder( Path basePath_, RCppOptimizationLevel optimizationLevel_ )
+{
+	std::string folder;
+#ifdef _DEBUG
+	folder = "DEBUG_";
+#else
+	folder = "RELEASE_";
+#endif
+	folder +=  RCppOptimizationLevelStrings[ GetActualOptimizationLevel( optimizationLevel_ ) ];
+	Path runtimeFolder = basePath_ / folder;
+	return runtimeFolder;
+}
+
+
 RuntimeObjectSystem::RuntimeObjectSystem()
 	: m_pCompilerLogger(0)
 	, m_pSystemTable(0)
@@ -52,6 +68,7 @@ RuntimeObjectSystem::RuntimeObjectSystem()
     , m_pImpl( 0 )
     , m_CurrentlyBuildingProject( 0 )
 {
+    ProjectSettings::ms_DefaultIntermediatePath = FileSystemUtils::GetCurrentPath() / "Runtime";
     CreatePlatformImpl();
 }
 
@@ -94,8 +111,6 @@ bool RuntimeObjectSystem::Initialise( ICompilerLogger * pLogger, SystemTable* pS
 	//also add the runtime compiler dir to list of dirs
 	includeDir = includeDir.ParentPath() / Path("RuntimeCompiler");
 	AddIncludeDir(includeDir.c_str());
-
-
 
 	return true;
 }
@@ -346,7 +361,7 @@ void RuntimeObjectSystem::StartRecompile()
 		}
 	}
 
-
+	Path intermediateFolder = GetIntermediateFolder(m_Projects[ project ].m_IntermediatePath, m_Projects[ project ].m_OptimizationLevel );
 	m_pBuildTool->BuildModule(	ourBuildFileList,
                                 m_Projects[ project ].m_IncludeDirList,
                                 m_Projects[ project ].m_LibraryDirList,
@@ -354,7 +369,8 @@ void RuntimeObjectSystem::StartRecompile()
 								m_Projects[ project ].m_OptimizationLevel,
                                 m_Projects[ project ].m_CompileOptions.c_str( ),
                                 m_Projects[ project ].m_LinkOptions.c_str( ),
-								m_CurrentlyCompilingModuleName );
+								m_CurrentlyCompilingModuleName,
+								intermediateFolder );
 }
 
 bool RuntimeObjectSystem::LoadCompiledModule()
@@ -603,6 +619,28 @@ void RuntimeObjectSystem::SetOptimizationLevel( RCppOptimizationLevel optimizati
 RCppOptimizationLevel RuntimeObjectSystem::GetOptimizationLevel(					unsigned short projectId_ )
 {
 	return GetProject( projectId_ ).m_OptimizationLevel;
+}
+
+void RuntimeObjectSystem::SetIntermediateDir(            const char* path_,      unsigned short projectId_ )
+{
+	GetProject( projectId_ ).m_IntermediatePath = path_;
+}
+
+void RuntimeObjectSystem::CleanObjectFiles() const
+{
+    if( m_pBuildTool )
+    {
+		for( unsigned short proj = 0; proj < m_Projects.size(); ++proj )
+		{
+			for( int optimizationLevel = 0;
+					optimizationLevel < RCCPPOPTIMIZATIONLEVEL_SIZE;
+					++optimizationLevel )
+			{
+				Path intermediateFolder = GetIntermediateFolder( m_Projects[ proj ].m_IntermediatePath, RCppOptimizationLevel( optimizationLevel ) );
+				m_pBuildTool->Clean( intermediateFolder );
+			}
+		}
+    }
 }
 
 FileSystemUtils::Path RuntimeObjectSystem::FindFile( const FileSystemUtils::Path& input )

@@ -79,6 +79,7 @@ public:
     virtual void SetAdditionalLinkOptions(      const char* options,    unsigned short projectId_ = 0 );
     virtual void SetOptimizationLevel( RCppOptimizationLevel optimizationLevel_,	unsigned short projectId_ = 0 );
     virtual RCppOptimizationLevel GetOptimizationLevel(					unsigned short projectId_ = 0 );
+    virtual void SetIntermediateDir(            const char* path_,      unsigned short projectId_ = 0 );
 
 	virtual void SetAutoCompile( bool autoCompile );
 	virtual bool GetAutoCompile() const
@@ -94,14 +95,7 @@ public:
         }
     }
 
-    virtual void CleanObjectFiles() const
-    {
-        if( m_pBuildTool )
-        {
-            m_pBuildTool->Clean();
-        }
-    }
-
+    virtual void CleanObjectFiles() const;
 
 	virtual bool GetLastLoadModuleSuccess() const
 	{
@@ -162,7 +156,6 @@ private:
 	void StartRecompile();
 	void SetupRuntimeFileTracking( const IAUDynArray<IObjectConstructor*>& constructors_ );
 
-
 	// Members set in initialise
 	ICompilerLogger*		m_pCompilerLogger;
 	SystemTable*			m_pSystemTable;
@@ -182,7 +175,10 @@ private:
     // per project information
     struct ProjectSettings
     {
-		ProjectSettings() : m_OptimizationLevel( RCCPPOPTIMIZATIONLEVEL_DEFAULT ) { }
+		ProjectSettings()
+			: m_OptimizationLevel( RCCPPOPTIMIZATIONLEVEL_DEFAULT )
+			, m_IntermediatePath( ms_DefaultIntermediatePath )
+		{ }
         TFileList                           m_RuntimeFileList;
         TFileToFilesMap                     m_RuntimeIncludeMap;
         TFileToFilesMap			            m_RuntimeLinkLibraryMap;
@@ -195,7 +191,9 @@ private:
         TFileList                           m_LibraryDirList;
         std::string                         m_CompileOptions;
         std::string                         m_LinkOptions;
+		FileSystemUtils::Path				m_IntermediatePath;
 		RCppOptimizationLevel				m_OptimizationLevel;
+		static FileSystemUtils::Path		ms_DefaultIntermediatePath;
     };
     std::vector<ProjectSettings>            m_Projects;
     ProjectSettings&                        GetProject( unsigned short projectId_ );
