@@ -55,9 +55,9 @@ public:
 					 RCppOptimizationLevel optimizationLevel_,
 					 const char* pCompileOptions,
 					 const char* pLinkOptions,
-					 const FileSystemUtils::Path& outputFile );
+					 const FileSystemUtils::Path& outputFile,
+					 const FileSystemUtils::Path& intermediatePath );
 	bool GetIsComplete() const;
-    FileSystemUtils::Path GetRuntimeIntermediatePath() const;
 private:
 	PlatformCompilerImplData* m_pImplData;
     bool                      m_bFastCompileMode;

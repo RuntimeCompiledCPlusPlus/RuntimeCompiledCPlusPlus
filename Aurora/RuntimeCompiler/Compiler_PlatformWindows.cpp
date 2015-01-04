@@ -89,7 +89,7 @@ public:
 		//redirection of output
 		si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
 		si.wShowWindow = SW_HIDE;
-		HANDLE hOutputReadTmp,hOutputWrite;
+		HANDLE hOutputReadTmp = NULL, hOutputWrite  = NULL, hErrorWrite = NULL;
 		if (!CreatePipe(&hOutputReadTmp,&hOutputWrite,&sa,20*1024))
 		{
 			if( m_pLogger ) m_pLogger->LogError("[RuntimeCompiler] Failed to create output redirection pipe\n");
@@ -100,7 +100,6 @@ public:
 		// Create a duplicate of the output write handle for the std error
 		// write handle. This is necessary in case the child application
 		// closes one of its std output handles.
-		HANDLE hErrorWrite;
 		if (!DuplicateHandle(GetCurrentProcess(),hOutputWrite,
 							   GetCurrentProcess(),&hErrorWrite,0,
 							   TRUE,DUPLICATE_SAME_ACCESS))
@@ -115,22 +114,23 @@ public:
 		// the Properties to FALSE. Otherwise, the child inherits the
 		// properties and, as a result, non-closeable handles to the pipes
 		// are created.
- 		HANDLE hOutputRead;
  		if( si.hStdOutput )
 		{
 			 if (!DuplicateHandle(GetCurrentProcess(),hOutputReadTmp,
 								   GetCurrentProcess(),
-								   &hOutputRead, // Address of new handle.
+								   &m_CmdProcessOutputRead, // Address of new handle.
 								   0,FALSE, // Make it uninheritable.
 								   DUPLICATE_SAME_ACCESS))
 			 {
 				   if( m_pLogger ) m_pLogger->LogError("[RuntimeCompiler] Failed to duplicate output read pipe\n");
 				   goto ERROR_EXIT;
 			 }
+			CloseHandle( hOutputReadTmp );
+			hOutputReadTmp = NULL;
 		}
 
 
-		HANDLE hInputRead,hInputWriteTmp,hInputWrite;
+		HANDLE hInputRead,hInputWriteTmp;
 		// Create a pipe for the child process's STDIN. 
 		if (!CreatePipe(&hInputRead, &hInputWriteTmp, &sa, 4096))
 		{
@@ -147,7 +147,7 @@ public:
 		{
 			 if (!DuplicateHandle(GetCurrentProcess(),hInputWriteTmp,
 								   GetCurrentProcess(),
-								   &hInputWrite, // Address of new handle.
+								   &m_CmdProcessInputWrite, // Address of new handle.
 								   0,FALSE, // Make it uninheritable.
 								   DUPLICATE_SAME_ACCESS))
 			 {
@@ -181,11 +181,6 @@ public:
 			  &m_CmdProcessInfo				//__out        LPPROCESS_INFORMATION lpProcessInformation
 			);
 
-
-
-		m_CmdProcessInputWrite = hInputWrite;
-		m_CmdProcessOutputRead = hOutputRead;
-
 		//send initial set up command
 		WriteInput( m_CmdProcessInputWrite, cmdSetParams );
 
@@ -194,12 +189,18 @@ public:
 
 
 	ERROR_EXIT:
-		CloseHandle( hOutputReadTmp );
-		hOutputReadTmp = NULL;
-		CloseHandle( hOutputWrite );
-		hOutputWrite = NULL;
-		CloseHandle( hErrorWrite );
-		hErrorWrite = NULL;
+		if( hOutputReadTmp ) 
+		{
+			CloseHandle( hOutputReadTmp );
+		}
+		if( hOutputWrite ) 
+		{
+			CloseHandle( hOutputWrite );
+		}
+		if( hErrorWrite )
+		{
+			CloseHandle( hErrorWrite );
+		}
 	}
 
     void CleanupProcessAndPipes()
@@ -226,7 +227,6 @@ public:
     }
 
 	std::string			m_VSPath;
-	std::string			m_intermediatePath;
 	PROCESS_INFORMATION m_CmdProcessInfo;
 	HANDLE				m_CmdProcessOutputRead;
 	HANDLE				m_CmdProcessInputWrite;
@@ -280,14 +280,6 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
             m_pImplData->m_pLogger->LogError("No Supported Compiler for RCC++ found.\n");
         }
     }
-
-    FileSystemUtils::Path intermediatePath = FileSystemUtils::GetCurrentPath() / "Runtime";
-    m_pImplData->m_intermediatePath = intermediatePath.m_string;
-}
-
-FileSystemUtils::Path Compiler::GetRuntimeIntermediatePath() const
-{
-    return m_pImplData->m_intermediatePath;
 }
 
 
@@ -298,7 +290,8 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 					 RCppOptimizationLevel optimizationLevel_,
 					 const char* pCompileOptions,
 					 const char* pLinkOptions,
-					 const FileSystemUtils::Path& outputFile )
+					 const FileSystemUtils::Path& outputFile,
+					 const FileSystemUtils::Path& intermediatePath )
 {
     if( m_pImplData->m_VSPath.empty() )
     {
@@ -310,17 +303,11 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 	//optimization and c runtime
 #ifdef _DEBUG
 	std::string flags = "/nologo /Zi /FC /MDd /LDd ";
-	if( RCCPPOPTIMIZATIONLEVEL_DEFAULT == optimizationLevel_ )
-	{
-		optimizationLevel_ = RCCPPOPTIMIZATIONLEVEL_DEBUG;
-	}
 #else
 	std::string flags = "/nologo /Zi /FC /MD /LD ";	//also need debug information in release
-	if( RCCPPOPTIMIZATIONLEVEL_DEFAULT == optimizationLevel_ )
-	{
-		optimizationLevel_ = RCCPPOPTIMIZATIONLEVEL_PERF;
-	}
 #endif
+
+	optimizationLevel_ = GetActualOptimizationLevel( optimizationLevel_ );
 	switch( optimizationLevel_ )
 	{
 	case RCCPPOPTIMIZATIONLEVEL_DEFAULT:
@@ -367,12 +354,11 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 
 	// Check for intermediate directory, create it if required
 	// There are a lot more checks and robustness that could be added here
-	FileSystemUtils::Path intermediate = m_pImplData->m_intermediatePath;
-	if ( !intermediate.Exists() )
+	if ( !intermediatePath.Exists() )
 	{
-		bool success = intermediate.CreateDir();
-		if( success && m_pImplData->m_pLogger ) { m_pImplData->m_pLogger->LogInfo("Created intermediate folder \"%s\"\n",intermediate.c_str()); }
-		else if( m_pImplData->m_pLogger ) { m_pImplData->m_pLogger->LogError("Error creating intermediate folder \"%s\"\n",intermediate.c_str()); }
+		bool success = intermediatePath.CreateDir();
+		if( success && m_pImplData->m_pLogger ) { m_pImplData->m_pLogger->LogInfo("Created intermediate folder \"%s\"\n",intermediatePath.c_str()); }
+		else if( m_pImplData->m_pLogger ) { m_pImplData->m_pLogger->LogError("Error creating intermediate folder \"%s\"\n",intermediatePath.c_str()); }
 	}
 
 
@@ -420,7 +406,7 @@ char* pCharTypeFlags = "";
 
 	// /MP - use multiple processes to compile if possible. Only speeds up compile for multiple files and not link
 	std::string cmdToSend = "cl " + flags + pCharTypeFlags
-		+ " /MP /Fo\"" + intermediate.m_string + "\\\\\" "
+		+ " /MP /Fo\"" + intermediatePath.m_string + "\\\\\" "
 		+ "/D WIN32 /EHa /Fe" + outputFile.m_string;
 	cmdToSend += " " + strIncludeFiles + " " + strFilesToCompile + strLinkLibraries + linkOptions
 		+ "\necho ";

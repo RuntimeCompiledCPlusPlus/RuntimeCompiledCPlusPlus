@@ -50,7 +50,6 @@ public:
         m_PipeStdErr[1] = 1;
 	}
 
-	std::string			m_intermediatePath;
 	volatile bool		m_bCompileIsComplete;
 	ICompilerLogger*	m_pLogger;
     pid_t               m_ChildForCompilationPID;
@@ -118,12 +117,6 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
 {
     m_pImplData = new PlatformCompilerImplData;
     m_pImplData->m_pLogger = pLogger;
-	m_pImplData->m_intermediatePath = "./Runtime";
-}
-
-FileSystemUtils::Path Compiler::GetRuntimeIntermediatePath() const
-{
-    return m_pImplData->m_intermediatePath;
 }
 
 void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToCompile,
@@ -133,7 +126,8 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
                      RCppOptimizationLevel optimizationLevel_,
 					 const char* pCompileOptions,
 					 const char* pLinkOptions,
-					 const FileSystemUtils::Path& outputFile )
+					 const FileSystemUtils::Path& outputFile,
+					 const FileSystemUtils::Path& intermediatePath )
 {
     //NOTE: Currently doesn't check if a prior compile is ongoing or not, which could lead to memory leaks
  	m_pImplData->m_bCompileIsComplete = false;
@@ -195,15 +189,7 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 	compileString += "-m32 ";
 #endif
 
-	if( RCCPPOPTIMIZATIONLEVEL_DEFAULT == optimizationLevel_ )
-	{
-	#ifdef DEBUG
-		optimizationLevel_ = RCCPPOPTIMIZATIONLEVEL_DEBUG;
-	#else
-		optimizationLevel_ = RCCPPOPTIMIZATIONLEVEL_PERF;
-	#endif
-	}
-	
+	optimizationLevel_ = GetActualOptimizationLevel( optimizationLevel_ );
 	switch( optimizationLevel_ )
 	{
 	case RCCPPOPTIMIZATIONLEVEL_DEFAULT:
@@ -237,11 +223,13 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 	if( pCompileOptions )
 	{
 		compileString += pCompileOptions;
+		compileString += " ";
 	}
 	if( pLinkOptions && strlen(pLinkOptions) )
 	{
 		compileString += "-Wl,";
 		compileString += pLinkOptions;
+		compileString += " ";
 	}
 	
     // files to compile

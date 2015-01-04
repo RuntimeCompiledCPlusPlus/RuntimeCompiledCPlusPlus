@@ -10,6 +10,7 @@
     </ClCompile>
     <ClCompile Include="RuntimeObjectSystem.cpp" />
     <ClCompile Include="RuntimeObjectSystem_PlatformWindows.cpp" />
+    <ClCompile Include="RuntimeObjectSystem_PlatformPosix.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IObject.h" />

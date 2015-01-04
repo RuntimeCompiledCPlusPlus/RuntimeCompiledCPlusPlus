@@ -20,7 +20,30 @@
 enum RCppOptimizationLevel
 {
 	RCCPPOPTIMIZATIONLEVEL_DEFAULT = 0,		// RCCPPOPTIMIZATIONLEVEL_DEBUG in DEBUG, RCCPPOPTIMIZATIONLEVEL_PERF in release. This is the default state.
-	RCCPPOPTIMIZATIONLEVEL_DEBUG,		// Low optimization, improve debug experiece. Default in DEBUG
-	RCCPPOPTIMIZATIONLEVEL_PERF,		// Optimization for performance, debug experience may suffer. Default in RELEASE
-	RCCPPOPTIMIZATIONLEVEL_NOT_SET,		// No optimization set in compile, so either underlying compiler default or set through SetAdditionalCompileOptions
+	RCCPPOPTIMIZATIONLEVEL_DEBUG,			// Low optimization, improve debug experiece. Default in DEBUG
+	RCCPPOPTIMIZATIONLEVEL_PERF,			// Optimization for performance, debug experience may suffer. Default in RELEASE
+	RCCPPOPTIMIZATIONLEVEL_NOT_SET,			// No optimization set in compile, so either underlying compiler default or set through SetAdditionalCompileOptions
+	RCCPPOPTIMIZATIONLEVEL_SIZE,			// Size of enum, do not use to set opt level
 };
+
+static const char* RCppOptimizationLevelStrings[] = 
+{
+	"DEFAULT",		
+	"DEBUG",			
+	"PERF",			
+	"NOT_SET",			
+};
+
+// GetActualOptimizationLevel - translates DEFAULT into DEUG or PERF
+inline RCppOptimizationLevel GetActualOptimizationLevel( RCppOptimizationLevel optimizationLevel_ )
+{
+	if( RCCPPOPTIMIZATIONLEVEL_DEFAULT == optimizationLevel_ )
+	{
+	#ifdef _DEBUG
+		optimizationLevel_ = RCCPPOPTIMIZATIONLEVEL_DEBUG;
+	#else
+		optimizationLevel_ = RCCPPOPTIMIZATIONLEVEL_PERF;
+	#endif
+	}
+	return optimizationLevel_;
+}

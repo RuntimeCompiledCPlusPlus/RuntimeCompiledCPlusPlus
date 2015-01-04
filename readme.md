@@ -12,7 +12,8 @@ Runtime-Compiled C++ is a way to reliably make major changes to your C++ code at
 - Windows XP+, Visual Studio 2008+. Note we currently distribute only the VS 2010 solution and projects.
 - Mac OS X 10.7+ with XCode 4.
 - Linux using Eclipse CDT (tested Ubuntu 12.04 64bit).
-- cmake (many thanks to user join_the_fun from reddit) - currently only supports Linux, please use XCode or Visual Studio solutions for Windows and Mac OS X.
+- cmake (many thanks to user join_the_fun from reddit)
+- QtCreator using the cmake files. Open CMakeLists.txt in the Aurora directory. Make sure cmake is installed and on Windows the path to cmake is set in QtCreator->Tools->options->CMake
 
 For Visual Studio and XCode the main project file is found in the Aurora directory. All dependencies should be normally present.
 
