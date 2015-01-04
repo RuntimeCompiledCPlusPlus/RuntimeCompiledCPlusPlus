@@ -223,11 +223,13 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 	if( pCompileOptions )
 	{
 		compileString += pCompileOptions;
+		compileString += " ";
 	}
 	if( pLinkOptions && strlen(pLinkOptions) )
 	{
 		compileString += "-Wl,";
 		compileString += pLinkOptions;
+		compileString += " ";
 	}
 	
     // files to compile
