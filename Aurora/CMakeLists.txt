@@ -136,5 +136,7 @@ if(BUILD_EXAMPLES)
 			${GLFW_LIBRARIES}
 			${ASSIMP_LIBRARIES}
 		)
-	
+	if(MSVC)
+		set_target_properties(SimpleTest ConsoleExample PROPERTIES COMPILE_FLAGS "/FC")
+	endif()
 endif()
