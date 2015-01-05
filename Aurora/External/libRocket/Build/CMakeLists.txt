@@ -120,12 +120,6 @@ foreach(library ${LIBRARIES})
                            VERSION ${PROJECT_VERSION}
                            SOVERSION ${LIBROCKET_VERSION_MAJOR}
     )
-    
-    if(APPLE)
-    	set_target_properties(${NAME} PROPERTIES
-    					OSX_ARCHITECTURES "i386;x86_64;"
-    	)
-    endif()
 
     install(TARGETS ${NAME}
             LIBRARY DESTINATION lib
