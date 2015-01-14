@@ -47,6 +47,7 @@
     <ClInclude Include="SimpleFileWatcher\FileWatcherOSX.h">
       <Filter>SimpleFileWatcher</Filter>
     </ClInclude>
+    <ClInclude Include="AUArray.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="SimpleFileWatcher">
