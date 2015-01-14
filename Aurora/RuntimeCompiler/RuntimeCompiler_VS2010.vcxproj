@@ -134,6 +134,7 @@
     <ClCompile Include="SimpleFileWatcher\FileWatcherWin32.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AUArray.h" />
     <ClInclude Include="CompileOptions.h" />
     <ClInclude Include="FileChangeNotifier.h" />
     <ClInclude Include="BuildTool.h" />
