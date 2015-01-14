@@ -36,8 +36,6 @@ endif()
 #
 # Make Install
 #
-install(DIRECTORY Common/ DESTINATION ${CMAKE_INSTALL_PREFIX}/include/Common
-	FILES_MATCHING PATTERN "*.inl")
 install(DIRECTORY RuntimeObjectSystem/ DESTINATION ${CMAKE_INSTALL_PREFIX}/include/RuntimeObjectSystem
 	FILES_MATCHING PATTERN "*.h")
 install(DIRECTORY RuntimeCompiler/ DESTINATION ${CMAKE_INSTALL_PREFIX}/include/RuntimeCompiler

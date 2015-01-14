@@ -27,7 +27,7 @@
 
 
 #include "../Common/AUVec3f.inl"
-#include "../Common/AUArray.inl"
+#include "../RuntimeCompiler/AUArray.h"
 #include "ISystem.h"
 #include "IEntity.h"
 

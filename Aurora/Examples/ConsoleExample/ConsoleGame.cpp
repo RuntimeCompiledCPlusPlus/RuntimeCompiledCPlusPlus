@@ -18,7 +18,7 @@
 #include "ConsoleGame.h"
 
 
-#include "../../Common/AUArray.inl"
+#include "../../RuntimeCompiler/AUArray.h"
 #include "../../RuntimeCompiler/BuildTool.h"
 #include "../../RuntimeCompiler/ICompilerLogger.h"
 #include "../../RuntimeCompiler/FileChangeNotifier.h"
