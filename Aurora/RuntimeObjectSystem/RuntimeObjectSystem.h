@@ -22,7 +22,7 @@
 
 #include "../RuntimeCompiler/IFileChangeNotifier.h"
 #include "../RuntimeCompiler/BuildTool.h"
-#include "../Common/AUArray.inl"
+#include "../RuntimeCompiler/AUArray.h"
 #include "ObjectInterface.h"
 #include "IRuntimeObjectSystem.h"
 

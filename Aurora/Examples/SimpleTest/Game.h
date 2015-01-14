@@ -25,7 +25,7 @@
 #include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
 #include "../../RuntimeObjectSystem/IRuntimeObjectSystem.h"
 #include "../../RuntimeObjectSystem/RuntimeProtector.h"
-#include "../../Common/AUArray.inl"
+#include "../../RuntimeCompiler/AUArray.h"
 #include "../../Systems/IGame.h"
 #include <Rocket/Core/EventListener.h>
 #include <Rocket/Core/Context.h>

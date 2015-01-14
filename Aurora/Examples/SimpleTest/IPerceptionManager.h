@@ -24,7 +24,7 @@
 #include "IGameManager.h"
 #include "InterfaceIds.h"
 #include "../../Common/AUVec3f.inl"
-#include "../../Common/AUArray.inl"
+#include "../../RuntimeCompiler/AUArray.h"
 #include "../../Systems/IUpdateable.h" 
 
 struct IGameObject;
