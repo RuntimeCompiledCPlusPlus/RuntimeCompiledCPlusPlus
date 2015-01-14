@@ -33,6 +33,18 @@ if(UNIX)
 	target_link_libraries(RuntimeObjectSystem dl)
 endif()
 
+#
+# Make Install
+#
+install(DIRECTORY Common/ DESTINATION ${CMAKE_INSTALL_PREFIX}/include/Common
+	FILES_MATCHING PATTERN "*.inl")
+install(DIRECTORY RuntimeObjectSystem/ DESTINATION ${CMAKE_INSTALL_PREFIX}/include/RuntimeObjectSystem
+	FILES_MATCHING PATTERN "*.h")
+install(DIRECTORY RuntimeCompiler/ DESTINATION ${CMAKE_INSTALL_PREFIX}/include/RuntimeCompiler
+	FILES_MATCHING PATTERN "*.h")
+install(TARGETS RuntimeObjectSystem RuntimeCompiler 
+	DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/)
+
 if(BUILD_EXAMPLES)
 
 	#
