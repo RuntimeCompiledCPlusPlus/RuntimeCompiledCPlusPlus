@@ -32,7 +32,7 @@
 #include "IGameManager.h"
 
 #include "../../Common/AUOrientation3D.inl"
-#include "../../Common/AUArray.inl"
+#include "../../RuntimeCompiler/AUArray.h"
 
 #include "../../Renderer/AURenMesh.h"
 #include "../../Renderer/AURenderContext.h"

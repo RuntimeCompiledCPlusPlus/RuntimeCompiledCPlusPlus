@@ -20,7 +20,7 @@
 #ifndef IFILECHANGENOTIFIER_INCLUDED
 #define IFILECHANGENOTIFIER_INCLUDED
 
-#include "../Common/AUArray.inl"
+#include "../RuntimeCompiler/AUArray.h"
 #include <set>
 
 struct IFileChangeListener;

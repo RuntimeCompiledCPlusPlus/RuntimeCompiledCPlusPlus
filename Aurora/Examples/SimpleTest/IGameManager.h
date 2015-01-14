@@ -24,7 +24,7 @@
 #include "InterfaceIds.h"
 #include "../../Systems/IUpdateable.h" 
 #include "../../RuntimeObjectSystem/ObjectInterface.h"
-#include "../../Common/AUArray.inl"
+#include "../../RuntimeCompiler/AUArray.h"
 
 enum EGameState
 {

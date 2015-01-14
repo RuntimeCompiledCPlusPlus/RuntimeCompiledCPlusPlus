@@ -20,7 +20,7 @@
 #ifndef IOBJECTFACTORYSYSTEM_INCLUDED
 #define IOBJECTFACTORYSYSTEM_INCLUDED
 
-#include "../Common/AUArray.inl"
+#include "../RuntimeCompiler/AUArray.h"
 #include "../RuntimeObjectSystem/ObjectInterface.h"
 #include "../RuntimeCompiler/ICompilerLogger.h"
 struct IRuntimeObjectSystem;
