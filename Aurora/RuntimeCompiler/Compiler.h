@@ -49,14 +49,12 @@ public:
 
     std::string GetObjectFileExtension() const;
 	void RunCompile( const std::vector<FileSystemUtils::Path>& filesToCompile,
-					 const std::vector<FileSystemUtils::Path>& includeDirList,
-					 const std::vector<FileSystemUtils::Path>& libraryDirList,
-					 const std::vector<FileSystemUtils::Path>& linkLibraryList,
-					 RCppOptimizationLevel optimizationLevel_,
-					 const char* pCompileOptions,
-					 const char* pLinkOptions,
-					 const FileSystemUtils::Path& outputFile,
-					 const FileSystemUtils::Path& intermediatePath );
+                     CompilerOptions& compilerOptions,
+                     RCppOptimizationLevel optimizationLevel_,
+                     const FileSystemUtils::Path& outputFile,
+                     const FileSystemUtils::Path& intermediatePath );
+
+
 	bool GetIsComplete() const;
 private:
 	PlatformCompilerImplData* m_pImplData;

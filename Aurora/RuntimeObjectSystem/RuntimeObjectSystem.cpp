@@ -42,27 +42,27 @@ FileSystemUtils::Path RuntimeObjectSystem::ProjectSettings::ms_DefaultIntermedia
 
 static Path GetIntermediateFolder( Path basePath_, RCppOptimizationLevel optimizationLevel_ )
 {
-	std::string folder;
+    std::string folder;
 #ifdef _DEBUG
-	folder = "DEBUG_";
+    folder = "DEBUG_";
 #else
-	folder = "RELEASE_";
+    folder = "RELEASE_";
 #endif
-	folder +=  RCppOptimizationLevelStrings[ GetActualOptimizationLevel( optimizationLevel_ ) ];
-	Path runtimeFolder = basePath_ / folder;
-	return runtimeFolder;
+    folder +=  RCppOptimizationLevelStrings[ GetActualOptimizationLevel( optimizationLevel_ ) ];
+    Path runtimeFolder = basePath_ / folder;
+    return runtimeFolder;
 }
 
 
 RuntimeObjectSystem::RuntimeObjectSystem()
-	: m_pCompilerLogger(0)
-	, m_pSystemTable(0)
-	, m_pObjectFactorySystem(new ObjectFactorySystem())
-	, m_pFileChangeNotifier(new FileChangeNotifier())
-	, m_pBuildTool(new BuildTool())
-	, m_bCompiling( false )
-	, m_bLastLoadModuleSuccess( false )
-	, m_bAutoCompile( true )
+    : m_pCompilerLogger(0)
+    , m_pSystemTable(0)
+    , m_pObjectFactorySystem(new ObjectFactorySystem())
+    , m_pFileChangeNotifier(new FileChangeNotifier())
+    , m_pBuildTool(new BuildTool())
+    , m_bCompiling( false )
+    , m_bLastLoadModuleSuccess( false )
+    , m_bAutoCompile( true )
     , m_TotalLoadedModulesEver(1) // starts at one for current exe
     , m_bProtectionEnabled( true )
     , m_pImpl( 0 )
@@ -74,54 +74,54 @@ RuntimeObjectSystem::RuntimeObjectSystem()
 
 RuntimeObjectSystem::~RuntimeObjectSystem()
 {
-	m_pFileChangeNotifier->RemoveListener(this);
+    m_pFileChangeNotifier->RemoveListener(this);
     DeletePlatformImpl();
-	delete m_pObjectFactorySystem;
-	delete m_pFileChangeNotifier;
-	delete m_pBuildTool;
+    delete m_pObjectFactorySystem;
+    delete m_pFileChangeNotifier;
+    delete m_pBuildTool;
 
-	// Note we do not delete compiler logger, creator should do this
+    // Note we do not delete compiler logger, creator should do this
 }
 
 
 bool RuntimeObjectSystem::Initialise( ICompilerLogger * pLogger, SystemTable* pSystemTable  )
 {
-	m_pCompilerLogger = pLogger;
-	m_pSystemTable = pSystemTable;
+    m_pCompilerLogger = pLogger;
+    m_pSystemTable = pSystemTable;
 
-	m_pBuildTool->Initialise(m_pCompilerLogger);
+    m_pBuildTool->Initialise(m_pCompilerLogger);
 
-	// We start by using the code in the current module
-	IPerModuleInterface* pPerModuleInterface = PerModuleInterface::GetInstance();
+    // We start by using the code in the current module
+    IPerModuleInterface* pPerModuleInterface = PerModuleInterface::GetInstance();
     pPerModuleInterface->SetModuleFileName( "Main Exe" );
 
-	m_pObjectFactorySystem->SetLogger( m_pCompilerLogger );
+    m_pObjectFactorySystem->SetLogger( m_pCompilerLogger );
     m_pObjectFactorySystem->SetRuntimeObjectSystem( this );
 
     FileSystemUtils::Path initialDir = FileSystemUtils::GetCurrentPath();
     m_FoundSourceDirectoryMappings[initialDir] = initialDir;
 
-	SetupObjectConstructors(pPerModuleInterface);
+    SetupObjectConstructors(pPerModuleInterface);
 
-	//add this dir to list of include dirs
-	FileSystemUtils::Path includeDir = FindFile(__FILE__);
-	includeDir = includeDir.ParentPath();
-	AddIncludeDir(includeDir.c_str());
+    //add this dir to list of include dirs
+    FileSystemUtils::Path includeDir = FindFile(__FILE__);
+    includeDir = includeDir.ParentPath();
+    AddIncludeDir(includeDir.c_str());
 
-	//also add the runtime compiler dir to list of dirs
-	includeDir = includeDir.ParentPath() / Path("RuntimeCompiler");
-	AddIncludeDir(includeDir.c_str());
+    //also add the runtime compiler dir to list of dirs
+    includeDir = includeDir.ParentPath() / Path("RuntimeCompiler");
+    AddIncludeDir(includeDir.c_str());
 
-	return true;
+    return true;
 }
 
 
 void RuntimeObjectSystem::OnFileChange(const IAUDynArray<const char*>& filelist)
 {
-	if( !m_bAutoCompile )
-	{
-		return;
-	}
+    if( !m_bAutoCompile )
+    {
+        return;
+    }
 
     for( unsigned short proj = 0; proj < m_Projects.size(); ++proj )
     {
@@ -176,10 +176,10 @@ void RuntimeObjectSystem::OnFileChange(const IAUDynArray<const char*>& filelist)
 
             if( bFindIncludeDependencies )
             {
-				if( bForceIncludeDependencies )
-				{
-					// we should force any depdendent source file with the same name to build.
-				}
+                if( bForceIncludeDependencies )
+                {
+                    // we should force any depdendent source file with the same name to build.
+                }
                 TFileToFilesEqualRange range = m_Projects[ proj ].m_RuntimeIncludeMap.equal_range( fileToBuild.filePath );
                 for( TFileToFilesIterator it = range.first; it != range.second; ++it )
                 {
@@ -190,15 +190,15 @@ void RuntimeObjectSystem::OnFileChange(const IAUDynArray<const char*>& filelist)
         }
     }
 
-	if( !m_bCompiling )
-	{
-		StartRecompile();
-	}
+    if( !m_bCompiling )
+    {
+        StartRecompile();
+    }
 }
 
 bool RuntimeObjectSystem::GetIsCompiledComplete()
 {
-	return m_bCompiling && m_pBuildTool->GetIsComplete();
+    return m_bCompiling && m_pBuildTool->GetIsComplete();
 }
 
 void RuntimeObjectSystem::CompileAllInProject( bool bForceRecompile, unsigned short projectId_ )
@@ -207,25 +207,25 @@ void RuntimeObjectSystem::CompileAllInProject( bool bForceRecompile, unsigned sh
     // since this is a compile all we can clear any pending compiles
     project.m_BuildFileList.clear( );
 
-	// ensure we have an up to date list of files to commpile if autocompile is off
-	if( !m_bAutoCompile )
-	{
-		AUDynArray<IObjectConstructor*> constructors;
-		m_pObjectFactorySystem->GetAll(constructors);
-		SetupRuntimeFileTracking(constructors);
-	}
+    // ensure we have an up to date list of files to commpile if autocompile is off
+    if( !m_bAutoCompile )
+    {
+        AUDynArray<IObjectConstructor*> constructors;
+        m_pObjectFactorySystem->GetAll(constructors);
+        SetupRuntimeFileTracking(constructors);
+    }
 
-	// add all files except headers
+    // add all files except headers
     for( size_t i = 0; i < m_Projects[ projectId_ ].m_RuntimeFileList.size( ); ++i )
-	{
+    {
         BuildTool::FileToBuild fileToBuild( project.m_RuntimeFileList[ i ], true ); //force re-compile on compile all
-		if( fileToBuild.filePath.Extension() != ".h") //TODO: change to check for .cpp and .c as could have .inc files etc.?
-		{
+        if( fileToBuild.filePath.Extension() != ".h") //TODO: change to check for .cpp and .c as could have .inc files etc.?
+        {
             project.m_BuildFileList.push_back( fileToBuild );
-		}
-	}
+        }
+    }
 
-	StartRecompile();
+    StartRecompile();
 }
 
 void RuntimeObjectSystem::CompileAll( bool bForceRecompile )
@@ -238,14 +238,26 @@ void RuntimeObjectSystem::CompileAll( bool bForceRecompile )
 
 void RuntimeObjectSystem::SetAutoCompile( bool autoCompile )
 {
-	m_bAutoCompile = autoCompile;
+    m_bAutoCompile = autoCompile;
 
-	if (m_bAutoCompile)
-	{
-		AUDynArray<IObjectConstructor*> constructors;
-		m_pObjectFactorySystem->GetAll(constructors);
-		SetupRuntimeFileTracking(constructors);
-	}
+    if (m_bAutoCompile)
+    {
+        AUDynArray<IObjectConstructor*> constructors;
+        m_pObjectFactorySystem->GetAll(constructors);
+        SetupRuntimeFileTracking(constructors);
+    }
+}
+
+void RuntimeObjectSystem::SetCompilerOptions(CompilerOptions& cmpOpts, unsigned short projectId_ )
+{
+    cmpOpts.includeDirList   = GetProject( projectId_ ).m_IncludeDirList;
+    cmpOpts.libraryDirList   = GetProject( projectId_ ).m_LibraryDirList;
+    cmpOpts.linkLibraryList  = linkLibraryList;
+
+    cmpOpts.pCompileOptions  = GetProject( projectId_ ).m_CompileOptions;   // string  
+    cmpOpts.pLinkOptions     = GetProject( projectId_ ).m_LinkOptions;      //  
+    cmpOpts.compilerLocation = GetProject( projectId_ ).m_CompilerLocation; //   
+
 }
 
 // RuntimeObjectSystem::AddToRuntimeFileList - filename should be cleaned of "/../" etc, see FileSystemUtils::Path::GetCleanPath()
@@ -254,10 +266,10 @@ void RuntimeObjectSystem::AddToRuntimeFileList( const char* filename, unsigned s
     ProjectSettings& project = GetProject( projectId_ );
     TFileList::iterator it = std::find( project.m_RuntimeFileList.begin( ), project.m_RuntimeFileList.end( ), filename );
     if( it == project.m_RuntimeFileList.end( ) )
-	{
+    {
         project.m_RuntimeFileList.push_back( filename );
         m_pFileChangeNotifier->Watch( filename, this );
-	}
+    }
 }
 
 void RuntimeObjectSystem::RemoveFromRuntimeFileList( const char* filename, unsigned short projectId_ )
@@ -265,9 +277,9 @@ void RuntimeObjectSystem::RemoveFromRuntimeFileList( const char* filename, unsig
     ProjectSettings& project = GetProject( projectId_ );
     TFileList::iterator it = std::find( project.m_RuntimeFileList.begin( ), project.m_RuntimeFileList.end( ), filename );
     if( it != project.m_RuntimeFileList.end( ) )
-	{
+    {
         project.m_RuntimeFileList.erase( it );
-	}
+    }
 }
 
 void RuntimeObjectSystem::StartRecompile()
@@ -324,80 +336,79 @@ void RuntimeObjectSystem::StartRecompile()
     std::vector<BuildTool::FileToBuild> ourBuildFileList( m_Projects[ project ].m_BuildFileList );
 
 
-	//Add libraries which need linking
-	std::vector<FileSystemUtils::Path> linkLibraryList;
-	for( size_t i = 0; i < ourBuildFileList.size(); ++ i )
-	{
+    //Add libraries which need linking
+    for( size_t i = 0; i < ourBuildFileList.size(); ++ i )
+    {
 
         TFileToFilesEqualRange range = m_Projects[ project ].m_RuntimeLinkLibraryMap.equal_range( ourBuildFileList[ i ].filePath );
-		for(TFileToFilesIterator it=range.first; it!=range.second; ++it)
-		{
-			linkLibraryList.push_back( it->second );
-		}
-	}
+        for(TFileToFilesIterator it=range.first; it!=range.second; ++it)
+        {
+            linkLibraryList.push_back( it->second );
+        }
+    }
 
 
-	//Add required source files
-	const std::vector<const char*> vecRequiredFiles = PerModuleInterface::GetInstance()->GetRequiredSourceFiles();
-	FileSystemUtils::Path compileDir = PerModuleInterface::GetInstance()->GetCompiledPath();
-	for( size_t i = 0; i < vecRequiredFiles.size(); ++i )
-	{
-		FileSystemUtils::Path fullpath = compileDir / vecRequiredFiles[i];
+    //Add required source files
+    const std::vector<const char*> vecRequiredFiles = PerModuleInterface::GetInstance()->GetRequiredSourceFiles();
+    FileSystemUtils::Path compileDir = PerModuleInterface::GetInstance()->GetCompiledPath();
+    for( size_t i = 0; i < vecRequiredFiles.size(); ++i )
+    {
+        FileSystemUtils::Path fullpath = compileDir / vecRequiredFiles[i];
         fullpath = FindFile( fullpath );
-		BuildTool::FileToBuild reqFile( fullpath, false );	//don't force compile of these
-		ourBuildFileList.push_back( reqFile );
-	}
+        BuildTool::FileToBuild reqFile( fullpath, false );  //don't force compile of these
+        ourBuildFileList.push_back( reqFile );
+    }
 
     //Add dependency source files
     size_t buildListSize = ourBuildFileList.size(); // we will add to the build list, so get the size before the loop
-	for( size_t i = 0; i < buildListSize; ++ i )
-	{
+    for( size_t i = 0; i < buildListSize; ++ i )
+    {
 
         TFileToFilesEqualRange range = m_Projects[ project ].m_RuntimeSourceDependencyMap.equal_range( ourBuildFileList[ i ].filePath );
-		for(TFileToFilesIterator it=range.first; it!=range.second; ++it)
-		{
-		    BuildTool::FileToBuild reqFile( it->second, false );	//don't force compile of these
-			ourBuildFileList.push_back( reqFile );
-		}
-	}
+        for(TFileToFilesIterator it=range.first; it!=range.second; ++it)
+        {
+            BuildTool::FileToBuild reqFile( it->second, false );    //don't force compile of these
+            ourBuildFileList.push_back( reqFile );
+        }
+    }
 
-	Path intermediateFolder = GetIntermediateFolder(m_Projects[ project ].m_IntermediatePath, m_Projects[ project ].m_OptimizationLevel );
-	m_pBuildTool->BuildModule(	ourBuildFileList,
-                                m_Projects[ project ].m_IncludeDirList,
-                                m_Projects[ project ].m_LibraryDirList,
-								linkLibraryList,
-								m_Projects[ project ].m_OptimizationLevel,
-                                m_Projects[ project ].m_CompileOptions.c_str( ),
-                                m_Projects[ project ].m_LinkOptions.c_str( ),
-								m_CurrentlyCompilingModuleName,
-								intermediateFolder );
+    Path intermediateFolder = GetIntermediateFolder(m_Projects[ project ].m_IntermediatePath, m_Projects[ project ].m_OptimizationLevel );
+
+    // Pack all the m_Projects vectors into a struct
+    SetCompilerOptions(compilerOptions, project);
+
+    m_pBuildTool->BuildModule(  ourBuildFileList,
+                                compilerOptions,
+                                m_Projects[ project ].m_OptimizationLevel,
+                                m_CurrentlyCompilingModuleName,
+                                intermediateFolder );
 }
 
 bool RuntimeObjectSystem::LoadCompiledModule()
 {
-	m_bLastLoadModuleSuccess = false;
-	m_bCompiling = false;
+    m_bLastLoadModuleSuccess = false;
+    m_bCompiling = false;
 
-	// Since the temporary file is created with 0 bytes, loadlibrary can fail with a dialogue we want to prevent. So check size
-	// We pass in the ec value so the function won't throw an exception on error, but the value itself sometimes seems to
-	// be set even without an error, so not sure if it should be relied on.
-	uint64_t sizeOfModule = m_CurrentlyCompilingModuleName.GetFileSize();
+    // Since the temporary file is created with 0 bytes, loadlibrary can fail with a dialogue we want to prevent. So check size
+    // We pass in the ec value so the function won't throw an exception on error, but the value itself sometimes seems to
+    // be set even without an error, so not sure if it should be relied on.
+    uint64_t sizeOfModule = m_CurrentlyCompilingModuleName.GetFileSize();
 
-	HMODULE module = 0;
-	if( sizeOfModule )
-	{
+    HMODULE module = 0;
+    if( sizeOfModule )
+    {
 #ifdef _WIN32
-		module = LoadLibraryA( m_CurrentlyCompilingModuleName.c_str() );
+        module = LoadLibraryA( m_CurrentlyCompilingModuleName.c_str() );
 #else
         module = dlopen( m_CurrentlyCompilingModuleName.c_str(), RTLD_NOW );
 #endif
-	}
+    }
 
-	if (!module)
-	{
-		if (m_pCompilerLogger) { m_pCompilerLogger->LogError( "Failed to load module %s\n",m_CurrentlyCompilingModuleName.c_str()); }
-		return false;
-	}
+    if (!module)
+    {
+        if (m_pCompilerLogger) { m_pCompilerLogger->LogError( "Failed to load module %s\n",m_CurrentlyCompilingModuleName.c_str()); }
+        return false;
+    }
 
     GETPerModuleInterface_PROC pPerModuleInterfaceProcAdd = 0;
 #ifdef _WIN32
@@ -406,22 +417,22 @@ bool RuntimeObjectSystem::LoadCompiledModule()
     pPerModuleInterfaceProcAdd = (GETPerModuleInterface_PROC) dlsym(module,"GetPerModuleInterface");
     
 #endif
-	if (!pPerModuleInterfaceProcAdd)
-	{
-		if (m_pCompilerLogger) { m_pCompilerLogger->LogError( "Failed GetProcAddress\n"); }
-		return false;
-	}
+    if (!pPerModuleInterfaceProcAdd)
+    {
+        if (m_pCompilerLogger) { m_pCompilerLogger->LogError( "Failed GetProcAddress\n"); }
+        return false;
+    }
 
     pPerModuleInterfaceProcAdd()->SetModuleFileName( m_CurrentlyCompilingModuleName.c_str() );
     pPerModuleInterfaceProcAdd( )->SetProjectIdForAllConstructors( m_CurrentlyBuildingProject );
     m_Modules.push_back( module );
 
-	if (m_pCompilerLogger) { m_pCompilerLogger->LogInfo( "Compilation Succeeded\n"); }
+    if (m_pCompilerLogger) { m_pCompilerLogger->LogInfo( "Compilation Succeeded\n"); }
     ++m_TotalLoadedModulesEver;
 
-	SetupObjectConstructors(pPerModuleInterfaceProcAdd());
-    m_Projects[ m_CurrentlyBuildingProject ].m_BuildFileList.clear( );	// clear the files from our compile list
-	m_bLastLoadModuleSuccess = true;
+    SetupObjectConstructors(pPerModuleInterfaceProcAdd());
+    m_Projects[ m_CurrentlyBuildingProject ].m_BuildFileList.clear( );  // clear the files from our compile list
+    m_bLastLoadModuleSuccess = true;
 
     // check if there is another project to build
     bool bNeedAnotherCompile = false;
@@ -434,11 +445,11 @@ bool RuntimeObjectSystem::LoadCompiledModule()
     }
 
     if( bNeedAnotherCompile )//
-	{
-		// we have pending files to compile, go ahead and compile them
-		StartRecompile();
-	}
-	return true;
+    {
+        // we have pending files to compile, go ahead and compile them
+        StartRecompile();
+    }
+    return true;
 }
 
 void RuntimeObjectSystem::SetupObjectConstructors(IPerModuleInterface* pPerModuleInterface)
@@ -446,37 +457,37 @@ void RuntimeObjectSystem::SetupObjectConstructors(IPerModuleInterface* pPerModul
     // Set system Table
     pPerModuleInterface->SetSystemTable( m_pSystemTable );
 
-	// get hold of the constructors
-	const std::vector<IObjectConstructor*> &objectConstructors = pPerModuleInterface->GetConstructors();
-	AUDynArray<IObjectConstructor*> constructors(objectConstructors.size());
-	for (size_t i = 0, iMax = objectConstructors.size(); i < iMax; ++i)
-	{
-		constructors[i] = objectConstructors[i];
-	}
+    // get hold of the constructors
+    const std::vector<IObjectConstructor*> &objectConstructors = pPerModuleInterface->GetConstructors();
+    AUDynArray<IObjectConstructor*> constructors(objectConstructors.size());
+    for (size_t i = 0, iMax = objectConstructors.size(); i < iMax; ++i)
+    {
+        constructors[i] = objectConstructors[i];
+    }
 
-	if (m_bAutoCompile)
-	{
-		SetupRuntimeFileTracking(constructors);
-	}
+    if (m_bAutoCompile)
+    {
+        SetupRuntimeFileTracking(constructors);
+    }
 
-	m_pObjectFactorySystem->AddConstructors(constructors);
+    m_pObjectFactorySystem->AddConstructors(constructors);
 
 }
 
 void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectConstructor*>& constructors_)
 {
 #ifndef RCCPPOFF
-	// for optimization purposes we skip some actions when running for the first time (i.e. no previous constructors)
-	static bool bFirstTime = true;
+    // for optimization purposes we skip some actions when running for the first time (i.e. no previous constructors)
+    static bool bFirstTime = true;
 
-	for (size_t i = 0, iMax = constructors_.Size(); i < iMax; ++i)
-	{
-		const char* pFilename = constructors_[i]->GetFileName(); // GetFileName returns full path including GetCompiledPath()
-		if( !pFilename )
-		{
-			continue;
-		}
-		Path filePath = pFilename;
+    for (size_t i = 0, iMax = constructors_.Size(); i < iMax; ++i)
+    {
+        const char* pFilename = constructors_[i]->GetFileName(); // GetFileName returns full path including GetCompiledPath()
+        if( !pFilename )
+        {
+            continue;
+        }
+        Path filePath = pFilename;
         filePath = filePath.GetCleanPath();
         filePath = FindFile( filePath );
 
@@ -484,79 +495,79 @@ void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectCons
         ProjectSettings& project = GetProject( projectId );
         AddToRuntimeFileList( filePath.c_str( ), projectId );
 
-		if( !bFirstTime )
-		{
- 			//remove old include file mappings for this file
+        if( !bFirstTime )
+        {
+            //remove old include file mappings for this file
             TFileToFilesIterator itrCurr = project.m_RuntimeIncludeMap.begin( );
             while( itrCurr != project.m_RuntimeIncludeMap.end( ) )
-			{
-				if( itrCurr->second == filePath )
-				{
+            {
+                if( itrCurr->second == filePath )
+                {
                     TFileToFilesIterator itrErase = itrCurr;
                     ++itrCurr;
                     project.m_RuntimeIncludeMap.erase( itrErase );
-				}
-				else
-				{
-					++itrCurr;
-				}
-			}
+                }
+                else
+                {
+                    ++itrCurr;
+                }
+            }
 
             //remove previous link libraries for this file
             project.m_RuntimeLinkLibraryMap.erase( filePath );
 
             //remove previous source dependencies
             project.m_RuntimeSourceDependencyMap.erase( filePath );
-		}
+        }
 
         //we need the compile path for some platforms where the __FILE__ path is relative to the compile path
-		FileSystemUtils::Path compileDir = constructors_[i]->GetCompiledPath();
+        FileSystemUtils::Path compileDir = constructors_[i]->GetCompiledPath();
 
-		//add include file mappings
-		for (size_t includeNum = 0; includeNum <= constructors_[i]->GetMaxNumIncludeFiles(); ++includeNum)
-		{
-			const char* pIncludeFile = constructors_[i]->GetIncludeFile(includeNum);
-			if( pIncludeFile )
-			{
+        //add include file mappings
+        for (size_t includeNum = 0; includeNum <= constructors_[i]->GetMaxNumIncludeFiles(); ++includeNum)
+        {
+            const char* pIncludeFile = constructors_[i]->GetIncludeFile(includeNum);
+            if( pIncludeFile )
+            {
                 FileSystemUtils::Path pathInc = compileDir / pIncludeFile;
                 pathInc = FindFile( pathInc.GetCleanPath() );
-				TFileToFilePair includePathPair;
-				includePathPair.first = pathInc;
-				includePathPair.second = filePath;
+                TFileToFilePair includePathPair;
+                includePathPair.first = pathInc;
+                includePathPair.second = filePath;
                 AddToRuntimeFileList( pathInc.c_str(), projectId );
                 project.m_RuntimeIncludeMap.insert( includePathPair );
-			}
-		}
+            }
+        }
             
 
- 		//add link library file mappings
-		for (size_t linklibraryNum = 0; linklibraryNum <= constructors_[i]->GetMaxNumLinkLibraries(); ++linklibraryNum)
-		{
-			const char* pLinkLibrary = constructors_[i]->GetLinkLibrary(linklibraryNum);
-			if( pLinkLibrary )
-			{
+        //add link library file mappings
+        for (size_t linklibraryNum = 0; linklibraryNum <= constructors_[i]->GetMaxNumLinkLibraries(); ++linklibraryNum)
+        {
+            const char* pLinkLibrary = constructors_[i]->GetLinkLibrary(linklibraryNum);
+            if( pLinkLibrary )
+            {
                 // We do not use FindFiles for Linked Libraries as these are searched for on
                 // the library paths, which are themselves searched for.
-				TFileToFilePair linklibraryPathPair;
-				linklibraryPathPair.first = filePath;
-				linklibraryPathPair.second = pLinkLibrary;
+                TFileToFilePair linklibraryPathPair;
+                linklibraryPathPair.first = filePath;
+                linklibraryPathPair.second = pLinkLibrary;
                 project.m_RuntimeLinkLibraryMap.insert( linklibraryPathPair );
-			}
-		}
+            }
+        }
 
         //add source dependency file mappings
-		for (size_t num = 0; num <= constructors_[i]->GetMaxNumSourceDependencies(); ++num)
-		{
-			const char* pSourceDependency = constructors_[i]->GetSourceDependency(num);
-			if( pSourceDependency )
-			{
+        for (size_t num = 0; num <= constructors_[i]->GetMaxNumSourceDependencies(); ++num)
+        {
+            const char* pSourceDependency = constructors_[i]->GetSourceDependency(num);
+            if( pSourceDependency )
+            {
                 FileSystemUtils::Path pathInc = compileDir / pSourceDependency;
                 pathInc = FindFile( pathInc.GetCleanPath() );
                 FileSystemUtils::Path pathSrc = pathInc;
                 pathSrc.ReplaceExtension( ".cpp" );
-				TFileToFilePair sourcePathPair;
-				sourcePathPair.first = filePath;
-				sourcePathPair.second = pathSrc;
+                TFileToFilePair sourcePathPair;
+                sourcePathPair.first = filePath;
+                sourcePathPair.second = pathSrc;
                 project.m_RuntimeSourceDependencyMap.insert( sourcePathPair );
                 
                 // if the include file with a source dependancy is logged as an runtime include, then we mark this .cpp as compile dependencies on change
@@ -566,15 +577,15 @@ void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectCons
                     // add source file to runtime file list
                     AddToRuntimeFileList( pathSrc.c_str(), projectId );
 
-					// also add this as a source dependency, so it gets force compiled on change of header (and not just compiled)
-					TFileToFilePair includePathPair;
-					includePathPair.first = pathInc;
-					includePathPair.second = pathSrc;
-					project.m_RuntimeIncludeMap.insert( includePathPair );
+                    // also add this as a source dependency, so it gets force compiled on change of header (and not just compiled)
+                    TFileToFilePair includePathPair;
+                    includePathPair.first = pathInc;
+                    includePathPair.second = pathSrc;
+                    project.m_RuntimeIncludeMap.insert( includePathPair );
                 }
-			}
-		}
-	}
+            }
+        }
+    }
 
     bFirstTime = false;
 #endif
@@ -606,40 +617,45 @@ void RuntimeObjectSystem::SetAdditionalCompileOptions( const char *options, unsi
     GetProject( projectId_ ).m_CompileOptions = options;
 }
 
+void RuntimeObjectSystem::SetCompilerLocation( const char *path, unsigned short projectId_ )
+{
+    GetProject( projectId_ ).m_CompilerLocation = path;
+}
+
 void RuntimeObjectSystem::SetAdditionalLinkOptions( const char *options, unsigned short projectId_ )
 {
     GetProject( projectId_ ).m_LinkOptions = options;
 }
 
-void RuntimeObjectSystem::SetOptimizationLevel( RCppOptimizationLevel optimizationLevel_,	unsigned short projectId_ )
+void RuntimeObjectSystem::SetOptimizationLevel( RCppOptimizationLevel optimizationLevel_,   unsigned short projectId_ )
 {
     GetProject( projectId_ ).m_OptimizationLevel = optimizationLevel_;
 }
 
-RCppOptimizationLevel RuntimeObjectSystem::GetOptimizationLevel(					unsigned short projectId_ )
+RCppOptimizationLevel RuntimeObjectSystem::GetOptimizationLevel(                    unsigned short projectId_ )
 {
-	return GetProject( projectId_ ).m_OptimizationLevel;
+    return GetProject( projectId_ ).m_OptimizationLevel;
 }
 
 void RuntimeObjectSystem::SetIntermediateDir(            const char* path_,      unsigned short projectId_ )
 {
-	GetProject( projectId_ ).m_IntermediatePath = path_;
+    GetProject( projectId_ ).m_IntermediatePath = path_;
 }
 
 void RuntimeObjectSystem::CleanObjectFiles() const
 {
     if( m_pBuildTool )
     {
-		for( unsigned short proj = 0; proj < m_Projects.size(); ++proj )
-		{
-			for( int optimizationLevel = 0;
-					optimizationLevel < RCCPPOPTIMIZATIONLEVEL_SIZE;
-					++optimizationLevel )
-			{
-				Path intermediateFolder = GetIntermediateFolder( m_Projects[ proj ].m_IntermediatePath, RCppOptimizationLevel( optimizationLevel ) );
-				m_pBuildTool->Clean( intermediateFolder );
-			}
-		}
+        for( unsigned short proj = 0; proj < m_Projects.size(); ++proj )
+        {
+            for( int optimizationLevel = 0;
+                    optimizationLevel < RCCPPOPTIMIZATIONLEVEL_SIZE;
+                    ++optimizationLevel )
+            {
+                Path intermediateFolder = GetIntermediateFolder( m_Projects[ proj ].m_IntermediatePath, RCppOptimizationLevel( optimizationLevel ) );
+                m_pBuildTool->Clean( intermediateFolder );
+            }
+        }
     }
 }
 

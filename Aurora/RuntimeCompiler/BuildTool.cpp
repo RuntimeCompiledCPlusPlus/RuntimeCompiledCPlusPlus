@@ -59,12 +59,8 @@ void BuildTool::Initialise( ICompilerLogger * pLogger )
 }
 
 void BuildTool::BuildModule( const std::vector<FileToBuild>& buildFileList_,
-							 const std::vector<FileSystemUtils::Path>& includeDirList_,
-							 const std::vector<FileSystemUtils::Path>& libraryDirList_,
-							 const std::vector<FileSystemUtils::Path>& linkLibraryList_,
+		                     CompilerOptions& compilerOptions,
 							 RCppOptimizationLevel optimizationLevel_,
-							 const char* pCompileOptions_,
-							 const char* pLinkOptions_,
 							 const FileSystemUtils::Path& moduleName_,
 							 const FileSystemUtils::Path& intermediatePath_  )
 {
@@ -127,5 +123,12 @@ void BuildTool::BuildModule( const std::vector<FileToBuild>& buildFileList_,
 		}
 	}
 
-	m_Compiler.RunCompile( compileFileList, includeDirList_, libraryDirList_, linkLibraryList_, optimizationLevel_, pCompileOptions_, pLinkOptions_, moduleName_, intermediatePath_ );
+	m_Compiler.RunCompile( compileFileList,
+						   compilerOptions,
+						   optimizationLevel_, 
+						   moduleName_, 
+						   intermediatePath_ );
+
+
+
 }

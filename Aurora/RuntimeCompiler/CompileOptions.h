@@ -17,6 +17,8 @@
 
 #pragma once
 
+#include "FileSystemUtils.h"
+
 enum RCppOptimizationLevel
 {
 	RCCPPOPTIMIZATIONLEVEL_DEFAULT = 0,		// RCCPPOPTIMIZATIONLEVEL_DEBUG in DEBUG, RCCPPOPTIMIZATIONLEVEL_PERF in release. This is the default state.
@@ -47,3 +49,12 @@ inline RCppOptimizationLevel GetActualOptimizationLevel( RCppOptimizationLevel o
 	}
 	return optimizationLevel_;
 }
+
+struct CompilerOptions {
+	std::vector<FileSystemUtils::Path> includeDirList;
+	std::vector<FileSystemUtils::Path> libraryDirList;
+	std::vector<FileSystemUtils::Path> linkLibraryList;  // TODO: add 
+	std::string pCompileOptions;
+	std::string pLinkOptions;
+	std::string compilerLocation;
+};

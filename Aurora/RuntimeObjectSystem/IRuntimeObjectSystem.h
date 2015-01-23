@@ -98,6 +98,7 @@ struct IRuntimeObjectSystem : public ITestBuildNotifier
     virtual void AddLibraryDir(                 const char *path_,      unsigned short projectId_ = 0 ) = 0;
     virtual void SetAdditionalCompileOptions(   const char *options,    unsigned short projectId_ = 0 ) = 0;
     virtual void SetAdditionalLinkOptions(      const char *options,    unsigned short projectId_ = 0 ) = 0;
+    virtual void SetCompilerLocation        (   const char* path,       unsigned short projectId_ = 0 ) = 0;
     virtual void SetOptimizationLevel( RCppOptimizationLevel optimizationLevel_,	unsigned short projectId_ = 0 ) = 0;
     virtual RCppOptimizationLevel GetOptimizationLevel(					unsigned short projectId_ = 0 ) = 0;
 

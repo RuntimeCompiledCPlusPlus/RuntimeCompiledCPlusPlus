@@ -28,6 +28,10 @@
 #include <string>
 #include <vector>
 #include <iostream>
+
+#include <fstream>
+#include <sstream>
+
 #include "assert.h"
 #include <sys/wait.h>
 
@@ -120,15 +124,27 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
 }
 
 void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToCompile,
-					 const std::vector<FileSystemUtils::Path>& includeDirList,
-					 const std::vector<FileSystemUtils::Path>& libraryDirList,
-                     const std::vector<FileSystemUtils::Path>& linkLibraryList,
-                     RCppOptimizationLevel optimizationLevel_,
-					 const char* pCompileOptions,
-					 const char* pLinkOptions,
-					 const FileSystemUtils::Path& outputFile,
-					 const FileSystemUtils::Path& intermediatePath )
+                 CompilerOptions& compilerOptions,
+                 RCppOptimizationLevel optimizationLevel_,
+                 const FileSystemUtils::Path& outputFile,
+                 const FileSystemUtils::Path& intermediatePath )
+
 {
+    std::vector<FileSystemUtils::Path> includeDirList = compilerOptions.includeDirList;
+    std::vector<FileSystemUtils::Path> libraryDirList = compilerOptions.libraryDirList;
+    std::vector<FileSystemUtils::Path> linkLibraryList = compilerOptions.linkLibraryList;
+    const char* pCompileOptions =  compilerOptions.pCompileOptions.c_str();
+    const char* pLinkOptions = compilerOptions.pLinkOptions.c_str();
+
+    std::string compilerLocation = compilerOptions.compilerLocation;
+    if (compilerLocation.size()==0){
+#ifdef __APPLE__
+        compilerLocation = "clang++ ";
+#else
+        compilerLocation = "g++ ";
+#endif //__APPLE__        
+    }
+
     //NOTE: Currently doesn't check if a prior compile is ongoing or not, which could lead to memory leaks
  	m_pImplData->m_bCompileIsComplete = false;
     
@@ -180,9 +196,9 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
     m_pImplData->m_PipeStdErr[0] = 0;
 
 #ifdef __APPLE__
-        std::string compileString = "clang++ -g -fvisibility=hidden -Xlinker -dylib ";
+        std::string compileString = compilerLocation +" "+ "-g -fvisibility=hidden -Xlinker -dylib ";
 #else
-	std::string compileString = "g++ -g -fPIC -fvisibility=hidden -shared ";
+	std::string compileString = compilerLocation +" "+ "-g -fPIC -fvisibility=hidden -shared ";
 #endif //__APPLE__
 
 #ifndef __LP64__
