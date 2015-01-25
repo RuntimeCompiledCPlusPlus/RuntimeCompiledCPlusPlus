@@ -123,19 +123,18 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
     m_pImplData->m_pLogger = pLogger;
 }
 
-void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToCompile_,
-							const CompilerOptions&						compilerOptions_,
-							std::vector<FileSystemUtils::Path>			linkLibraryList_,
-							const FileSystemUtils::Path&				moduleName_ )
+void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>&	filesToCompile_,
+			   const CompilerOptions&			compilerOptions_,
+			   std::vector<FileSystemUtils::Path>		linkLibraryList_,
+			    const FileSystemUtils::Path&		moduleName_ )
 
 {
-    std::vector<FileSystemUtils::Path> includeDirList = compilerOptions_.includeDirList;
-    std::vector<FileSystemUtils::Path> libraryDirList = compilerOptions_.libraryDirList;
-    std::vector<FileSystemUtils::Path> linkLibraryList = compilerOptions_.linkLibraryList;
-    const char* pCompileOptions =  compilerOptions_.pCompileOptions.c_str();
-    const char* pLinkOptions = compilerOptions_.pLinkOptions.c_str();
+    const std::vector<FileSystemUtils::Path>& includeDirList = compilerOptions_.includeDirList;
+    const std::vector<FileSystemUtils::Path>& libraryDirList = compilerOptions_.libraryDirList;
+    const char* pCompileOptions =  compilerOptions_.compileOptions.c_str();
+    const char* pLinkOptions = compilerOptions_.linkOptions.c_str();
 
-    std::string compilerLocation = compilerOptions_.compilerLocation;
+    std::string compilerLocation = compilerOptions_.compilerLocation.m_string;
     if (compilerLocation.size()==0){
 #ifdef __APPLE__
         compilerLocation = "clang++ ";
@@ -144,52 +143,8 @@ void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToComp
 #endif //__APPLE__        
     }
 
-    
-    // dump compiler options to a /tmp 
-    stringstream outputLogPath;
-    outputLogPath << outputFile.ParentPath().c_str() << "/RCCpp_compiler_options.txt";
-
-    std::ofstream myfile (outputLogPath.str().c_str() );
-
-    myfile << "===includeDirList==="<<std::endl;
-    myfile << "size: " <<includeDirList.size()<<std::endl;
-    for (int i = 0; i < includeDirList.size(); ++i)
-    {
-        std::string item =includeDirList[i].c_str();
-        myfile << item << std::endl;         
-    }
-
-    myfile << "===libraryDirList==="<<std::endl;
-    myfile << "size: " <<libraryDirList.size()<<std::endl;
-    for (int i = 0; i < libraryDirList.size(); ++i)
-    {
-        std::string item =libraryDirList[i].c_str();
-        myfile << item << std::endl;     
-    }
-
-    myfile << "===linkLibraryList==="<<std::endl;
-    myfile << "size: " <<linkLibraryList.size()<<std::endl;
-    for (int i = 0; i < linkLibraryList.size(); ++i)
-    {
-        std::string item =linkLibraryList[i].c_str();
-        myfile << item << std::endl;     
-    }
-
-    myfile << "===pCompileOptions==="<<std::endl;
-    myfile << pCompileOptions <<std::endl;
-
-    myfile << "===pLinkOptions==="<<std::endl;
-    myfile << pLinkOptions <<std::endl;
-
-    myfile << "===compilerLocation==="<<std::endl;
-    myfile << compilerLocation <<std::endl;
-
-    myfile << "=============================================" <<std::endl;
-    myfile.close();
-    
-
     //NOTE: Currently doesn't check if a prior compile is ongoing or not, which could lead to memory leaks
- 	m_pImplData->m_bCompileIsComplete = false;
+	m_pImplData->m_bCompileIsComplete = false;
     
     //create pipes
     if ( pipe( m_pImplData->m_PipeStdOut ) != 0 )
@@ -249,7 +204,7 @@ void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToComp
 #endif
 
 	RCppOptimizationLevel optimizationLevel = GetActualOptimizationLevel( compilerOptions_.optimizationLevel );
-	switch( optimizationLevel_ )
+	switch( optimizationLevel )
 	{
 	case RCCPPOPTIMIZATIONLEVEL_DEFAULT:
 		assert(false);
@@ -292,15 +247,15 @@ void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToComp
 	}
 	
     // files to compile
-    for( size_t i = 0; i < filesToCompile.size(); ++i )
-	{
-        compileString += "\"" + filesToCompile[i].m_string + "\" ";
+    for( size_t i = 0; i < filesToCompile_.size(); ++i )
+    {
+        compileString += "\"" + filesToCompile_[i].m_string + "\" ";
     }
     
     // libraries to link
-    for( size_t i = 0; i < linkLibraryList.size(); ++i )
-	{
-        compileString += " " + linkLibraryList[i].m_string + " ";
+    for( size_t i = 0; i < linkLibraryList_.size(); ++i )
+    {
+        compileString += " " + linkLibraryList_[i].m_string + " ";
     }
     
     
