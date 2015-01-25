@@ -50,11 +50,13 @@ inline RCppOptimizationLevel GetActualOptimizationLevel( RCppOptimizationLevel o
 	return optimizationLevel_;
 }
 
-struct CompilerOptions {
-	std::vector<FileSystemUtils::Path> includeDirList;
-	std::vector<FileSystemUtils::Path> libraryDirList;
-	std::vector<FileSystemUtils::Path> linkLibraryList;  // TODO: add 
-	std::string pCompileOptions;
-	std::string pLinkOptions;
-	std::string compilerLocation;
+struct CompilerOptions
+{
+	std::vector<FileSystemUtils::Path>	includeDirList;
+	std::vector<FileSystemUtils::Path>	libraryDirList;
+	std::string							compileOptions;
+	std::string							linkOptions;
+  	RCppOptimizationLevel				optimizationLevel;
+	FileSystemUtils::Path				intermediatePath;
+	FileSystemUtils::Path				compilerLocation;
 };

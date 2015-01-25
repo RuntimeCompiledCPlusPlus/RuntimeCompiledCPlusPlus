@@ -123,20 +123,19 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
     m_pImplData->m_pLogger = pLogger;
 }
 
-void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToCompile,
-                 CompilerOptions& compilerOptions,
-                 RCppOptimizationLevel optimizationLevel_,
-                 const FileSystemUtils::Path& outputFile,
-                 const FileSystemUtils::Path& intermediatePath )
+void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToCompile_,
+							const CompilerOptions&						compilerOptions_,
+							std::vector<FileSystemUtils::Path>			linkLibraryList_,
+							const FileSystemUtils::Path&				moduleName_ )
 
 {
-    std::vector<FileSystemUtils::Path> includeDirList = compilerOptions.includeDirList;
-    std::vector<FileSystemUtils::Path> libraryDirList = compilerOptions.libraryDirList;
-    std::vector<FileSystemUtils::Path> linkLibraryList = compilerOptions.linkLibraryList;
-    const char* pCompileOptions =  compilerOptions.pCompileOptions.c_str();
-    const char* pLinkOptions = compilerOptions.pLinkOptions.c_str();
+    std::vector<FileSystemUtils::Path> includeDirList = compilerOptions_.includeDirList;
+    std::vector<FileSystemUtils::Path> libraryDirList = compilerOptions_.libraryDirList;
+    std::vector<FileSystemUtils::Path> linkLibraryList = compilerOptions_.linkLibraryList;
+    const char* pCompileOptions =  compilerOptions_.pCompileOptions.c_str();
+    const char* pLinkOptions = compilerOptions_.pLinkOptions.c_str();
 
-    std::string compilerLocation = compilerOptions.compilerLocation;
+    std::string compilerLocation = compilerOptions_.compilerLocation;
     if (compilerLocation.size()==0){
 #ifdef __APPLE__
         compilerLocation = "clang++ ";
@@ -240,16 +239,16 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
     m_pImplData->m_PipeStdErr[0] = 0;
 
 #ifdef __APPLE__
-        std::string compileString = compilerLocation +" "+ "-g -fvisibility=hidden -Xlinker -dylib ";
+    std::string compileString = compilerLocation + " " + "-g -fvisibility=hidden -Xlinker -dylib ";
 #else
-	std::string compileString = compilerLocation +" "+ "-g -fPIC -fvisibility=hidden -shared ";
+	std::string compileString = compilerLocation + " " + "-g -fPIC -fvisibility=hidden -shared ";
 #endif //__APPLE__
 
 #ifndef __LP64__
 	compileString += "-m32 ";
 #endif
 
-	optimizationLevel_ = GetActualOptimizationLevel( optimizationLevel_ );
+	RCppOptimizationLevel optimizationLevel = GetActualOptimizationLevel( compilerOptions_.optimizationLevel );
 	switch( optimizationLevel_ )
 	{
 	case RCCPPOPTIMIZATIONLEVEL_DEFAULT:
@@ -277,7 +276,7 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
     }
     
     // output file
-    compileString += "-o " + outputFile.m_string + " ";
+    compileString += "-o " + moduleName_.m_string + " ";
 
 
 	if( pCompileOptions )

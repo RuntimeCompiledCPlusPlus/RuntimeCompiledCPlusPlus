@@ -49,11 +49,10 @@ public:
 		bool					forceCompile; //if true the file is compiled even if object file is present
 	};
 
-	void BuildModule( const std::vector<FileToBuild>& buildFileList_, 
-					  CompilerOptions& compilerOptions,
-  					  RCppOptimizationLevel optimizationLevel_,
-					  const FileSystemUtils::Path& moduleName_,
-					  const FileSystemUtils::Path& intermediatePath_ );
+	void BuildModule( const std::vector<FileToBuild>&		buildFileList_, 
+					  const CompilerOptions&				compilerOptions_,
+					  std::vector<FileSystemUtils::Path>	linkLibraryList_,
+                      const FileSystemUtils::Path&			moduleName_ );
 
 	bool GetIsComplete()
 	{

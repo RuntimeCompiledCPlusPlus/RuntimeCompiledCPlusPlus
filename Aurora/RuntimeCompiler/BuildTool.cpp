@@ -58,11 +58,10 @@ void BuildTool::Initialise( ICompilerLogger * pLogger )
 	m_Compiler.Initialise(pLogger);
 }
 
-void BuildTool::BuildModule( const std::vector<FileToBuild>& buildFileList_,
-		                     CompilerOptions& compilerOptions,
-							 RCppOptimizationLevel optimizationLevel_,
-							 const FileSystemUtils::Path& moduleName_,
-							 const FileSystemUtils::Path& intermediatePath_  )
+void BuildTool::BuildModule( const std::vector<FileToBuild>&		buildFileList_, 
+							 const CompilerOptions&					compilerOptions_,
+							 std::vector<FileSystemUtils::Path>		linkLibraryList_,
+							 const FileSystemUtils::Path&			moduleName_  )
 {
 	// Initial version is very basic, simply compiles them.
 	Path objectFileExtension = m_Compiler.GetObjectFileExtension();
@@ -107,7 +106,7 @@ void BuildTool::BuildModule( const std::vector<FileToBuild>& buildFileList_,
 		if( find( forcedCompileFileList.begin(), forcedCompileFileList.end(), buildFile ) == forcedCompileFileList.end() )
 		{
 			// Check if we have a pre-compiled object version of this file, and if so use that.
-			Path objectFileName = intermediatePath_ / buildFile.Filename();
+			Path objectFileName = compilerOptions_.intermediatePath / buildFile.Filename();
 			objectFileName.ReplaceExtension(objectFileExtension.c_str());
 
 			if( objectFileName.Exists() && buildFile.Exists() )
@@ -123,12 +122,5 @@ void BuildTool::BuildModule( const std::vector<FileToBuild>& buildFileList_,
 		}
 	}
 
-	m_Compiler.RunCompile( compileFileList,
-						   compilerOptions,
-						   optimizationLevel_, 
-						   moduleName_, 
-						   intermediatePath_ );
-
-
-
+	m_Compiler.RunCompile( compileFileList, compilerOptions_, linkLibraryList_, moduleName_ );
 }
