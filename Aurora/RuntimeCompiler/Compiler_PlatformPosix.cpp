@@ -136,11 +136,11 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>&	filesToComp
 
     std::string compilerLocation = compilerOptions_.compilerLocation.m_string;
     if (compilerLocation.size()==0){
-#ifdef __APPLE__
+#ifdef __clang__
         compilerLocation = "clang++ ";
-#else
+#else // default to g++
         compilerLocation = "g++ ";
-#endif //__APPLE__        
+#endif //__clang__
     }
 
     //NOTE: Currently doesn't check if a prior compile is ongoing or not, which could lead to memory leaks
@@ -193,11 +193,7 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>&	filesToComp
     close( m_pImplData->m_PipeStdErr[0] );
     m_pImplData->m_PipeStdErr[0] = 0;
 
-#ifdef __APPLE__
-    std::string compileString = compilerLocation + " " + "-g -fvisibility=hidden -Xlinker -dylib ";
-#else
 	std::string compileString = compilerLocation + " " + "-g -fPIC -fvisibility=hidden -shared ";
-#endif //__APPLE__
 
 #ifndef __LP64__
 	compileString += "-m32 ";
