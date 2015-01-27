@@ -426,7 +426,7 @@ int ObjectFactorySystem::GetObjectConstructorHistorySize()
 
 bool ObjectFactorySystem::UndoObjectConstructorChange()
 {
-	if( m_HistoryCurrentLocation < m_HistoryConstructors.size() )
+	if( m_HistoryCurrentLocation < (int)m_HistoryConstructors.size() )
 	{
 		++m_HistoryCurrentLocation;
 		int loc = m_HistoryConstructors.size() - m_HistoryCurrentLocation;

@@ -77,6 +77,7 @@ public:
     virtual void AddLibraryDir(                 const char* path_,      unsigned short projectId_ = 0 );
     virtual void SetAdditionalCompileOptions(   const char* options,    unsigned short projectId_ = 0 );
     virtual void SetAdditionalLinkOptions(      const char* options,    unsigned short projectId_ = 0 );
+    virtual void SetCompilerLocation        (   const char* path,       unsigned short projectId_ = 0 );
     virtual void SetOptimizationLevel( RCppOptimizationLevel optimizationLevel_,	unsigned short projectId_ = 0 );
     virtual RCppOptimizationLevel GetOptimizationLevel(					unsigned short projectId_ = 0 );
     virtual void SetIntermediateDir(            const char* path_,      unsigned short projectId_ = 0 );
@@ -142,7 +143,7 @@ public:
 
 	// ~IFileChangeListener
 
-
+    std::vector<FileSystemUtils::Path> linkLibraryList;
 
 private:
     typedef std::vector<FileSystemUtils::Path>                              TFileList;
@@ -176,10 +177,14 @@ private:
     struct ProjectSettings
     {
 		ProjectSettings()
-			: m_OptimizationLevel( RCCPPOPTIMIZATIONLEVEL_DEFAULT )
-			, m_IntermediatePath( ms_DefaultIntermediatePath )
-		{ }
-        TFileList                           m_RuntimeFileList;
+		{
+			m_CompilerOptions.optimizationLevel = RCCPPOPTIMIZATIONLEVEL_DEFAULT;
+			m_CompilerOptions.intermediatePath = ms_DefaultIntermediatePath;
+		}
+
+		CompilerOptions						m_CompilerOptions;
+
+		TFileList                           m_RuntimeFileList;
         TFileToFilesMap                     m_RuntimeIncludeMap;
         TFileToFilesMap			            m_RuntimeLinkLibraryMap;
         TFileToFilesMap                     m_RuntimeSourceDependencyMap;
@@ -187,12 +192,6 @@ private:
         std::vector<BuildTool::FileToBuild> m_BuildFileList;
         std::vector<BuildTool::FileToBuild> m_PendingBuildFileList; // if a compile is already underway, store files here.
 
-        TFileList                           m_IncludeDirList;
-        TFileList                           m_LibraryDirList;
-        std::string                         m_CompileOptions;
-        std::string                         m_LinkOptions;
-		FileSystemUtils::Path				m_IntermediatePath;
-		RCppOptimizationLevel				m_OptimizationLevel;
 		static FileSystemUtils::Path		ms_DefaultIntermediatePath;
     };
     std::vector<ProjectSettings>            m_Projects;
