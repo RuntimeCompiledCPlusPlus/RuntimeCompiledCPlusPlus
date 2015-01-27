@@ -283,15 +283,10 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
 }
 
 
-void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToCompile,
-					 const std::vector<FileSystemUtils::Path>& includeDirList,
-					 const std::vector<FileSystemUtils::Path>& libraryDirList,
-					 const std::vector<FileSystemUtils::Path>& linkLibraryList,
-					 RCppOptimizationLevel optimizationLevel_,
-					 const char* pCompileOptions,
-					 const char* pLinkOptions,
-					 const FileSystemUtils::Path& outputFile,
-					 const FileSystemUtils::Path& intermediatePath )
+void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToCompile_,
+							const CompilerOptions&						compilerOptions_,
+							std::vector<FileSystemUtils::Path>			linkLibraryList_,
+							const FileSystemUtils::Path&				moduleName_ )
 {
     if( m_pImplData->m_VSPath.empty() )
     {
@@ -307,8 +302,8 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 	std::string flags = "/nologo /Zi /FC /MD /LD ";	//also need debug information in release
 #endif
 
-	optimizationLevel_ = GetActualOptimizationLevel( optimizationLevel_ );
-	switch( optimizationLevel_ )
+	RCppOptimizationLevel optimizationLevel = GetActualOptimizationLevel( compilerOptions_.optimizationLevel );
+	switch( optimizationLevel )
 	{
 	case RCCPPOPTIMIZATIONLEVEL_DEFAULT:
 		assert(false);
@@ -331,42 +326,39 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 		m_pImplData->InitialiseProcess();
 	}
 
-	if( pCompileOptions )
-	{
-		flags += pCompileOptions;
-	}
+	flags += compilerOptions_.compileOptions;
 
 	std::string linkOptions;
-	bool bHaveLinkOptions = pLinkOptions && strlen( pLinkOptions );
-	if( libraryDirList.size() ||  bHaveLinkOptions )
+	bool bHaveLinkOptions = ( 0 != compilerOptions_.linkOptions.length() );
+	if( compilerOptions_.libraryDirList.size() ||  bHaveLinkOptions )
 	{
 		linkOptions = " /link ";
-		for( size_t i = 0; i < libraryDirList.size(); ++i )
+		for( size_t i = 0; i < compilerOptions_.libraryDirList.size(); ++i )
 		{
-			linkOptions += " /LIBPATH:\"" + libraryDirList[i].m_string + "\"";
+			linkOptions += " /LIBPATH:\"" + compilerOptions_.libraryDirList[i].m_string + "\"";
 		}
 
 		if( bHaveLinkOptions )
 		{
-			linkOptions += pLinkOptions;
+			linkOptions += compilerOptions_.linkOptions;
 		}
 	}
 
 	// Check for intermediate directory, create it if required
 	// There are a lot more checks and robustness that could be added here
-	if ( !intermediatePath.Exists() )
+	if ( !compilerOptions_.intermediatePath.Exists() )
 	{
-		bool success = intermediatePath.CreateDir();
-		if( success && m_pImplData->m_pLogger ) { m_pImplData->m_pLogger->LogInfo("Created intermediate folder \"%s\"\n",intermediatePath.c_str()); }
-		else if( m_pImplData->m_pLogger ) { m_pImplData->m_pLogger->LogError("Error creating intermediate folder \"%s\"\n",intermediatePath.c_str()); }
+		bool success = compilerOptions_.intermediatePath.CreateDir();
+		if( success && m_pImplData->m_pLogger ) { m_pImplData->m_pLogger->LogInfo("Created intermediate folder \"%s\"\n", compilerOptions_.intermediatePath.c_str()); }
+		else if( m_pImplData->m_pLogger ) { m_pImplData->m_pLogger->LogError("Error creating intermediate folder \"%s\"\n", compilerOptions_.intermediatePath.c_str()); }
 	}
 
 
 	//create include path search string
 	std::string strIncludeFiles;
-	for( size_t i = 0; i < includeDirList.size(); ++i )
+	for( size_t i = 0; i < compilerOptions_.includeDirList.size(); ++i )
 	{
-		strIncludeFiles += " /I \"" + includeDirList[i].m_string + "\"";
+		strIncludeFiles += " /I \"" + compilerOptions_.includeDirList[i].m_string + "\"";
 	}
 
 
@@ -377,9 +369,9 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 	// Create compile path search string
 	std::string strFilesToCompile;
 	std::set<std::string> filteredPaths;
-	for( size_t i = 0; i < filesToCompile.size(); ++i )
+	for( size_t i = 0; i < filesToCompile_.size(); ++i )
 	{
-		std::string strPath = filesToCompile[i].m_string;
+		std::string strPath = filesToCompile_[i].m_string;
 		FileSystemUtils::ToLowerInPlace(strPath);
 
 		std::set<std::string>::const_iterator it = filteredPaths.find(strPath);
@@ -391,9 +383,9 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 	}
 
 	std::string strLinkLibraries;
-	for( size_t i = 0; i < linkLibraryList.size(); ++i )
+	for( size_t i = 0; i < linkLibraryList_.size(); ++i )
 	{
-		strLinkLibraries += " \"" + linkLibraryList[i].m_string + "\" ";
+		strLinkLibraries += " \"" + linkLibraryList_[i].m_string + "\" ";
 	}
 	
 
@@ -406,8 +398,8 @@ char* pCharTypeFlags = "";
 
 	// /MP - use multiple processes to compile if possible. Only speeds up compile for multiple files and not link
 	std::string cmdToSend = "cl " + flags + pCharTypeFlags
-		+ " /MP /Fo\"" + intermediatePath.m_string + "\\\\\" "
-		+ "/D WIN32 /EHa /Fe" + outputFile.m_string;
+		+ " /MP /Fo\"" + compilerOptions_.intermediatePath.m_string + "\\\\\" "
+		+ "/D WIN32 /EHa /Fe" + moduleName_.m_string;
 	cmdToSend += " " + strIncludeFiles + " " + strFilesToCompile + strLinkLibraries + linkOptions
 		+ "\necho ";
 	if( m_pImplData->m_pLogger ) m_pImplData->m_pLogger->LogInfo( "%s", cmdToSend.c_str() ); // use %s to prevent any tokens in compile string being interpreted as formating

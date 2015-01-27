@@ -28,6 +28,10 @@
 #include <string>
 #include <vector>
 #include <iostream>
+
+#include <fstream>
+#include <sstream>
+
 #include "assert.h"
 #include <sys/wait.h>
 
@@ -119,18 +123,28 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
     m_pImplData->m_pLogger = pLogger;
 }
 
-void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToCompile,
-					 const std::vector<FileSystemUtils::Path>& includeDirList,
-					 const std::vector<FileSystemUtils::Path>& libraryDirList,
-                     const std::vector<FileSystemUtils::Path>& linkLibraryList,
-                     RCppOptimizationLevel optimizationLevel_,
-					 const char* pCompileOptions,
-					 const char* pLinkOptions,
-					 const FileSystemUtils::Path& outputFile,
-					 const FileSystemUtils::Path& intermediatePath )
+void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>&	filesToCompile_,
+			   const CompilerOptions&			compilerOptions_,
+			   std::vector<FileSystemUtils::Path>		linkLibraryList_,
+			    const FileSystemUtils::Path&		moduleName_ )
+
 {
+    const std::vector<FileSystemUtils::Path>& includeDirList = compilerOptions_.includeDirList;
+    const std::vector<FileSystemUtils::Path>& libraryDirList = compilerOptions_.libraryDirList;
+    const char* pCompileOptions =  compilerOptions_.compileOptions.c_str();
+    const char* pLinkOptions = compilerOptions_.linkOptions.c_str();
+
+    std::string compilerLocation = compilerOptions_.compilerLocation.m_string;
+    if (compilerLocation.size()==0){
+#ifdef __clang__
+        compilerLocation = "clang++ ";
+#else // default to g++
+        compilerLocation = "g++ ";
+#endif //__clang__
+    }
+
     //NOTE: Currently doesn't check if a prior compile is ongoing or not, which could lead to memory leaks
- 	m_pImplData->m_bCompileIsComplete = false;
+	m_pImplData->m_bCompileIsComplete = false;
     
     //create pipes
     if ( pipe( m_pImplData->m_PipeStdOut ) != 0 )
@@ -179,18 +193,14 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
     close( m_pImplData->m_PipeStdErr[0] );
     m_pImplData->m_PipeStdErr[0] = 0;
 
-#ifdef __APPLE__
-        std::string compileString = "clang++ -g -fvisibility=hidden -Xlinker -dylib ";
-#else
-	std::string compileString = "g++ -g -fPIC -fvisibility=hidden -shared ";
-#endif //__APPLE__
+	std::string compileString = compilerLocation + " " + "-g -fPIC -fvisibility=hidden -shared ";
 
 #ifndef __LP64__
 	compileString += "-m32 ";
 #endif
 
-	optimizationLevel_ = GetActualOptimizationLevel( optimizationLevel_ );
-	switch( optimizationLevel_ )
+	RCppOptimizationLevel optimizationLevel = GetActualOptimizationLevel( compilerOptions_.optimizationLevel );
+	switch( optimizationLevel )
 	{
 	case RCCPPOPTIMIZATIONLEVEL_DEFAULT:
 		assert(false);
@@ -217,7 +227,7 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
     }
     
     // output file
-    compileString += "-o " + outputFile.m_string + " ";
+    compileString += "-o " + moduleName_.m_string + " ";
 
 
 	if( pCompileOptions )
@@ -233,15 +243,15 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>& filesToComp
 	}
 	
     // files to compile
-    for( size_t i = 0; i < filesToCompile.size(); ++i )
-	{
-        compileString += "\"" + filesToCompile[i].m_string + "\" ";
+    for( size_t i = 0; i < filesToCompile_.size(); ++i )
+    {
+        compileString += "\"" + filesToCompile_[i].m_string + "\" ";
     }
     
     // libraries to link
-    for( size_t i = 0; i < linkLibraryList.size(); ++i )
-	{
-        compileString += " " + linkLibraryList[i].m_string + " ";
+    for( size_t i = 0; i < linkLibraryList_.size(); ++i )
+    {
+        compileString += " " + linkLibraryList_[i].m_string + " ";
     }
     
     
