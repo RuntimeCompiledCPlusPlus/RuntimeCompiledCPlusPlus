@@ -26,6 +26,17 @@
 class PlatformCompilerImplData;
 struct ICompilerLogger;
 
+struct CompilerOptions
+{
+	std::vector<FileSystemUtils::Path>	includeDirList;
+	std::vector<FileSystemUtils::Path>	libraryDirList;
+	std::string							compileOptions;
+	std::string							linkOptions;
+  	RCppOptimizationLevel				optimizationLevel;
+	FileSystemUtils::Path				intermediatePath;
+	FileSystemUtils::Path				compilerLocation;
+};
+
 class Compiler
 {
 public:
