@@ -415,8 +415,8 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions )
 
 	const size_t    NUMNAMESTOCHECK = 6;
 
-    // supporting: VS2005, VS2008, VS2010, VS2011, VS2013
-    std::string     valueName[NUMNAMESTOCHECK] = {"8.0","9.0","10.0","11.0","12.0","13.0"};
+    // supporting: VS2005, VS2008, VS2010, VS2011, VS2013, VS2015
+    std::string     valueName[NUMNAMESTOCHECK] = {"8.0","9.0","10.0","11.0","12.0","14.0"};
 
     // we start searching for a compatible compiler from the current version backwards
     int startVersion = NUMNAMESTOCHECK - 1;
@@ -439,7 +439,7 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions )
 	case 1800:	//VS 2013
 		startVersion = 4;
 		break;
-	case 1900:	//VS 2014
+	case 1900:	//VS 2015
 		startVersion = 5;
 		break;
 	default:
