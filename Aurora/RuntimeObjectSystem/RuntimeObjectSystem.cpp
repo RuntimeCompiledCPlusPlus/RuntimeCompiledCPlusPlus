@@ -544,31 +544,56 @@ void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectCons
         //add source dependency file mappings
 		for (size_t num = 0; num <= constructors_[i]->GetMaxNumSourceDependencies(); ++num)
 		{
-			const char* pSourceDependency = constructors_[i]->GetSourceDependency(num);
-			if( pSourceDependency )
+			SourceDependencyInfo sourceDependency = constructors_[i]->GetSourceDependency(num);
+			FileSystemUtils::Path pathInc[2];	// array of potential include files for later checks
+			if( sourceDependency.filename )
 			{
-                FileSystemUtils::Path pathInc = compileDir / pSourceDependency;
-                pathInc = FindFile( pathInc.GetCleanPath() );
-                FileSystemUtils::Path pathSrc = pathInc;
-                pathSrc.ReplaceExtension( ".cpp" );
+				FileSystemUtils::Path pathSrc;
+				if( sourceDependency.relativeToPath )
+				{
+					pathSrc = sourceDependency.relativeToPath;
+					if( pathSrc.HasExtension() )
+					{
+						pathInc[1] = compileDir / pathSrc;
+						pathSrc =  compileDir / pathSrc.ParentPath() / sourceDependency.filename;
+					}
+					else
+					{
+						pathSrc =  compileDir / pathSrc / sourceDependency.filename;
+					}
+				}
+				else
+				{
+					pathSrc = compileDir / sourceDependency.filename;
+				}
+
+				pathInc[0] = pathSrc;
+				if( sourceDependency.extension )
+				{
+					pathSrc.ReplaceExtension( sourceDependency.extension );
+				}
+				pathSrc = FindFile( pathSrc.GetCleanPath() );
 				TFileToFilePair sourcePathPair;
 				sourcePathPair.first = filePath;
 				sourcePathPair.second = pathSrc;
                 project.m_RuntimeSourceDependencyMap.insert( sourcePathPair );
                 
                 // if the include file with a source dependancy is logged as an runtime include, then we mark this .cpp as compile dependencies on change
-                TFileToFilesEqualRange range = project.m_RuntimeIncludeMap.equal_range( pathInc );
-                if( range.first != range.second )
-                {
-                    // add source file to runtime file list
-                    AddToRuntimeFileList( pathSrc.c_str(), projectId );
+				for( int inc=0; inc<2; ++inc )
+				{
+					TFileToFilesEqualRange range = project.m_RuntimeIncludeMap.equal_range( pathInc[inc] );
+					if( range.first != range.second )
+					{
+						// add source file to runtime file list
+						AddToRuntimeFileList( pathSrc.c_str(), projectId );
 
-					// also add this as a source dependency, so it gets force compiled on change of header (and not just compiled)
-					TFileToFilePair includePathPair;
-					includePathPair.first = pathInc;
-					includePathPair.second = pathSrc;
-					project.m_RuntimeIncludeMap.insert( includePathPair );
-                }
+						// also add this as a source dependency, so it gets force compiled on change of header (and not just compiled)
+						TFileToFilePair includePathPair;
+						includePathPair.first = pathInc[inc];
+						includePathPair.second = pathSrc;
+						project.m_RuntimeIncludeMap.insert( includePathPair );
+					}
+				}
 			}
 		}
 	}
