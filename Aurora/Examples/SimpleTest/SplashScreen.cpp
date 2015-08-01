@@ -30,10 +30,7 @@
 
 #include <assert.h>
 #include <stdio.h>
-
-#if (_MSC_VER == 1800)
 #include <algorithm>
-#endif
 
 class SplashScreen: public ISplashScreen, public IFileChangeListener, public IGUIEventListener
 {
