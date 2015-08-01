@@ -179,7 +179,7 @@ private:
 		ProjectSettings()
 		{
 			m_CompilerOptions.optimizationLevel = RCCPPOPTIMIZATIONLEVEL_DEFAULT;
-			m_CompilerOptions.intermediatePath = ms_DefaultIntermediatePath;
+			m_CompilerOptions.baseIntermediatePath = ms_DefaultIntermediatePath;
 		}
 
 		CompilerOptions						m_CompilerOptions;
