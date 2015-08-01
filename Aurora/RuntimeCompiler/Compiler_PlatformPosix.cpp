@@ -227,7 +227,7 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>&	filesToComp
 	if( compilerOptions_.intermediatePath.Exists() )
 	{
 		// add save object files
-		compileString = "cd " + compilerOptions_.intermediatePath.m_string + "\n" + compileString;
+		compileString = "cd " + compilerOptions_.intermediatePath.m_string + "\n" + compileString + " --save-temps ";
 		output = compilerOptions_.intermediatePath / "a.out";
 		bCopyOutput = true;
 	}
