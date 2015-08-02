@@ -227,7 +227,7 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>&	filesToComp
 	if( compilerOptions_.intermediatePath.Exists() )
 	{
 		// add save object files
-		compileString = "cd " + compilerOptions_.intermediatePath.m_string + "\n" + compileString + " --save-temps ";
+        compileString = "cd \"" + compilerOptions_.intermediatePath.m_string + "\"\n" + compileString + " --save-temps ";
 		output = compilerOptions_.intermediatePath / "a.out";
 		bCopyOutput = true;
 	}
@@ -279,7 +279,7 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>&	filesToComp
 
 	if( bCopyOutput )
 	{
-		compileString += "\n mv " + output.m_string + " " + moduleName_.m_string + "\n";
+        compileString += "\n mv \"" + output.m_string + "\" \"" + moduleName_.m_string + "\"\n";
 	}
 
     
