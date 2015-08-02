@@ -33,6 +33,7 @@ struct CompilerOptions
 	std::string							compileOptions;
 	std::string							linkOptions;
   	RCppOptimizationLevel				optimizationLevel;
+	FileSystemUtils::Path				baseIntermediatePath;
 	FileSystemUtils::Path				intermediatePath;
 	FileSystemUtils::Path				compilerLocation;
 };
