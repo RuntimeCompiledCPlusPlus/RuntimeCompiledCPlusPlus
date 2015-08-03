@@ -64,6 +64,8 @@ struct ObjectId
 	}
 };
 
+struct SourceDependencyInfo;
+
 struct IObjectConstructor
 {
 	virtual IObject* Construct() = 0;
@@ -76,7 +78,7 @@ struct IObjectConstructor
 	virtual size_t GetMaxNumLinkLibraries() const = 0;
 	virtual const char* GetLinkLibrary( size_t Num_ ) const = 0;
 	virtual size_t GetMaxNumSourceDependencies() const = 0;
-	virtual const char* GetSourceDependency( size_t Num_ ) const = 0;
+	virtual SourceDependencyInfo GetSourceDependency( size_t Num_ ) const = 0;
     virtual void SetProjectId( unsigned short projectId_ ) = 0;
     virtual unsigned short GetProjectId() const = 0;
 

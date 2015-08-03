@@ -235,7 +235,7 @@ public:
 		return 0;
 	}
 
-	virtual const char* GetSourceDependency( size_t Num_ ) const
+	virtual SourceDependencyInfo GetSourceDependency( size_t Num_ ) const
 	{
 #ifndef RCCPPOFF
 		if( m_pSourceDependencyList )
@@ -243,7 +243,7 @@ public:
 			return m_pSourceDependencyList->GetSourceDependency( Num_ );
 		}
 #endif
-		return 0;
+		return SourceDependencyInfo::GetNULL();
 	}
 
 	virtual size_t GetMaxNumSourceDependencies() const
