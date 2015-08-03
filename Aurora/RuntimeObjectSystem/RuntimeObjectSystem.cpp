@@ -566,7 +566,8 @@ void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectCons
 				{
 					pathSrc = compileDir / sourceDependency.filename;
 				}
-
+                pathSrc.ToOSCanonicalCase();
+                pathSrc = pathSrc.DelimitersToOSDefault();
 				pathInc[0] = pathSrc;
 				if( sourceDependency.extension )
 				{
