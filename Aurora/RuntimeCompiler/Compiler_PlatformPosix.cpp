@@ -68,6 +68,7 @@ Compiler::Compiler()
 
 Compiler::~Compiler()
 {
+	delete m_pImplData;
 }
 
 std::string Compiler::GetObjectFileExtension() const
