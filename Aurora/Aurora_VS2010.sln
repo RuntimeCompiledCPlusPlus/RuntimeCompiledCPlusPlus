@@ -52,6 +52,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RuntimeObjectSystem", "Runt
 		{790D95ED-C6E6-24E5-345B-37FB1E098082} = {790D95ED-C6E6-24E5-345B-37FB1E098082}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glfw", "External\glfw\projects\glfw.vcxproj", "{C00481F6-9574-41A5-990F-1F1C30B7AD6F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -140,6 +142,14 @@ Global
 		{FA4E24F1-885C-406B-89A8-436F28D090B2}.Release|Win32.Build.0 = Release|Win32
 		{FA4E24F1-885C-406B-89A8-436F28D090B2}.Release|x64.ActiveCfg = Release|x64
 		{FA4E24F1-885C-406B-89A8-436F28D090B2}.Release|x64.Build.0 = Release|x64
+		{C00481F6-9574-41A5-990F-1F1C30B7AD6F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C00481F6-9574-41A5-990F-1F1C30B7AD6F}.Debug|Win32.Build.0 = Debug|Win32
+		{C00481F6-9574-41A5-990F-1F1C30B7AD6F}.Debug|x64.ActiveCfg = Debug|x64
+		{C00481F6-9574-41A5-990F-1F1C30B7AD6F}.Debug|x64.Build.0 = Debug|x64
+		{C00481F6-9574-41A5-990F-1F1C30B7AD6F}.Release|Win32.ActiveCfg = Release|Win32
+		{C00481F6-9574-41A5-990F-1F1C30B7AD6F}.Release|Win32.Build.0 = Release|Win32
+		{C00481F6-9574-41A5-990F-1F1C30B7AD6F}.Release|x64.ActiveCfg = Release|x64
+		{C00481F6-9574-41A5-990F-1F1C30B7AD6F}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
