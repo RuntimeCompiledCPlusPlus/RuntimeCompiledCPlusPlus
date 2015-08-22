@@ -343,14 +343,6 @@ void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToComp
 			linkOptions += compilerOptions_.linkOptions;
 		}
 	}
-    // faster linking if available: https://randomascii.wordpress.com/2015/07/27/programming-is-puzzles/
-    #if   (_MSC_VER >= 1800)
-        if( linkOptions.empty() )
-        {
-            linkOptions = " /link ";
-        }
-        linkOptions += "/DEBUG:FASTLINK ";
-    #endif
 
 	// Check for intermediate directory, create it if required
 	// There are a lot more checks and robustness that could be added here
