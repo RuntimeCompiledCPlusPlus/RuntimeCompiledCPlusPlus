@@ -151,35 +151,23 @@ void RuntimeObjectSystem::OnFileChange(const IAUDynArray<const char*>& filelist)
             if( fileToBuild.filePath.Extension() != ".h" ) //TODO: change to check for .cpp and .c as could have .inc files etc.?
             {
                 bFindIncludeDependencies = false;
+                pBuildFileList->push_back( fileToBuild );
+
                 // file may be a source dependency, check
                 TFileToFilesIterator itrCurr = m_Projects[ proj ].m_RuntimeSourceDependencyMap.begin( );
                 while( itrCurr != m_Projects[ proj ].m_RuntimeSourceDependencyMap.end( ) )
                 {
                     if( itrCurr->second == fileToBuild.filePath )
                     {
-                        fileToBuild.filePath.ReplaceExtension( ".h" );
-                        bFindIncludeDependencies = true;
-                        bForceIncludeDependencies = false; // a src change, not a header change - so no need to force compile (can just link object file if exists)
-                        break;
+                        BuildTool::FileToBuild fileToBuild( itrCurr->first );
+                        pBuildFileList->push_back( fileToBuild );
                     }
-                    else
-                    {
-                        ++itrCurr;
-                    }
+                    ++itrCurr;
                 }
-
-                if( !bFindIncludeDependencies )
-                {
-                    pBuildFileList->push_back( fileToBuild );
-                }
-            }
+           }
 
             if( bFindIncludeDependencies )
             {
-				if( bForceIncludeDependencies )
-				{
-					// we should force any depdendent source file with the same name to build.
-				}
                 TFileToFilesEqualRange range = m_Projects[ proj ].m_RuntimeIncludeMap.equal_range( fileToBuild.filePath );
                 for( TFileToFilesIterator it = range.first; it != range.second; ++it )
                 {
@@ -568,6 +556,7 @@ void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectCons
 				}
                 pathSrc.ToOSCanonicalCase();
                 pathSrc = pathSrc.DelimitersToOSDefault();
+                pathSrc = pathSrc.GetCleanPath();
 				pathInc[0] = pathSrc;
 				if( sourceDependency.extension )
 				{
