@@ -344,7 +344,7 @@ void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToComp
 		}
 	}
     // faster linking if available: https://randomascii.wordpress.com/2015/07/27/programming-is-puzzles/
-    #if   (_MSC_VER >= 1800)
+    #if   (_MSC_VER >= 1900)
         if( linkOptions.empty() )
         {
             linkOptions = " /link ";
