@@ -21,7 +21,7 @@
 #define FILECHANGENOTIFIER_INCLUDED
 
 #include "IFileChangeNotifier.h"
-#include "IFileMonitor.h"
+#include "SimpleFileWatcher/FileWatcher.h"
 #include <vector>
 #include <map>
 #include <set>
@@ -31,7 +31,7 @@
 
 // Manages the registering of files with the file monitor and triggering
 // Of compilation when a registered file changes
-class FileChangeNotifier : public IFileChangeNotifier, public IFileMonitorListener
+class FileChangeNotifier : public IFileChangeNotifier, public FW::FileWatchListener
 {
 public:
 	FileChangeNotifier();
@@ -74,12 +74,13 @@ public:
 	// ~IFileChangeNotifier
 
 
-	// IFileMonitorListener
+    // FW::FileWatchListener
 
-	void OnFileChange( const FileSystemUtils::Path& filename );
+    void handleFileAction(FW::WatchID watchid, const FW::String& dir, const FW::String& filename,
+        FW::Action action);
 
-	// ~IFileMonitorListener
-	
+    // ~FW::FileWatchListener
+
 
 private:
 	
@@ -88,14 +89,14 @@ private:
 
 	typedef std::set<IFileChangeListener*> TFileChangeListeners;
 	typedef std::map<FileSystemUtils::Path, TFileChangeListeners> TFileListenerMap;
-	typedef std::vector<std::string> TPathNameList;
+	typedef std::set<std::string> TPathNameList;
 
 	// Private members
+    FW::FileWatcher* m_pFileWatcher;
+    TPathNameList    m_WatchedDirs;
 
 	TFileListenerMap m_fileListenerMap;
-	TPathNameList m_changedFileList;
-
-	IFileMonitor *m_pFileMonitor;
+	TPathNameList    m_changedFileList;
 	
 	bool m_bActive;
 	bool m_bRecompilePending;

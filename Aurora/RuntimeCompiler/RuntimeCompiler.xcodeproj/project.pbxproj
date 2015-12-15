@@ -14,11 +14,8 @@
 		91CDEF901619F0D70061B76E /* Compiler.h in Headers */ = {isa = PBXBuildFile; fileRef = 91CDEF801619F0D70061B76E /* Compiler.h */; };
 		91CDEF911619F0D70061B76E /* FileChangeNotifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 91CDEF811619F0D70061B76E /* FileChangeNotifier.cpp */; };
 		91CDEF921619F0D70061B76E /* FileChangeNotifier.h in Headers */ = {isa = PBXBuildFile; fileRef = 91CDEF821619F0D70061B76E /* FileChangeNotifier.h */; };
-		91CDEF931619F0D70061B76E /* FileMonitor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 91CDEF831619F0D70061B76E /* FileMonitor.cpp */; };
-		91CDEF941619F0D70061B76E /* FileMonitor.h in Headers */ = {isa = PBXBuildFile; fileRef = 91CDEF841619F0D70061B76E /* FileMonitor.h */; };
 		91CDEF951619F0D70061B76E /* ICompilerLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 91CDEF851619F0D70061B76E /* ICompilerLogger.h */; };
 		91CDEF961619F0D70061B76E /* IFileChangeNotifier.h in Headers */ = {isa = PBXBuildFile; fileRef = 91CDEF861619F0D70061B76E /* IFileChangeNotifier.h */; };
-		91CDEF971619F0D70061B76E /* IFileMonitor.h in Headers */ = {isa = PBXBuildFile; fileRef = 91CDEF871619F0D70061B76E /* IFileMonitor.h */; };
 		91CDEF981619F0D70061B76E /* FileWatcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 91CDEF881619F0D70061B76E /* FileWatcher.cpp */; };
 		91CDEF991619F0D70061B76E /* FileWatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 91CDEF891619F0D70061B76E /* FileWatcher.h */; };
 		91CDEF9A1619F0D70061B76E /* FileWatcherImpl.h in Headers */ = {isa = PBXBuildFile; fileRef = 91CDEF8A1619F0D70061B76E /* FileWatcherImpl.h */; };
@@ -35,11 +32,8 @@
 		91CDEF801619F0D70061B76E /* Compiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Compiler.h; sourceTree = "<group>"; };
 		91CDEF811619F0D70061B76E /* FileChangeNotifier.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileChangeNotifier.cpp; sourceTree = "<group>"; };
 		91CDEF821619F0D70061B76E /* FileChangeNotifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileChangeNotifier.h; sourceTree = "<group>"; };
-		91CDEF831619F0D70061B76E /* FileMonitor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileMonitor.cpp; sourceTree = "<group>"; };
-		91CDEF841619F0D70061B76E /* FileMonitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileMonitor.h; sourceTree = "<group>"; };
 		91CDEF851619F0D70061B76E /* ICompilerLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ICompilerLogger.h; sourceTree = "<group>"; };
 		91CDEF861619F0D70061B76E /* IFileChangeNotifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IFileChangeNotifier.h; sourceTree = "<group>"; };
-		91CDEF871619F0D70061B76E /* IFileMonitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IFileMonitor.h; sourceTree = "<group>"; };
 		91CDEF881619F0D70061B76E /* FileWatcher.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FileWatcher.cpp; path = SimpleFileWatcher/FileWatcher.cpp; sourceTree = "<group>"; };
 		91CDEF891619F0D70061B76E /* FileWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FileWatcher.h; path = SimpleFileWatcher/FileWatcher.h; sourceTree = "<group>"; };
 		91CDEF8A1619F0D70061B76E /* FileWatcherImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FileWatcherImpl.h; path = SimpleFileWatcher/FileWatcherImpl.h; sourceTree = "<group>"; };
@@ -69,11 +63,8 @@
 				91CDEF801619F0D70061B76E /* Compiler.h */,
 				91CDEF811619F0D70061B76E /* FileChangeNotifier.cpp */,
 				91CDEF821619F0D70061B76E /* FileChangeNotifier.h */,
-				91CDEF831619F0D70061B76E /* FileMonitor.cpp */,
-				91CDEF841619F0D70061B76E /* FileMonitor.h */,
 				91CDEF851619F0D70061B76E /* ICompilerLogger.h */,
 				91CDEF861619F0D70061B76E /* IFileChangeNotifier.h */,
-				91CDEF871619F0D70061B76E /* IFileMonitor.h */,
 				919FE7011619F04600A269B6 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -108,10 +99,8 @@
 				91CDEF8E1619F0D70061B76E /* BuildTool.h in Headers */,
 				91CDEF901619F0D70061B76E /* Compiler.h in Headers */,
 				91CDEF921619F0D70061B76E /* FileChangeNotifier.h in Headers */,
-				91CDEF941619F0D70061B76E /* FileMonitor.h in Headers */,
 				91CDEF951619F0D70061B76E /* ICompilerLogger.h in Headers */,
 				91CDEF961619F0D70061B76E /* IFileChangeNotifier.h in Headers */,
-				91CDEF971619F0D70061B76E /* IFileMonitor.h in Headers */,
 				91CDEF991619F0D70061B76E /* FileWatcher.h in Headers */,
 				91CDEF9A1619F0D70061B76E /* FileWatcherImpl.h in Headers */,
 				91CDEF9C1619F0D70061B76E /* FileWatcherOSX.h in Headers */,
@@ -172,7 +161,6 @@
 			files = (
 				91CDEF8D1619F0D70061B76E /* BuildTool.cpp in Sources */,
 				91CDEF911619F0D70061B76E /* FileChangeNotifier.cpp in Sources */,
-				91CDEF931619F0D70061B76E /* FileMonitor.cpp in Sources */,
 				91CDEF981619F0D70061B76E /* FileWatcher.cpp in Sources */,
 				91CDEF9B1619F0D70061B76E /* FileWatcherOSX.cpp in Sources */,
 				915C293416EB817400654B4E /* Compiler_PlatformPosix.cpp in Sources */,

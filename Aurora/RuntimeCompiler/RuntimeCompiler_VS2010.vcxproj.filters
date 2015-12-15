@@ -10,7 +10,6 @@
     <ClCompile Include="SimpleFileWatcher\FileWatcherWin32.cpp">
       <Filter>SimpleFileWatcher</Filter>
     </ClCompile>
-    <ClCompile Include="FileMonitor.cpp" />
     <ClCompile Include="Compiler_PlatformPosix.cpp" />
     <ClCompile Include="SimpleFileWatcher\FileWatcherLinux.cpp">
       <Filter>SimpleFileWatcher</Filter>
@@ -25,7 +24,6 @@
     <ClInclude Include="Compiler.h" />
     <ClInclude Include="IFileChangeNotifier.h" />
     <ClInclude Include="ICompilerLogger.h" />
-    <ClInclude Include="IFileMonitor.h" />
     <ClInclude Include="SimpleFileWatcher\FileWatcher.h">
       <Filter>SimpleFileWatcher</Filter>
     </ClInclude>
@@ -35,7 +33,6 @@
     <ClInclude Include="SimpleFileWatcher\FileWatcherWin32.h">
       <Filter>SimpleFileWatcher</Filter>
     </ClInclude>
-    <ClInclude Include="FileMonitor.h" />
     <ClInclude Include="FileSystemUtils.h" />
     <ClInclude Include="SimpleFileWatcher\FileWatcherWin32_AltImpl.h">
       <Filter>SimpleFileWatcher</Filter>
