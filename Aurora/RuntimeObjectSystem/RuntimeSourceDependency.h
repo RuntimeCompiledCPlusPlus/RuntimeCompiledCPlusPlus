@@ -30,7 +30,7 @@
 // RemoveAnyFileName( relativeToPath ) + ReplaceExtension( filename, extension  )
 struct SourceDependencyInfo
 {
-	static SourceDependencyInfo GetNULL() { return {0,0,0}; }
+    static SourceDependencyInfo GetNULL() { SourceDependencyInfo ret = {0,0,0}; return ret; }
 	const char* filename;			// If NULL then no SourceDependencyInfo
 	const char* extension;			// If NULL then use extension in filename
 	const char* relativeToPath;		// If NULL filename is either full or relative to known path
