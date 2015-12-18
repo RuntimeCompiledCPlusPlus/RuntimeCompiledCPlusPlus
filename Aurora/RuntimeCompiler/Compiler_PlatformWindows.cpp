@@ -327,6 +327,7 @@ void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToComp
 	}
 
 	flags += compilerOptions_.compileOptions;
+    flags += " ";
 
 	std::string linkOptions;
 	bool bHaveLinkOptions = ( 0 != compilerOptions_.linkOptions.length() );
@@ -341,6 +342,7 @@ void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToComp
 		if( bHaveLinkOptions )
 		{
 			linkOptions += compilerOptions_.linkOptions;
+            linkOptions += " ";
 		}
 	}
     // faster linking if available: https://randomascii.wordpress.com/2015/07/27/programming-is-puzzles/
