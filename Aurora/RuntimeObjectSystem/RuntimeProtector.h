@@ -18,7 +18,7 @@
 
 #pragma once
 
-#ifndef _WIN32
+#if !defined(_WIN32) || defined(__MINGW32__)
     #include <setjmp.h> // used by posix type systems to chain handling
 #endif
 
@@ -78,7 +78,7 @@ struct RuntimeProtector
 
     // internal 
     unsigned int            m_ModulesLoadedCount; // used internally to reset exceptions when a new module is loaded
-#ifndef _WIN32
+#if !defined(_WIN32) || defined(__MINGW32__)
     jmp_buf                 m_env;
     RuntimeProtector*       m_pPrevious;          // used by posix type systems to chain handling
 #endif

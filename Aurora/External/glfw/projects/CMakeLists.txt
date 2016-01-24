@@ -15,5 +15,7 @@ endif()
 
 add_library(glfw STATIC ${glfw_source})
 if(WIN32)
-	set_target_properties(glfw PROPERTIES COMPILE_FLAGS  "/D \"_GLFW_NO_DLOAD_GDI32\" /D \"_GLFW_NO_DLOAD_WINMM\" /D \"_MBCS\"" )
+    add_definitions( -D_GLFW_NO_DLOAD_GDI32 )
+    add_definitions( -D_GLFW_NO_DLOAD_WINMM )
+    add_definitions( -D_MBCS )
 endif()

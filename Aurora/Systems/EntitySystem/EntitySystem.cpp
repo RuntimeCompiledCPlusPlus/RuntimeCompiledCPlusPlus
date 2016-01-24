@@ -32,7 +32,7 @@ void EntitySystem::Entity::SetName(const char * sName)
 	if (sName && sName[0])
 	{
 #ifdef _WIN32
-		strncpy_s(m_sName, sName, AU_ENTITY_NAME_LENGTH);
+        strncpy_s(m_sName, AU_ENTITY_NAME_LENGTH, sName, AU_ENTITY_NAME_LENGTH);
 #else
         strncpy(m_sName,sName,AU_ENTITY_NAME_LENGTH);
 #endif

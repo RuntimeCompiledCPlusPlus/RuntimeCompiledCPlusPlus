@@ -1,4 +1,10 @@
 
+# CMake documentation makes no mention of MINGW before about 3.2
+# Checking CMAKE_GENERATOR instead to be avoid breaking things for lower versions
+if(CMAKE_GENERATOR STREQUAL "MinGW Makefiles")
+    set(MINGW_MAKEFILE ON)
+endif()
+
 #
 # RuntimeCompiler Source
 #
@@ -7,6 +13,8 @@ aux_source_directory(RuntimeCompiler RuntimeCompiler_SRCS)
 aux_source_directory(RuntimeCompiler/SimpleFileWatcher SimpleFileWatcher_SRCS)
 
 if(UNIX)
+    list(REMOVE_ITEM RuntimeCompiler_SRCS "RuntimeCompiler/Compiler_PlatformVS.cpp")
+    list(REMOVE_ITEM RuntimeCompiler_SRCS "RuntimeCompiler/Compiler_PlatformMinGW.cpp")
 	list(REMOVE_ITEM RuntimeCompiler_SRCS "RuntimeCompiler/Compiler_PlatformWindows.cpp")
 	list(REMOVE_ITEM SimpleFileWatcher_SRCS "RuntimeCompiler/SimpleFileWatcher/FileWatcherWin32.cpp")
 	if(APPLE)
@@ -15,6 +23,11 @@ if(UNIX)
 		list(REMOVE_ITEM SimpleFileWatcher_SRCS "RuntimeCompiler/SimpleFileWatcher/FileWatcherOSX.cpp")
 	endif()
 else()
+    if(MINGW_MAKEFILE)
+        list(REMOVE_ITEM RuntimeCompiler_SRCS "RuntimeCompiler/Compiler_PlatformVS.cpp")
+    else()
+        list(REMOVE_ITEM RuntimeCompiler_SRCS "RuntimeCompiler/Compiler_PlatformMinGW.cpp")
+    endif()
 	list(REMOVE_ITEM RuntimeCompiler_SRCS "RuntimeCompiler/Compiler_PlatformPosix.cpp")
 	list(REMOVE_ITEM SimpleFileWatcher_SRCS "RuntimeCompiler/SimpleFileWatcher/FileWatcherOSX.cpp")
 	list(REMOVE_ITEM SimpleFileWatcher_SRCS "RuntimeCompiler/SimpleFileWatcher/FileWatcherLinux.cpp")
@@ -32,7 +45,7 @@ aux_source_directory(RuntimeObjectSystem/SimpleSerializer SimpleSerializer_SRCS)
 
 set(RuntimeCompiler_SRCS ${RuntimeCompiler_SRCS} ${ObjectFactorySystem_SRCS} ${SimpleSerializer_SRCS})
 
-if(UNIX)
+if(UNIX OR MINGW_MAKEFILE)
 	list(REMOVE_ITEM RuntimeObjectSystem_SRCS "RuntimeObjectSystem/RuntimeObjectSystem_PlatformWindows.cpp")
 else()
 	list(REMOVE_ITEM RuntimeObjectSystem_SRCS "RuntimeObjectSystem/RuntimeObjectSystem_PlatformPosix.cpp")

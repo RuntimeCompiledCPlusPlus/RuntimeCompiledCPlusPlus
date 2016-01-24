@@ -66,7 +66,6 @@ private:
 	bool m_bPaused, m_bPausedNextFrame;
     
 #ifdef _WIN32
-	typedef __int64 INT64;
-	INT64 m_iPerformanceFreq;   // Divisor for performance frequency values
+    long long m_iPerformanceFreq;   // Divisor for performance frequency values
 #endif
 };

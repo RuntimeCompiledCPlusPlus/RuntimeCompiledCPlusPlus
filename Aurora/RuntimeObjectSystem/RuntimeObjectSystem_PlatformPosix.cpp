@@ -80,8 +80,11 @@ void RuntimeObjectSystem::SetProtectionEnabled( bool bProtectionEnabled_ )
 }
 
 
-
+#ifndef _WIN32
 void signalHandler(int sig, siginfo_t *info, void *context)
+#else
+void signalHandler(int sig)
+#endif
 {
     // we only handle synchronous signals with this handler, so they come to the correct thread.
     assert( m_pCurrProtector );
@@ -92,15 +95,21 @@ void signalHandler(int sig, siginfo_t *info, void *context)
         case SIGILL:
             m_pCurrProtector->ExceptionInfo.Type = RuntimeProtector::ESE_InvalidInstruction;
             break;
+#ifndef _WIN32
         case SIGBUS:
             m_pCurrProtector->ExceptionInfo.Type = RuntimeProtector::ESE_AccessViolation;
             break;
+#endif
         case SIGSEGV:
             m_pCurrProtector->ExceptionInfo.Type = RuntimeProtector::ESE_AccessViolation;
             break;
         default: assert(false); //should not get here
     }
+#ifndef _WIN32
     m_pCurrProtector->ExceptionInfo.Addr = info->si_addr;
+#else
+    m_pCurrProtector->ExceptionInfo.Addr = 0;
+#endif
     longjmp(m_pCurrProtector->m_env, sig );
 }
 
@@ -116,7 +125,11 @@ bool RuntimeObjectSystem::TryProtectedFunction( RuntimeProtector* pProtectedObje
     pProtectedObject_->m_pPrevious         = m_pCurrProtector;
     m_pCurrProtector                       = pProtectedObject_;
  
+#ifndef _WIN32
     struct sigaction oldAction[3]; // we need to store old actions, could remove for optimization
+#else
+    __p_sig_fn_t oldAction[2] = {NULL};
+#endif
 
     bool bHasJustHadException = false;
     if( m_TotalLoadedModulesEver != pProtectedObject_->m_ModulesLoadedCount )
@@ -135,6 +148,7 @@ bool RuntimeObjectSystem::TryProtectedFunction( RuntimeProtector* pProtectedObje
         }
         else
         {
+#ifndef _WIN32
             struct sigaction newAction;
             memset( &newAction, 0, sizeof( newAction ));
             newAction.sa_sigaction = signalHandler;
@@ -142,14 +156,30 @@ bool RuntimeObjectSystem::TryProtectedFunction( RuntimeProtector* pProtectedObje
             sigaction(SIGILL, &newAction, &oldAction[0] );
             sigaction(SIGBUS, &newAction, &oldAction[1] );
             sigaction(SIGSEGV, &newAction, &oldAction[2] );
+#else
+            //MinGW doesn't support sigaction, so fallback to signal
+            oldAction[0] = signal(SIGILL, signalHandler);
+            oldAction[1] = signal(SIGSEGV, signalHandler);
+#endif
                 
             pProtectedObject_->ProtectedFunc();
         }
         
         //reset
+#ifndef _WIN32
         sigaction(SIGILL, &oldAction[0], NULL );
         sigaction(SIGBUS, &oldAction[1], NULL );
         sigaction(SIGSEGV, &oldAction[2], NULL );
+#else
+        if(oldAction[0] != NULL)
+        {
+            signal(SIGILL, oldAction[0]);
+        }
+        if(oldAction[1] != NULL)
+        {
+            signal(SIGSEGV, oldAction[1]);
+        }
+#endif
     }
     m_pCurrProtector = pProtectedObject_->m_pPrevious;
     return !bHasJustHadException;
@@ -158,6 +188,10 @@ bool RuntimeObjectSystem::TryProtectedFunction( RuntimeProtector* pProtectedObje
 
 bool RuntimeObjectSystem::TestBuildWaitAndUpdate()
 {
+#ifndef _WIN32
     usleep( 100 * 1000 );
+#else
+    Sleep( 100 );
+#endif
     return true;
 }
