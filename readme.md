@@ -14,6 +14,7 @@ Runtime-Compiled C++ is a way to reliably make major changes to your C++ code at
 - Linux using Eclipse CDT (tested Ubuntu 12.04 64bit).
 - cmake (many thanks to user join_the_fun from reddit)
 - QtCreator using the cmake files. Open CMakeLists.txt in the Aurora directory. Make sure cmake is installed and on Windows the path to cmake is set in QtCreator->Tools->options->CMake
+- MinGW is not supported in this repository, but a port exists here: https://github.com/BobSmun/RuntimeCompiledCPlusPlus/tree/MinGWw64_Support
 
 For Visual Studio and XCode the main project file is found in the Aurora directory. All dependencies should be normally present.
 
