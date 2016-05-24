@@ -17,7 +17,6 @@
 
 #include "FileChangeNotifier.h"
 
-#include "FileMonitor.h"
 #include <algorithm>
 using namespace std;
 
@@ -33,15 +32,15 @@ FileChangeNotifier::FileChangeNotifier()
 	, m_fChangeNotifyDelay(DEFAULT_NOTIFY_DELAY)
 	, m_fTimeUntilNextAllowedRecompile(0.0f)
 	, m_fFileChangeSpamTimeRemaining(0.0f)
+    , m_pFileWatcher( new FW::FileWatcher() ) // Create the file watch object
 {
-	m_pFileMonitor = new FileMonitor();
 	m_LastFileChanged = "";
 }
 
 
 FileChangeNotifier::~FileChangeNotifier()
 {
-	delete m_pFileMonitor;
+	delete m_pFileWatcher;
 }
 
 
@@ -59,7 +58,7 @@ void FileChangeNotifier::Update( float fDeltaTime )
 {
 	if (m_bActive)
 	{
-		m_pFileMonitor->Update(fDeltaTime);
+        m_pFileWatcher->update();
 		m_fTimeUntilNextAllowedRecompile = max(0.0f, m_fTimeUntilNextAllowedRecompile - fDeltaTime);
 		m_fFileChangeSpamTimeRemaining = max(0.0f, m_fFileChangeSpamTimeRemaining - fDeltaTime);
 
@@ -78,8 +77,15 @@ void FileChangeNotifier::Watch( const FileSystemUtils::Path& filename, IFileChan
     fixedFilename = fixedFilename.GetCleanPath();
     fixedFilename.ToOSCanonicalCase();
 
-	m_pFileMonitor->Watch(fixedFilename, this);
-	m_fileListenerMap[fixedFilename].insert(pListener);
+    if( m_fileListenerMap[fixedFilename].insert(pListener).second )
+    {
+        bool bPathIsDir = !fixedFilename.HasExtension();
+        FileSystemUtils::Path pathDir = bPathIsDir ? fixedFilename : fixedFilename.ParentPath();
+        if( m_WatchedDirs.insert( pathDir.m_string ).second )
+        {
+            m_pFileWatcher->addWatch( pathDir.m_string, this );
+        }
+    }
 	pListener->OnRegisteredWithNotifier(this);
 }
 
@@ -102,23 +108,31 @@ void FileChangeNotifier::RemoveListener( IFileChangeListener *pListener )
 	pListener->OnRegisteredWithNotifier(NULL);
 }
 
-void FileChangeNotifier::OnFileChange( const FileSystemUtils::Path& filename )
+void FileChangeNotifier::handleFileAction( FW::WatchID watchid, const FW::String& dir, const FW::String& filename,
+    FW::Action action )
 {
 	if (m_bActive)
 	{
+        FileSystemUtils::Path filePath(filename);
+        if( !filename.HasParentPath() )
+        {
+            filePath = dir / filePath;
+        }
+
+        filePath = filePath.DelimitersToOSDefault();
+        filePath.ToOSCanonicalCase();
+
+
 		// Check for multiple hits on the same file in close succession 
 		// (Can be caused by NTFS system making multiple changes even though only
 		//  one actual change occurred)
-		bool bIgnoreFileChange = (filename == m_LastFileChanged) && 
+		bool bIgnoreFileChange = (filePath == m_LastFileChanged) && 
 			m_fFileChangeSpamTimeRemaining > 0.0f;
-		m_LastFileChanged = filename;
+		m_LastFileChanged = filePath;
 
 		if (!bIgnoreFileChange)
-		{
-			FileSystemUtils::Path filePath = filename;
-            filePath.ToOSCanonicalCase();
-
-			m_changedFileList.push_back(filePath.m_string);
+        {
+			m_changedFileList.insert(filePath.m_string);
 
 			if (!m_bRecompilePending)
 			{

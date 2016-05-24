@@ -117,7 +117,6 @@
     <ClCompile Include="FileChangeNotifier.cpp" />
     <ClCompile Include="BuildTool.cpp" />
     <ClCompile Include="Compiler_PlatformWindows.cpp" />
-    <ClCompile Include="FileMonitor.cpp" />
     <ClCompile Include="SimpleFileWatcher\FileWatcher.cpp" />
     <ClCompile Include="SimpleFileWatcher\FileWatcherLinux.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -139,11 +138,9 @@
     <ClInclude Include="FileChangeNotifier.h" />
     <ClInclude Include="BuildTool.h" />
     <ClInclude Include="Compiler.h" />
-    <ClInclude Include="FileMonitor.h" />
     <ClInclude Include="FileSystemUtils.h" />
     <ClInclude Include="IFileChangeNotifier.h" />
     <ClInclude Include="ICompilerLogger.h" />
-    <ClInclude Include="IFileMonitor.h" />
     <ClInclude Include="SimpleFileWatcher\FileWatcher.h" />
     <ClInclude Include="SimpleFileWatcher\FileWatcherImpl.h" />
     <ClInclude Include="SimpleFileWatcher\FileWatcherLinux.h">
