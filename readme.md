@@ -10,7 +10,7 @@ Runtime-Compiled C++ is a way to reliably make major changes to your C++ code at
 ## Supported OS / Compilers:
 
 - Windows XP+, Visual Studio 2008+. Note we currently distribute only the VS 2010 solution and projects.
-- Mac OS X 10.7+ with XCode 4.
+- Mac OS X 10.7+ with XCode 4. *NOTE* The SimpleTest project has a graphical issue when built via the XCode project, please use cmake until this is resolved. See [Issue 84](https://github.com/RuntimeCompiledCPlusPlus/RuntimeCompiledCPlusPlus/issues/84)
 - Linux using Eclipse CDT (tested Ubuntu 12.04 64bit).
 - cmake (many thanks to user join_the_fun from reddit)
 - QtCreator using the cmake files. Open CMakeLists.txt in the Aurora directory. Make sure cmake is installed and on Windows the path to cmake is set in QtCreator->Tools->options->CMake
