@@ -243,6 +243,17 @@ namespace FileSystemUtils
         return ret;
     }
 
+	inline tm GetLocalTimeStruct( filetime_t time )
+	{
+        tm ret;
+#ifdef _WIN32
+        _localtime64_s(&ret, &time);
+#else
+        localtime_r(&time, &ret);
+#endif
+        return ret;
+	}
+
 	inline bool		Path::Remove()			const
 	{
 		int error = remove( c_str() );
