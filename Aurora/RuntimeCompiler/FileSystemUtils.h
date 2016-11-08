@@ -97,6 +97,9 @@ namespace FileSystemUtils
 		Path GetCleanPath()				const;
         void ToOSCanonicalCase();  // lower case on Windows, preserve case on Linux
 
+		// For fopen of utf-8 & long filenames on windows (on other OS returns unaltered copy).
+		Path GetOSShortForm()            const;
+
 		// replaces extension if one exists, or adds it if not
 		void ReplaceExtension( const std::string& ext );
 
@@ -109,6 +112,59 @@ namespace FileSystemUtils
 #endif
 	};
 
+#ifdef _WIN32
+	// Do not use outside win32
+	inline std::string _Win32Utf16ToUtf8(const std::wstring& wstr)
+	{
+		std::string convertedString;
+		int requiredSize = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, 0, 0, 0, 0);
+		if( requiredSize > 0 )
+		{
+			convertedString.resize(requiredSize);
+			WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, &convertedString[0], requiredSize, 0, 0);
+			convertedString.pop_back(); //remove NULL terminator
+		}
+		return convertedString;
+	}
+ 
+	// Do not use outside win32
+	inline std::wstring _Win32Utf8ToUtf16(const std::string& str)
+	{
+		std::wstring convertedString;
+		int requiredSize = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, 0, 0);
+		if( requiredSize > 0 )
+		{
+			convertedString.resize(requiredSize);
+			MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, &convertedString[0], requiredSize);
+			convertedString.pop_back(); //remove NULL terminator
+		}
+ 
+		return convertedString;
+	}
+#endif
+
+
+	inline Path GetCurrentPath()
+	{
+		Path currPath;
+#ifdef _WIN32
+		std::wstring temp;
+		DWORD requiredSize = GetCurrentDirectoryW( 0, NULL );
+		if( requiredSize > 0 )
+		{
+			temp.resize( requiredSize );
+			GetCurrentDirectoryW( requiredSize, &temp[0] );
+			temp.pop_back();
+		}
+		currPath = _Win32Utf16ToUtf8( temp );
+#else
+		char* currdir = getcwd(0,0);
+		currPath = currdir;
+		free( currdir );
+#endif
+		
+		return currPath;
+	}
 	
 	inline void ToLowerInPlace( std::string& inout_str )
 	{
@@ -121,105 +177,6 @@ namespace FileSystemUtils
 			}
 		}
 	}
-
-
-	///////////////////////////////////////////////////////////////////
-	// Path function definitions
-
-	inline const char* Path::c_str() const
-	{
-		return m_string.c_str();
-	}
-
-	inline Path& Path::operator=( const std::string& rhs_ )
-	{
-		m_string = rhs_;
-		return *this;
-	}
-
-	inline Path& Path::operator=( const char* rhs_ )
-	{
-		m_string = rhs_;
-		return *this;
-	}
-
-	inline bool Path::Exists() const
-	{
-
-		int error = -1;
-#ifdef _WIN32
-		struct _stat buffer;
-		error = _stat( m_string.c_str(), &buffer );
-#else
-		struct stat buffer;
-		error = stat( m_string.c_str(), &buffer );
-#endif
-		if( 0 == error )
-		{
-			return true;
-		}
-		return false;
-	}
-
-	inline bool Path::CreateDir() const
-	{
-        if( m_string.length() == 0 )
-        {
-            return false;
-        }
-        if( Exists() )
-        {
-            return false;
-        }
-
-        // we may need to create the parent path recursively
-        Path parentpath = ParentPath();
-        if( !parentpath.Exists() )
-        {
-            parentpath.CreateDir();
-        }
-
-		int error = -1;
-#ifdef _WIN32
-		error = _mkdir( m_string.c_str() );
-#else
-		error = mkdir( m_string.c_str(), 0777 );
-#endif
-		if( 0 == error )
-		{
-			return true;
-		}
-		return false;
-	}
-
-	inline filetime_t Path::GetLastWriteTime()	const
-	{
-		filetime_t lastwritetime = 0;
-		int error = -1;
-#ifdef _WIN32
-		struct _stat64 buffer;
-		error = _stat64( c_str(), &buffer );
-#else
-		struct stat buffer;
-		error = stat( c_str(), &buffer );
-#endif
-		if( 0 == error )
-		{
-			lastwritetime = buffer.st_mtime;
-		}
-		return lastwritetime;
-	}
-
-    inline void Path::SetLastWriteTime( filetime_t time_ ) const
-    {
-#ifdef _WIN32
-        __utimbuf64 modtime = { time_, time_ };
-        _utime64( c_str(), &modtime );
-#else
-        utimbuf modtime = { time_, time_ };
-        utime( c_str(), &modtime );
-#endif
-    }
 
     inline filetime_t GetCurrentTime()
     {
@@ -254,9 +211,116 @@ namespace FileSystemUtils
         return ret;
 	}
 
+	///////////////////////////////////////////////////////////////////
+	// Path function definitions
+
+	inline const char* Path::c_str() const
+	{
+		return m_string.c_str();
+	}
+
+	inline Path& Path::operator=( const std::string& rhs_ )
+	{
+		m_string = rhs_;
+		return *this;
+	}
+
+	inline Path& Path::operator=( const char* rhs_ )
+	{
+		m_string = rhs_;
+		return *this;
+	}
+
+	inline bool Path::Exists() const
+	{
+
+		int error = -1;
+#ifdef _WIN32
+		struct _stat buffer;
+		std::wstring temp = _Win32Utf8ToUtf16( m_string );
+		error = _wstat( temp.c_str(), &buffer );
+#else
+		struct stat buffer;
+		error = stat( m_string.c_str(), &buffer );
+#endif
+		if( 0 == error )
+		{
+			return true;
+		}
+		return false;
+	}
+
+	inline bool Path::CreateDir() const
+	{
+        if( m_string.length() == 0 )
+        {
+            return false;
+        }
+        if( Exists() )
+        {
+            return false;
+        }
+
+        // we may need to create the parent path recursively
+        Path parentpath = ParentPath();
+        if( !parentpath.Exists() )
+        {
+            parentpath.CreateDir();
+        }
+
+		int error = -1;
+#ifdef _WIN32
+		std::wstring temp = _Win32Utf8ToUtf16( m_string );
+		error = _wmkdir( temp.c_str() );
+#else
+		error = mkdir( m_string.c_str(), 0777 );
+#endif
+		if( 0 == error )
+		{
+			return true;
+		}
+		return false;
+	}
+
+	inline filetime_t Path::GetLastWriteTime()	const
+	{
+		filetime_t lastwritetime = 0;
+		int error = -1;
+#ifdef _WIN32
+		struct _stat64 buffer;
+		std::wstring temp = _Win32Utf8ToUtf16( m_string );
+		error = _wstat64( temp.c_str(), &buffer );
+#else
+		struct stat buffer;
+		error = stat( c_str(), &buffer );
+#endif
+		if( 0 == error )
+		{
+			lastwritetime = buffer.st_mtime;
+		}
+		return lastwritetime;
+	}
+
+    inline void Path::SetLastWriteTime( filetime_t time_ ) const
+    {
+#ifdef _WIN32
+        __utimbuf64 modtime = { time_, time_ };
+		std::wstring temp = _Win32Utf8ToUtf16( m_string );
+        _wutime64( temp.c_str(), &modtime );
+#else
+        utimbuf modtime = { time_, time_ };
+        utime( c_str(), &modtime );
+#endif
+    }
+
 	inline bool		Path::Remove()			const
 	{
+#ifdef _WIN32
+		std::wstring temp = _Win32Utf8ToUtf16( m_string );
+		int error = _wremove( temp.c_str() );
+#else
 		int error = remove( c_str() );
+#endif
 		if( !error )
 		{
 			return true;
@@ -270,7 +334,8 @@ namespace FileSystemUtils
 		int error = -1;
 #ifdef _WIN32
 		struct _stat64 buffer;
-		error = _stat64( c_str(), &buffer );
+		std::wstring temp = _Win32Utf8ToUtf16( m_string );
+		error = _wstat64( temp.c_str(), &buffer );
 #else
 		struct stat buffer;
 		error = stat( c_str(), &buffer );
@@ -432,22 +497,6 @@ namespace FileSystemUtils
 		return lhs_.m_string < rhs_.m_string;
 	}
 
-	inline Path GetCurrentPath()
-	{
-		Path currPath;
-#ifdef _WIN32
-		char currdir[MAX_PATH];
-		GetCurrentDirectoryA( sizeof( currdir ), currdir );
-		currPath = currdir;
-#else
-		char* currdir = getcwd(0,0);
-		currPath = currdir;
-		free( currdir );
-#endif
-		
-		return currPath;
-	}
-
 	inline Path Path::GetCleanPath() const
 	{
 		Path path = m_string;
@@ -476,6 +525,24 @@ namespace FileSystemUtils
 #endif
     }
 
+	inline Path Path::GetOSShortForm() const
+	{
+#ifdef _WIN32
+        std::wstring longForm = _Win32Utf8ToUtf16( m_string );
+		std::wstring shortForm;
+		DWORD requiredSize = GetShortPathNameW( longForm.c_str(), NULL, 0 );
+		if( requiredSize > 0 )
+		{
+			shortForm.resize( requiredSize );
+			GetShortPathNameW( longForm.c_str(), &shortForm[0], requiredSize );
+			shortForm.pop_back();
+		}
+		return _Win32Utf16ToUtf8( shortForm );
+#else
+		return *this;
+#endif
+	}
+
 
     class PathIterator
     {
@@ -489,17 +556,19 @@ namespace FileSystemUtils
             Path test = m_dir / "*";
             m_path = m_dir;
             m_hFind = INVALID_HANDLE_VALUE;
-            m_hFind = FindFirstFileA(test.c_str(), &m_ffd);
+			std::wstring temp = _Win32Utf8ToUtf16( test.m_string );
+            m_hFind = FindFirstFileW( temp.c_str(), &m_ffd);
             m_bIsValid = INVALID_HANDLE_VALUE != m_hFind;
         }
         bool ImpNext()
         {
             if( m_bIsValid )
             {
-                m_bIsValid = 0 != FindNextFileA( m_hFind, &m_ffd );
+                m_bIsValid = 0 != FindNextFileW( m_hFind, &m_ffd );
                 if( m_bIsValid )
                 {
-                    m_path = m_dir / m_ffd.cFileName;
+					std::string temp = _Win32Utf16ToUtf8( m_ffd.cFileName );
+                    m_path = m_dir / temp;
                     if( m_path.Filename() == ".." )
                     {
                         return ImpNext();
@@ -514,7 +583,7 @@ namespace FileSystemUtils
         }
 
         HANDLE           m_hFind;
-        WIN32_FIND_DATAA m_ffd;
+        WIN32_FIND_DATAW m_ffd;
 #else
         void ImpCtor()
         {
