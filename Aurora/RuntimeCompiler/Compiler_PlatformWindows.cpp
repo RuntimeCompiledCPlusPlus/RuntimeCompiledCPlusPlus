@@ -423,10 +423,10 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions )
 	//HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\<version>\Setup\VS\<edition>
 	std::string keyName = "SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7";
 
-	const size_t    NUMNAMESTOCHECK = 6;
+	const size_t    NUMNAMESTOCHECK = 7;
 
-    // supporting: VS2005, VS2008, VS2010, VS2011, VS2013, VS2015
-    std::string     valueName[NUMNAMESTOCHECK] = {"8.0","9.0","10.0","11.0","12.0","14.0"};
+    // supporting: VS2005, VS2008, VS2010, VS2011, VS2013, VS2015, VS2017
+    std::string     valueName[NUMNAMESTOCHECK] = {"8.0","9.0","10.0","11.0","12.0","14.0","15.0" };
 
     // we start searching for a compatible compiler from the current version backwards
     int startVersion = NUMNAMESTOCHECK - 1;
@@ -451,6 +451,9 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions )
 		break;
 	case 1900:	//VS 2015
 		startVersion = 5;
+		break;
+	case 1910:	//VS 2017
+		startVersion = 6;
 		break;
 	default:
 		assert( false ); //unsupported compiler, find MSCVERSION to add case, increase NUMNAMESTOCHECK and add valueName.

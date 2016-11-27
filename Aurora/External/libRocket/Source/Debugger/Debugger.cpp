@@ -89,7 +89,7 @@ bool IsVisible()
 Core::Element* GetLogElement()
 {
 	if (plugin == NULL)
-		return false;
+		return NULL;
 
 	return plugin->GetLogElement();
 }
