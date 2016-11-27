@@ -41,8 +41,12 @@ struct RuntimeObjectSystem::PlatformImpl
 	ExceptionState s_exceptionState;
 
 	PlatformImpl()
+#if _MSC_VER < 1900
 		: s_exceptionState( ES_PASS )
-	{
+#else:
+		: s_exceptionState( ES_CATCH ) // VS 2015 handles exceptions before app
+#endif
+    {
 	}
 
 	int RuntimeExceptionFilter()
