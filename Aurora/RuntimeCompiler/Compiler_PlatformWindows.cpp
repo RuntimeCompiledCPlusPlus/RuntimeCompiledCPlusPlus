@@ -417,17 +417,32 @@ char* pCharTypeFlags = "";
 	WriteInput( m_pImplData->m_CmdProcessInputWrite, cmdToSend );
 }
 
+struct VSKey
+{
+	const char* keyName;
+	const char* pathToAdd;
+	HKEY        key;
+};
+
+struct VSVersionDiscoveryInfo
+{
+	const char* valueName;
+	int         versionKey; // index into an array of VSKey values for the key
+};
+
 
 void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions )
 {
-	//HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\<version>\Setup\VS\<edition>
-	std::string keyName = "SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7";
-
-	const size_t    NUMNAMESTOCHECK = 7;
+	//e.g.: HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\<version>\Setup\VS\<edition>
+	VSKey VS_KEYS[] = { {"SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7", "", NULL},
+								{"SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VS7", "VC\\Auxiliary\\Build\\", NULL} };
+	int NUMVSKEYS = sizeof( VS_KEYS ) / sizeof( VSKey );
 
     // supporting: VS2005, VS2008, VS2010, VS2011, VS2013, VS2015, VS2017
-    std::string     valueName[NUMNAMESTOCHECK] = {"8.0","9.0","10.0","11.0","12.0","14.0","15.0" };
+	VSVersionDiscoveryInfo VS_DISCOVERY_INFO[] = { {"8.0",0}, {"9.0",0}, {"10.0",0}, {"11.0",0}, {"12.0",0}, {"14.0",0}, {"15.0",1} };
 
+
+	int NUMNAMESTOCHECK = sizeof( VS_DISCOVERY_INFO ) / sizeof( VSVersionDiscoveryInfo );
     // we start searching for a compatible compiler from the current version backwards
     int startVersion = NUMNAMESTOCHECK - 1;
 	//switch around prefered compiler to the one we've used to compile this file
@@ -456,7 +471,7 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions )
 		startVersion = 6;
 		break;
 	default:
-		assert( false ); //unsupported compiler, find MSCVERSION to add case, increase NUMNAMESTOCHECK and add valueName.
+		assert( false ); //unsupported compiler, find MSCVERSION to add case
 	}
 
 
@@ -464,14 +479,16 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions )
 	char value[MAX_PATH];
 	DWORD size = MAX_PATH;
 
-	HKEY key;
-	LONG retKeyVal = RegOpenKeyExA(
-				  HKEY_LOCAL_MACHINE,	//__in        HKEY hKey,
-				  keyName.c_str(),			//__in_opt    LPCTSTR lpSubKey,
-				  0,					//__reserved  DWORD ulOptions,
-				  KEY_READ | KEY_WOW64_32KEY,		//__in        REGSAM samDesired,
-				  &key					//__out       PHKEY phkResult
-				);
+	for( int i =0; i < NUMVSKEYS; ++i )
+	{
+		LONG retKeyVal = RegOpenKeyExA(
+					  HKEY_LOCAL_MACHINE,	//__in        HKEY hKey,
+					  VS_KEYS[i].keyName,			//__in_opt    LPCTSTR lpSubKey,
+					  0,					//__reserved  DWORD ulOptions,
+					  KEY_READ | KEY_WOW64_32KEY,		//__in        REGSAM samDesired,
+					  &VS_KEYS[i].key					//__out       PHKEY phkResult
+					);
+	}
 
     int loopCount = 1;
     if( startVersion != NUMNAMESTOCHECK - 1 )
@@ -483,10 +500,12 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions )
     {
 	    for( int i = startVersion; i >= 0; --i )
 	    {
+			VSVersionDiscoveryInfo vsinfo = VS_DISCOVERY_INFO[i];
+			VSKey                  vskey  = VS_KEYS[ vsinfo.versionKey ];
 
 		    LONG retVal = RegQueryValueExA(
-					      key,					//__in         HKEY hKey,
-					      valueName[i].c_str(),	//__in_opt     LPCTSTR lpValueName,
+				          vskey.key,					//__in         HKEY hKey,
+					      vsinfo.valueName,	//__in_opt     LPCTSTR lpValueName,
 					      NULL,					//__reserved   LPDWORD lpReserved,
 					      NULL ,				//__out_opt    LPDWORD lpType,
 					      (LPBYTE)value,			//__out_opt    LPBYTE lpData,
@@ -497,14 +516,17 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions )
 			    VSVersionInfo vInfo;
 			    vInfo.Version = i + 8;
 			    vInfo.Path = value;
+				vInfo.Path += vskey.pathToAdd;
 			    pVersions->push_back( vInfo );
 		    }
 	    }
         startVersion =  NUMNAMESTOCHECK - 1; // if we loop around again make sure it's from the top
     }
 
-	RegCloseKey( key );
-
+	for( int i =0; i < NUMVSKEYS; ++i )
+	{
+		RegCloseKey( VS_KEYS[i].key	 );
+	}
 	return;
 }
 
