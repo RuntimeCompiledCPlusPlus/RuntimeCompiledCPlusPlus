@@ -345,14 +345,6 @@ void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToComp
             linkOptions += " ";
 		}
 	}
-    // faster linking if available: https://randomascii.wordpress.com/2015/07/27/programming-is-puzzles/
-    #if   (_MSC_VER >= 1900)
-        if( linkOptions.empty() )
-        {
-            linkOptions = " /link ";
-        }
-        linkOptions += "/DEBUG:FASTLINK ";
-    #endif
 
 	// Check for intermediate directory, create it if required
 	// There are a lot more checks and robustness that could be added here
@@ -406,10 +398,13 @@ char* pCharTypeFlags = "";
 	pCharTypeFlags = "/D UNICODE /D _UNICODE ";
 #endif
 
+	FileSystemUtils::Path pdbName = moduleName_;
+	pdbName.ReplaceExtension( ".pdb" );
+
 	// /MP - use multiple processes to compile if possible. Only speeds up compile for multiple files and not link
 	std::string cmdToSend = "cl " + flags + pCharTypeFlags
 		+ " /MP /Fo\"" + compilerOptions_.intermediatePath.m_string + "\\\\\" "
-		+ "/D WIN32 /EHa /Fe" + moduleName_.m_string;
+		+ "/D WIN32 /EHa /Fe" + moduleName_.m_string + " /Fd" + pdbName.m_string;
 	cmdToSend += " " + strIncludeFiles + " " + strFilesToCompile + strLinkLibraries + linkOptions
 		+ "\necho ";
 	if( m_pImplData->m_pLogger ) m_pImplData->m_pLogger->LogInfo( "%s", cmdToSend.c_str() ); // use %s to prevent any tokens in compile string being interpreted as formating
@@ -429,7 +424,6 @@ struct VSVersionDiscoveryInfo
 	const char* valueName;
 	int         versionKey; // index into an array of VSKey values for the key
 };
-
 
 void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions )
 {
