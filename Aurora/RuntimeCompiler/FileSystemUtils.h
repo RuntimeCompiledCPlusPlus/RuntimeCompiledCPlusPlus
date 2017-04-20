@@ -79,6 +79,7 @@ namespace FileSystemUtils
 		Path& operator=( const char* rhs_ );
 
 		bool		Exists()			const;
+		bool        IsDirectory()       const;
 		bool		CreateDir()			const;
 		bool		Remove()			const;
 		filetime_t	GetLastWriteTime()	const;
@@ -248,6 +249,26 @@ namespace FileSystemUtils
 			return true;
 		}
 		return false;
+	}
+
+	inline bool Path::IsDirectory() const
+	{
+
+		int error = -1;
+		bool isDir = false;
+#ifdef _WIN32
+		struct _stat buffer;
+		std::wstring temp = _Win32Utf8ToUtf16( m_string );
+		error = _wstat( temp.c_str(), &buffer );
+#else
+		struct stat buffer;
+		error = stat( m_string.c_str(), &buffer );
+#endif
+		if( 0 == error )
+		{
+			isDir = 0 != (buffer.st_mode & S_IFDIR);
+		}
+		return isDir;
 	}
 
 	inline bool Path::CreateDir() const
