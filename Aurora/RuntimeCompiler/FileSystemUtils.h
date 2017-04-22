@@ -557,8 +557,9 @@ namespace FileSystemUtils
 			shortForm.resize( requiredSize );
 			GetShortPathNameW( longForm.c_str(), &shortForm[0], requiredSize );
 			shortForm.pop_back();
+			return _Win32Utf16ToUtf8( shortForm );
 		}
-		return _Win32Utf16ToUtf8( shortForm );
+		return m_string;
 #else
 		return *this;
 #endif
