@@ -463,7 +463,8 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions )
 		startVersion = 5;
 		break;
 	case 1910:	//VS 2017
-		startVersion = 6;
+    case 1911:	//VS 2017
+        startVersion = 6;
 		break;
 	default:
 		assert( false ); //unsupported compiler, find MSCVERSION to add case
