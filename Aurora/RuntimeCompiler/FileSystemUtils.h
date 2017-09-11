@@ -179,6 +179,38 @@ namespace FileSystemUtils
 		
 		return currPath;
 	}
+
+	// returns path to exe including filename, ro get dir use ParentPath()
+	inline Path GetExePath()
+	{
+		Path currPath;
+#ifdef _WIN32
+		std::wstring temp;
+		int strSize = 25;
+		temp.resize( strSize );
+		int stringLength = 0;
+		while( true )
+		{
+			stringLength = GetModuleFileNameW( NULL, &temp[0], strSize );
+			if( stringLength != strSize )
+			{
+				break;
+			}
+			else
+			{
+				// double length of buffer until we can fit module name
+				strSize = strSize * 2;
+				stringLength = 0;
+				temp.resize( strSize );
+			}
+		}
+		temp.resize( stringLength + 1 );
+		currPath = _Win32Utf16ToUtf8( temp );
+#else
+		assert(false);
+#endif
+		return currPath;
+	}
 	
 	inline void ToLowerInPlace( std::string& inout_str )
 	{
