@@ -144,6 +144,19 @@ namespace FileSystemUtils
 	}
 #endif
 
+	// utf8 xplat fopen which works on win32 
+	inline FILE* fopen( Path path_, const char* mode_ )
+	{
+#ifdef _WIN32
+		std::wstring wideStr = _Win32Utf8ToUtf16( path_.m_string );
+		std::wstring wideMode = _Win32Utf8ToUtf16( mode_ );
+		FILE* fp;
+		_wfopen_s( &fp, wideStr.c_str(), wideMode.c_str() );
+		return fp;
+#else
+		return fopen( path_.m_string.c_str(), mode_ );
+#endif
+	}
 
 	inline Path GetCurrentPath()
 	{
