@@ -311,7 +311,7 @@ void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToComp
 		flags += "/Od ";
 		break;
 	case RCCPPOPTIMIZATIONLEVEL_PERF:
-		flags += "/O2 /Oi ";
+		flags += "/O2 ";
 
 // Add improved debugging options if available: http://randomascii.wordpress.com/2013/09/11/debugging-optimized-codenew-in-visual-studio-2012/
 #if   (_MSC_VER >= 1700)
