@@ -84,12 +84,6 @@ template<> struct RuntimeSourceDependency<0> : IRuntimeSourceDependencyList
 	RuntimeSourceDependency() : IRuntimeSourceDependencyList( 0 )
 	{
 	}
-
-	virtual SourceDependencyInfo GetSourceDependency( size_t Num_ ) const
-	{
-		return SourceDependencyInfo::GetNULL();
-	} 
-
 };
 
 

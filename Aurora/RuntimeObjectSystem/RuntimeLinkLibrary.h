@@ -71,11 +71,6 @@ template<> struct RuntimeLinkLibrary<0> : public IRuntimeLinkLibraryList
 	RuntimeLinkLibrary() : IRuntimeLinkLibraryList( 0 )
 	{
 	}
-
-	virtual const char* GetLinkLibrary( size_t Num_ ) const
-	{
-		return 0;
-	} 
 };
 
 
