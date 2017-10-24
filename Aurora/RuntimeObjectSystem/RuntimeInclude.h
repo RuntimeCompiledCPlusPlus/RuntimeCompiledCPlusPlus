@@ -54,15 +54,6 @@ template< size_t COUNT > struct RuntimeIncludeFiles : public RuntimeIncludeFiles
 	RuntimeIncludeFiles() : RuntimeIncludeFiles<COUNT-1>( COUNT )
 	{
 	}
-
-	virtual const char* GetIncludeDir( size_t Num_ ) const
-	{
-		if( Num_ < COUNT )
-		{
-			return this->RuntimeIncludeFiles< COUNT-1 >::GetIncludeDir( Num_ );
-		}
-		else return 0;
-	}
 };
 
 template<> struct RuntimeIncludeFiles<0> : public IRuntimeIncludeFileList
@@ -73,14 +64,7 @@ template<> struct RuntimeIncludeFiles<0> : public IRuntimeIncludeFileList
 	RuntimeIncludeFiles() : IRuntimeIncludeFileList( 0 )
 	{
 	}
-
-	virtual const char* GetIncludeDir( size_t Num_ ) const
-	{
-		return 0;
-	} 
 };
-
-
 
 #define RUNTIME_MODIFIABLE_INCLUDE_BASE( N ) \
 	template<> struct RuntimeIncludeFiles< N + 1 >  : public RuntimeIncludeFiles< N >\
