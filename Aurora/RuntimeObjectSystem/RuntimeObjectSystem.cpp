@@ -496,11 +496,14 @@ void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectCons
 
         //we need the compile path for some platforms where the __FILE__ path is relative to the compile path
 		FileSystemUtils::Path compileDir = constructors_[i]->GetCompiledPath();
-
-		//add include file mappings
-		for (size_t includeNum = 0; includeNum <= constructors_[i]->GetMaxNumIncludeFiles(); ++includeNum)
+            
+ 		//add tracking information (include file, link libraries, source dependencies)
+		for (size_t trackInfoNum = 0; trackInfoNum <= constructors_[i]->GetMaxNumTrackingInfo(); ++trackInfoNum)
 		{
-			const char* pIncludeFile = constructors_[i]->GetIncludeFile(includeNum);
+			RuntimeTackingInfo rttInfo = constructors_[i]->GetTrackingInfo(trackInfoNum);
+
+			//add include file mappings
+			const char* pIncludeFile = rttInfo.includeFile;
 			if( pIncludeFile )
 			{
                 FileSystemUtils::Path pathInc = compileDir / pIncludeFile;
@@ -511,13 +514,9 @@ void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectCons
                 AddToRuntimeFileList( pathInc.c_str(), projectId );
                 project.m_RuntimeIncludeMap.insert( includePathPair );
 			}
-		}
-            
 
- 		//add link library file mappings
-		for (size_t linklibraryNum = 0; linklibraryNum <= constructors_[i]->GetMaxNumLinkLibraries(); ++linklibraryNum)
-		{
-			const char* pLinkLibrary = constructors_[i]->GetLinkLibrary(linklibraryNum);
+			//add link library file mappings
+			const char* pLinkLibrary = rttInfo.linkLibrary;
 			if( pLinkLibrary )
 			{
                 // We do not use FindFiles for Linked Libraries as these are searched for on
@@ -527,15 +526,12 @@ void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectCons
 				linklibraryPathPair.second = pLinkLibrary;
                 project.m_RuntimeLinkLibraryMap.insert( linklibraryPathPair );
 			}
-		}
 
-        //add source dependency file mappings
-		for (size_t num = 0; num <= constructors_[i]->GetMaxNumSourceDependencies(); ++num)
-		{
-			SourceDependencyInfo sourceDependency = constructors_[i]->GetSourceDependency(num);
-			FileSystemUtils::Path pathInc[2];	// array of potential include files for later checks
+			//add source dependency file mappings
+			SourceDependencyInfo sourceDependency = rttInfo.sourceDependencyInfo;
 			if( sourceDependency.filename )
 			{
+				FileSystemUtils::Path pathInc[2];	// array of potential include files for later checks
 				FileSystemUtils::Path pathSrc;
 				if( sourceDependency.relativeToPath )
 				{

@@ -24,77 +24,31 @@
 //Following creates a list of files which are runtime modifiable, to be used in headers
 //requires use of __COUNTER__ predefined macro, which is in gcc 4.3+, clang/llvm and MSVC
 
-// Source Dependencies are constructed from a macro template from sources which may include
-// the __FILE__ macro, so to reduce inter-dependencies we return three values which are combined
-// by the higher level code. The full source dependency filename is then pseudo-code:
-// RemoveAnyFileName( relativeToPath ) + ReplaceExtension( filename, extension  )
-struct SourceDependencyInfo
-{
-    static SourceDependencyInfo GetNULL() { SourceDependencyInfo ret = {0,0,0}; return ret; }
-	const char* filename;			// If NULL then no SourceDependencyInfo
-	const char* extension;			// If NULL then use extension in filename
-	const char* relativeToPath;		// If NULL filename is either full or relative to known path
-};
+#include "RuntimeTracking.h"
 
 #ifndef RCCPPOFF
-
-struct IRuntimeSourceDependencyList
-{
-	IRuntimeSourceDependencyList( size_t max ) : MaxNum( max )
-	{
-	}
-
-	// GetIncludeFile may return 0, so you should iterate through to GetMaxNum() ignoring 0 returns
-	virtual SourceDependencyInfo GetSourceDependency( size_t Num_ ) const
-	{
-		return SourceDependencyInfo::GetNULL();
-	}
-
-	size_t MaxNum; // initialized in constructor below
-};
-
 
 namespace
 {
 
-template< size_t COUNT > struct RuntimeSourceDependency : RuntimeSourceDependency<COUNT-1>
-{
-	RuntimeSourceDependency( size_t max ) : RuntimeSourceDependency<COUNT-1>( max )
-	{
-	}
-	RuntimeSourceDependency() : RuntimeSourceDependency<COUNT-1>( COUNT )
-	{
-	}
-};
-
-template<> struct RuntimeSourceDependency<0> : IRuntimeSourceDependencyList
-{
-	RuntimeSourceDependency( size_t max ) : IRuntimeSourceDependencyList( max )
-	{
-	}
-	RuntimeSourceDependency() : IRuntimeSourceDependencyList( 0 )
-	{
-	}
-};
-
-
-
 #define RUNTIME_COMPILER_SOURCEDEPENDENCY_BASE( SOURCEFILE, SOURCEEXT, RELATIVEPATHTO, N ) \
-	template<> struct RuntimeSourceDependency< N + 1 >  : RuntimeSourceDependency< N >\
+	template<> struct RuntimeTracking< N + 1 >  : RuntimeTracking< N >\
 	{ \
-		RuntimeSourceDependency( size_t max ) : RuntimeSourceDependency<N>( max ) {} \
-		RuntimeSourceDependency< N + 1 >() : RuntimeSourceDependency<N>( N + 1 ) {} \
-		virtual SourceDependencyInfo GetSourceDependency( size_t Num_ ) const \
+		RuntimeTracking( size_t max ) : RuntimeTracking<N>( max ) {} \
+		RuntimeTracking< N + 1 >() : RuntimeTracking<N>( N + 1 ) {} \
+		virtual RuntimeTackingInfo GetTrackingInfo( size_t Num_ ) const \
 		{ \
 			if( Num_ <= N ) \
 			{ \
 				if( Num_ == N ) \
 				{ \
-					return { SOURCEFILE, SOURCEEXT, RELATIVEPATHTO }; \
+					RuntimeTackingInfo info = RuntimeTackingInfo::GetNULL(); \
+					info.sourceDependencyInfo = { SOURCEFILE, SOURCEEXT, RELATIVEPATHTO }; \
+					return info; \
 				} \
-				else return this->RuntimeSourceDependency< N >::GetSourceDependency( Num_ ); \
+				else return this->RuntimeTracking< N >::GetTrackingInfo( Num_ ); \
 			} \
-			else return SourceDependencyInfo::GetNULL(); \
+			else return RuntimeTackingInfo::GetNULL(); \
 		} \
 	}; \
 
