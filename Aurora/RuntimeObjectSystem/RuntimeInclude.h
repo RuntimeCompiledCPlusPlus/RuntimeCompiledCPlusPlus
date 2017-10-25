@@ -52,10 +52,9 @@ namespace
 			else return RuntimeTackingInfo::GetNULL(); \
 		} \
 	}; \
-
+}
 #define RUNTIME_MODIFIABLE_INCLUDE namespace { RUNTIME_MODIFIABLE_INCLUDE_BASE( __COUNTER__ - COUNTER_OFFSET ) }
 
-}
 #else
 #define RUNTIME_MODIFIABLE_INCLUDE
 #endif //RCCPPOFF

@@ -51,6 +51,7 @@ namespace
 			else return RuntimeTackingInfo::GetNULL(); \
 		} \
 	}; \
+}
 
 // The RUNTIME_COMPILER_SOURCEDEPENDENCY macro will return the name of the current file, which should be a header file.
 // The runtime system will strip off the extension and add .cpp
@@ -62,7 +63,6 @@ namespace
 // for complete freedom of which file to specify, use this version (FILE_ is relative to current file path):
 #define RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE( FILE_, EXT_ )  namespace { RUNTIME_COMPILER_SOURCEDEPENDENCY_BASE( FILE_, EXT_, __FILE__, __COUNTER__ - COUNTER_OFFSET ) }
 
-}
 #else
 #define RUNTIME_COMPILER_SOURCEDEPENDENCY
 #define RUNTIME_COMPILER_SOURCEDEPENDENCY_EXT( EXT_ )
