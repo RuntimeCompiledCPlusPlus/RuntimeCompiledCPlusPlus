@@ -38,6 +38,8 @@ struct RuntimeTackingInfo
 };
 
 
+#ifndef RCCPPOFF
+
 struct IRuntimeTracking
 {
 	IRuntimeTracking( size_t max ) : MaxNum( max )
@@ -56,6 +58,7 @@ struct IRuntimeTracking
 
 namespace
 {
+const size_t COUNTER_OFFSET = __COUNTER__;
 
 template< size_t COUNT > struct RuntimeTracking : RuntimeTracking<COUNT-1>
 {
@@ -78,7 +81,5 @@ template<> struct RuntimeTracking<0> : IRuntimeTracking
 };
 
 }
-
-#ifndef RCCPPOFF
 
 #endif

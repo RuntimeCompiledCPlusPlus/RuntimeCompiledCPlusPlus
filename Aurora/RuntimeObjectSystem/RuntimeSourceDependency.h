@@ -54,13 +54,13 @@ namespace
 
 // The RUNTIME_COMPILER_SOURCEDEPENDENCY macro will return the name of the current file, which should be a header file.
 // The runtime system will strip off the extension and add .cpp
-#define RUNTIME_COMPILER_SOURCEDEPENDENCY namespace { RUNTIME_COMPILER_SOURCEDEPENDENCY_BASE( __FILE__, ".cpp", 0, __COUNTER__ ) }
+#define RUNTIME_COMPILER_SOURCEDEPENDENCY namespace { RUNTIME_COMPILER_SOURCEDEPENDENCY_BASE( __FILE__, ".cpp", 0, __COUNTER__ - COUNTER_OFFSET ) }
 
 // if you want to specify another extension use this version:
-#define RUNTIME_COMPILER_SOURCEDEPENDENCY_EXT( EXT_ )  namespace { RUNTIME_COMPILER_SOURCEDEPENDENCY_BASE( __FILE__, EXT_, 0, __COUNTER__ ) }
+#define RUNTIME_COMPILER_SOURCEDEPENDENCY_EXT( EXT_ )  namespace { RUNTIME_COMPILER_SOURCEDEPENDENCY_BASE( __FILE__, EXT_, 0, __COUNTER__ - COUNTER_OFFSET ) }
 
 // for complete freedom of which file to specify, use this version (FILE_ is relative to current file path):
-#define RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE( FILE_, EXT_ )  namespace { RUNTIME_COMPILER_SOURCEDEPENDENCY_BASE( FILE_, EXT_, __FILE__, __COUNTER__ ) }
+#define RUNTIME_COMPILER_SOURCEDEPENDENCY_FILE( FILE_, EXT_ )  namespace { RUNTIME_COMPILER_SOURCEDEPENDENCY_BASE( FILE_, EXT_, __FILE__, __COUNTER__ - COUNTER_OFFSET ) }
 
 }
 #else
