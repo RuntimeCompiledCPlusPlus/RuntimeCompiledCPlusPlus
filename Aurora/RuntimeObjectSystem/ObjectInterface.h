@@ -64,7 +64,7 @@ struct ObjectId
 	}
 };
 
-struct SourceDependencyInfo;
+struct RuntimeTackingInfo;
 
 struct IObjectConstructor
 {
@@ -73,12 +73,8 @@ struct IObjectConstructor
 	virtual const char* GetName() = 0;
 	virtual const char* GetFileName() = 0;
 	virtual const char* GetCompiledPath() = 0;
-	virtual size_t GetMaxNumIncludeFiles() const = 0;
-	virtual const char* GetIncludeFile( size_t Num_ ) const = 0;
-	virtual size_t GetMaxNumLinkLibraries() const = 0;
-	virtual const char* GetLinkLibrary( size_t Num_ ) const = 0;
-	virtual size_t GetMaxNumSourceDependencies() const = 0;
-	virtual SourceDependencyInfo GetSourceDependency( size_t Num_ ) const = 0;
+	virtual size_t GetMaxNumTrackingInfo() const = 0;
+	virtual RuntimeTackingInfo GetTrackingInfo( size_t Num_ ) const = 0;
     virtual void SetProjectId( unsigned short projectId_ ) = 0;
     virtual unsigned short GetProjectId() const = 0;
 
