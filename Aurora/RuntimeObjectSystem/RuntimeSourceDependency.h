@@ -28,30 +28,27 @@
 
 #ifndef RCCPPOFF
 
-namespace
-{
 
 #define RUNTIME_COMPILER_SOURCEDEPENDENCY_BASE( SOURCEFILE, SOURCEEXT, RELATIVEPATHTO, N ) \
-	template<> struct RuntimeTracking< N + 1 >  : RuntimeTracking< N >\
+template<> struct RuntimeTracking< N + 1 >  : RuntimeTracking< N >\
+{ \
+	RuntimeTracking( size_t max ) : RuntimeTracking<N>( max ) {} \
+	RuntimeTracking< N + 1 >() : RuntimeTracking<N>( N + 1 ) {} \
+	virtual RuntimeTackingInfo GetTrackingInfo( size_t Num_ ) const \
 	{ \
-		RuntimeTracking( size_t max ) : RuntimeTracking<N>( max ) {} \
-		RuntimeTracking< N + 1 >() : RuntimeTracking<N>( N + 1 ) {} \
-		virtual RuntimeTackingInfo GetTrackingInfo( size_t Num_ ) const \
+		if( Num_ <= N ) \
 		{ \
-			if( Num_ <= N ) \
+			if( Num_ == N ) \
 			{ \
-				if( Num_ == N ) \
-				{ \
-					RuntimeTackingInfo info = RuntimeTackingInfo::GetNULL(); \
-					info.sourceDependencyInfo = { SOURCEFILE, SOURCEEXT, RELATIVEPATHTO }; \
-					return info; \
-				} \
-				else return this->RuntimeTracking< N >::GetTrackingInfo( Num_ ); \
+				RuntimeTackingInfo info = RuntimeTackingInfo::GetNULL(); \
+				info.sourceDependencyInfo = { SOURCEFILE, SOURCEEXT, RELATIVEPATHTO }; \
+				return info; \
 			} \
-			else return RuntimeTackingInfo::GetNULL(); \
+			else return this->RuntimeTracking< N >::GetTrackingInfo( Num_ ); \
 		} \
-	}; \
-}
+		else return RuntimeTackingInfo::GetNULL(); \
+	} \
+}; \
 
 // The RUNTIME_COMPILER_SOURCEDEPENDENCY macro will return the name of the current file, which should be a header file.
 // The runtime system will strip off the extension and add .cpp

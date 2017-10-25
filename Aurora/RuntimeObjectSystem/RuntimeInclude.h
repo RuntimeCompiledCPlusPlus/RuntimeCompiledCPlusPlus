@@ -29,30 +29,27 @@
 //Following creates a list of files which are runtime modifiable, to be used in headers
 //requires use of __COUNTER__ predefined macro, which is in gcc 4.3+, clang/llvm and MSVC
 
-namespace
-{
-
 #define RUNTIME_MODIFIABLE_INCLUDE_BASE( N ) \
-	template<> struct RuntimeTracking< N + 1 >  : RuntimeTracking< N >\
+template<> struct RuntimeTracking< N + 1 >  : RuntimeTracking< N >\
+{ \
+	RuntimeTracking( size_t max ) : RuntimeTracking<N>( max ) {} \
+	RuntimeTracking< N + 1 >() : RuntimeTracking<N>( N + 1 ) {} \
+	virtual RuntimeTackingInfo GetTrackingInfo( size_t Num_ ) const \
 	{ \
-		RuntimeTracking( size_t max ) : RuntimeTracking<N>( max ) {} \
-		RuntimeTracking< N + 1 >() : RuntimeTracking<N>( N + 1 ) {} \
-		virtual RuntimeTackingInfo GetTrackingInfo( size_t Num_ ) const \
+		if( Num_ <= N ) \
 		{ \
-			if( Num_ <= N ) \
+			if( Num_ == N ) \
 			{ \
-				if( Num_ == N ) \
-				{ \
-					RuntimeTackingInfo info = RuntimeTackingInfo::GetNULL(); \
-					info.includeFile = __FILE__; \
-					return info; \
-				} \
-				else return this->RuntimeTracking< N >::GetTrackingInfo( Num_ ); \
+				RuntimeTackingInfo info = RuntimeTackingInfo::GetNULL(); \
+				info.includeFile = __FILE__; \
+				return info; \
 			} \
-			else return RuntimeTackingInfo::GetNULL(); \
+			else return this->RuntimeTracking< N >::GetTrackingInfo( Num_ ); \
 		} \
-	}; \
-}
+		else return RuntimeTackingInfo::GetNULL(); \
+	} \
+}; \
+
 #define RUNTIME_MODIFIABLE_INCLUDE namespace { RUNTIME_MODIFIABLE_INCLUDE_BASE( __COUNTER__ - COUNTER_OFFSET ) }
 
 #else
