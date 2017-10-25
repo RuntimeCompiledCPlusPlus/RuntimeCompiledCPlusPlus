@@ -65,15 +65,6 @@ template< size_t COUNT > struct RuntimeSourceDependency : RuntimeSourceDependenc
 	RuntimeSourceDependency() : RuntimeSourceDependency<COUNT-1>( COUNT )
 	{
 	}
-
-	virtual SourceDependencyInfo GetSourceDependency( size_t Num_ ) const
-	{
-		if( Num_ < COUNT )
-		{
-			return this->RuntimeSourceDependency< COUNT-1 >::GetSourceDependency( Num_ );
-		}
-		else return SourceDependencyInfo::GetNULL();
-	}
 };
 
 template<> struct RuntimeSourceDependency<0> : IRuntimeSourceDependencyList

@@ -52,15 +52,6 @@ template< size_t COUNT > struct RuntimeLinkLibrary : public RuntimeLinkLibrary<C
 	RuntimeLinkLibrary() : RuntimeLinkLibrary<COUNT-1>( COUNT )
 	{
 	}
-
-	virtual const char* GetLinkLibrary( size_t Num_ ) const
-	{
-		if( Num_ < COUNT )
-		{
-			return this->RuntimeLinkLibrary< COUNT-1 >::GetLinkLibrary( Num_ );
-		}
-		else return 0;
-	}
 };
 
 template<> struct RuntimeLinkLibrary<0> : public IRuntimeLinkLibraryList
