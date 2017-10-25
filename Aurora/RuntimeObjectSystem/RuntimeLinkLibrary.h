@@ -49,10 +49,10 @@ namespace
 			else return RuntimeTackingInfo::GetNULL(); \
 		} \
 	}; \
+}
 
 #define RUNTIME_COMPILER_LINKLIBRARY( LIBRARY ) namespace { RUNTIME_COMPILER_LINKLIBRARY_BASE( LIBRARY, __COUNTER__ - COUNTER_OFFSET ) }
 
-}
 #else
 #define RUNTIME_COMPILER_LINKLIBRARY( LIBRARY )
 #endif //RCCPPOFF
