@@ -498,9 +498,9 @@ void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectCons
 		FileSystemUtils::Path compileDir = constructors_[i]->GetCompiledPath();
 
 		//add include file mappings
-		for (size_t includeNum = 0; includeNum <= constructors_[i]->GetMaxNumIncludeFiles(); ++includeNum)
+		for (size_t includeNum = 0; includeNum <= constructors_[i]->GetMaxNumTrackingInfo(); ++includeNum)
 		{
-			const char* pIncludeFile = constructors_[i]->GetIncludeFile(includeNum);
+			const char* pIncludeFile = constructors_[i]->GetTrackingInfo(includeNum).includeFile;
 			if( pIncludeFile )
 			{
                 FileSystemUtils::Path pathInc = compileDir / pIncludeFile;
@@ -515,9 +515,9 @@ void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectCons
             
 
  		//add link library file mappings
-		for (size_t linklibraryNum = 0; linklibraryNum <= constructors_[i]->GetMaxNumLinkLibraries(); ++linklibraryNum)
+		for (size_t linklibraryNum = 0; linklibraryNum <= constructors_[i]->GetMaxNumTrackingInfo(); ++linklibraryNum)
 		{
-			const char* pLinkLibrary = constructors_[i]->GetLinkLibrary(linklibraryNum);
+			const char* pLinkLibrary = constructors_[i]->GetTrackingInfo(linklibraryNum).linkLibrary;
 			if( pLinkLibrary )
 			{
                 // We do not use FindFiles for Linked Libraries as these are searched for on
@@ -530,9 +530,9 @@ void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectCons
 		}
 
         //add source dependency file mappings
-		for (size_t num = 0; num <= constructors_[i]->GetMaxNumSourceDependencies(); ++num)
+		for (size_t num = 0; num <= constructors_[i]->GetMaxNumTrackingInfo(); ++num)
 		{
-			SourceDependencyInfo sourceDependency = constructors_[i]->GetSourceDependency(num);
+			SourceDependencyInfo sourceDependency = constructors_[i]->GetTrackingInfo(num).sourceDependencyInfo;
 			FileSystemUtils::Path pathInc[2];	// array of potential include files for later checks
 			if( sourceDependency.filename )
 			{
