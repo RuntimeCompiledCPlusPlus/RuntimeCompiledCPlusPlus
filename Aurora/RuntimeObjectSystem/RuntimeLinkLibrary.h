@@ -25,31 +25,26 @@
 
 #include "RuntimeTracking.h"
 
-namespace
-{
-
-
 #define RUNTIME_COMPILER_LINKLIBRARY_BASE( LIBRARY, N ) \
-	template<> struct RuntimeTracking< N + 1 >  : RuntimeTracking< N >\
+template<> struct RuntimeTracking< N + 1 >  : RuntimeTracking< N >\
+{ \
+	RuntimeTracking( size_t max ) : RuntimeTracking<N>( max ) {} \
+	RuntimeTracking< N + 1 >() : RuntimeTracking<N>( N + 1 ) {} \
+	virtual RuntimeTackingInfo GetTrackingInfo( size_t Num_ ) const \
 	{ \
-		RuntimeTracking( size_t max ) : RuntimeTracking<N>( max ) {} \
-		RuntimeTracking< N + 1 >() : RuntimeTracking<N>( N + 1 ) {} \
-		virtual RuntimeTackingInfo GetTrackingInfo( size_t Num_ ) const \
+		if( Num_ <= N ) \
 		{ \
-			if( Num_ <= N ) \
+			if( Num_ == N ) \
 			{ \
-				if( Num_ == N ) \
-				{ \
-					RuntimeTackingInfo info = RuntimeTackingInfo::GetNULL(); \
-					info.linkLibrary = LIBRARY; \
-					return info; \
-				} \
-				else return this->RuntimeTracking< N >::GetTrackingInfo( Num_ ); \
+				RuntimeTackingInfo info = RuntimeTackingInfo::GetNULL(); \
+				info.linkLibrary = LIBRARY; \
+				return info; \
 			} \
-			else return RuntimeTackingInfo::GetNULL(); \
+			else return this->RuntimeTracking< N >::GetTrackingInfo( Num_ ); \
 		} \
-	}; \
-}
+		else return RuntimeTackingInfo::GetNULL(); \
+	} \
+}; \
 
 #define RUNTIME_COMPILER_LINKLIBRARY( LIBRARY ) namespace { RUNTIME_COMPILER_LINKLIBRARY_BASE( LIBRARY, __COUNTER__ - COUNTER_OFFSET ) }
 
