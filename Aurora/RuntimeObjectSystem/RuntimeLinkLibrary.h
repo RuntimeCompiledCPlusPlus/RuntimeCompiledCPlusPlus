@@ -26,6 +26,7 @@
 #include "RuntimeTracking.h"
 
 #define RUNTIME_COMPILER_LINKLIBRARY_BASE( LIBRARY, N ) \
+RCCPP_OPTMIZE_OFF \
 template<> struct RuntimeTracking< N + 1 >  : RuntimeTracking< N >\
 { \
 	RuntimeTracking( size_t max ) : RuntimeTracking<N>( max ) {} \
@@ -45,6 +46,7 @@ template<> struct RuntimeTracking< N + 1 >  : RuntimeTracking< N >\
 		else return RuntimeTackingInfo::GetNULL(); \
 	} \
 }; \
+RCCPP_OPTMIZE_ON
 
 #define RUNTIME_COMPILER_LINKLIBRARY( LIBRARY ) namespace { RUNTIME_COMPILER_LINKLIBRARY_BASE( LIBRARY, __COUNTER__ - COUNTER_OFFSET ) }
 

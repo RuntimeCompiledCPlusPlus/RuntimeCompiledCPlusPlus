@@ -30,6 +30,7 @@
 
 
 #define RUNTIME_COMPILER_SOURCEDEPENDENCY_BASE( SOURCEFILE, SOURCEEXT, RELATIVEPATHTO, N ) \
+RCCPP_OPTMIZE_OFF \
 template<> struct RuntimeTracking< N + 1 >  : RuntimeTracking< N >\
 { \
 	RuntimeTracking( size_t max ) : RuntimeTracking<N>( max ) {} \
@@ -49,6 +50,7 @@ template<> struct RuntimeTracking< N + 1 >  : RuntimeTracking< N >\
 		else return RuntimeTackingInfo::GetNULL(); \
 	} \
 }; \
+RCCPP_OPTMIZE_ON
 
 // The RUNTIME_COMPILER_SOURCEDEPENDENCY macro will return the name of the current file, which should be a header file.
 // The runtime system will strip off the extension and add .cpp
