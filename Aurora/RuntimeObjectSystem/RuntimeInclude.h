@@ -30,6 +30,7 @@
 //requires use of __COUNTER__ predefined macro, which is in gcc 4.3+, clang/llvm and MSVC
 
 #define RUNTIME_MODIFIABLE_INCLUDE_BASE( N ) \
+RCCPP_OPTMIZE_OFF \
 template<> struct RuntimeTracking< N + 1 >  : RuntimeTracking< N >\
 { \
 	RuntimeTracking( size_t max ) : RuntimeTracking<N>( max ) {} \
@@ -49,6 +50,7 @@ template<> struct RuntimeTracking< N + 1 >  : RuntimeTracking< N >\
 		else return RuntimeTackingInfo::GetNULL(); \
 	} \
 }; \
+RCCPP_OPTMIZE_ON
 
 #define RUNTIME_MODIFIABLE_INCLUDE namespace { RUNTIME_MODIFIABLE_INCLUDE_BASE( __COUNTER__ - COUNTER_OFFSET ) }
 

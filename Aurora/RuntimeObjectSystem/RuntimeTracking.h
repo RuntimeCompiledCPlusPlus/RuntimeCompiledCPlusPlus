@@ -17,6 +17,16 @@
 
 #pragma once
 
+// the templates used for tracking need not be optimized
+// so we create macros to handle this
+#ifdef _WIN32
+	#define RCCPP_OPTMIZE_OFF __pragma( optimize( "", off ) )
+	#define RCCPP_OPTMIZE_ON  __pragma( optimize( "", on ) )
+#else
+	#define RCCPP_OPTMIZE_OFF
+	#define RCCPP_OPTMIZE_ON
+#endif
+
 
 // Source Dependencies are constructed from a macro template from sources which may include
 // the __FILE__ macro, so to reduce inter-dependencies we return three values which are combined
@@ -39,6 +49,8 @@ struct RuntimeTackingInfo
 
 
 #ifndef RCCPPOFF
+
+RCCPP_OPTMIZE_OFF
 
 struct IRuntimeTracking
 {
@@ -79,6 +91,8 @@ template<> struct RuntimeTracking<0> : IRuntimeTracking
 	{
 	}
 };
+
+RCCPP_OPTMIZE_ON
 
 }
 
