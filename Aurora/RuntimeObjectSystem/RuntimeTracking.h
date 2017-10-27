@@ -50,6 +50,8 @@ struct RuntimeTackingInfo
 
 #ifndef RCCPPOFF
 
+#include <stddef.h>
+
 RCCPP_OPTMIZE_OFF
 
 struct IRuntimeTracking
