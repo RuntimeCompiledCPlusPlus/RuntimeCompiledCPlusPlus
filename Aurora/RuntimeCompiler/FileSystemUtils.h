@@ -41,6 +41,7 @@
     #include <string.h>
     #include <unistd.h>
     #include <dirent.h>
+    #include <assert.h>
 	#define FILESYSTEMUTILS_SEPERATORS "/"
 #endif
 
