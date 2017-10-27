@@ -319,6 +319,7 @@ void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToComp
 #endif
 		break;
 	case RCCPPOPTIMIZATIONLEVEL_NOT_SET:;
+	case RCCPPOPTIMIZATIONLEVEL_SIZE:;
 	}
 
 	if( NULL == m_pImplData->m_CmdProcessInfo.hProcess )
