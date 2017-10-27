@@ -90,9 +90,7 @@ public:
 	TObjectConstructorConcrete(
 #ifndef RCCPPOFF
 		const char* Filename,
-		IRuntimeIncludeFileList*        pIncludeFileList_,
-        IRuntimeSourceDependencyList*   pSourceDependencyList_,
-        IRuntimeLinkLibraryList*        pLinkLibraryList,
+        IRuntimeTracking*				pRuntimeTrackingList_,
 #endif
         bool                            bIsSingleton,
         bool                            bIsAutoConstructSingleton)
@@ -102,9 +100,7 @@ public:
         , m_Project(0)
 #ifndef RCCPPOFF
 		, m_FileName(                   Filename )
-		, m_pIncludeFileList(pIncludeFileList_)
-		, m_pSourceDependencyList(pSourceDependencyList_)
-		, m_pLinkLibraryList(pLinkLibraryList)
+		, m_pRuntimeTrackingList(pRuntimeTrackingList_)
 #endif
 	{
 #ifndef RCCPPOFF
@@ -191,67 +187,23 @@ public:
 #endif
    }
 
-	virtual const char* GetIncludeFile( size_t Num_ ) const
+	virtual RuntimeTackingInfo GetTrackingInfo( size_t Num_ ) const
 	{
 #ifndef RCCPPOFF
-		if( m_pIncludeFileList )
+		if( m_pRuntimeTrackingList )
 		{
-			return m_pIncludeFileList->GetIncludeFile( Num_ );
+			return m_pRuntimeTrackingList->GetTrackingInfo( Num_ );
 		}
 #endif
-		return 0;
+		return RuntimeTackingInfo::GetNULL();
 	}
 
-	virtual size_t GetMaxNumIncludeFiles() const
+	virtual size_t GetMaxNumTrackingInfo() const
 	{
 #ifndef RCCPPOFF
-		if( m_pIncludeFileList )
+		if( m_pRuntimeTrackingList )
 		{
-			return m_pIncludeFileList->MaxNum;
-		}
-#endif
-		return 0;
-	}
-
-	virtual const char* GetLinkLibrary( size_t Num_ ) const
-	{
-#ifndef RCCPPOFF
-		if( m_pLinkLibraryList )
-		{
-			return m_pLinkLibraryList->GetLinkLibrary( Num_ );
-		}
-#endif
-		return 0;
-	}
-
-	virtual size_t GetMaxNumLinkLibraries() const
-	{
-#ifndef RCCPPOFF
-		if( m_pLinkLibraryList )
-		{
-			return m_pLinkLibraryList->MaxNum;
-		}
-#endif
-		return 0;
-	}
-
-	virtual SourceDependencyInfo GetSourceDependency( size_t Num_ ) const
-	{
-#ifndef RCCPPOFF
-		if( m_pSourceDependencyList )
-		{
-			return m_pSourceDependencyList->GetSourceDependency( Num_ );
-		}
-#endif
-		return SourceDependencyInfo::GetNULL();
-	}
-
-	virtual size_t GetMaxNumSourceDependencies() const
-	{
-#ifndef RCCPPOFF
-		if( m_pSourceDependencyList )
-		{
-			return m_pSourceDependencyList->MaxNum;
+			return m_pRuntimeTrackingList->MaxNum;
 		}
 #endif
 		return 0;
@@ -322,9 +274,7 @@ private:
     unsigned short                  m_Project;
 #ifndef RCCPPOFF
 	std::string                     m_FileName;
-	IRuntimeIncludeFileList*        m_pIncludeFileList;
-	IRuntimeSourceDependencyList*   m_pSourceDependencyList;
-	IRuntimeLinkLibraryList*        m_pLinkLibraryList;
+	IRuntimeTracking*				m_pRuntimeTrackingList;
 #endif
 };
 
@@ -373,10 +323,8 @@ private:
 };
 #ifndef RCCPPOFF
 	#define REGISTERBASE( T, bIsSingleton, bIsAutoConstructSingleton )	\
-		static RuntimeIncludeFiles< __COUNTER__ >       g_includeFileList_##T; \
-		static RuntimeSourceDependency< __COUNTER__ >   g_sourceDependencyList_##T; \
-		static RuntimeLinkLibrary< __COUNTER__ >        g_linkLibraryList_##T; \
-	template<> TObjectConstructorConcrete< TActual< T > > TActual< T >::m_Constructor( __FILE__, &g_includeFileList_##T, &g_sourceDependencyList_##T, &g_linkLibraryList_##T, bIsSingleton, bIsAutoConstructSingleton );\
+	static RuntimeTracking< __COUNTER__ >	   g_runtimeTrackingList_##T; \
+	template<> TObjectConstructorConcrete< TActual< T > > TActual< T >::m_Constructor( __FILE__, &g_runtimeTrackingList_##T, bIsSingleton, bIsAutoConstructSingleton );\
 	template<> const char* TActual< T >::GetTypeNameStatic() { return #T; } \
 	template class TActual< T >;
 #else

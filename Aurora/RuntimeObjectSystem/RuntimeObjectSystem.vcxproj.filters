@@ -30,6 +30,7 @@
     <ClInclude Include="RuntimeLinkLibrary.h" />
     <ClInclude Include="RuntimeProtector.h" />
     <ClInclude Include="RuntimeSourceDependency.h" />
+    <ClInclude Include="RuntimeTracking.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="SimpleSerializer">

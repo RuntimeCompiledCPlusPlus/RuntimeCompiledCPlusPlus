@@ -22,87 +22,34 @@
 
 
 #ifndef RCCPPOFF
-//NOTE: the file macro will only emit the full path if /FC option is used in visual studio or /ZI (Which forces /FC)
-//Following creates a list of files which are runtime modifiable, to be used in headers
-//requires use of __COUNTER__ predefined macro, which is in gcc 4.3+, clang/llvm and MSVC
 
-struct IRuntimeLinkLibraryList
-{
-	IRuntimeLinkLibraryList( size_t max ) : MaxNum( max )
-	{
-	}
-
-	// GetIncludeFile may return 0, so you should iterate through to GetMaxNum() ignoring 0 returns
-	virtual const char* GetLinkLibrary( size_t Num_ ) const
-	{
-		return 0;
-	}
-	size_t MaxNum; // initialized in constructor below
-};
-
-
-namespace
-{
-
-template< size_t COUNT > struct RuntimeLinkLibrary : public RuntimeLinkLibrary<COUNT-1>
-{
-	RuntimeLinkLibrary( size_t max ) : RuntimeLinkLibrary<COUNT-1>( max )
-	{
-	}
-	RuntimeLinkLibrary() : RuntimeLinkLibrary<COUNT-1>( COUNT )
-	{
-	}
-
-	virtual const char* GetLinkLibrary( size_t Num_ ) const
-	{
-		if( Num_ < COUNT )
-		{
-			return this->RuntimeLinkLibrary< COUNT-1 >::GetLinkLibrary( Num_ );
-		}
-		else return 0;
-	}
-};
-
-template<> struct RuntimeLinkLibrary<0> : public IRuntimeLinkLibraryList
-{
-	RuntimeLinkLibrary( size_t max ) : IRuntimeLinkLibraryList( max )
-	{
-	}
-	RuntimeLinkLibrary() : IRuntimeLinkLibraryList( 0 )
-	{
-	}
-
-	virtual const char* GetLinkLibrary( size_t Num_ ) const
-	{
-		return 0;
-	} 
-};
-
-
+#include "RuntimeTracking.h"
 
 #define RUNTIME_COMPILER_LINKLIBRARY_BASE( LIBRARY, N ) \
-	template<> struct RuntimeLinkLibrary< N + 1 >  : public RuntimeLinkLibrary< N >\
+RCCPP_OPTMIZE_OFF \
+template<> struct RuntimeTracking< N + 1 >  : RuntimeTracking< N >\
+{ \
+	RuntimeTracking( size_t max ) : RuntimeTracking<N>( max ) {} \
+	RuntimeTracking< N + 1 >() : RuntimeTracking<N>( N + 1 ) {} \
+	virtual RuntimeTackingInfo GetTrackingInfo( size_t Num_ ) const \
 	{ \
-		RuntimeLinkLibrary( size_t max ) : RuntimeLinkLibrary<N>( max ) {} \
-		RuntimeLinkLibrary< N + 1 >() : RuntimeLinkLibrary<N>( N + 1 ) {} \
-		virtual const char* GetLinkLibrary( size_t Num_ ) const \
+		if( Num_ <= N ) \
 		{ \
-			if( Num_ <= N ) \
+			if( Num_ == N ) \
 			{ \
-				if( Num_ == N ) \
-				{ \
-					return LIBRARY; \
-				} \
-				else return this->RuntimeLinkLibrary< N >::GetLinkLibrary( Num_ ); \
+				RuntimeTackingInfo info = RuntimeTackingInfo::GetNULL(); \
+				info.linkLibrary = LIBRARY; \
+				return info; \
 			} \
-			else return 0; \
+			else return this->RuntimeTracking< N >::GetTrackingInfo( Num_ ); \
 		} \
-	}; \
+		else return RuntimeTackingInfo::GetNULL(); \
+	} \
+}; \
+RCCPP_OPTMIZE_ON
 
+#define RUNTIME_COMPILER_LINKLIBRARY( LIBRARY ) namespace { RUNTIME_COMPILER_LINKLIBRARY_BASE( LIBRARY, __COUNTER__ - COUNTER_OFFSET ) }
 
-#define RUNTIME_COMPILER_LINKLIBRARY( LIBRARY ) namespace { RUNTIME_COMPILER_LINKLIBRARY_BASE( LIBRARY, __COUNTER__ ) }
-
-}
 #else
 #define RUNTIME_COMPILER_LINKLIBRARY( LIBRARY )
 #endif //RCCPPOFF
