@@ -50,7 +50,7 @@ struct VSVersionInfo
 
 const std::string	c_CompletionToken( "_COMPLETION_TOKEN_" );
 
-void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions );
+void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions, ICompilerLogger * pLogger );
 
 void ReadAndHandleOutputThread( LPVOID arg );
 void WriteInput( HANDLE hPipeWrite, std::string& input  );
@@ -266,7 +266,7 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
 	m_pImplData->m_pLogger = pLogger;
 	// get VS compiler path
 	std::vector<VSVersionInfo> Versions;
-	GetPathsOfVisualStudioInstalls( &Versions );
+	GetPathsOfVisualStudioInstalls( &Versions, m_pImplData->m_pLogger );
 
     if( !Versions.empty() )
     {
@@ -426,7 +426,7 @@ struct VSVersionDiscoveryInfo
 	int         versionKey; // index into an array of VSKey values for the key
 };
 
-void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions )
+void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions, ICompilerLogger * pLogger )
 {
 	//e.g.: HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\<version>\Setup\VS\<edition>
 	VSKey VS_KEYS[] = { {"SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7", "", NULL},
@@ -469,7 +469,10 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions )
 		startVersion = 6;
 		break;
 	default:
-		assert( false ); //unsupported compiler, find MSCVERSION to add case
+		if( pLogger )
+		{
+			pLogger->LogWarning("WARNING: VS Compiler with _MSC_VER %d potentially not supported. Defaulting to version %s.\n",MSCVERSION, VS_DISCOVERY_INFO[startVersion].valueName);
+		}
 	}
 
 
