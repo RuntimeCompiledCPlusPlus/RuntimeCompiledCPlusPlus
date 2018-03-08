@@ -466,6 +466,7 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions )
 	case 1910:	//VS 2017
 	case 1911:	//VS 2017
 	case 1912:	//VS 2017
+	case 1913:	//VS 2017
 		startVersion = 6;
 		break;
 	default:
