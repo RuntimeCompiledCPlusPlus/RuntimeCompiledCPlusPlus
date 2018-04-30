@@ -46,6 +46,7 @@ enum InterfaceIDEnum
 typedef unsigned int InterfaceID;
 
 // Template to help with IIDs
+// Always have this as first in list of base classes
 template< InterfaceID Tiid, typename TSuper> struct TInterface : public TSuper
 {
 	static const InterfaceID s_interfaceID = Tiid;
