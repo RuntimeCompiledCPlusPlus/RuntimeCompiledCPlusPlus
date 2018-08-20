@@ -55,8 +55,11 @@ public:
     {
         m_bFastCompileMode = bFast;
 
-        // call GetIsComplete() to ensure this stops process
-        GetIsComplete();
+        if( m_pImplData )
+        {
+            // call GetIsComplete() to ensure this stops process
+            GetIsComplete();
+        }
     }
 
     std::string GetObjectFileExtension() const;
