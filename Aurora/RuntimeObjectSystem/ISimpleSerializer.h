@@ -70,6 +70,9 @@ struct ISimpleSerializer
 	// Stores a copy of the value when loading is false
 	// Returns true on successful property load, or always when saving a value
 	template <typename T, size_t N> bool SerializeProperty(const char* propertyName, T (&arrayIn)[N] );
+
+    // Implementations may need to know the object being serialized
+    virtual const IObject* GetCurrentObjectBeingSerialized() const = 0;
  
     virtual ~ISimpleSerializer( ) {}
 private:

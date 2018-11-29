@@ -54,6 +54,10 @@ public:
 		m_pCurrentObject = 0;
 	}
 
+    virtual const IObject* GetCurrentObjectBeingSerialized() const
+    {
+        return m_pCurrentObject;
+    }
 
 	// ~ISimpleSerializer
 
