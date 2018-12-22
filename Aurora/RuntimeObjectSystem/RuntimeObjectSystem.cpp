@@ -463,7 +463,16 @@ void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectCons
 		}
 		Path filePath = pFilename;
         filePath = filePath.GetCleanPath();
-        filePath = FindFile( filePath );
+        bool bFound = false;
+        filePath = FindFile( filePath, &bFound );
+        if( !bFound )
+        {
+        #ifdef _WIN32
+        if( m_pCompilerLogger ) { m_pCompilerLogger->LogWarning("Source file not found may be due to compile option /FC not being set.\n"); }
+        #else
+        if( m_pCompilerLogger ) { m_pCompilerLogger->LogWarning("Source file not found may be due to macro COMPILE_PATH not being set.\n"); }
+        #endif
+        }
 
         unsigned short projectId = constructors_[ i ]->GetProjectId();
         ProjectSettings& project = GetProject( projectId );
@@ -656,7 +665,7 @@ void RuntimeObjectSystem::CleanObjectFiles() const
     }
 }
 
-FileSystemUtils::Path RuntimeObjectSystem::FindFile( const FileSystemUtils::Path& input )
+FileSystemUtils::Path RuntimeObjectSystem::FindFile( const FileSystemUtils::Path& input, bool* pFound )
 {
     FileSystemUtils::Path requestedDirectory = input;
     FileSystemUtils::Path filename;
@@ -774,10 +783,14 @@ FileSystemUtils::Path RuntimeObjectSystem::FindFile( const FileSystemUtils::Path
         }
     }
 
-    if( !foundFile.Exists() )
+    bool bFound = foundFile.Exists();
+    if( pFound )
+    {
+        *pFound = bFound;
+    }
+    if( !bFound )
     {
         if( m_pCompilerLogger ) {  m_pCompilerLogger->LogWarning( "Could not find Directory Mapping for: %s\n", input.c_str() ); }
-        ++m_NumNotFoundSourceFiles;
     }
     return foundFile;
 }
