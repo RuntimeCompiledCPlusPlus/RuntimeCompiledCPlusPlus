@@ -781,6 +781,8 @@ FileSystemUtils::Path RuntimeObjectSystem::FindFile( const FileSystemUtils::Path
                 }
             }
         }
+
+        foundFile.ToOSCanonicalCase();
     }
 
     bool bFound = foundFile.Exists();
