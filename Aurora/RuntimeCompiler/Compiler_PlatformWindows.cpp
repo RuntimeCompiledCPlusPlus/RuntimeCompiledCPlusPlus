@@ -59,7 +59,8 @@ class PlatformCompilerImplData
 {
 public:
 	PlatformCompilerImplData()
-		: m_bCompileIsComplete( false )
+		: m_bFindVS( true )
+		, m_bCompileIsComplete( false )
 		, m_CmdProcessOutputRead( NULL )
 		, m_CmdProcessInputWrite( NULL )
 	{
@@ -227,6 +228,7 @@ public:
     }
 
 	std::string			m_VSPath;
+	bool				m_bFindVS;
 	PROCESS_INFORMATION m_CmdProcessInfo;
 	HANDLE				m_CmdProcessOutputRead;
 	HANDLE				m_CmdProcessInputWrite;
@@ -264,22 +266,6 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
 {
 	m_pImplData = new PlatformCompilerImplData;
 	m_pImplData->m_pLogger = pLogger;
-	// get VS compiler path
-	std::vector<VSVersionInfo> Versions;
-	GetPathsOfVisualStudioInstalls( &Versions, m_pImplData->m_pLogger );
-
-    if( !Versions.empty() )
-    {
-	    m_pImplData->m_VSPath = Versions[0].Path;
-    }
-    else
-    {
-        m_pImplData->m_VSPath = "";
-        if( m_pImplData->m_pLogger )
-        {
-            m_pImplData->m_pLogger->LogError("No Supported Compiler for RCC++ found.\n");
-        }
-    }
 }
 
 
@@ -288,6 +274,27 @@ void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToComp
 							std::vector<FileSystemUtils::Path>			linkLibraryList_,
 							const FileSystemUtils::Path&				moduleName_ )
 {
+	if( m_pImplData->m_bFindVS )
+	{
+		// get VS compiler path
+		m_pImplData->m_bFindVS = false; // only run once
+		std::vector<VSVersionInfo> Versions;
+		GetPathsOfVisualStudioInstalls(&Versions, m_pImplData->m_pLogger);
+
+		if (!Versions.empty())
+		{
+			m_pImplData->m_VSPath = Versions[0].Path;
+		}
+		else
+		{
+			m_pImplData->m_VSPath = "";
+			if (m_pImplData->m_pLogger)
+			{
+				m_pImplData->m_pLogger->LogError("No Supported Compiler for RCC++ found.\n");
+			}
+		}
+	}
+
     if( m_pImplData->m_VSPath.empty() )
     {
         if (m_pImplData->m_pLogger) { m_pImplData->m_pLogger->LogError("No Supported Compiler for RCC++ found, cannot compile changes.\n"); }
