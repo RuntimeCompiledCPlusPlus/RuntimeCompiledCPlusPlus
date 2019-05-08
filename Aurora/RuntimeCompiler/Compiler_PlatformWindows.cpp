@@ -398,11 +398,11 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions, ICom
 					{
 						end = cmdProc.m_CmdOutput.length();
 					}
-					std::string path = cmdProc.m_CmdOutput.substr( start, end-start );
-					if( path.length() )
+					FileSystemUtils::Path path = cmdProc.m_CmdOutput.substr( start, end-start );
+					if( path.m_string.length() && path.Exists() )
 					{
 						VSVersionInfo vInfo;
-						vInfo.Path = path;
+						vInfo.Path = path.m_string;
 						vInfo.Path += "\\";
 						vInfo.Path += vskey.pathToAdd;
 						pVersions->push_back( vInfo );
