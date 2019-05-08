@@ -15,7 +15,6 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-// RuntimeDLLTest01.cpp : Defines the entry point for the console application.
 //
 // Notes:
 //   - We use a single intermediate directory for compiled .obj files, which means
@@ -69,6 +68,8 @@ struct CmdProcess
 	HANDLE				m_CmdProcessInputWrite;
 	volatile bool		m_bIsComplete;
 	ICompilerLogger*    m_pLogger;
+	bool				m_bStoreCmdOutput;
+	std::string         m_CmdOutput;
 };
 
 class PlatformCompilerImplData
@@ -179,11 +180,10 @@ void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToComp
 	if( NULL == m_pImplData->m_CmdProcess.m_CmdProcessInfo.hProcess )
 	{
 		m_pImplData->m_CmdProcess.InitialiseProcess();
-		// "@PROMPT $" sets command prompt to empty rather than path
 #ifndef _WIN64
-		std::string cmdSetParams = "@PROMPT $ \n\"" + m_pImplData->m_VSPath + "Vcvarsall.bat\" x86\n";
+		std::string cmdSetParams = "\"" + m_pImplData->m_VSPath + "Vcvarsall.bat\" x86\n";
 #else
-		std::string cmdSetParams = "@PROMPT $ \n\"" + m_pImplData->m_VSPath + "Vcvarsall.bat\" x86_amd64\n";
+		std::string cmdSetParams = "\"" + m_pImplData->m_VSPath + "Vcvarsall.bat\" x86_amd64\n";
 #endif
 		//send initial set up command
 		m_pImplData->m_CmdProcess.WriteInput(cmdSetParams);
@@ -285,18 +285,22 @@ struct VSKey
 struct VSVersionDiscoveryInfo
 {
 	const char* valueName;
-	int         versionKey; // index into an array of VSKey values for the key
+	int         versionKey; // index into an array of VSKey values for the key, -1 for don't look
+	bool        tryVSWhere; // can use VSWhere for versioning
 };
 
-void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions, ICompilerLogger * pLogger )
+void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions, ICompilerLogger* pLogger )
 {
 	//e.g.: HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\<version>\Setup\VS\<edition>
+	// to view 32bit keys on Windows use start->run and enter: %systemroot%\syswow64\regedit
+	// as for 32bit keys need to run 32bit regedit.
 	VSKey VS_KEYS[] = { {"SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7", "", NULL},
-								{"SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VS7", "VC\\Auxiliary\\Build\\", NULL} };
+					    {"SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VS7", "VC\\Auxiliary\\Build\\", NULL} };
 	int NUMVSKEYS = sizeof( VS_KEYS ) / sizeof( VSKey );
 
-    // supporting: VS2005, VS2008, VS2010, VS2011, VS2013, VS2015, VS2017
-	VSVersionDiscoveryInfo VS_DISCOVERY_INFO[] = { {"8.0",0}, {"9.0",0}, {"10.0",0}, {"11.0",0}, {"12.0",0}, {"14.0",0}, {"15.0",1} };
+    // supporting: VS2005, VS2008, VS2010, VS2011, VS2013, VS2015, VS2017, VS2019
+	// See https://en.wikipedia.org/wiki/Microsoft_Visual_C%2B%2B#Internal_version_numbering for version info
+	VSVersionDiscoveryInfo VS_DISCOVERY_INFO[] = { {"8.0",0,false}, {"9.0",0,false}, {"10.0",0,false}, {"11.0",0,false}, {"12.0",0,false}, {"14.0",0,false}, {"15.0",1,true}, {"16.0",1,true} };
 
 
 	int NUMNAMESTOCHECK = sizeof( VS_DISCOVERY_INFO ) / sizeof( VSVersionDiscoveryInfo );
@@ -332,6 +336,9 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions, ICom
     case 1915:  //VS 2017
     case 1916:  //VS 2017
 		startVersion = 6;
+		break;
+	case 1920: // VS 2019
+		startVersion = 7;
 		break;
 	default:
 		if( pLogger )
@@ -369,6 +376,43 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions, ICom
 			VSVersionDiscoveryInfo vsinfo = VS_DISCOVERY_INFO[i];
 			VSKey                  vskey  = VS_KEYS[ vsinfo.versionKey ];
 
+			if( vsinfo.tryVSWhere )
+			{
+				CmdProcess cmdProc;
+				cmdProc.m_pLogger = pLogger;
+				cmdProc.InitialiseProcess();
+				cmdProc.m_bStoreCmdOutput = true;
+				cmdProc.m_CmdOutput = "";
+				std::string vsWhereQuery = "\"%ProgramFiles(x86)%\\Microsoft Visual Studio\\Installer\\vswhere\""
+					                         " -version " + std::string( vsinfo.valueName ) + 
+					                         " -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
+					                         " -property installationPath"
+							                 "\nexit\n";
+				cmdProc.WriteInput( vsWhereQuery );
+				WaitForSingleObject( cmdProc.m_CmdProcessInfo.hProcess, 2000 ); // max 2 secs
+				// get the first non-empty substring
+				size_t start = cmdProc.m_CmdOutput.find_first_not_of("\r\n", 0);
+				if( start != std::string::npos )
+				{
+					size_t end = cmdProc.m_CmdOutput.find_first_of("\r\n", start);
+					if( end == std::string::npos )
+					{
+						end = cmdProc.m_CmdOutput.length();
+					}
+					std::string path = cmdProc.m_CmdOutput.substr( start, end-start );
+					if( path.length() )
+					{
+						VSVersionInfo vInfo;
+						vInfo.Version = i + 8;
+						vInfo.Path = path;
+						vInfo.Path += "\\";
+						vInfo.Path += vskey.pathToAdd;
+						pVersions->push_back( vInfo );
+						continue;
+					}
+				}
+			}
+
 		    LONG retVal = RegQueryValueExA(
 				          vskey.key,					//__in         HKEY hKey,
 					      vsinfo.valueName,	//__in_opt     LPCTSTR lpValueName,
@@ -401,12 +445,11 @@ void ReadAndHandleOutputThread( LPVOID arg )
 {
 	CmdProcess* pCmdProc = (CmdProcess*)arg;
 
-    CHAR lpBuffer[1024];
-    DWORD nBytesRead;
- 	bool bReadActive = true;
-	bool bReadOneMore = false;
-    while( bReadActive )
-    {
+	CHAR lpBuffer[1024];
+	DWORD nBytesRead;
+	bool bReadActive = true;
+	while( bReadActive )
+	{
 		if (!ReadFile(pCmdProc->m_CmdProcessOutputRead,lpBuffer,sizeof(lpBuffer)-1,
 										&nBytesRead,NULL) || !nBytesRead)
 		{
@@ -428,26 +471,32 @@ void ReadAndHandleOutputThread( LPVOID arg )
 			{
 				//we've found the completion token, which means we quit
 				buffer = buffer.substr( 0, found );
-				if(pCmdProc->m_pLogger ) pCmdProc->m_pLogger->LogInfo("[RuntimeCompiler] Complete\n");
+				if( !pCmdProc->m_bStoreCmdOutput && pCmdProc->m_pLogger ) pCmdProc->m_pLogger->LogInfo("[RuntimeCompiler] Complete\n");
 				pCmdProc->m_bIsComplete = true;
 			}
 			if( bReadActive || buffer.length() ) //don't output blank last line
 			{
-				//check if this is an error
-				size_t errorFound = buffer.find( " : error " );
-				size_t fatalErrorFound = buffer.find( " : fatal error " );
-				if( ( errorFound != std::string::npos ) || ( fatalErrorFound != std::string::npos ) )
+				if( pCmdProc->m_bStoreCmdOutput )
 				{
-					if(pCmdProc->m_pLogger ) pCmdProc->m_pLogger->LogError( "%s", buffer.c_str() );
+					pCmdProc->m_CmdOutput += buffer;
 				}
 				else
 				{
-					if(pCmdProc->m_pLogger ) pCmdProc->m_pLogger->LogInfo( "%s", buffer.c_str() );
+					//check if this is an error
+					size_t errorFound = buffer.find( " : error " );
+					size_t fatalErrorFound = buffer.find( " : fatal error " );
+					if( ( errorFound != std::string::npos ) || ( fatalErrorFound != std::string::npos ) )
+					{
+						if(pCmdProc->m_pLogger ) pCmdProc->m_pLogger->LogError( "%s", buffer.c_str() );
+					}
+					else
+					{
+						if(pCmdProc->m_pLogger ) pCmdProc->m_pLogger->LogInfo( "%s", buffer.c_str() );
+					}
 				}
 			}
 		}
-     }
-
+	}
 }
 
 PlatformCompilerImplData::PlatformCompilerImplData()
@@ -465,6 +514,7 @@ CmdProcess::CmdProcess()
 	, m_CmdProcessInputWrite(NULL)
 	, m_bIsComplete(false)
 	, m_pLogger(NULL)
+	, m_bStoreCmdOutput(false)
 {
 	ZeroMemory(&m_CmdProcessInfo, sizeof(m_CmdProcessInfo));
 }
@@ -562,7 +612,7 @@ void CmdProcess::InitialiseProcess()
 	}
 	*/
 
-	wchar_t* pCommandLine = L"cmd /q";
+	wchar_t* pCommandLine = L"cmd /q /K @PROMPT $";
 	//CreateProcessW won't accept a const pointer, so copy to an array 
 	wchar_t pCmdLineNonConst[1024];
 	wcscpy_s(pCmdLineNonConst, pCommandLine);
@@ -584,17 +634,17 @@ void CmdProcess::InitialiseProcess()
 
 
 ERROR_EXIT:
-	if (hOutputReadTmp)
+	if( hOutputReadTmp )
 	{
-		CloseHandle(hOutputReadTmp);
+		CloseHandle( hOutputReadTmp );
 	}
-	if (hOutputWrite)
+	if( hOutputWrite )
 	{
 		CloseHandle(hOutputWrite);
 	}
-	if (hErrorWrite)
+	if( hErrorWrite )
 	{
-		CloseHandle(hErrorWrite);
+		CloseHandle( hErrorWrite );
 	}
 }
 
@@ -608,8 +658,8 @@ void CmdProcess::WriteInput( std::string& input )
 
 void CmdProcess::CleanupProcessAndPipes()
 {
-	// do not reset m_bCompileIsComplete and other members here, just process and pipes
-	if (m_CmdProcessInfo.hProcess)
+	// do not reset m_bIsComplete and other members here, just process and pipes
+	if( m_CmdProcessInfo.hProcess )
 	{
 		TerminateProcess(m_CmdProcessInfo.hProcess, 0);
 		TerminateThread(m_CmdProcessInfo.hThread, 0);
@@ -620,7 +670,6 @@ void CmdProcess::CleanupProcessAndPipes()
 		CloseHandle(m_CmdProcessOutputRead);
 		m_CmdProcessOutputRead = 0;
 	}
-
 }
 
 CmdProcess::~CmdProcess()
