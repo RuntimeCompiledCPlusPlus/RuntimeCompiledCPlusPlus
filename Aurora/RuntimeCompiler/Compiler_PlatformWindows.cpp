@@ -54,26 +54,32 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions, ICom
 
 void ReadAndHandleOutputThread( LPVOID arg );
 
+struct CmdProcess
+{
+	CmdProcess();
+	~CmdProcess();
+
+	void InitialiseProcess();
+	void WriteInput(std::string& input);
+	void CleanupProcessAndPipes();
+
+
+	PROCESS_INFORMATION m_CmdProcessInfo;
+	HANDLE				m_CmdProcessOutputRead;
+	HANDLE				m_CmdProcessInputWrite;
+	volatile bool		m_bIsComplete;
+	ICompilerLogger*    m_pLogger;
+};
+
 class PlatformCompilerImplData
 {
 public:
 	PlatformCompilerImplData();
-
-	void InitialiseProcess();
-
-	void WriteInput( std::string& input );
-
-	void CleanupProcessAndPipes();
-    
-
 	~PlatformCompilerImplData();
 
 	std::string			m_VSPath;
 	bool				m_bFindVS;
-	PROCESS_INFORMATION m_CmdProcessInfo;
-	HANDLE				m_CmdProcessOutputRead;
-	HANDLE				m_CmdProcessInputWrite;
-	volatile bool		m_bCompileIsComplete;
+	CmdProcess          m_CmdProcess;
 	ICompilerLogger*	m_pLogger;
 };
 
@@ -95,10 +101,10 @@ std::string Compiler::GetObjectFileExtension() const
 
 bool Compiler::GetIsComplete() const
 {
-    bool bComplete = m_pImplData->m_bCompileIsComplete;
+    bool bComplete = m_pImplData->m_CmdProcess.m_bIsComplete;
     if( bComplete & !m_bFastCompileMode )
     {
-        m_pImplData->CleanupProcessAndPipes();
+        m_pImplData->m_CmdProcess.CleanupProcessAndPipes();
     }
 	return bComplete;
 }
@@ -107,8 +113,8 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
 {
 	m_pImplData = new PlatformCompilerImplData;
 	m_pImplData->m_pLogger = pLogger;
+	m_pImplData->m_CmdProcess.m_pLogger = pLogger;
 }
-
 
 void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToCompile_,
 							const CompilerOptions&						compilerOptions_,
@@ -139,10 +145,10 @@ void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToComp
     if( m_pImplData->m_VSPath.empty() )
     {
         if (m_pImplData->m_pLogger) { m_pImplData->m_pLogger->LogError("No Supported Compiler for RCC++ found, cannot compile changes.\n"); }
-    	m_pImplData->m_bCompileIsComplete = true;
+    	m_pImplData->m_CmdProcess.m_bIsComplete = true;
         return;
     }
-	m_pImplData->m_bCompileIsComplete = false;
+	m_pImplData->m_CmdProcess.m_bIsComplete = false;
 	//optimization and c runtime
 #ifdef _DEBUG
 	std::string flags = "/nologo /Zi /FC /MDd /LDd ";
@@ -170,9 +176,17 @@ void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToComp
 	case RCCPPOPTIMIZATIONLEVEL_SIZE:;
 	}
 
-	if( NULL == m_pImplData->m_CmdProcessInfo.hProcess )
+	if( NULL == m_pImplData->m_CmdProcess.m_CmdProcessInfo.hProcess )
 	{
-		m_pImplData->InitialiseProcess();
+		m_pImplData->m_CmdProcess.InitialiseProcess();
+		// "@PROMPT $" sets command prompt to empty rather than path
+#ifndef _WIN64
+		std::string cmdSetParams = "@PROMPT $ \n\"" + m_pImplData->m_VSPath + "Vcvarsall.bat\" x86\n";
+#else
+		std::string cmdSetParams = "@PROMPT $ \n\"" + m_pImplData->m_VSPath + "Vcvarsall.bat\" x86_amd64\n";
+#endif
+		//send initial set up command
+		m_pImplData->m_CmdProcess.WriteInput(cmdSetParams);
 	}
 
 	flags += compilerOptions_.compileOptions;
@@ -258,7 +272,7 @@ char* pCharTypeFlags = "";
 		+ "\necho ";
 	if( m_pImplData->m_pLogger ) m_pImplData->m_pLogger->LogInfo( "%s", cmdToSend.c_str() ); // use %s to prevent any tokens in compile string being interpreted as formating
 	cmdToSend += c_CompletionToken + "\n";
-	m_pImplData->WriteInput( cmdToSend );
+	m_pImplData->m_CmdProcess.WriteInput( cmdToSend );
 }
 
 struct VSKey
@@ -385,7 +399,7 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions, ICom
 
 void ReadAndHandleOutputThread( LPVOID arg )
 {
-	PlatformCompilerImplData* pImpl = (PlatformCompilerImplData*)arg;
+	CmdProcess* pCmdProc = (CmdProcess*)arg;
 
     CHAR lpBuffer[1024];
     DWORD nBytesRead;
@@ -393,13 +407,13 @@ void ReadAndHandleOutputThread( LPVOID arg )
 	bool bReadOneMore = false;
     while( bReadActive )
     {
-		if (!ReadFile(pImpl->m_CmdProcessOutputRead,lpBuffer,sizeof(lpBuffer)-1,
+		if (!ReadFile(pCmdProc->m_CmdProcessOutputRead,lpBuffer,sizeof(lpBuffer)-1,
 										&nBytesRead,NULL) || !nBytesRead)
 		{
 			bReadActive = false;
 			if (GetLastError() != ERROR_BROKEN_PIPE)	//broken pipe is OK
 			{
-				if( pImpl->m_pLogger ) pImpl->m_pLogger->LogError( "[RuntimeCompiler] Redirect of compile output failed on read\n" );
+				if(pCmdProc->m_pLogger ) pCmdProc->m_pLogger->LogError( "[RuntimeCompiler] Redirect of compile output failed on read\n" );
 			}
 		}
 		else
@@ -414,8 +428,8 @@ void ReadAndHandleOutputThread( LPVOID arg )
 			{
 				//we've found the completion token, which means we quit
 				buffer = buffer.substr( 0, found );
-				if( pImpl->m_pLogger ) pImpl->m_pLogger->LogInfo("[RuntimeCompiler] Complete\n");
-				pImpl->m_bCompileIsComplete = true;
+				if(pCmdProc->m_pLogger ) pCmdProc->m_pLogger->LogInfo("[RuntimeCompiler] Complete\n");
+				pCmdProc->m_bIsComplete = true;
 			}
 			if( bReadActive || buffer.length() ) //don't output blank last line
 			{
@@ -424,11 +438,11 @@ void ReadAndHandleOutputThread( LPVOID arg )
 				size_t fatalErrorFound = buffer.find( " : fatal error " );
 				if( ( errorFound != std::string::npos ) || ( fatalErrorFound != std::string::npos ) )
 				{
-					if( pImpl->m_pLogger ) pImpl->m_pLogger->LogError( "%s", buffer.c_str() );
+					if(pCmdProc->m_pLogger ) pCmdProc->m_pLogger->LogError( "%s", buffer.c_str() );
 				}
 				else
 				{
-					if( pImpl->m_pLogger ) pImpl->m_pLogger->LogInfo( "%s", buffer.c_str() );
+					if(pCmdProc->m_pLogger ) pCmdProc->m_pLogger->LogInfo( "%s", buffer.c_str() );
 				}
 			}
 		}
@@ -438,26 +452,30 @@ void ReadAndHandleOutputThread( LPVOID arg )
 
 PlatformCompilerImplData::PlatformCompilerImplData()
 	: m_bFindVS(true)
-	, m_bCompileIsComplete(false)
-	, m_CmdProcessOutputRead(NULL)
+	, m_pLogger(NULL)
+{
+}
+
+PlatformCompilerImplData::~PlatformCompilerImplData()
+{
+}
+
+CmdProcess::CmdProcess()
+	: m_CmdProcessOutputRead(NULL)
 	, m_CmdProcessInputWrite(NULL)
+	, m_bIsComplete(false)
+	, m_pLogger(NULL)
 {
 	ZeroMemory(&m_CmdProcessInfo, sizeof(m_CmdProcessInfo));
 }
 
-void PlatformCompilerImplData::InitialiseProcess()
+void CmdProcess::InitialiseProcess()
 {
 	//init compile process
 	STARTUPINFOW				si;
 	ZeroMemory(&si, sizeof(si));
 	si.cb = sizeof(si);
 
-	// "@PROMPT $" sets command prompt to empty rather than path
-#ifndef _WIN64
-	std::string cmdSetParams = "@PROMPT $ \n\"" + m_VSPath + "Vcvarsall.bat\" x86\n";
-#else
-	std::string cmdSetParams = "@PROMPT $ \n\"" + m_VSPath + "Vcvarsall.bat\" x86_amd64\n";
-#endif
 	// Set up the security attributes struct.
 	SECURITY_ATTRIBUTES sa;
 	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
@@ -561,9 +579,6 @@ void PlatformCompilerImplData::InitialiseProcess()
 		&m_CmdProcessInfo				//__out        LPPROCESS_INFORMATION lpProcessInformation
 	);
 
-	//send initial set up command
-	WriteInput( cmdSetParams );
-
 	//launch threaded read.
 	_beginthread(ReadAndHandleOutputThread, 0, this); //this will exit when process for compile is closed
 
@@ -584,14 +599,14 @@ ERROR_EXIT:
 }
 
 
-void PlatformCompilerImplData::WriteInput( std::string& input )
+void CmdProcess::WriteInput( std::string& input )
 {
 	DWORD nBytesWritten;
 	DWORD length = (DWORD)input.length();
 	WriteFile( m_CmdProcessInputWrite , input.c_str(), length, &nBytesWritten, NULL);
 }
 
-void PlatformCompilerImplData::CleanupProcessAndPipes()
+void CmdProcess::CleanupProcessAndPipes()
 {
 	// do not reset m_bCompileIsComplete and other members here, just process and pipes
 	if (m_CmdProcessInfo.hProcess)
@@ -608,7 +623,8 @@ void PlatformCompilerImplData::CleanupProcessAndPipes()
 
 }
 
-PlatformCompilerImplData::~PlatformCompilerImplData()
+CmdProcess::~CmdProcess()
 {
 	CleanupProcessAndPipes();
 }
+
