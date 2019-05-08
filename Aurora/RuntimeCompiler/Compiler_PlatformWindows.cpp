@@ -43,7 +43,6 @@ using namespace FileSystemUtils;
 
 struct VSVersionInfo
 {
-	int				Version;
 	std::string		Path;
 };
 
@@ -403,7 +402,6 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions, ICom
 					if( path.length() )
 					{
 						VSVersionInfo vInfo;
-						vInfo.Version = i + 8;
 						vInfo.Path = path;
 						vInfo.Path += "\\";
 						vInfo.Path += vskey.pathToAdd;
@@ -424,7 +422,6 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions, ICom
 		    if( ERROR_SUCCESS == retVal )
 		    {
 			    VSVersionInfo vInfo;
-			    vInfo.Version = i + 8;
 			    vInfo.Path = value;
 				vInfo.Path += vskey.pathToAdd;
 			    pVersions->push_back( vInfo );
@@ -450,11 +447,11 @@ void ReadAndHandleOutputThread( LPVOID arg )
 	bool bReadActive = true;
 	while( bReadActive )
 	{
-		if (!ReadFile(pCmdProc->m_CmdProcessOutputRead,lpBuffer,sizeof(lpBuffer)-1,
+		if( !ReadFile( pCmdProc->m_CmdProcessOutputRead,lpBuffer,sizeof(lpBuffer)-1,
 										&nBytesRead,NULL) || !nBytesRead)
 		{
 			bReadActive = false;
-			if (GetLastError() != ERROR_BROKEN_PIPE)	//broken pipe is OK
+			if( GetLastError() != ERROR_BROKEN_PIPE)	//broken pipe is OK
 			{
 				if(pCmdProc->m_pLogger ) pCmdProc->m_pLogger->LogError( "[RuntimeCompiler] Redirect of compile output failed on read\n" );
 			}
