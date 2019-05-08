@@ -53,7 +53,6 @@ const std::string	c_CompletionToken( "_COMPLETION_TOKEN_" );
 void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions, ICompilerLogger * pLogger );
 
 void ReadAndHandleOutputThread( LPVOID arg );
-void WriteInput( HANDLE hPipeWrite, std::string& input  );
 
 class PlatformCompilerImplData
 {
@@ -61,6 +60,8 @@ public:
 	PlatformCompilerImplData();
 
 	void InitialiseProcess();
+
+	void WriteInput( std::string& input );
 
 	void CleanupProcessAndPipes();
     
@@ -257,7 +258,7 @@ char* pCharTypeFlags = "";
 		+ "\necho ";
 	if( m_pImplData->m_pLogger ) m_pImplData->m_pLogger->LogInfo( "%s", cmdToSend.c_str() ); // use %s to prevent any tokens in compile string being interpreted as formating
 	cmdToSend += c_CompletionToken + "\n";
-	WriteInput( m_pImplData->m_CmdProcessInputWrite, cmdToSend );
+	m_pImplData->WriteInput( cmdToSend );
 }
 
 struct VSKey
@@ -435,13 +436,6 @@ void ReadAndHandleOutputThread( LPVOID arg )
 
 }
 
-void WriteInput( HANDLE hPipeWrite, std::string& input  )
-{
-    DWORD nBytesWritten;
-	DWORD length = (DWORD)input.length();
-	WriteFile( hPipeWrite, input.c_str() , length, &nBytesWritten, NULL );
-}
-
 PlatformCompilerImplData::PlatformCompilerImplData()
 	: m_bFindVS(true)
 	, m_bCompileIsComplete(false)
@@ -568,7 +562,7 @@ void PlatformCompilerImplData::InitialiseProcess()
 	);
 
 	//send initial set up command
-	WriteInput(m_CmdProcessInputWrite, cmdSetParams);
+	WriteInput( cmdSetParams );
 
 	//launch threaded read.
 	_beginthread(ReadAndHandleOutputThread, 0, this); //this will exit when process for compile is closed
@@ -587,6 +581,14 @@ ERROR_EXIT:
 	{
 		CloseHandle(hErrorWrite);
 	}
+}
+
+
+void PlatformCompilerImplData::WriteInput( std::string& input )
+{
+	DWORD nBytesWritten;
+	DWORD length = (DWORD)input.length();
+	WriteFile( m_CmdProcessInputWrite , input.c_str(), length, &nBytesWritten, NULL);
 }
 
 void PlatformCompilerImplData::CleanupProcessAndPipes()
