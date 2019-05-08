@@ -58,174 +58,14 @@ void WriteInput( HANDLE hPipeWrite, std::string& input  );
 class PlatformCompilerImplData
 {
 public:
-	PlatformCompilerImplData()
-		: m_bFindVS( true )
-		, m_bCompileIsComplete( false )
-		, m_CmdProcessOutputRead( NULL )
-		, m_CmdProcessInputWrite( NULL )
-	{
-		ZeroMemory( &m_CmdProcessInfo, sizeof(m_CmdProcessInfo) );
-	}
+	PlatformCompilerImplData();
 
-	void InitialiseProcess()
-	{
-		//init compile process
-		STARTUPINFOW				si;
-		ZeroMemory( &si, sizeof(si) );
-		si.cb = sizeof(si);
+	void InitialiseProcess();
 
-#ifndef _WIN64
-		std::string cmdSetParams = "@PROMPT $ \n\"" + m_VSPath + "Vcvarsall.bat\" x86\n";
-#else
-		std::string cmdSetParams = "@PROMPT $ \n\"" + m_VSPath + "Vcvarsall.bat\" x86_amd64\n";
-#endif
-		// Set up the security attributes struct.
-		SECURITY_ATTRIBUTES sa;
-		sa.nLength= sizeof(SECURITY_ATTRIBUTES);
-		sa.lpSecurityDescriptor = NULL;
-		sa.bInheritHandle = TRUE;
-
-
-		// Create the child output pipe.
-		//redirection of output
-		si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
-		si.wShowWindow = SW_HIDE;
-		HANDLE hOutputReadTmp = NULL, hOutputWrite  = NULL, hErrorWrite = NULL;
-		if (!CreatePipe(&hOutputReadTmp,&hOutputWrite,&sa,20*1024))
-		{
-			if( m_pLogger ) m_pLogger->LogError("[RuntimeCompiler] Failed to create output redirection pipe\n");
-			goto ERROR_EXIT;
-		}
-		si.hStdOutput = hOutputWrite;
-
-		// Create a duplicate of the output write handle for the std error
-		// write handle. This is necessary in case the child application
-		// closes one of its std output handles.
-		if (!DuplicateHandle(GetCurrentProcess(),hOutputWrite,
-							   GetCurrentProcess(),&hErrorWrite,0,
-							   TRUE,DUPLICATE_SAME_ACCESS))
-		{
-			if( m_pLogger ) m_pLogger->LogError("[RuntimeCompiler] Failed to duplicate error output redirection pipe\n");
-			goto ERROR_EXIT;
-		}
-		si.hStdError = hErrorWrite;
-
-
-		// Create new output read handle and the input write handles. Set
-		// the Properties to FALSE. Otherwise, the child inherits the
-		// properties and, as a result, non-closeable handles to the pipes
-		// are created.
- 		if( si.hStdOutput )
-		{
-			 if (!DuplicateHandle(GetCurrentProcess(),hOutputReadTmp,
-								   GetCurrentProcess(),
-								   &m_CmdProcessOutputRead, // Address of new handle.
-								   0,FALSE, // Make it uninheritable.
-								   DUPLICATE_SAME_ACCESS))
-			 {
-				   if( m_pLogger ) m_pLogger->LogError("[RuntimeCompiler] Failed to duplicate output read pipe\n");
-				   goto ERROR_EXIT;
-			 }
-			CloseHandle( hOutputReadTmp );
-			hOutputReadTmp = NULL;
-		}
-
-
-		HANDLE hInputRead,hInputWriteTmp;
-		// Create a pipe for the child process's STDIN. 
-		if (!CreatePipe(&hInputRead, &hInputWriteTmp, &sa, 4096))
-		{
-			if( m_pLogger ) m_pLogger->LogError("[RuntimeCompiler] Failed to create input pipes\n");
-			goto ERROR_EXIT;
-		}
-		si.hStdInput = hInputRead;
-
-		// Create new output read handle and the input write handles. Set
-		// the Properties to FALSE. Otherwise, the child inherits the
-		// properties and, as a result, non-closeable handles to the pipes
-		// are created.
- 		if( si.hStdOutput )
-		{
-			 if (!DuplicateHandle(GetCurrentProcess(),hInputWriteTmp,
-								   GetCurrentProcess(),
-								   &m_CmdProcessInputWrite, // Address of new handle.
-								   0,FALSE, // Make it uninheritable.
-								   DUPLICATE_SAME_ACCESS))
-			 {
-				   if( m_pLogger ) m_pLogger->LogError("[RuntimeCompiler] Failed to duplicate input write pipe\n");
-				   goto ERROR_EXIT;
-			 }
-		}
-		/*
-		// Ensure the write handle to the pipe for STDIN is not inherited. 
-		if ( !SetHandleInformation(hInputWrite, HANDLE_FLAG_INHERIT, 0) )
-		{
-			m_pLogger->LogError("[RuntimeCompiler] Failed to make input write pipe non inheritable\n");
-			goto ERROR_EXIT;
-		}
-		*/
-
-		wchar_t* pCommandLine = L"cmd /q";
-		//CreateProcessW won't accept a const pointer, so copy to an array 
-		wchar_t pCmdLineNonConst[1024];
-		wcscpy_s( pCmdLineNonConst, pCommandLine );
-		CreateProcessW(
-			  NULL,				//__in_opt     LPCTSTR lpApplicationName,
-			  pCmdLineNonConst,			//__inout_opt  LPTSTR lpCommandLine,
-			  NULL,				//__in_opt     LPSECURITY_ATTRIBUTES lpProcessAttributes,
-			  NULL,				//__in_opt     LPSECURITY_ATTRIBUTES lpThreadAttributes,
-			  TRUE,				//__in         BOOL bInheritHandles,
-			  0,				//__in         DWORD dwCreationFlags,
-			  NULL,				//__in_opt     LPVOID lpEnvironment,
-			  NULL,				//__in_opt     LPCTSTR lpCurrentDirectory,
-			  &si,				//__in         LPSTARTUPINFO lpStartupInfo,
-			  &m_CmdProcessInfo				//__out        LPPROCESS_INFORMATION lpProcessInformation
-			);
-
-		//send initial set up command
-		WriteInput( m_CmdProcessInputWrite, cmdSetParams );
-
-		//launch threaded read.
-		_beginthread( ReadAndHandleOutputThread, 0, this ); //this will exit when process for compile is closed
-
-
-	ERROR_EXIT:
-		if( hOutputReadTmp ) 
-		{
-			CloseHandle( hOutputReadTmp );
-		}
-		if( hOutputWrite ) 
-		{
-			CloseHandle( hOutputWrite );
-		}
-		if( hErrorWrite )
-		{
-			CloseHandle( hErrorWrite );
-		}
-	}
-
-    void CleanupProcessAndPipes()
-    {
-        // do not reset m_bCompileIsComplete and other members here, just process and pipes
-        if(  m_CmdProcessInfo.hProcess )
-        {
-            TerminateProcess( m_CmdProcessInfo.hProcess, 0 );
-			TerminateThread( m_CmdProcessInfo.hThread, 0 );
-            CloseHandle( m_CmdProcessInfo.hThread );
-		    ZeroMemory( &m_CmdProcessInfo, sizeof(m_CmdProcessInfo) );
-	        CloseHandle( m_CmdProcessInputWrite );
-            m_CmdProcessInputWrite = 0;
-	        CloseHandle( m_CmdProcessOutputRead );
-            m_CmdProcessOutputRead = 0;
-        }
-
-    }
+	void CleanupProcessAndPipes();
     
 
-    ~PlatformCompilerImplData()
-    {
-        CleanupProcessAndPipes();
-    }
+	~PlatformCompilerImplData();
 
 	std::string			m_VSPath;
 	bool				m_bFindVS;
@@ -563,7 +403,7 @@ void ReadAndHandleOutputThread( LPVOID arg )
 		}
 		else
 		{
-			// Display the characters read in logger.
+			// Add null termination
 			lpBuffer[nBytesRead]=0;
 
 			//fist check for completion token...
@@ -600,4 +440,173 @@ void WriteInput( HANDLE hPipeWrite, std::string& input  )
     DWORD nBytesWritten;
 	DWORD length = (DWORD)input.length();
 	WriteFile( hPipeWrite, input.c_str() , length, &nBytesWritten, NULL );
+}
+
+PlatformCompilerImplData::PlatformCompilerImplData()
+	: m_bFindVS(true)
+	, m_bCompileIsComplete(false)
+	, m_CmdProcessOutputRead(NULL)
+	, m_CmdProcessInputWrite(NULL)
+{
+	ZeroMemory(&m_CmdProcessInfo, sizeof(m_CmdProcessInfo));
+}
+
+void PlatformCompilerImplData::InitialiseProcess()
+{
+	//init compile process
+	STARTUPINFOW				si;
+	ZeroMemory(&si, sizeof(si));
+	si.cb = sizeof(si);
+
+	// "@PROMPT $" sets command prompt to empty rather than path
+#ifndef _WIN64
+	std::string cmdSetParams = "@PROMPT $ \n\"" + m_VSPath + "Vcvarsall.bat\" x86\n";
+#else
+	std::string cmdSetParams = "@PROMPT $ \n\"" + m_VSPath + "Vcvarsall.bat\" x86_amd64\n";
+#endif
+	// Set up the security attributes struct.
+	SECURITY_ATTRIBUTES sa;
+	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+	sa.lpSecurityDescriptor = NULL;
+	sa.bInheritHandle = TRUE;
+
+
+	// Create the child output pipe.
+	//redirection of output
+	si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+	si.wShowWindow = SW_HIDE;
+	HANDLE hOutputReadTmp = NULL, hOutputWrite = NULL, hErrorWrite = NULL;
+	if (!CreatePipe(&hOutputReadTmp, &hOutputWrite, &sa, 20 * 1024))
+	{
+		if (m_pLogger) m_pLogger->LogError("[RuntimeCompiler] Failed to create output redirection pipe\n");
+		goto ERROR_EXIT;
+	}
+	si.hStdOutput = hOutputWrite;
+
+	// Create a duplicate of the output write handle for the std error
+	// write handle. This is necessary in case the child application
+	// closes one of its std output handles.
+	if (!DuplicateHandle(GetCurrentProcess(), hOutputWrite,
+		GetCurrentProcess(), &hErrorWrite, 0,
+		TRUE, DUPLICATE_SAME_ACCESS))
+	{
+		if (m_pLogger) m_pLogger->LogError("[RuntimeCompiler] Failed to duplicate error output redirection pipe\n");
+		goto ERROR_EXIT;
+	}
+	si.hStdError = hErrorWrite;
+
+
+	// Create new output read handle and the input write handles. Set
+	// the Properties to FALSE. Otherwise, the child inherits the
+	// properties and, as a result, non-closeable handles to the pipes
+	// are created.
+	if (si.hStdOutput)
+	{
+		if (!DuplicateHandle(GetCurrentProcess(), hOutputReadTmp,
+			GetCurrentProcess(),
+			&m_CmdProcessOutputRead, // Address of new handle.
+			0, FALSE, // Make it uninheritable.
+			DUPLICATE_SAME_ACCESS))
+		{
+			if (m_pLogger) m_pLogger->LogError("[RuntimeCompiler] Failed to duplicate output read pipe\n");
+			goto ERROR_EXIT;
+		}
+		CloseHandle(hOutputReadTmp);
+		hOutputReadTmp = NULL;
+	}
+
+
+	HANDLE hInputRead, hInputWriteTmp;
+	// Create a pipe for the child process's STDIN. 
+	if (!CreatePipe(&hInputRead, &hInputWriteTmp, &sa, 4096))
+	{
+		if (m_pLogger) m_pLogger->LogError("[RuntimeCompiler] Failed to create input pipes\n");
+		goto ERROR_EXIT;
+	}
+	si.hStdInput = hInputRead;
+
+	// Create new output read handle and the input write handles. Set
+	// the Properties to FALSE. Otherwise, the child inherits the
+	// properties and, as a result, non-closeable handles to the pipes
+	// are created.
+	if (si.hStdOutput)
+	{
+		if (!DuplicateHandle(GetCurrentProcess(), hInputWriteTmp,
+			GetCurrentProcess(),
+			&m_CmdProcessInputWrite, // Address of new handle.
+			0, FALSE, // Make it uninheritable.
+			DUPLICATE_SAME_ACCESS))
+		{
+			if (m_pLogger) m_pLogger->LogError("[RuntimeCompiler] Failed to duplicate input write pipe\n");
+			goto ERROR_EXIT;
+		}
+	}
+	/*
+	// Ensure the write handle to the pipe for STDIN is not inherited.
+	if ( !SetHandleInformation(hInputWrite, HANDLE_FLAG_INHERIT, 0) )
+	{
+	m_pLogger->LogError("[RuntimeCompiler] Failed to make input write pipe non inheritable\n");
+	goto ERROR_EXIT;
+	}
+	*/
+
+	wchar_t* pCommandLine = L"cmd /q";
+	//CreateProcessW won't accept a const pointer, so copy to an array 
+	wchar_t pCmdLineNonConst[1024];
+	wcscpy_s(pCmdLineNonConst, pCommandLine);
+	CreateProcessW(
+		NULL,				//__in_opt     LPCTSTR lpApplicationName,
+		pCmdLineNonConst,			//__inout_opt  LPTSTR lpCommandLine,
+		NULL,				//__in_opt     LPSECURITY_ATTRIBUTES lpProcessAttributes,
+		NULL,				//__in_opt     LPSECURITY_ATTRIBUTES lpThreadAttributes,
+		TRUE,				//__in         BOOL bInheritHandles,
+		0,				//__in         DWORD dwCreationFlags,
+		NULL,				//__in_opt     LPVOID lpEnvironment,
+		NULL,				//__in_opt     LPCTSTR lpCurrentDirectory,
+		&si,				//__in         LPSTARTUPINFO lpStartupInfo,
+		&m_CmdProcessInfo				//__out        LPPROCESS_INFORMATION lpProcessInformation
+	);
+
+	//send initial set up command
+	WriteInput(m_CmdProcessInputWrite, cmdSetParams);
+
+	//launch threaded read.
+	_beginthread(ReadAndHandleOutputThread, 0, this); //this will exit when process for compile is closed
+
+
+ERROR_EXIT:
+	if (hOutputReadTmp)
+	{
+		CloseHandle(hOutputReadTmp);
+	}
+	if (hOutputWrite)
+	{
+		CloseHandle(hOutputWrite);
+	}
+	if (hErrorWrite)
+	{
+		CloseHandle(hErrorWrite);
+	}
+}
+
+void PlatformCompilerImplData::CleanupProcessAndPipes()
+{
+	// do not reset m_bCompileIsComplete and other members here, just process and pipes
+	if (m_CmdProcessInfo.hProcess)
+	{
+		TerminateProcess(m_CmdProcessInfo.hProcess, 0);
+		TerminateThread(m_CmdProcessInfo.hThread, 0);
+		CloseHandle(m_CmdProcessInfo.hThread);
+		ZeroMemory(&m_CmdProcessInfo, sizeof(m_CmdProcessInfo));
+		CloseHandle(m_CmdProcessInputWrite);
+		m_CmdProcessInputWrite = 0;
+		CloseHandle(m_CmdProcessOutputRead);
+		m_CmdProcessOutputRead = 0;
+	}
+
+}
+
+PlatformCompilerImplData::~PlatformCompilerImplData()
+{
+	CleanupProcessAndPipes();
 }
