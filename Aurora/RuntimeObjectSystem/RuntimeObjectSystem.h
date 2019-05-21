@@ -154,6 +154,9 @@ private:
 	typedef std::pair<FileSystemUtils::Path,FileSystemUtils::Path>          TFileToFilePair;
 	typedef std::pair<TFileToFilesMap::iterator,TFileToFilesMap::iterator>  TFileToFilesEqualRange;
 
+	// AddToRuntimeFileListImp & RemoveFromRuntimeFileList do not change filename to OS canonical case
+    void AddToRuntimeFileListImp(      const FileSystemUtils::Path& filename, unsigned short projectId_ = 0 );
+    void RemoveFromRuntimeFileListImp( const FileSystemUtils::Path& filename, unsigned short projectId_ = 0 );
 	void StartRecompile();
 	void SetupRuntimeFileTracking( const IAUDynArray<IObjectConstructor*>& constructors_ );
 
