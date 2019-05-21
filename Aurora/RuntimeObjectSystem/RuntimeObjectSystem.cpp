@@ -235,20 +235,34 @@ void RuntimeObjectSystem::SetAutoCompile( bool autoCompile )
 		SetupRuntimeFileTracking(constructors);
 	}
 }
-
-// RuntimeObjectSystem::AddToRuntimeFileList - filename should be cleaned of "/../" etc, see FileSystemUtils::Path::GetCleanPath()
 void RuntimeObjectSystem::AddToRuntimeFileList( const char* filename, unsigned short projectId_ )
+{
+	FileSystemUtils::Path path( filename );
+	path = path.GetCleanPath();
+	path.ToOSCanonicalCase();
+	AddToRuntimeFileListImp( path, projectId_ );
+}
+
+void RuntimeObjectSystem::AddToRuntimeFileListImp( const FileSystemUtils::Path& filename, unsigned short projectId_ )
 {
     ProjectSettings& project = GetProject( projectId_ );
     TFileList::iterator it = std::find( project.m_RuntimeFileList.begin( ), project.m_RuntimeFileList.end( ), filename );
     if( it == project.m_RuntimeFileList.end( ) )
 	{
         project.m_RuntimeFileList.push_back( filename );
-        m_pFileChangeNotifier->Watch( filename, this );
+        m_pFileChangeNotifier->Watch( filename.c_str(), this );
 	}
 }
 
 void RuntimeObjectSystem::RemoveFromRuntimeFileList( const char* filename, unsigned short projectId_ )
+{
+	FileSystemUtils::Path path( filename );
+	path = path.GetCleanPath();
+	path.ToOSCanonicalCase();
+	RemoveFromRuntimeFileListImp( path, projectId_ );
+}
+
+void RuntimeObjectSystem::RemoveFromRuntimeFileListImp( const FileSystemUtils::Path& filename, unsigned short projectId_ )
 {
     ProjectSettings& project = GetProject( projectId_ );
     TFileList::iterator it = std::find( project.m_RuntimeFileList.begin( ), project.m_RuntimeFileList.end( ), filename );
@@ -476,7 +490,7 @@ void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectCons
 
         unsigned short projectId = constructors_[ i ]->GetProjectId();
         ProjectSettings& project = GetProject( projectId );
-        AddToRuntimeFileList( filePath.c_str( ), projectId );
+        AddToRuntimeFileListImp( filePath, projectId );
 
 		if( !bFirstTime )
 		{
@@ -520,7 +534,7 @@ void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectCons
 				TFileToFilePair includePathPair;
 				includePathPair.first = pathInc;
 				includePathPair.second = filePath;
-                AddToRuntimeFileList( pathInc.c_str(), projectId );
+                AddToRuntimeFileListImp( pathInc, projectId );
                 project.m_RuntimeIncludeMap.insert( includePathPair );
 			}
 
@@ -580,7 +594,7 @@ void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectCons
 					if( range.first != range.second )
 					{
 						// add source file to runtime file list
-						AddToRuntimeFileList( pathSrc.c_str(), projectId );
+						AddToRuntimeFileListImp( pathSrc, projectId );
 
 						// also add this as a source dependency, so it gets force compiled on change of header (and not just compiled)
 						TFileToFilePair includePathPair;
