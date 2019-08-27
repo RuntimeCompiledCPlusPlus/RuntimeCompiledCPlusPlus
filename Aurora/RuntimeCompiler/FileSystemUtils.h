@@ -155,7 +155,7 @@ namespace FileSystemUtils
 		_wfopen_s( &fp, wideStr.c_str(), wideMode.c_str() );
 		return fp;
 #else
-		return fopen( path_.m_string.c_str(), mode_ );
+		return ::fopen( path_.m_string.c_str(), mode_ );
 #endif
 	}
 
