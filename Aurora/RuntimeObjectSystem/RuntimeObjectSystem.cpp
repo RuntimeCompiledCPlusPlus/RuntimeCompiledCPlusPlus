@@ -63,10 +63,10 @@ RuntimeObjectSystem::RuntimeObjectSystem()
 	, m_bCompiling( false )
 	, m_bLastLoadModuleSuccess( false )
 	, m_bAutoCompile( true )
+    , m_CurrentlyBuildingProject( 0 )
     , m_TotalLoadedModulesEver(1) // starts at one for current exe
     , m_bProtectionEnabled( true )
     , m_pImpl( 0 )
-    , m_CurrentlyBuildingProject( 0 )
 {
     ProjectSettings::ms_DefaultIntermediatePath = FileSystemUtils::GetCurrentPath() / "Runtime";
     CreatePlatformImpl();
