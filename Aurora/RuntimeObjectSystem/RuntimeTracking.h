@@ -59,6 +59,7 @@ struct IRuntimeTracking
 	IRuntimeTracking( size_t max ) : MaxNum( max )
 	{
 	}
+	virtual ~IRuntimeTracking() = default;
 
 	// GetIncludeFile may return 0, so you should iterate through to GetMaxNum() ignoring 0 returns
 	virtual RuntimeTackingInfo GetTrackingInfo( size_t Num_ ) const
@@ -92,6 +93,7 @@ template<> struct RuntimeTracking<0> : IRuntimeTracking
 	RuntimeTracking() : IRuntimeTracking( 0 )
 	{
 	}
+	virtual ~RuntimeTracking() = default;
 };
 
 RCCPP_OPTMIZE_ON
