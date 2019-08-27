@@ -172,6 +172,6 @@ namespace FW
 		}
 	}
 
-};//namespace FW
+}//namespace FW
 
 #endif//FILEWATCHER_PLATFORM_LINUX

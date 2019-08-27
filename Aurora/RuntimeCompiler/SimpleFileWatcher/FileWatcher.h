@@ -61,7 +61,7 @@ namespace FW
 			/// Sent when a file is modified
 			Modified = 4
 		};
-	};
+	}
 	typedef Actions::Action Action;
 
 	/// Listens to files and directories and dispatches events
@@ -118,6 +118,6 @@ namespace FW
 
 	};//class FileWatchListener
 
-};//namespace FW
+}//namespace FW
 
 #endif//_FW_FILEWATCHER_H_

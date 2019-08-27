@@ -80,4 +80,4 @@ namespace FW
 		mImpl->update();
 	}
 
-};//namespace FW
+}//namespace FW
