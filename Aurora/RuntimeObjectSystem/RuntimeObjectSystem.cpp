@@ -159,8 +159,8 @@ void RuntimeObjectSystem::OnFileChange(const IAUDynArray<const char*>& filelist)
                 {
                     if( itrCurr->second == fileToBuild.filePath )
                     {
-                        BuildTool::FileToBuild fileToBuild( itrCurr->first );
-                        pBuildFileList->push_back( fileToBuild );
+                        BuildTool::FileToBuild fileToBuild2( itrCurr->first );
+                        pBuildFileList->push_back( fileToBuild2 );
                     }
                     ++itrCurr;
                 }
@@ -169,9 +169,9 @@ void RuntimeObjectSystem::OnFileChange(const IAUDynArray<const char*>& filelist)
             if( bFindIncludeDependencies )
             {
                 TFileToFilesEqualRange range = m_Projects[ proj ].m_RuntimeIncludeMap.equal_range( fileToBuild.filePath );
-                for( TFileToFilesIterator it = range.first; it != range.second; ++it )
+                for( TFileToFilesIterator it2 = range.first; it2 != range.second; ++it2 )
                 {
-                    BuildTool::FileToBuild fileToBuildFromIncludes( ( *it ).second, bForceIncludeDependencies );
+                    BuildTool::FileToBuild fileToBuildFromIncludes( ( *it2 ).second, bForceIncludeDependencies );
                     pBuildFileList->push_back( fileToBuildFromIncludes );
                 }
             }
@@ -328,14 +328,14 @@ void RuntimeObjectSystem::StartRecompile()
 
 
 	//Add libraries which need linking
-	std::vector<FileSystemUtils::Path> linkLibraryList;
+	std::vector<FileSystemUtils::Path> linkLibraryList2;
 	for( size_t i = 0; i < ourBuildFileList.size(); ++ i )
 	{
 
         TFileToFilesEqualRange range = m_Projects[ project ].m_RuntimeLinkLibraryMap.equal_range( ourBuildFileList[ i ].filePath );
 		for(TFileToFilesIterator it=range.first; it!=range.second; ++it)
 		{
-			linkLibraryList.push_back( it->second );
+			linkLibraryList2.push_back( it->second );
 		}
 	}
 
@@ -370,7 +370,7 @@ void RuntimeObjectSystem::StartRecompile()
 
     m_pBuildTool->BuildModule(  ourBuildFileList,
                                 m_Projects[ project ].m_CompilerOptions,
-								linkLibraryList, m_CurrentlyCompilingModuleName );
+								linkLibraryList2, m_CurrentlyCompilingModuleName );
 }
 
 bool RuntimeObjectSystem::LoadCompiledModule()

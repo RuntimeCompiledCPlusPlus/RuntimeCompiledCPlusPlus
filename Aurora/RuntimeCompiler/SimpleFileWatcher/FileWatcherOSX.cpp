@@ -174,8 +174,8 @@ namespace FW
                         size_t currFile = fileIndex+1;
                         while( currFile < mFileListCount )
                         {
-                            FileInfo& entry = mFileList[currFile];
-                            int res = strcmp(entry.mFilename, fname.c_str());
+                            FileInfo& entry2 = mFileList[currFile];
+                            int res = strcmp(entry2.mFilename, fname.c_str());
                             if(res == 0)
                             {
                                 //have found the file in our list
@@ -190,8 +190,8 @@ namespace FW
                            //have some deletions.
                            while( fileIndex < currFile )
                            {
-                               FileInfo& entry = mFileList[currFile];
-                               handleAction(entry.mFilename, Actions::Delete);
+                               FileInfo& entry2 = mFileList[currFile];
+                               handleAction(entry2.mFilename, Actions::Delete);
                                ++fileIndex;
                            }
                             ++fileIndex;
