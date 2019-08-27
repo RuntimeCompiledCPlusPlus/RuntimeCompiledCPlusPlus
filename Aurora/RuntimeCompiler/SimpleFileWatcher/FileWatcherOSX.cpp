@@ -273,7 +273,7 @@ namespace FW
 		void removeAll()
 		{
 			// go through list removing each file but not the directory
-			for(int i = 0; i < mFileListCount; ++i)
+			for(size_t i = 0; i < mFileListCount; ++i)
 			{
 				FileInfo& entry = mFileList[i];
 				// delete

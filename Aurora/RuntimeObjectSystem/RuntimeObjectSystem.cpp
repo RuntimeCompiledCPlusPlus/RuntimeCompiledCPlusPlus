@@ -894,7 +894,7 @@ static int TestBuildFile( ICompilerLogger* pLog, RuntimeObjectSystem* pRTObjSys,
             else
             {
                 ++numErrors;
-                if( pRTObjSys->GetNumberLoadedModules() == numCurrLoadedModules )
+                if( (int)pRTObjSys->GetNumberLoadedModules() == numCurrLoadedModules )
                 {
                     if( !callback->TestBuildCallback( file.c_str(), TESTBUILDRRESULT_BUILD_FAILED ) ) { return -numErrors; }
                 }

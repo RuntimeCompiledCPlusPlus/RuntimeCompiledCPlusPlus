@@ -66,7 +66,7 @@ void RuntimeObjectSystem::SetProtectionEnabled( bool bProtectionEnabled_ )
     {
         if( ms_bMachPortSet )
         {
-            for( int i = 0; i < old_count; ++i )
+            for( int i = 0; i < static_cast<int>(old_count); ++i )
             {
                 task_set_exception_ports( mach_task_self(), old_masks[i], old_ports[i], old_behaviors[i], old_flavors[i]);
             }
