@@ -64,6 +64,7 @@ struct IRuntimeTracking
 	// GetIncludeFile may return 0, so you should iterate through to GetMaxNum() ignoring 0 returns
 	virtual RuntimeTackingInfo GetTrackingInfo( size_t Num_ ) const
 	{
+		(void)Num_;
 		return RuntimeTackingInfo::GetNULL();
 	}
 

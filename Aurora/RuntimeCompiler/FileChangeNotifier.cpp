@@ -111,6 +111,8 @@ void FileChangeNotifier::RemoveListener( IFileChangeListener *pListener )
 void FileChangeNotifier::handleFileAction( FW::WatchID watchid, const FW::String& dir, const FW::String& filename,
     FW::Action action )
 {
+	(void)action;
+	(void)watchid;
 	if (m_bActive)
 	{
         FileSystemUtils::Path filePath(filename);

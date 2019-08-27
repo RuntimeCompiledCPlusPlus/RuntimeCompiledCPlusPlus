@@ -83,6 +83,7 @@ void RuntimeObjectSystem::SetProtectionEnabled( bool bProtectionEnabled_ )
 
 void signalHandler(int sig, siginfo_t *info, void *context)
 {
+    (void) context;
     // we only handle synchronous signals with this handler, so they come to the correct thread.
     assert( m_pCurrProtector );
     

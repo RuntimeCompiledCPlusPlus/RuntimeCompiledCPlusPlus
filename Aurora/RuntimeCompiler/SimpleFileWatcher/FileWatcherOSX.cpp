@@ -338,6 +338,7 @@ namespace FW
 	//--------
 	WatchID FileWatcherOSX::addWatch(const String& directory, FileWatchListener* watcher, bool recursive)
 	{
+		(void) recursive;
 /*		int fd = open(directory.c_str(), O_RDONLY);
 		if(fd == -1)
 			perror("open");
@@ -392,6 +393,9 @@ namespace FW
 	//--------
 	void FileWatcherOSX::handleAction(WatchStruct* watch, const String& filename, unsigned long action)
 	{
+				(void)watch;
+				(void)filename;
+				(void)action;
         assert(false);//should not get here for OSX impl
 	}
 

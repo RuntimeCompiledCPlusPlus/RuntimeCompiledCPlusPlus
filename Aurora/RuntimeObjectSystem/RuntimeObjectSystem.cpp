@@ -191,6 +191,7 @@ bool RuntimeObjectSystem::GetIsCompiledComplete()
 
 void RuntimeObjectSystem::CompileAllInProject( bool bForceRecompile, unsigned short projectId_ )
 {
+    (void)bForceRecompile;
     ProjectSettings& project = GetProject( projectId_ );
     // since this is a compile all we can clear any pending compiles
     project.m_BuildFileList.clear( );
