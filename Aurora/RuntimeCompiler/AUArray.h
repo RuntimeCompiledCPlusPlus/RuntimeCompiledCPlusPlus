@@ -73,7 +73,7 @@ public:
 		this->m_vec.resize(size);
 	}
 
-	~AUDynArray<T>()
+	virtual ~AUDynArray<T>()
 	{
 		// Ensure this code is created, despite the templates
 		Resize(0);
