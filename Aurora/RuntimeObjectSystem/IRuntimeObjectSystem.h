@@ -133,7 +133,7 @@ struct IRuntimeObjectSystem : public ITestBuildNotifier
     // returns the number of errors - 0 if all passed.
     virtual int TestBuildAllRuntimeHeaders(     ITestBuildNotifier* callback, bool bTestFileTracking ) = 0;
 
-    // FindFile - attempts to find the file in a source directory, if pFound set retunrs if file found
+    // FindFile - attempts to find the file in a source directory, if pFound not NULL returns if file found
     virtual FileSystemUtils::Path   FindFile( const FileSystemUtils::Path& input, bool* pFound = NULL ) = 0;
 
     // AddPathToSourceSearch - adds a path to help source search. Can be called multiple times to add paths.

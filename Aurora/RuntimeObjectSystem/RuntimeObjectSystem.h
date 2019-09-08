@@ -131,7 +131,7 @@ public:
     virtual bool TestBuildCallback(const char* file, TestBuildResult type);
     virtual bool TestBuildWaitAndUpdate();
 
-    // FindFile - attempts to find the file in a source directory, if pFound set retunrs if file found
+    // FindFile - attempts to find the file in a source directory, if pFound not NULL returns if file found
     virtual FileSystemUtils::Path   FindFile( const FileSystemUtils::Path& input, bool* pFound = NULL );
 
     // AddPathToSourceSearch - adds a path to help source search. Can be called multiple times to add paths.
