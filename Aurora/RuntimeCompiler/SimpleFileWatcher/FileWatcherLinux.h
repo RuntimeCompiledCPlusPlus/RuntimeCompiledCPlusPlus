@@ -84,7 +84,7 @@ namespace FW
 
 	};//end FileWatcherLinux
 
-};//namespace FW
+}//namespace FW
 
 #endif//FILEWATCHER_PLATFORM_LINUX
 

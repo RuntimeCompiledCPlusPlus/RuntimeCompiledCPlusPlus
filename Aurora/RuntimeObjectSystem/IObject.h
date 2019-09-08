@@ -98,6 +98,7 @@ struct IObject
 	// Will automatically be called with isFirstInit=false whenever a system serialization is performed
 	virtual void Init( bool isFirstInit )
 	{
+		(void)isFirstInit;
 	}
 
 	//return the PerTypeObjectId of this object, which is unique per class
@@ -120,7 +121,7 @@ struct IObject
 	virtual IObjectConstructor* GetConstructor() const = 0;
 
 	//serialise is not pure virtual as many objects do not need state
-	virtual void Serialize(ISimpleSerializer *pSerializer) {};
+	virtual void Serialize(ISimpleSerializer *pSerializer) { (void)pSerializer; };
 
 	virtual const char* GetTypeName() const = 0;
 

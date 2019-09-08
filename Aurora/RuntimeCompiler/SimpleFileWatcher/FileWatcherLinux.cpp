@@ -73,6 +73,7 @@ namespace FW
 	//--------
 	WatchID FileWatcherLinux::addWatch(const String& directory, FileWatchListener* watcher, bool recursive)
 	{
+        (void)recursive;
 		const char* pDir = directory.c_str();
 		int wd = inotify_add_watch (mFD, pDir,
 			IN_CLOSE_WRITE | IN_MOVED_TO | IN_CREATE | IN_MOVED_FROM | IN_DELETE | IN_MODIFY | IN_ATTRIB );
@@ -171,6 +172,6 @@ namespace FW
 		}
 	}
 
-};//namespace FW
+}//namespace FW
 
 #endif//FILEWATCHER_PLATFORM_LINUX

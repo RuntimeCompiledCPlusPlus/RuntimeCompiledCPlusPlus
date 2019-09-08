@@ -7,8 +7,6 @@ project( RuntimeCompiledCPlusPlus )
 option(BUILD_EXAMPLES "Build example applications" ON)
 option(GLFW_SYSTEM    "Use the operating system glfw library" OFF)
 
-find_package(OpenGL REQUIRED)
-
 if(UNIX AND NOT APPLE)
 	set(BUILD_TYPE SHARED)
 else()
@@ -46,6 +44,7 @@ install(TARGETS RuntimeObjectSystem RuntimeCompiler
 
 if(BUILD_EXAMPLES)
 
+
 	#
 	# ConsoleExample
 	#
@@ -53,6 +52,8 @@ if(BUILD_EXAMPLES)
 	add_executable(ConsoleExample ${ConsoleExample_SRCS})
 	target_link_libraries(ConsoleExample RuntimeCompiler RuntimeObjectSystem)
 
+	
+	find_package(OpenGL REQUIRED)
 	#
 	# Renderer
 	#
