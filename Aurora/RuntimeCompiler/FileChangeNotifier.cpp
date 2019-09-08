@@ -26,13 +26,13 @@ using namespace std;
 
 
 FileChangeNotifier::FileChangeNotifier()
-	: m_bActive(true)
+	: m_pFileWatcher( new FW::FileWatcher() ) // Create the file watch object
+	,	m_bActive(true)
 	, m_bRecompilePending(false)
 	, m_fMinTimeBetweenNotifications(DEFAULT_MIN_TIME_BETWEEN_RECOMPILES)
 	, m_fChangeNotifyDelay(DEFAULT_NOTIFY_DELAY)
 	, m_fTimeUntilNextAllowedRecompile(0.0f)
 	, m_fFileChangeSpamTimeRemaining(0.0f)
-    , m_pFileWatcher( new FW::FileWatcher() ) // Create the file watch object
 {
 	m_LastFileChanged = "";
 }
@@ -111,6 +111,8 @@ void FileChangeNotifier::RemoveListener( IFileChangeListener *pListener )
 void FileChangeNotifier::handleFileAction( FW::WatchID watchid, const FW::String& dir, const FW::String& filename,
     FW::Action action )
 {
+	(void)action;
+	(void)watchid;
 	if (m_bActive)
 	{
         FileSystemUtils::Path filePath(filename);

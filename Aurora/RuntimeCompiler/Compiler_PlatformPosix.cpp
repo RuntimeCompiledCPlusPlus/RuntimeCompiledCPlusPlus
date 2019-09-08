@@ -38,7 +38,7 @@
 #include "ICompilerLogger.h"
 
 using namespace std;
-const char	c_CompletionToken[] = "_COMPLETION_TOKEN_" ;
+//const char	c_CompletionToken[] = "_COMPLETION_TOKEN_" ;
 
 class PlatformCompilerImplData
 {

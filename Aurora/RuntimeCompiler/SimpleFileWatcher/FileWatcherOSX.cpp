@@ -174,8 +174,8 @@ namespace FW
                         size_t currFile = fileIndex+1;
                         while( currFile < mFileListCount )
                         {
-                            FileInfo& entry = mFileList[currFile];
-                            int res = strcmp(entry.mFilename, fname.c_str());
+                            FileInfo& entry2 = mFileList[currFile];
+                            int res = strcmp(entry2.mFilename, fname.c_str());
                             if(res == 0)
                             {
                                 //have found the file in our list
@@ -190,8 +190,8 @@ namespace FW
                            //have some deletions.
                            while( fileIndex < currFile )
                            {
-                               FileInfo& entry = mFileList[currFile];
-                               handleAction(entry.mFilename, Actions::Delete);
+                               FileInfo& entry2 = mFileList[currFile];
+                               handleAction(entry2.mFilename, Actions::Delete);
                                ++fileIndex;
                            }
                             ++fileIndex;
@@ -273,7 +273,7 @@ namespace FW
 		void removeAll()
 		{
 			// go through list removing each file but not the directory
-			for(int i = 0; i < mFileListCount; ++i)
+			for(size_t i = 0; i < mFileListCount; ++i)
 			{
 				FileInfo& entry = mFileList[i];
 				// delete
@@ -338,6 +338,7 @@ namespace FW
 	//--------
 	WatchID FileWatcherOSX::addWatch(const String& directory, FileWatchListener* watcher, bool recursive)
 	{
+		(void) recursive;
 /*		int fd = open(directory.c_str(), O_RDONLY);
 		if(fd == -1)
 			perror("open");
@@ -392,6 +393,9 @@ namespace FW
 	//--------
 	void FileWatcherOSX::handleAction(WatchStruct* watch, const String& filename, unsigned long action)
 	{
+				(void)watch;
+				(void)filename;
+				(void)action;
         assert(false);//should not get here for OSX impl
 	}
 
