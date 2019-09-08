@@ -34,17 +34,17 @@
 // RemoveAnyFileName( relativeToPath ) + ReplaceExtension( filename, extension  )
 struct SourceDependencyInfo
 {
-	const char* filename = nullptr;			// If NULL then no SourceDependencyInfo
-	const char* extension = nullptr;			// If NULL then use extension in filename
-	const char* relativeToPath = nullptr;		// If NULL filename is either full or relative to known path
+	const char* filename;			// If NULL then no SourceDependencyInfo
+	const char* extension;			// If NULL then use extension in filename
+	const char* relativeToPath;		// If NULL filename is either full or relative to known path
 };
 
 struct RuntimeTackingInfo
 {
-	static RuntimeTackingInfo GetNULL() { RuntimeTackingInfo ret; return ret; }
+	static RuntimeTackingInfo GetNULL() {  return RuntimeTackingInfo(); }
 	SourceDependencyInfo sourceDependencyInfo;
-	const char*          linkLibrary = nullptr;
-	const char*          includeFile = nullptr;
+	const char*          linkLibrary;
+	const char*          includeFile;
 };
 
 
@@ -59,7 +59,7 @@ struct IRuntimeTracking
 	IRuntimeTracking( size_t max ) : MaxNum( max )
 	{
 	}
-	virtual ~IRuntimeTracking() = default;
+    virtual ~IRuntimeTracking() {}
 
 	// GetIncludeFile may return 0, so you should iterate through to GetMaxNum() ignoring 0 returns
 	virtual RuntimeTackingInfo GetTrackingInfo( size_t Num_ ) const
@@ -94,7 +94,7 @@ template<> struct RuntimeTracking<0> : IRuntimeTracking
 	RuntimeTracking() : IRuntimeTracking( 0 )
 	{
 	}
-	virtual ~RuntimeTracking() = default;
+    virtual ~RuntimeTracking() {}
 };
 
 RCCPP_OPTMIZE_ON

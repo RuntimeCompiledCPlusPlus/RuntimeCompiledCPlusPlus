@@ -43,7 +43,7 @@ enum TestBuildResult
 
 struct ITestBuildNotifier
 {
-    virtual ~ITestBuildNotifier() = default;
+    virtual ~ITestBuildNotifier() {}
 
     // Notifier gets name of file which and result type.
     // Errors will also be output to log in 'standard' RCC++ way.
