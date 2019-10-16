@@ -59,7 +59,8 @@ struct IRuntimeTracking
 	IRuntimeTracking( size_t max ) : MaxNum( max )
 	{
 	}
-    virtual ~IRuntimeTracking() {}
+    
+    // IRuntimeTracking does not need a virtual dtor as it is never polymorphically deleted.
 
 	// GetIncludeFile may return 0, so you should iterate through to GetMaxNum() ignoring 0 returns
 	virtual RuntimeTackingInfo GetTrackingInfo( size_t Num_ ) const
@@ -94,7 +95,6 @@ template<> struct RuntimeTracking<0> : IRuntimeTracking
 	RuntimeTracking() : IRuntimeTracking( 0 )
 	{
 	}
-    virtual ~RuntimeTracking() {}
 };
 
 RCCPP_OPTMIZE_ON
