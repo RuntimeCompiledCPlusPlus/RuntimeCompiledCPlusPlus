@@ -1,15 +1,18 @@
-Support development of Runtime Compiled C++ through our [Patreon](https://www.patreon.com/enkisoftware)
+Support development of Runtime Compiled C++ through [Github Sponsors](https://github.com/sponsors/dougbinks) or our [Patreon](https://www.patreon.com/enkisoftware)
 
 [<img src="https://c5.patreon.com/external/logo/become_a_patron_button@2x.png" alt="Become a Patron" width="150"/>](https://www.patreon.com/enkisoftware)
 
 # Runtime Compiled C++ sample code
 
-- Code: https://github.com/RuntimeCompiledCPlusPlus/RuntimeCompiledCPlusPlus
 - Wiki: https://github.com/RuntimeCompiledCPlusPlus/RuntimeCompiledCPlusPlus/wiki
-- Blog: http://runtimecompiledcplusplus.blogspot.com/
+- Blog: https://www.enkisoftware.com/devlog-rcc++ (Old Blog at: http://runtimecompiledcplusplus.blogspot.com/)
 - Group: http://groups.google.com/group/runtimecompiledcplusplus
+- Code: https://github.com/RuntimeCompiledCPlusPlus/RuntimeCompiledCPlusPlus
 
-Runtime-Compiled C++ is a way to reliably make major changes to your C++ code at runtime and see the results immediately. It's aimed at games development but could be useful in any industry where turnaround times are a bottleneck.
+Runtime-Compiled C++ (RCC++) is a way to reliably make major changes to your C++ code at runtime and see the results immediately. It's aimed at games development but could be useful in any industry where turnaround times are a bottleneck.
+
+RCC++ is primarily designed to shorten iteration times in development - developers can build their project, run it, make changes during runtime and see the results almost immediately. If needed, shipping code can [disable runtime compilation](https://github.com/RuntimeCompiledCPlusPlus/RuntimeCompiledCPlusPlus/wiki/Disabling-runtime-compilation) in a number of ways. RCC++ is not intended as a method to allow end users of a shipped binary to compile modifications, though with some work it can be used this way.
+
 
 ## Supported OS / Compilers:
 
@@ -36,7 +39,7 @@ For cmake, create a folder called build in the Aurora directory and run cmake fr
 
 ## License (zlib)
 
-Copyright (c) 2010-2013 Matthew Jack and Doug Binks
+Copyright (c) 2010-2020 Matthew Jack and Doug Binks
 
 This software is provided 'as-is', without any express or implied
 warranty.  In no event will the authors be held liable for any damages
