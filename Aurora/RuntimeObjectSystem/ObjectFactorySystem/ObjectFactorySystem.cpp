@@ -223,7 +223,7 @@ bool ObjectFactorySystem::HandleRedoUndo( const TConstructors& constructors )
 {
 	if( constructors.size() == 0 )
 	{
-		m_pLogger->LogInfo( "ObjectFactorySystem::HandleRedoUndo() called with no constructors.\n" );
+		if( m_pLogger ) m_pLogger->LogInfo( "ObjectFactorySystem::HandleRedoUndo() called with no constructors.\n" );
 		return true;
 	}
 
@@ -247,13 +247,13 @@ void ObjectFactorySystem::AddConstructors( IAUDynArray<IObjectConstructor*> &con
 {
 	if( constructors.Size() == 0 )
 	{
-		m_pLogger->LogInfo( "ObjectFactorySystem::AddConstructors() called with no constructors.\n" );
+		if( m_pLogger ) m_pLogger->LogInfo( "ObjectFactorySystem::AddConstructors() called with no constructors.\n" );
 		return;
 	}
 
 	if( m_HistoryCurrentLocation )
 	{
-		m_pLogger->LogInfo( "Need to fast forward undo system to current state of source code.\n" );
+		if( m_pLogger ) m_pLogger->LogInfo( "Need to fast forward undo system to current state of source code.\n" );
 		while( RedoObjectConstructorChange() ) {}
 	}
 
