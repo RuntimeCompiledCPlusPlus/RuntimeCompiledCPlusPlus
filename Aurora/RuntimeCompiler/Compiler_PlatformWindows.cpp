@@ -23,6 +23,9 @@
 //
 //
 
+#ifdef _WIN32
+
+
 #include "Compiler.h"
 
 #define WIN32_LEAN_AND_MEAN
@@ -678,3 +681,4 @@ CmdProcess::~CmdProcess()
 	CleanupProcessAndPipes();
 }
 
+#endif // #ifdef _WIN32
