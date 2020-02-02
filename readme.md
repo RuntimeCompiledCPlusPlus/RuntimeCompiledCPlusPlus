@@ -8,6 +8,7 @@ Support development of Runtime Compiled C++ through [Github Sponsors](https://gi
 - Blog: https://www.enkisoftware.com/devlog-rcc++ (Old Blog at: http://runtimecompiledcplusplus.blogspot.com/)
 - Group: http://groups.google.com/group/runtimecompiledcplusplus
 - Code: https://github.com/RuntimeCompiledCPlusPlus/RuntimeCompiledCPlusPlus
+- Further examples: https://github.com/dougbinks/RCCpp_DX11_Example
 
 Runtime-Compiled C++ (RCC++) is a way to reliably make major changes to your C++ code at runtime and see the results immediately. It's aimed at games development but could be useful in any industry where turnaround times are a bottleneck.
 
