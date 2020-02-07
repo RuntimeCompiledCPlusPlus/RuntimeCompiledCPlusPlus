@@ -21,6 +21,7 @@
 PerModuleInterface* PerModuleInterface::ms_pObjectManager = NULL;
 
 SystemTable* PerModuleInterface::g_pSystemTable = 0;
+IRuntimeObjectSystem* PerModuleInterface::g_pRuntimeObjectSystem = 0;
 
 extern "C" 
 #ifdef _WIN32
@@ -64,6 +65,11 @@ void PerModuleInterface::SetProjectIdForAllConstructors( unsigned short projectI
 void PerModuleInterface::SetSystemTable( SystemTable* pSystemTable )
 {
 	g_pSystemTable = pSystemTable;
+}
+
+void PerModuleInterface::SetRuntimeObjectSystem( IRuntimeObjectSystem* pRuntimeObjectSystem_ )
+{
+	g_pRuntimeObjectSystem = pRuntimeObjectSystem_;
 }
 
 PerModuleInterface::PerModuleInterface()

@@ -34,17 +34,20 @@
     #define AU_ASSERT( statement ) assert( statement )
 #endif //RCCPPOFF
 
+
 class PerModuleInterface : public IPerModuleInterface
 {
 public:
 	static PerModuleInterface*  GetInstance();
 	static SystemTable*			g_pSystemTable;
+	static IRuntimeObjectSystem* g_pRuntimeObjectSystem;
 
 	void AddConstructor( IObjectConstructor* pConstructor );
 
 	virtual std::vector<IObjectConstructor*>& GetConstructors();
     virtual void SetProjectIdForAllConstructors( unsigned short projectId_ );
 	virtual void SetSystemTable( SystemTable* pSystemTable );
+	virtual void SetRuntimeObjectSystem( IRuntimeObjectSystem* pRuntimeObjectSystem_ );
 
 	SystemTable* GetSystemTable()
 	{

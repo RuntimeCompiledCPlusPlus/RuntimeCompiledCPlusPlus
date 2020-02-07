@@ -84,6 +84,7 @@ struct IRuntimeObjectSystem : public ITestBuildNotifier
 
 	virtual IObjectFactorySystem* GetObjectFactorySystem() const = 0;
 	virtual IFileChangeNotifier* GetFileChangeNotifier() const = 0;
+    virtual ICompilerLogger*     GetLogger() const = 0;
 
 	virtual void CompileAll( bool bForceRecompile ) = 0;
 
