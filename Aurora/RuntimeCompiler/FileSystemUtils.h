@@ -29,8 +29,12 @@
 #ifdef _WIN32
 	#include <direct.h>
     #include <sys/utime.h>
+#ifndef WIN32_LEAN_AND_MEAN
 	#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
     #define NOMINMAX
+#endif
     #include <windows.h>
 	#undef GetObject
     #undef GetCurrentTime

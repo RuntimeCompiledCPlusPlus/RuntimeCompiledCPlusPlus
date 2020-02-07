@@ -25,6 +25,7 @@
 
 struct SystemTable; //This is the interface to your own engine code, which you need to define yourself if required.
 struct IObject;
+struct IRuntimeObjectSystem;
 
 
 const size_t InvalidId = (size_t)-1;
@@ -99,6 +100,7 @@ struct IPerModuleInterface
 	virtual std::vector<IObjectConstructor*>& GetConstructors() = 0;
     virtual void SetProjectIdForAllConstructors( unsigned short projectId_ ) = 0;
 	virtual void SetSystemTable( SystemTable* pSystemTable ) = 0;
+	virtual void SetRuntimeObjectSystem( IRuntimeObjectSystem* pIRuntimeObjectSystem_ ) = 0;
 	virtual const std::vector<const char*>& GetRequiredSourceFiles() const = 0;
 	virtual void AddRequiredSourceFiles( const char* file_ ) = 0;
     virtual void SetModuleFileName( const char* name ) = 0;
