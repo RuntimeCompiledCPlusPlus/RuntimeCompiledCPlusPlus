@@ -67,6 +67,11 @@ public:
 	{
 		return m_pFileChangeNotifier;
 	}
+    virtual ICompilerLogger*     GetLogger() const
+    {
+        return m_pCompilerLogger;
+    }
+
 
 	virtual void CompileAll( bool bForceRecompile );
 

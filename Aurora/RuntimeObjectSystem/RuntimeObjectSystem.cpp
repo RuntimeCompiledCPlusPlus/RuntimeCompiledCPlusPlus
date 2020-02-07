@@ -445,6 +445,7 @@ void RuntimeObjectSystem::SetupObjectConstructors(IPerModuleInterface* pPerModul
 {
     // Set system Table
     pPerModuleInterface->SetSystemTable( m_pSystemTable );
+    pPerModuleInterface->SetRuntimeObjectSystem( this );
 
 	// get hold of the constructors
 	const std::vector<IObjectConstructor*> &objectConstructors = pPerModuleInterface->GetConstructors();
