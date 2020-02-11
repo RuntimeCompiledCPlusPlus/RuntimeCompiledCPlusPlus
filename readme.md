@@ -8,11 +8,21 @@ Support development of Runtime Compiled C++ through [Github Sponsors](https://gi
 - Blog: https://www.enkisoftware.com/devlog-rcc++ (Old Blog at: http://runtimecompiledcplusplus.blogspot.com/)
 - Group: http://groups.google.com/group/runtimecompiledcplusplus
 - Code: https://github.com/RuntimeCompiledCPlusPlus/RuntimeCompiledCPlusPlus
+- Further examples:
+    - https://github.com/juliettef/RCCpp-DearImGui-GLFW-example (Cross platform)
+    - https://github.com/dougbinks/RCCpp_DX11_Example (Windows only)
 
 Runtime-Compiled C++ (RCC++) is a way to reliably make major changes to your C++ code at runtime and see the results immediately. It's aimed at games development but could be useful in any industry where turnaround times are a bottleneck.
 
 RCC++ is primarily designed to shorten iteration times in development - developers can build their project, run it, make changes during runtime and see the results almost immediately. If needed, shipping code can [disable runtime compilation](https://github.com/RuntimeCompiledCPlusPlus/RuntimeCompiledCPlusPlus/wiki/Disabling-runtime-compilation) in a number of ways. RCC++ is not intended as a method to allow end users of a shipped binary to compile modifications, though with some work it can be used this way.
 
+## Features
+
+- Cross platform, supporting MSVC on Windows, Clang and GCC or any compiler which understands GCC options on Linux and Mac OSX, and relatively easy to port to new compilers and platforms.
+- Simple in memory serialization so you can preserve object state in a safe way between compiles.
+- [Error protection](https://github.com/RuntimeCompiledCPlusPlus/RuntimeCompiledCPlusPlus/wiki/Error-protection) so that when you make a mistake during programming which would normally crash your application you can correct and recover.
+- [Undo and Redo](https://github.com/RuntimeCompiledCPlusPlus/RuntimeCompiledCPlusPlus/wiki/Undo-and-Redo-via-the-Object-Constructor-History) which allows you to quickly swap between changes at runtime, great for testing whether a subtle code change helps.
+- [Control over optimization levels](https://github.com/RuntimeCompiledCPlusPlus/RuntimeCompiledCPlusPlus/wiki/Controlling-Optimization-Levels) so you can switch one file into debug, add a break point and see the state in more clarity than when it's fully optimized.
 
 ## Supported OS / Compilers:
 
