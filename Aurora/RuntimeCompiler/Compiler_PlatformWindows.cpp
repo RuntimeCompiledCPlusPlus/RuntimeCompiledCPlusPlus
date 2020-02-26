@@ -154,9 +154,9 @@ void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToComp
 	m_pImplData->m_CmdProcess.m_bIsComplete = false;
 	//optimization and c runtime
 #ifdef _DEBUG
-	std::string flags = "/nologo /Zi /FC /MDd /LDd ";
+	std::string flags = "/nologo /Z7 /FC /MDd /LDd ";
 #else
-	std::string flags = "/nologo /Zi /FC /MD /LD ";	//also need debug information in release
+	std::string flags = "/nologo /Z7 /FC /MD /LD ";	//also need debug information in release
 #endif
 
 	RCppOptimizationLevel optimizationLevel = GetActualOptimizationLevel( compilerOptions_.optimizationLevel );
@@ -263,13 +263,10 @@ char* pCharTypeFlags = "";
 	pCharTypeFlags = "/D UNICODE /D _UNICODE ";
 #endif
 
-	FileSystemUtils::Path pdbName = moduleName_;
-	pdbName.ReplaceExtension( ".pdb" );
-
 	// /MP - use multiple processes to compile if possible. Only speeds up compile for multiple files and not link
 	std::string cmdToSend = "cl " + flags + pCharTypeFlags
 		+ " /MP /Fo\"" + compilerOptions_.intermediatePath.m_string + "\\\\\" "
-		+ "/D WIN32 /EHa /Fe" + moduleName_.m_string + " /Fd" + pdbName.m_string;
+		+ "/D WIN32 /EHa /Fe" + moduleName_.m_string;
 	cmdToSend += " " + strIncludeFiles + " " + strFilesToCompile + strLinkLibraries + linkOptions
 		+ "\necho ";
 	if( m_pImplData->m_pLogger ) m_pImplData->m_pLogger->LogInfo( "%s", cmdToSend.c_str() ); // use %s to prevent any tokens in compile string being interpreted as formating
