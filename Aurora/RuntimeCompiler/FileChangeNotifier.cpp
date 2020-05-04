@@ -174,13 +174,17 @@ void FileChangeNotifier::NotifyListeners()
 	TPathNameList::const_iterator fileItEnd = m_changedFileList.end();
 	while (fileIt != fileItEnd)
 	{
-		TFileChangeListeners& listeners = m_fileListenerMap[*fileIt];
-		TFileChangeListeners::iterator listenerIt = listeners.begin();
-		TFileChangeListeners::iterator listenerItEnd = listeners.end();
-		while (listenerIt != listenerItEnd)
+		TFileListenerMap::iterator itr = m_fileListenerMap.find( *fileIt );
+		if( itr != m_fileListenerMap.end() )
 		{
-			interestedListenersMap[*listenerIt].Add(fileIt->c_str());
-			++listenerIt;
+			TFileChangeListeners& listeners = itr->second;
+			TFileChangeListeners::iterator listenerIt = listeners.begin();
+			TFileChangeListeners::iterator listenerItEnd = listeners.end();
+			while (listenerIt != listenerItEnd)
+			{
+				interestedListenersMap[*listenerIt].Add(fileIt->c_str());
+				++listenerIt;
+			}
 		}
 		
 		++fileIt;
