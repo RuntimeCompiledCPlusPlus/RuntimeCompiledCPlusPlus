@@ -106,6 +106,8 @@ namespace FileSystemUtils
 		// For fopen of utf-8 & long filenames on windows (on other OS returns unaltered copy).
 		Path GetOSShortForm()            const;
 
+		bool Rename( Path newName_ );
+
 		// replaces extension if one exists, or adds it if not
 		void ReplaceExtension( const std::string& ext );
 
@@ -394,6 +396,23 @@ namespace FileSystemUtils
 #endif
 		if( !error )
 		{
+			return true;
+		}
+		return false;
+	}
+
+	inline bool		Path::Rename( Path newName_  )
+	{
+#ifdef _WIN32
+		std::wstring oldname = _Win32Utf8ToUtf16( m_string );
+		std::wstring newname = _Win32Utf8ToUtf16( newName_.m_string );
+		int error = _wrename( oldname.c_str(), newname.c_str() );
+#else
+		int error = rename( c_str(), newName_.c_str() );
+#endif
+		if( !error )
+		{
+			m_string = newName_.m_string;
 			return true;
 		}
 		return false;
