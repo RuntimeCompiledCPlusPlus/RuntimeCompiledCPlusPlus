@@ -87,6 +87,7 @@ namespace FileSystemUtils
 		bool        IsDirectory()       const;
 		bool		CreateDir()			const;
 		bool		Remove()			const;
+		bool		RemoveDir()         const; // The directory must be empty, and it must not be the current working directory or the root directory.
 		filetime_t	GetLastWriteTime()	const;
         void        SetLastWriteTime( filetime_t time_ ) const;
 		uint64_t	GetFileSize()		const;
@@ -393,6 +394,22 @@ namespace FileSystemUtils
 		int error = _wremove( temp.c_str() );
 #else
 		int error = remove( c_str() );
+#endif
+		if( !error )
+		{
+			return true;
+		}
+		return false;
+	}
+
+	// RemoveDir -  The directory must be empty, and it must not be the current working directory or the root directory.
+	inline bool		Path::RemoveDir()			const
+	{
+#ifdef _WIN32
+		std::wstring temp = _Win32Utf8ToUtf16( m_string );
+		int error = _wrmdir( temp.c_str() );
+#else
+		int error = rmdir( c_str() );
 #endif
 		if( !error )
 		{
