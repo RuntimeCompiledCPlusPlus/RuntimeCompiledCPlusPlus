@@ -61,6 +61,7 @@ struct IRuntimeTracking
 	}
     
     // IRuntimeTracking does not need a virtual dtor as it is never polymorphically deleted.
+	virtual ~IRuntimeTracking() = default;
 
 	// GetIncludeFile may return 0, so you should iterate through to GetMaxNum() ignoring 0 returns
 	virtual RuntimeTackingInfo GetTrackingInfo( size_t Num_ ) const
