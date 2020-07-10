@@ -31,11 +31,7 @@
 
 #define RUNTIME_COMPILER_SOURCEDEPENDENCY_BASE( SOURCEFILE, SOURCEEXT, RELATIVEPATHTO, N ) \
 RCCPP_OPTMIZE_OFF \
-template<> struct RuntimeTracking< N + 1 >  : RuntimeTracking< N >\
-{ \
-	RuntimeTracking( size_t max ) : RuntimeTracking<N>( max ) {} \
-	RuntimeTracking< N + 1 >() : RuntimeTracking<N>( N + 1 ) {} \
-	virtual RuntimeTackingInfo GetTrackingInfo( size_t Num_ ) const \
+	template<> static RuntimeTackingInfo GetTrackingInfoFunc<N + 1>( size_t Num_ ) \
 	{ \
 		if( Num_ <= N ) \
 		{ \
@@ -45,11 +41,10 @@ template<> struct RuntimeTracking< N + 1 >  : RuntimeTracking< N >\
 				info.sourceDependencyInfo = { SOURCEFILE, SOURCEEXT, RELATIVEPATHTO }; \
 				return info; \
 			} \
-			else return this->RuntimeTracking< N >::GetTrackingInfo( Num_ ); \
+			else return GetTrackingInfoFunc< N >( Num_ ); \
 		} \
 		else return RuntimeTackingInfo::GetNULL(); \
 	} \
-}; \
 RCCPP_OPTMIZE_ON
 
 // The RUNTIME_COMPILER_SOURCEDEPENDENCY macro will return the name of the current file, which should be a header file.
