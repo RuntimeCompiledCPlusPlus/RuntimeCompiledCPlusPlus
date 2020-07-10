@@ -27,7 +27,7 @@
 
 #define RUNTIME_COMPILER_LINKLIBRARY_BASE( LIBRARY, N ) \
 RCCPP_OPTMIZE_OFF \
-template<> static RuntimeTackingInfo GetTrackingInfoFunc<N + 1>( size_t Num_ ) \
+template<> RuntimeTackingInfo GetTrackingInfoFunc<N + 1>( size_t Num_ ) \
 { \
 	if( Num_ <= N ) \
 	{ \

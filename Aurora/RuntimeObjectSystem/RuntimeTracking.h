@@ -80,7 +80,7 @@ template< size_t COUNT > static RuntimeTackingInfo GetTrackingInfoFunc( size_t N
 	return GetTrackingInfoFunc<COUNT-1>( Num_ );
 }
 
-template<> static RuntimeTackingInfo GetTrackingInfoFunc<0>( size_t Num_ )
+template<> RuntimeTackingInfo GetTrackingInfoFunc<0>( size_t Num_ )
 {
 	(void)Num_;
 	return RuntimeTackingInfo::GetNULL();
