@@ -30,25 +30,21 @@
 
 #define RUNTIME_MODIFIABLE_INCLUDE_BASE( N ) \
 RCCPP_OPTMIZE_OFF \
-template<> struct RuntimeTracking< N + 1 >  : RuntimeTracking< N >\
+template<> static RuntimeTackingInfo GetTrackingInfoFunc< N + 1>( size_t Num_ ) \
 { \
-	RuntimeTracking( size_t max ) : RuntimeTracking<N>( max ) {} \
-	RuntimeTracking< N + 1 >() : RuntimeTracking<N>( N + 1 ) {} \
-	virtual RuntimeTackingInfo GetTrackingInfo( size_t Num_ ) const \
+	if( Num_ <= N ) \
 	{ \
-		if( Num_ <= N ) \
+		if( Num_ == N ) \
 		{ \
-			if( Num_ == N ) \
-			{ \
-				RuntimeTackingInfo info = RuntimeTackingInfo::GetNULL(); \
-				info.includeFile = __FILE__; \
-				return info; \
-			} \
-			else return this->RuntimeTracking< N >::GetTrackingInfo( Num_ ); \
+			RuntimeTackingInfo info = RuntimeTackingInfo::GetNULL(); \
+			info.includeFile = __FILE__; \
+			return info; \
 		} \
-		else return RuntimeTackingInfo::GetNULL(); \
+		else return GetTrackingInfoFunc< N >( Num_ ); \
 	} \
-}; \
+	else return RuntimeTackingInfo::GetNULL(); \
+} \
+
 RCCPP_OPTMIZE_ON
 
 #define RUNTIME_MODIFIABLE_INCLUDE namespace { RUNTIME_MODIFIABLE_INCLUDE_BASE( __COUNTER__ - COUNTER_OFFSET ) }
