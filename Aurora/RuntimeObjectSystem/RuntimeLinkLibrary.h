@@ -27,25 +27,20 @@
 
 #define RUNTIME_COMPILER_LINKLIBRARY_BASE( LIBRARY, N ) \
 RCCPP_OPTMIZE_OFF \
-template<> struct RuntimeTracking< N + 1 >  : RuntimeTracking< N >\
+template<> RuntimeTackingInfo GetTrackingInfoFunc<N + 1>( size_t Num_ ) \
 { \
-	RuntimeTracking( size_t max ) : RuntimeTracking<N>( max ) {} \
-	RuntimeTracking< N + 1 >() : RuntimeTracking<N>( N + 1 ) {} \
-	virtual RuntimeTackingInfo GetTrackingInfo( size_t Num_ ) const \
+	if( Num_ <= N ) \
 	{ \
-		if( Num_ <= N ) \
+		if( Num_ == N ) \
 		{ \
-			if( Num_ == N ) \
-			{ \
-				RuntimeTackingInfo info = RuntimeTackingInfo::GetNULL(); \
-				info.linkLibrary = LIBRARY; \
-				return info; \
-			} \
-			else return this->RuntimeTracking< N >::GetTrackingInfo( Num_ ); \
+			RuntimeTackingInfo info = RuntimeTackingInfo::GetNULL(); \
+			info.linkLibrary = LIBRARY; \
+			return info; \
 		} \
-		else return RuntimeTackingInfo::GetNULL(); \
+		else return GetTrackingInfoFunc< N >( Num_ ); \
 	} \
-}; \
+	else return RuntimeTackingInfo::GetNULL(); \
+} \
 RCCPP_OPTMIZE_ON
 
 #define RUNTIME_COMPILER_LINKLIBRARY( LIBRARY ) namespace { RUNTIME_COMPILER_LINKLIBRARY_BASE( LIBRARY, __COUNTER__ - COUNTER_OFFSET ) }

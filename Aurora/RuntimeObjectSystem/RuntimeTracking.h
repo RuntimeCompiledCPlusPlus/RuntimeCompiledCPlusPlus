@@ -60,14 +60,11 @@ struct IRuntimeTracking
 	{
 	}
     
-    // IRuntimeTracking does not need a virtual dtor as it is never polymorphically deleted.
+    // IRuntimeTracking does not need a virtual dtor as it is never polymorphically deleted, but we include it to suppress warnings
+	virtual ~IRuntimeTracking() {}
 
 	// GetIncludeFile may return 0, so you should iterate through to GetMaxNum() ignoring 0 returns
-	virtual RuntimeTackingInfo GetTrackingInfo( size_t Num_ ) const
-	{
-		(void)Num_;
-		return RuntimeTackingInfo::GetNULL();
-	}
+	virtual RuntimeTackingInfo GetTrackingInfo( size_t Num_ ) const = 0;
 
 	size_t MaxNum; // initialized in constructor below
 };
@@ -77,23 +74,27 @@ namespace
 {
 const size_t COUNTER_OFFSET = __COUNTER__;
 
-template< size_t COUNT > struct RuntimeTracking : RuntimeTracking<COUNT-1>
+template< size_t COUNT > static RuntimeTackingInfo GetTrackingInfoFunc( size_t Num_ )
 {
-	RuntimeTracking( size_t max ) : RuntimeTracking<COUNT-1>( max )
-	{
-	}
-	RuntimeTracking() : RuntimeTracking<COUNT-1>( COUNT )
-	{
-	}
-};
+	(void)Num_;
+	return GetTrackingInfoFunc<COUNT-1>( Num_ );
+}
 
-template<> struct RuntimeTracking<0> : IRuntimeTracking
+template<> RuntimeTackingInfo GetTrackingInfoFunc<0>( size_t Num_ )
 {
-	RuntimeTracking( size_t max ) : IRuntimeTracking( max )
+	(void)Num_;
+	return RuntimeTackingInfo::GetNULL();
+}
+
+template< size_t COUNT > struct RuntimeTracking : IRuntimeTracking
+{
+	RuntimeTracking() : IRuntimeTracking( COUNT )
 	{
 	}
-	RuntimeTracking() : IRuntimeTracking( 0 )
+
+	virtual RuntimeTackingInfo GetTrackingInfo( size_t Num_ ) const
 	{
+		return GetTrackingInfoFunc<COUNT-1>( Num_ );
 	}
 };
 
