@@ -26,14 +26,11 @@ RCC++ is primarily designed to shorten iteration times in development - develope
 
 ## Supported OS / Compilers:
 
-- Windows XP+, Visual Studio 2008+. Note we currently distribute only the VS 2010 solution and projects.
-- Mac OS X 10.7+ with XCode 4. **NOTE** The SimpleTest project has a graphical issue when built via the XCode project, please use cmake until this is resolved. See [Issue 84](https://github.com/RuntimeCompiledCPlusPlus/RuntimeCompiledCPlusPlus/issues/84)
-- Linux using Eclipse CDT (tested Ubuntu 12.04 64bit).
-- cmake (many thanks to user join_the_fun from reddit)
-- QtCreator using the cmake files. Open CMakeLists.txt in the Aurora directory. Make sure cmake is installed and on Windows the path to cmake is set in QtCreator->Tools->options->CMake
+- Linux, Windows, Mac OS X suported through cmake files (many thanks to user join_the_fun from reddit)
+- Visual Studio projects for Windows are also provided.
 - MinGW is not supported in this repository, but a port exists here: https://github.com/BobSmun/RuntimeCompiledCPlusPlus/tree/MinGWw64_Support
 
-For Visual Studio and XCode the main project file is found in the Aurora directory. All dependencies should be normally present.
+For Visual Studio the main project file is found in the Aurora directory. All dependencies should be normally present.
 
 Linux requires the following dependencies installed for the SimpleTest project (use "sudo apt-get install NAME"):
 - libfreetype6-dev
@@ -42,8 +39,6 @@ Linux requires the following dependencies installed for the SimpleTest project (
 - libglu1-mesa-dev
 - g++, if you're already doing C++ development you should have this
 - libglfw-dev, if using system glfw, otherwise this comes prebuilt for 64bit Linux. To use the system glfw set the option GLFW_SYSTEM to ON - cmake .. -DGLFW_SYSTEM=ON
-
-For Eclipse use File->Import->General->Existing Projects into Workspace and select the RuntimeCompiledCPlusPlus directory and import all projects it finds (best not to copy so you can keep everything up to date with git).
 
 For cmake, create a folder called build in the Aurora directory and run cmake from there followed by make: on Linux run "mkdir build && cd build && cmake .. && make" from Aurora dir.
 
