@@ -341,6 +341,9 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions, ICom
 	case 1922: // VS 2019
 	case 1923: // VS 2019
 	case 1924: // VS 2019
+	case 1925: // VS 2019
+	case 1926: // VS 2019
+	case 1927: // VS 2019
 		startVersion = 7;
 		break;
 	default:
