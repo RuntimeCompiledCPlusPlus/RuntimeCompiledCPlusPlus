@@ -477,8 +477,12 @@ void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectCons
 		{
 			continue;
 		}
+        // make sure that file is absolute. If file path is relative, we assume that it is relative to the
+        // current working directory, otherwise we left it as is (but still clean from unnecessary symbols)
 		Path filePath = pFilename;
+        filePath = filePath.IsRelative() ? FileSystemUtils::GetCurrentPath() / filePath : filePath;
         filePath = filePath.GetCleanPath();
+
         bool bFound = false;
         filePath = FindFile( filePath, &bFound );
         if( !bFound )

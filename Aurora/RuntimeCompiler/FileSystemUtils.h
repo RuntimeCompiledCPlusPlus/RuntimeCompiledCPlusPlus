@@ -85,6 +85,7 @@ namespace FileSystemUtils
 
 		bool		Exists()			const;
 		bool        IsDirectory()       const;
+		bool        IsRelative()        const;
 		bool		CreateDir()			const;
 		bool		Remove()			const;
 		bool		RemoveDir()         const; // The directory must be empty, and it must not be the current working directory or the root directory.
@@ -322,6 +323,15 @@ namespace FileSystemUtils
 			isDir = 0 != (buffer.st_mode & S_IFDIR);
 		}
 		return isDir;
+	}
+
+	inline bool Path::IsRelative() const
+	{
+		// Not sure if it is a good way to check if a path is relative
+		// I suppose that all files which start from . or .. are considered relative
+		// if . or .. exists in other parts of file path, GetCleanPath() will handle them,
+		// so here we only need to check for the first file symbol (either . or ..)
+		return m_string.find('.') == 0;
 	}
 
 	inline bool Path::CreateDir() const
