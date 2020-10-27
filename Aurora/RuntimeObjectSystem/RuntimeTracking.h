@@ -94,7 +94,7 @@ template< size_t COUNT > struct RuntimeTracking : IRuntimeTracking
 
 	virtual RuntimeTackingInfo GetTrackingInfo( size_t Num_ ) const
 	{
-		return GetTrackingInfoFunc<COUNT-1>( Num_ );
+		return GetTrackingInfoFunc<COUNT>( Num_ );
 	}
 };
 
