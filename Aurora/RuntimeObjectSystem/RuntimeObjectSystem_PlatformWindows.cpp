@@ -165,7 +165,10 @@ bool RuntimeObjectSystem::TryProtectedFunction( RuntimeProtector* pProtectedObje
 	{
         if( !pProtectedObject_->m_bHashadException )
         {
-		RuntimeObjectSystem* thisCopy = this;
+			// Clang on Windows error : cannot compile this 'this' captured by SEH yet
+			// So we make a copy of this.
+			// https://github.com/RuntimeCompiledCPlusPlus/RuntimeCompiledCPlusPlus/pull/112
+	        RuntimeObjectSystem* thisCopy = this; 
 	        __try
             {
 		        pProtectedObject_->ProtectedFunc();
