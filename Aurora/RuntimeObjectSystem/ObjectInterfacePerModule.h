@@ -69,6 +69,10 @@ public:
 #endif
     }
 
+	// Utility functions to GetOSCanonicalCleanPath without including filesystemutils in this header 
+	static std::string GetOSCanonicalCleanPath( const char* filename_, const char* compilePath_ );
+	static std::string GetOSCanonicalCleanPath( const char* filename_ );
+
 private:
 	PerModuleInterface();
 
@@ -92,7 +96,7 @@ template<typename T> class TObjectConstructorConcrete: public IObjectConstructor
 public:
 	TObjectConstructorConcrete(
 #ifndef RCCPPOFF
-		const char* Filename,
+		const char*						filename_,
         IRuntimeTracking*				pRuntimeTrackingList_,
 #endif
         bool                            bIsSingleton,
@@ -102,7 +106,6 @@ public:
 		, m_pModuleInterface(0)
         , m_Project(0)
 #ifndef RCCPPOFF
-		, m_FileName(                   Filename )
 		, m_pRuntimeTrackingList(pRuntimeTrackingList_)
 #endif
 	{
@@ -110,6 +113,9 @@ public:
 		// add path to filename
 		#ifdef COMPILE_PATH
 			m_FileName = COMPILE_PATH + m_FileName;
+			m_FileName = PerModuleInterface::GetOSCanonicalCleanPath( COMPILE_PATH, filename_ );
+		#else
+			m_FileName = PerModuleInterface::GetOSCanonicalCleanPath( filename_ );
 		#endif
 #endif
 	    PerModuleInterface::GetInstance()->AddConstructor( this );
