@@ -683,6 +683,32 @@ void RuntimeObjectSystem::CleanObjectFiles() const
 
 FileSystemUtils::Path RuntimeObjectSystem::FindFile( const FileSystemUtils::Path& input, bool* pFound )
 {
+    // we want absolute paths, but path might be relative - do a quick check:
+    bool bMaybeRelative = true;
+    #ifdef _WIN32
+        // Note: C:MyDir is actually a relative path but we do not handle these as unlikely to be produced by __FILE__ input
+        if( input.m_string.size() >= 1 )
+        {
+            if( input.m_string[0] == '\\' )
+            {
+                bMaybeRelative = false;
+            }
+            else if( input.m_string.size() >= 2 && input.m_string[1] == ':' )
+            {
+                bMaybeRelative = false;
+            }
+        }
+    #else
+        if( input.m_string.size() >= 1 )
+        {
+            if( input.m_string[0] == '/' )
+            {
+                bMaybeRelative = false;
+            }
+        }
+    #endif
+
+
     FileSystemUtils::Path requestedDirectory = input;
     FileSystemUtils::Path filename;
     FileSystemUtils::Path foundFile = input;
@@ -692,6 +718,19 @@ FileSystemUtils::Path RuntimeObjectSystem::FindFile( const FileSystemUtils::Path
         requestedDirectory = requestedDirectory.ParentPath();
         filename = input.Filename();
     }
+
+    if( bMaybeRelative )
+    {
+        // Test with input path as it might be just a file name, leading to empty requestedDirectory
+        // which would always match current dir.
+        FileSystemUtils::Path checkFromCurrentDir = FileSystemUtils::GetCurrentPath() / input;
+        if( checkFromCurrentDir.Exists() )
+        {
+            foundFile = checkFromCurrentDir;
+            requestedDirectory = FileSystemUtils::GetCurrentPath() / requestedDirectory;
+        }
+    }
+
     requestedDirectory.ToOSCanonicalCase();
     filename.ToOSCanonicalCase();
     foundFile.ToOSCanonicalCase();

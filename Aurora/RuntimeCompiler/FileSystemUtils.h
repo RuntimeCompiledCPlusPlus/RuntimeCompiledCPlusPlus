@@ -542,6 +542,11 @@ namespace FileSystemUtils
                 parentpath.m_string.erase(parentpath.m_string.length()-1, 1);
 			}
 		}
+		else
+		{
+			// no seperators, so parentpath is empty path
+			parentpath = "";
+		}
 
 		return parentpath;
 	}
