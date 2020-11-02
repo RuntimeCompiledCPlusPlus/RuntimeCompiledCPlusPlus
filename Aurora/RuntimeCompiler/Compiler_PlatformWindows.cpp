@@ -262,9 +262,22 @@ char* pCharTypeFlags = "";
 #ifdef UNICODE
 	pCharTypeFlags = "/D UNICODE /D _UNICODE ";
 #endif
+	
+#if defined __clang__
+	#ifndef _WIN64
+	std::string arch = " -m32 ";
+	#else
+	std::string arch = " -m64 ";
+	#endif
+	std::string compilerPath = "\"%VCINSTALLDIR%Tools\\Llvm\\bin\\clang-cl\"";
+	compilerPath += arch;
+#else
+	// full path and arch is not required as cl compiler already initialized by Vcvarsall.bat
+	std::string compilerPath = "cl";
+#endif
 
 	// /MP - use multiple processes to compile if possible. Only speeds up compile for multiple files and not link
-	std::string cmdToSend = "cl " + flags + pCharTypeFlags
+	std::string cmdToSend = compilerPath + flags + pCharTypeFlags
 		+ " /MP /Fo\"" + compilerOptions_.intermediatePath.m_string + "\\\\\" "
 		+ "/D WIN32 /EHa /Fe" + moduleName_.m_string;
 	cmdToSend += " " + strIncludeFiles + " " + strFilesToCompile + strLinkLibraries + linkOptions
