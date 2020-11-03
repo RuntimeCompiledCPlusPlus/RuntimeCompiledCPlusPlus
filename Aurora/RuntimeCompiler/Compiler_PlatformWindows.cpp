@@ -262,22 +262,25 @@ char* pCharTypeFlags = "";
 #ifdef UNICODE
 	pCharTypeFlags = "/D UNICODE /D _UNICODE ";
 #endif
-	
+
+	std::string compilerLocation = compilerOptions_.compilerLocation.m_string;
+    if (compilerLocation.size()==0){
 #if defined __clang__
 	#ifndef _WIN64
 	std::string arch = "-m32 ";
 	#else
 	std::string arch = "-m64 ";
 	#endif
-	std::string compilerPath = "\"%VCINSTALLDIR%Tools\\Llvm\\bin\\clang-cl\" ";
-	compilerPath += arch;
+	compilerLocation = "\"%VCINSTALLDIR%Tools\\Llvm\\bin\\clang-cl\" ";
+	compilerLocation += arch;
 #else
 	// full path and arch is not required as cl compiler already initialized by Vcvarsall.bat
-	std::string compilerPath = "cl ";
+	compilerLocation = "cl ";
 #endif
+	}
 
 	// /MP - use multiple processes to compile if possible. Only speeds up compile for multiple files and not link
-	std::string cmdToSend = compilerPath + flags + pCharTypeFlags
+	std::string cmdToSend = compilerLocation + flags + pCharTypeFlags
 		+ " /MP /Fo\"" + compilerOptions_.intermediatePath.m_string + "\\\\\" "
 		+ "/D WIN32 /EHa /Fe" + moduleName_.m_string;
 	cmdToSend += " " + strIncludeFiles + " " + strFilesToCompile + strLinkLibraries + linkOptions
@@ -318,6 +321,8 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions, ICom
 	int NUMNAMESTOCHECK = sizeof( VS_DISCOVERY_INFO ) / sizeof( VSVersionDiscoveryInfo );
     // we start searching for a compatible compiler from the current version backwards
     int startVersion = NUMNAMESTOCHECK - 1;
+
+#if !defined __clang__ // do not check _MSC_VER for clang as this reports version 1800 by default
 	//switch around prefered compiler to the one we've used to compile this file
 	const unsigned int MSCVERSION = _MSC_VER;
 	switch( MSCVERSION )
@@ -365,7 +370,7 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions, ICom
 			pLogger->LogWarning("WARNING: VS Compiler with _MSC_VER %d potentially not supported. Defaulting to version %s.\n",MSCVERSION, VS_DISCOVERY_INFO[startVersion].valueName);
 		}
 	}
-
+#endif
 
 
 	char value[MAX_PATH];
