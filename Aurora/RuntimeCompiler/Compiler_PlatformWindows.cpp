@@ -318,6 +318,8 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions, ICom
 	int NUMNAMESTOCHECK = sizeof( VS_DISCOVERY_INFO ) / sizeof( VSVersionDiscoveryInfo );
     // we start searching for a compatible compiler from the current version backwards
     int startVersion = NUMNAMESTOCHECK - 1;
+
+#if !defined __clang__ // do not check _MSC_VER for clang as this reports version 1800 by default
 	//switch around prefered compiler to the one we've used to compile this file
 	const unsigned int MSCVERSION = _MSC_VER;
 	switch( MSCVERSION )
@@ -365,7 +367,7 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions, ICom
 			pLogger->LogWarning("WARNING: VS Compiler with _MSC_VER %d potentially not supported. Defaulting to version %s.\n",MSCVERSION, VS_DISCOVERY_INFO[startVersion].valueName);
 		}
 	}
-
+#endif
 
 
 	char value[MAX_PATH];
