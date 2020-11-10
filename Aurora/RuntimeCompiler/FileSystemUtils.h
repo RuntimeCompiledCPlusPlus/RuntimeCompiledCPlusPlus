@@ -479,6 +479,13 @@ namespace FileSystemUtils
 		size_t posseperator = m_string.find_last_of( seperator );
 		if( posseperator != std::string::npos && posseperator > 0 )
 		{
+#ifdef _WIN32
+			// handle C:\ etc.
+			if( posseperator >= 1 && m_string[posseperator-1] == ':' )
+			{
+				return false;
+			}
+#endif
 			return true;
 		}
 		size_t posaltseperator = m_string.find_last_of( altseperator );
