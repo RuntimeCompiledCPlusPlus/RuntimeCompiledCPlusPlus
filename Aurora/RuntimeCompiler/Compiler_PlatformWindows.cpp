@@ -258,9 +258,10 @@ void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToComp
 
 
 
-char* pCharTypeFlags = "";
 #ifdef UNICODE
-	pCharTypeFlags = "/D UNICODE /D _UNICODE ";
+	const char* pCharTypeFlags = "/D UNICODE /D _UNICODE ";
+#else
+	const char* pCharTypeFlags = "";
 #endif
 
 	std::string compilerLocation = compilerOptions_.compilerLocation.m_string;
