@@ -635,7 +635,7 @@ void CmdProcess::InitialiseProcess()
 	}
 	*/
 
-	wchar_t* pCommandLine = L"cmd /q /K @PROMPT $";
+	const wchar_t* pCommandLine = L"cmd /q /K @PROMPT $";
 	//CreateProcessW won't accept a const pointer, so copy to an array 
 	wchar_t pCmdLineNonConst[1024];
 	wcscpy_s(pCmdLineNonConst, pCommandLine);
