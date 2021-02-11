@@ -258,9 +258,10 @@ void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToComp
 
 
 
-char* pCharTypeFlags = "";
 #ifdef UNICODE
-	pCharTypeFlags = "/D UNICODE /D _UNICODE ";
+	const char* pCharTypeFlags = "/D UNICODE /D _UNICODE ";
+#else
+	const char* pCharTypeFlags = "";
 #endif
 
 	std::string compilerLocation = compilerOptions_.compilerLocation.m_string;
@@ -634,7 +635,7 @@ void CmdProcess::InitialiseProcess()
 	}
 	*/
 
-	wchar_t* pCommandLine = L"cmd /q /K @PROMPT $";
+	const wchar_t* pCommandLine = L"cmd /q /K @PROMPT $";
 	//CreateProcessW won't accept a const pointer, so copy to an array 
 	wchar_t pCmdLineNonConst[1024];
 	wcscpy_s(pCmdLineNonConst, pCommandLine);
