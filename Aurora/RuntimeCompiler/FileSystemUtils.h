@@ -291,7 +291,17 @@ namespace FileSystemUtils
 		int error = -1;
 #ifdef _WIN32
 		struct _stat buffer;
-		std::wstring temp = _Win32Utf8ToUtf16( m_string );
+		std::wstring temp;
+		// special handling for drives on Windows
+		if( m_string.size() == 2 && m_string[1] == ':' )
+		{
+			std::string strTemp = m_string + seperator;
+			temp = _Win32Utf8ToUtf16( strTemp );
+		}
+		else
+		{
+			temp = _Win32Utf8ToUtf16( m_string );
+		}
 		error = _wstat( temp.c_str(), &buffer );
 #else
 		struct stat buffer;
