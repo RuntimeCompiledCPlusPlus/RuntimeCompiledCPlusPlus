@@ -295,7 +295,7 @@ namespace FileSystemUtils
 		// special handling for drives on Windows
 		if( m_string.size() == 2 && m_string[1] == ':' )
 		{
-			std::string strTemp = m_string + "\\";
+			std::string strTemp = m_string + seperator;
 			temp = _Win32Utf8ToUtf16( strTemp );
 		}
 		else
