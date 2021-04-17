@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.12)
 
 project( RuntimeCompiledCPlusPlus )
 #
@@ -166,7 +166,7 @@ if(BUILD_EXAMPLES)
 		if(MSVC)
 			set_target_properties(SimpleTest ConsoleExample PROPERTIES COMPILE_FLAGS "/FC")
 		else()
-			Set(CMAKE_CXX_FLAGS  "-DCOMPILE_PATH=\"\\\"$(PWD)\\\"\"")
+			add_compile_definitions(COMPILE_PATH="${CMAKE_BINARY_DIR}")
 		endif()
 	else()  # OpenGL_FOUND
 		message(WARNING "OpenGL not found, not creating graphical example")
