@@ -491,7 +491,7 @@ namespace FileSystemUtils
 		{
 #ifdef _WIN32
 			// handle C:\ etc.
-			if( posseperator >= 1 && m_string[posseperator-1] == ':' )
+			if( posseperator >= 1 && m_string[posseperator-1] == ':' && posseperator == m_string.length()-1 )
 			{
 				return false;
 			}
@@ -528,10 +528,33 @@ namespace FileSystemUtils
 		size_t pos = m_string.find_last_of( seperator ) + 1;
 		if( pos <= m_string.length() )
 		{
+#ifdef _WIN32
+			// handle C:\ etc.
+			if( m_string.length() == 3 && m_string[1] == ':' && pos == 3)
+			{
+				filename = m_string;
+				return filename;
+			}
+#endif
 			filename = m_string.substr(pos);
 		}
 
 		return filename;
+	}
+
+	inline void RemoveTrailingSeperators( Path& path_ )
+	{
+		while( path_.m_string.find_last_of( FILESYSTEMUTILS_SEPERATORS ) == path_.m_string.length()-1 )
+		{
+#ifdef _WIN32
+			// handle C:\ etc.
+			if( path_.m_string.length() == 3 && path_.m_string[1] == ':' )
+			{
+				return;
+			}
+#endif
+			path_.m_string.erase(path_.m_string.length()-1, 1);
+		}
 	}
 
 	inline Path Path::ParentPath() const
@@ -542,22 +565,22 @@ namespace FileSystemUtils
         {
             return parentpath;
         }
-		//remove any trailing seperators
-		while( parentpath.m_string.find_last_of( FILESYSTEMUTILS_SEPERATORS ) == parentpath.m_string.length()-1 )
-		{
-			parentpath.m_string.erase(parentpath.m_string.length()-1, 1);
-		}
+		RemoveTrailingSeperators( parentpath );
 
 		size_t pos = parentpath.m_string.find_last_of( FILESYSTEMUTILS_SEPERATORS );
 		if( pos < parentpath.m_string.length() )
 		{
+#ifdef _WIN32
+			// handle C:\ etc.
+			if( pos >= 2 && parentpath.m_string[pos-1] == ':' )
+			{
+				++pos; // we want to keep trailing seperator
+			}
+#endif
 			parentpath = parentpath.m_string.substr(0, pos);
 
 			//remove any trailing seperators
-			while( parentpath.m_string.find_last_of( FILESYSTEMUTILS_SEPERATORS ) == parentpath.m_string.length()-1)
-			{
-                parentpath.m_string.erase(parentpath.m_string.length()-1, 1);
-			}
+			RemoveTrailingSeperators( parentpath );
 		}
 		else
 		{
