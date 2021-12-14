@@ -290,7 +290,7 @@ namespace FileSystemUtils
 
 		int error = -1;
 #ifdef _WIN32
-		struct _stat buffer;
+		struct _stat64 buffer;
 		std::wstring temp;
 		// special handling for drives on Windows
 		if( m_string.size() == 2 && m_string[1] == ':' )
@@ -302,7 +302,7 @@ namespace FileSystemUtils
 		{
 			temp = _Win32Utf8ToUtf16( m_string );
 		}
-		error = _wstat( temp.c_str(), &buffer );
+		error = _wstat64( temp.c_str(), &buffer );
 #else
 		struct stat buffer;
 		error = stat( m_string.c_str(), &buffer );
@@ -320,9 +320,9 @@ namespace FileSystemUtils
 		int error = -1;
 		bool isDir = false;
 #ifdef _WIN32
-		struct _stat buffer;
+		struct _stat64 buffer;
 		std::wstring temp = _Win32Utf8ToUtf16( m_string );
-		error = _wstat( temp.c_str(), &buffer );
+		error = _wstat64( temp.c_str(), &buffer );
 #else
 		struct stat buffer;
 		error = stat( m_string.c_str(), &buffer );
