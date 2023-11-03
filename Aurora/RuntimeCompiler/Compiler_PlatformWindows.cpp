@@ -121,7 +121,7 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
 
 void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToCompile_,
 							const CompilerOptions&						compilerOptions_,
-							std::vector<FileSystemUtils::Path>			linkLibraryList_,
+							const std::vector<FileSystemUtils::Path>&	linkLibraryList_,
 							const FileSystemUtils::Path&				moduleName_ )
 {
 	if( m_pImplData->m_bFindVS )

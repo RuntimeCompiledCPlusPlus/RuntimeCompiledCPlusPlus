@@ -51,7 +51,7 @@ public:
 
 	void BuildModule( const std::vector<FileToBuild>&		buildFileList_, 
 					  const CompilerOptions&				compilerOptions_,
-					  std::vector<FileSystemUtils::Path>	linkLibraryList_,
+					  const std::vector<FileSystemUtils::Path>&	linkLibraryList_,
                       const FileSystemUtils::Path&			moduleName_ );
 
 	bool GetIsComplete()

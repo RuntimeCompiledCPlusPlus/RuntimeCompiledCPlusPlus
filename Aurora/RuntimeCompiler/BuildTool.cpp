@@ -60,7 +60,7 @@ void BuildTool::Initialise( ICompilerLogger * pLogger )
 
 void BuildTool::BuildModule( const std::vector<FileToBuild>&		buildFileList_, 
 							 const CompilerOptions&					compilerOptions_,
-							 std::vector<FileSystemUtils::Path>		linkLibraryList_,
+							 const std::vector<FileSystemUtils::Path>&		linkLibraryList_,
 							 const FileSystemUtils::Path&			moduleName_  )
 {
 	// Initial version is very basic, simply compiles them.
@@ -122,5 +122,15 @@ void BuildTool::BuildModule( const std::vector<FileToBuild>&		buildFileList_,
 		}
 	}
 
-	m_Compiler.RunCompile( compileFileList, compilerOptions_, linkLibraryList_, moduleName_ );
+    std::vector<FileSystemUtils::Path> uniqueLinkLibraryList;
+    uniqueLinkLibraryList.reserve( linkLibraryList_.size() );
+    for( const auto& library : linkLibraryList_ )
+    {
+        if( find( uniqueLinkLibraryList.begin(), uniqueLinkLibraryList.end(), library ) == uniqueLinkLibraryList.end() )
+        {
+            uniqueLinkLibraryList.push_back( library );
+        }
+    }
+
+	m_Compiler.RunCompile( compileFileList, compilerOptions_, uniqueLinkLibraryList, moduleName_ );
 }
