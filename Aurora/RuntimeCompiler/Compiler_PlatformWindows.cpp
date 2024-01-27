@@ -266,7 +266,7 @@ void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToComp
 #endif
 
 	std::string compilerLocation = compilerOptions_.compilerLocation.m_string;
-    if (compilerLocation.size()==0){
+    if( compilerLocation.size() == 0 ) {
 #if defined __clang__
 	#ifndef _WIN64
 	std::string arch = "-m32 ";
@@ -280,6 +280,10 @@ void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToComp
 	compilerLocation = "cl ";
 #endif
 	}
+    else if( compilerLocation.back() != ' ' ) {
+        // we need a space at the end
+        compilerLocation += " ";
+    }
 
 	// /MP - use multiple processes to compile if possible. Only speeds up compile for multiple files and not link
 	std::string clCommandOptions = flags + pCharTypeFlags
