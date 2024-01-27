@@ -484,7 +484,7 @@ void RuntimeObjectSystem::SetupRuntimeFileTracking(const IAUDynArray<IObjectCons
         if( !bFound )
         {
         #ifdef _WIN32
-        if( m_pCompilerLogger ) { m_pCompilerLogger->LogWarning("Source file not found may be due to compile option /FC not being set.\n"); }
+        if( m_pCompilerLogger ) { m_pCompilerLogger->LogWarning("Source file not found may be due to compile option /FC and /utf-8 not being set.\n"); }
         #else
         if( m_pCompilerLogger ) { m_pCompilerLogger->LogWarning("Source file not found may be due to macro COMPILE_PATH not being set.\n"); }
         #endif

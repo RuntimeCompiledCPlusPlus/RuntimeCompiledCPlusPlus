@@ -72,6 +72,7 @@ struct CmdProcess
 	ICompilerLogger*    m_pLogger;
 	bool				m_bStoreCmdOutput;
 	std::string         m_CmdOutput;
+    FileSystemUtils::Path m_PathTempCLCommandFile;
 };
 
 class PlatformCompilerImplData
@@ -154,9 +155,9 @@ void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToComp
 	m_pImplData->m_CmdProcess.m_bIsComplete = false;
 	//optimization and c runtime
 #ifdef _DEBUG
-	std::string flags = "/nologo /Z7 /FC /MDd /LDd ";
+	std::string flags = "/nologo /Z7 /FC /utf-8 /MDd /LDd ";
 #else
-	std::string flags = "/nologo /Z7 /FC /MD /LD ";	//also need debug information in release
+	std::string flags = "/nologo /Z7 /FC /utf-8 /MD /LD ";	//also need debug information in release
 #endif
 
 	RCppOptimizationLevel optimizationLevel = GetActualOptimizationLevel( compilerOptions_.optimizationLevel );
@@ -281,14 +282,37 @@ void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToComp
 	}
 
 	// /MP - use multiple processes to compile if possible. Only speeds up compile for multiple files and not link
-	std::string cmdToSend = compilerLocation + flags + pCharTypeFlags
+	std::string clCommandOptions = flags + pCharTypeFlags
 		+ " /MP /Fo\"" + compilerOptions_.intermediatePath.m_string + "\\\\\" "
 		+ "/D WIN32 /EHa /Fe" + moduleName_.m_string;
-	cmdToSend += " " + strIncludeFiles + " " + strFilesToCompile + strLinkLibraries + linkOptions
-		+ "\necho ";
-	if( m_pImplData->m_pLogger ) m_pImplData->m_pLogger->LogInfo( "%s", cmdToSend.c_str() ); // use %s to prevent any tokens in compile string being interpreted as formating
-	cmdToSend += c_CompletionToken + "\n";
-	m_pImplData->m_CmdProcess.WriteInput( cmdToSend );
+	clCommandOptions += " " + strIncludeFiles + " " + strFilesToCompile + strLinkLibraries + linkOptions;
+	if( m_pImplData->m_pLogger ) m_pImplData->m_pLogger->LogInfo( "%s", clCommandOptions.c_str() ); // use %s to prevent any tokens in compile string being interpreted as formating
+
+    // Write the compile line out to a seperate Command File to allow large line length and also utf-8
+    FileSystemUtils::Path pathTempCLCommandFile = compilerOptions_.intermediatePath / "ClCommandFile.temp";
+    FILE* file = FileSystemUtils::fopen( pathTempCLCommandFile, "wb" );
+    if( file )
+    {
+        m_pImplData->m_CmdProcess.m_PathTempCLCommandFile = pathTempCLCommandFile;
+        uint8_t utf_8_BOM[] = {0xEF,0xBB,0xBF};
+        fwrite( utf_8_BOM, 1, sizeof( utf_8_BOM ), file );
+        fwrite( clCommandOptions.c_str(), 1, clCommandOptions.size(), file );
+        fclose( file );
+	    std::string cmdToSend = compilerLocation + " @" + pathTempCLCommandFile.GetOSShortForm().m_string;
+        cmdToSend += "\necho ";
+	    cmdToSend += c_CompletionToken + "\n";
+	    m_pImplData->m_CmdProcess.WriteInput( cmdToSend );
+    }
+    else
+    {
+    	if( m_pImplData->m_pLogger ) m_pImplData->m_pLogger->LogInfo( "Could not create CL Command File %s\n  - Falling back to command line options\n", pathTempCLCommandFile.c_str() ); // use %s to prevent any tokens in compile string being interpreted as formating
+        // cannot create the file - fallback to command line
+        m_pImplData->m_CmdProcess.m_PathTempCLCommandFile.m_string.clear();
+        std::string cmdToSend = compilerLocation + clCommandOptions;
+        cmdToSend += "\necho ";
+	    cmdToSend += c_CompletionToken + "\n";
+	    m_pImplData->m_CmdProcess.WriteInput( cmdToSend );
+    }
 }
 
 struct VSKey
@@ -700,7 +724,13 @@ void CmdProcess::WriteInput( std::string& input )
 
 void CmdProcess::CleanupProcessAndPipes()
 {
-	// do not reset m_bIsComplete and other members here, just process and pipes
+	// do not reset m_bIsComplete and other members here, just process and pipes and 
+    if( !m_PathTempCLCommandFile.m_string.empty() && m_PathTempCLCommandFile.Exists() )
+    {
+        m_PathTempCLCommandFile.Remove();
+        m_PathTempCLCommandFile.m_string.clear();
+    }
+
 	if( m_CmdProcessInfo.hProcess )
 	{
 		TerminateProcess(m_CmdProcessInfo.hProcess, 0);

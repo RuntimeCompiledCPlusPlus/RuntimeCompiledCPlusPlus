@@ -142,7 +142,16 @@ namespace FW
 		pWatch = static_cast<WatchStruct*>(HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, ptrsize));
 
 #ifndef WIN32_FW_USE_FINDFIRST_API
-		pWatch->mDirHandle = CreateFileA(szDirectory, FILE_LIST_DIRECTORY,
+        std::wstring convertedString;
+		int requiredSize = MultiByteToWideChar(CP_UTF8, 0, szDirectory, -1, 0, 0);
+		if( requiredSize > 0 )
+		{
+			convertedString.resize(requiredSize);
+			MultiByteToWideChar(CP_UTF8, 0, szDirectory, -1, &convertedString[0], requiredSize);
+			convertedString.pop_back(); //remove NULL terminator
+		}
+
+		pWatch->mDirHandle = CreateFileW(convertedString.c_str(), FILE_LIST_DIRECTORY,
 			FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, 
 			OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED, NULL);
 

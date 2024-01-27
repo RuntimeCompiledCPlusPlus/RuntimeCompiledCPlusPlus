@@ -32,6 +32,11 @@ if(UNIX)
 	target_link_libraries(RuntimeObjectSystem dl)
 endif()
 
+if(MSVC)
+	# ensure the files are compiled with full paths and utf-8 so that __FILE__ macros are in utf-8 encoding
+	set_target_properties(RuntimeCompiler RuntimeObjectSystem PROPERTIES COMPILE_FLAGS "/FC /utf-8")
+endif()
+
 #
 # Make Install
 #
@@ -164,7 +169,7 @@ if(BUILD_EXAMPLES)
 				${ASSIMP_LIBRARIES}
 			)
 		if(MSVC)
-			set_target_properties(SimpleTest ConsoleExample PROPERTIES COMPILE_FLAGS "/FC")
+			set_target_properties(SimpleTest ConsoleExample PROPERTIES COMPILE_FLAGS "/FC /utf-8")
 		else()
 			add_compile_definitions(COMPILE_PATH="${CMAKE_BINARY_DIR}")
 		endif()
