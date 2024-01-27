@@ -190,6 +190,7 @@ void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToComp
 #endif
 		//send initial set up command
 		m_pImplData->m_CmdProcess.WriteInput(cmdSetParams);
+        m_pImplData->m_CmdProcess.WriteInput( std::string("chcp 65001\n") ); // set utf-8 console locale
 	}
 
 	flags += compilerOptions_.compileOptions;
