@@ -120,6 +120,16 @@ void Compiler::Initialise( ICompilerLogger * pLogger )
 	m_pImplData->m_CmdProcess.m_pLogger = pLogger;
 }
 
+static inline std::string ExpandEnvVars( const std::string& string_ )
+{
+    std::wstring temp = FileSystemUtils::_Win32Utf8ToUtf16( string_ );
+    uint32_t numChars = ExpandEnvironmentStringsW( temp.c_str(), nullptr, 0 );
+    std::wstring tempExpanded;
+    tempExpanded.resize( ++numChars ); // documentation is a little unclear if null character is included
+    uint32_t numCharsExpanded = ExpandEnvironmentStringsW( temp.c_str(), &tempExpanded[0], numChars );
+    return FileSystemUtils::_Win32Utf16ToUtf8( tempExpanded );
+}
+
 void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToCompile_,
 							const CompilerOptions&						compilerOptions_,
 							const std::vector<FileSystemUtils::Path>&	linkLibraryList_,
@@ -203,7 +213,7 @@ void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToComp
 		linkOptions = " /link ";
 		for( size_t i = 0; i < compilerOptions_.libraryDirList.size(); ++i )
 		{
-			linkOptions += " /LIBPATH:\"" + compilerOptions_.libraryDirList[i].m_string + "\"";
+			linkOptions += " /LIBPATH:\"" + ExpandEnvVars( compilerOptions_.libraryDirList[i].m_string ) + "\"";
 		}
 
 		if( bHaveLinkOptions )
@@ -227,7 +237,7 @@ void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToComp
 	std::string strIncludeFiles;
 	for( size_t i = 0; i < compilerOptions_.includeDirList.size(); ++i )
 	{
-		strIncludeFiles += " /I \"" + compilerOptions_.includeDirList[i].m_string + "\"";
+		strIncludeFiles += " /I \"" + ExpandEnvVars( compilerOptions_.includeDirList[i].m_string ) + "\"";
 	}
 
 
@@ -240,7 +250,7 @@ void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToComp
 	std::set<std::string> filteredPaths;
 	for( size_t i = 0; i < filesToCompile_.size(); ++i )
 	{
-		std::string strPath = filesToCompile_[i].m_string;
+		std::string strPath = ExpandEnvVars( filesToCompile_[i].m_string );
 		FileSystemUtils::ToLowerInPlace(strPath);
 
 		std::set<std::string>::const_iterator it = filteredPaths.find(strPath);
@@ -254,7 +264,7 @@ void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToComp
 	std::string strLinkLibraries;
 	for( size_t i = 0; i < linkLibraryList_.size(); ++i )
 	{
-		strLinkLibraries += " \"" + linkLibraryList_[i].m_string + "\" ";
+		strLinkLibraries += " \"" + ExpandEnvVars( linkLibraryList_[i].m_string ) + "\" ";
 	}
 	
 
