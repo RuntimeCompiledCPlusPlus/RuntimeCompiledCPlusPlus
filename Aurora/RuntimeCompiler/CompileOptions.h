@@ -39,7 +39,7 @@ inline RCppOptimizationLevel GetActualOptimizationLevel( RCppOptimizationLevel o
 {
 	if( RCCPPOPTIMIZATIONLEVEL_DEFAULT == optimizationLevel_ )
 	{
-	#ifdef _DEBUG
+	#ifndef NDEBUG
 		optimizationLevel_ = RCCPPOPTIMIZATIONLEVEL_DEBUG;
 	#else
 		optimizationLevel_ = RCCPPOPTIMIZATIONLEVEL_PERF;
