@@ -8,6 +8,8 @@ Support development of Runtime Compiled C++ through [Github Sponsors](https://gi
 - Blog: https://www.enkisoftware.com/devlog-rcc++ (Old Blog at: http://runtimecompiledcplusplus.blogspot.com/)
 - Group: http://groups.google.com/group/runtimecompiledcplusplus
 - Code: https://github.com/RuntimeCompiledCPlusPlus/RuntimeCompiledCPlusPlus
+- [Rapid Development with RCC++ Talk](https://www.youtube.com/watch?v=hYib2YIZG24)
+- [Runtime Compiled C++ Dear ImGui and DX11 Tutorial Videos](https://www.youtube.com/playlist?list=PLRp7HE6uWI1m6tu_-vNUY-N_gnXT17WHQ)
 - Further examples:
     - https://github.com/juliettef/RCCpp-DearImGui-GLFW-example (Cross platform)
     - https://github.com/dougbinks/RCCpp_DX11_Example (Windows only)
