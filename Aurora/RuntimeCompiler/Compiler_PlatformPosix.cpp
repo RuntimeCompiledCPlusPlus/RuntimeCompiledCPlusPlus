@@ -234,6 +234,11 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>&	filesToComp
         compileString = "cd \"" + compilerOptions_.intermediatePath.m_string + "\"\n" + compileString + " --save-temps ";
 		output = compilerOptions_.intermediatePath / "a.out";
 		bCopyOutput = true;
+#ifndef __clang__
+		// By default, GCC adds a 'a-' (because our output is a.out) prefix to the intermediary files by default, making us not find the .o files later when recompiling.
+		compileString += "-dumpbase '' ";
+#endif
+
 	}
 	
 	
