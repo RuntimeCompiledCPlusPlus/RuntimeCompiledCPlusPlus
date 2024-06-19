@@ -410,6 +410,15 @@ void GetPathsOfVisualStudioInstalls( std::vector<VSVersionInfo>* pVersions, ICom
 		break;
 	case 1930: // VS 2022
 	case 1931: // VS 2022
+	case 1932: // VS 2022
+	case 1933: // VS 2022
+	case 1934: // VS 2022
+	case 1935: // VS 2022
+	case 1936: // VS 2022
+	case 1937: // VS 2022
+	case 1938: // VS 2022
+	case 1939: // VS 2022
+	case 1940: // VS 2022
 		startVersion = 8;
 		break;
 	default:
