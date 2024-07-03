@@ -10,6 +10,7 @@ Support development of Runtime Compiled C++ through [Github Sponsors](https://gi
 - Code: https://github.com/RuntimeCompiledCPlusPlus/RuntimeCompiledCPlusPlus
 - [Rapid Development with RCC++ Talk](https://www.youtube.com/watch?v=hYib2YIZG24)
 - [Runtime Compiled C++ Dear ImGui and DX11 Tutorial Videos](https://www.youtube.com/playlist?list=PLRp7HE6uWI1m6tu_-vNUY-N_gnXT17WHQ)
+- [GameAIPro: Runtime Compiled C++ for Rapid AI Development article](https://www.gameaipro.com/GameAIPro/GameAIPro_Chapter15_Runtime_Compiled_C++_for_Rapid_AI_Development.pdf)
 - Further examples:
     - https://github.com/juliettef/RCCpp-DearImGui-GLFW-example (Cross platform)
     - https://github.com/dougbinks/RCCpp_DX11_Example (Windows only)
