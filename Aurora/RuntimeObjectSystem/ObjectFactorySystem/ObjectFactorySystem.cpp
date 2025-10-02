@@ -203,6 +203,7 @@ void ObjectFactorySystem::ProtectedObjectSwapper::ProtectedFunc()
 			//TODO: could put a constructor around this.
 			//constructor has been replaced
 			IObjectConstructor* pOldConstructor = m_ConstructorsOld[i];
+			ObjectDestructor pOldDestructor = pOldConstructor->GetDestructor();
 			size_t numObjects = pOldConstructor->GetNumberConstructedObjects();
 			for( size_t j = 0; j < numObjects; ++j )
 			{
@@ -210,7 +211,7 @@ void ObjectFactorySystem::ProtectedObjectSwapper::ProtectedFunc()
 				if( pOldObject )
 				{
 					pOldObject->_isRuntimeDelete = true;
-					delete pOldObject;
+					pOldDestructor(pOldObject);
 				}
 			}
 			pOldConstructor->ClearIfAllDeleted();
