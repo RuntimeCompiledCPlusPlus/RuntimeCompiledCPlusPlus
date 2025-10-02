@@ -47,8 +47,13 @@ public:
 	RuntimeObjectSystem();
 	virtual ~RuntimeObjectSystem();
 
+#if RCCPP_ALLOCATOR_INTERFACE
+	// Initialise RuntimeObjectSystem. pLogger should be deleted by creator
+	virtual bool Initialise( ICompilerLogger * pLogger, SystemTable* pSystemTable, IObjectAllocator* pCustomAllocator = nullptr );
+#else
 	// Initialise RuntimeObjectSystem. pLogger should be deleted by creator
 	virtual bool Initialise( ICompilerLogger * pLogger, SystemTable* pSystemTable );
+#endif
 
 	virtual bool GetIsCompiling()
 	{

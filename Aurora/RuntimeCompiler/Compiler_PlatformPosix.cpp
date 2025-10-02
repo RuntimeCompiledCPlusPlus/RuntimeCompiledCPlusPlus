@@ -235,8 +235,12 @@ void Compiler::RunCompile( const std::vector<FileSystemUtils::Path>&	filesToComp
 		output = compilerOptions_.intermediatePath / "a.out";
 		bCopyOutput = true;
 	}
-	
-	
+
+    // defines
+#if RCCPP_ALLOCATOR_INTERFACE
+    compileString += "-DRCCPP_ALLOCATOR_INTERFACE=1 ";
+#endif
+
     // include directories
     for( size_t i = 0; i < includeDirList.size(); ++i )
 	{
