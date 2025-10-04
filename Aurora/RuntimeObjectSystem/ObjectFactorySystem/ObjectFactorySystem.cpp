@@ -23,6 +23,36 @@
 #include "../IRuntimeObjectSystem.h"
 
 
+#if RCCPP_ALLOCATOR_INTERFACE
+void* DefaultObjectAllocator::Allocate( size_t size, size_t alignment )
+{
+#ifdef _WIN32
+	return _aligned_malloc( size, alignment );
+#else
+	void pRet;
+	if ( alignment <= size && alignment <= alignof(int64_t) )
+	{
+		pRet = malloc( size );
+	}
+	else
+	{
+		const int retval = posix_memalign( &pRet, alignment, size );
+		(void)retval;
+	}
+	return pRet;
+#endif
+}
+void DefaultObjectAllocator::Free( void* p )
+{
+#ifdef _WIN32
+	_aligned_free( p );
+#else
+	free( p );
+#endif
+}
+#endif
+
+
 IObjectConstructor* ObjectFactorySystem::GetConstructor( const char* type ) const
 {
 	CONSTRUCTORMAP::const_iterator found =  m_ConstructorIds.find( type );

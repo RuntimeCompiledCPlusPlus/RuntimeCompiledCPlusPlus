@@ -31,28 +31,8 @@
 #if RCCPP_ALLOCATOR_INTERFACE
 struct DefaultObjectAllocator : public IObjectAllocator
 {
-#ifdef _WIN32
-	virtual void* Allocate( size_t size, size_t alignment )
-	{
-		return _aligned_malloc( size, alignment );
-	}
-	virtual void Free( void* p )
-	{
-		_aligned_free( p );
-	}
-#else
-	virtual void* Allocate( size_t size, size_t alignment )
-	{
-		void* pRet;
-		int retval = posix_memalign( &pRet, alignment, size );
-		(void)retval;	//unused
-		return pRet;
-	}
-	virtual void Free( void* p )
-	{
-		free( p );
-	}
-#endif
+	virtual void* Allocate( size_t size, size_t alignment );
+	virtual void Free( void* p );
 };
 #endif
 
