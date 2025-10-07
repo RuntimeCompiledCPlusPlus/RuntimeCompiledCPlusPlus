@@ -227,14 +227,9 @@ public:
         return m_bIsSingleton && m_bIsAutoConstructSingleton;
     }
 
-	static void DefaultObjectDestructor(IObject* object)
+	virtual void Destroy( IObject* object )
 	{
 		delete object;
-	}
-
-	virtual ObjectDestructor GetDestructor() const
-	{
-		return DefaultObjectDestructor;
 	}
 
 	virtual IObject* GetConstructedObject( PerTypeObjectId id ) const
