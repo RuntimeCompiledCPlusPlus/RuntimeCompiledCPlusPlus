@@ -123,6 +123,17 @@ public:
 		m_Id = InvalidId;
 	}
 
+#if RCCPP_ALLOCATOR_INTERFACE
+	IObjectAllocator* GetAllocator() const
+	{
+		return m_pAllocator;
+	}
+	void SetAllocator( IObjectAllocator* pAllocator )
+	{
+		m_pAllocator = pAllocator;
+	}
+#endif
+
 	virtual IObject* Construct()
 	{
 		T* pT = 0;
@@ -278,6 +289,9 @@ public:
 	}
 
 private:
+#if RCCPP_ALLOCATOR_INTERFACE
+	IObjectAllocator* 				m_pAllocator;
+#endif
 	bool                            m_bIsSingleton;
 	bool                            m_bIsAutoConstructSingleton;
 	std::vector<T*>                 m_ConstructedObjects;
@@ -296,6 +310,16 @@ template<typename T> class TActual: public T
 {
 public:
 	// overload new/delete to get alignment correct
+#if RCCPP_ALLOCATOR_INTERFACE
+	void* operator new( size_t size )
+	{
+		return m_Constructor.GetAllocator()->Allocate( size, __alignof( TActual<T> ) );
+	}
+	void operator delete( void* p )
+	{
+		m_Constructor.GetAllocator()->Free( p );
+	}
+#else
 #ifdef _WIN32
 	void* operator new(size_t size)
 	{
@@ -319,7 +343,8 @@ public:
 	{
 		free( p );
 	}
-#endif //_WIN32
+#endif // _WIN32
+#endif // RCCPP_ALLOCATOR_INTERFACE
 	friend class TObjectConstructorConcrete<TActual>;
 	virtual ~TActual() { m_Constructor.DeRegister( m_Id ); }
 	virtual PerTypeObjectId GetPerTypeId() const { return m_Id; }

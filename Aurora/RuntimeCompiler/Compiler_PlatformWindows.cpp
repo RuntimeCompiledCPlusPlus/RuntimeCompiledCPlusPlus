@@ -266,9 +266,10 @@ void Compiler::RunCompile(	const std::vector<FileSystemUtils::Path>&	filesToComp
 	{
 		strLinkLibraries += " \"" + ExpandEnvVars( linkLibraryList_[i].m_string ) + "\" ";
 	}
-	
 
-
+#if RCCPP_ALLOCATOR_INTERFACE
+	flags += " /DRCCPP_ALLOCATOR_INTERFACE=1";
+#endif
 
 #ifdef UNICODE
 	const char* pCharTypeFlags = "/D UNICODE /D _UNICODE ";

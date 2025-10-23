@@ -27,6 +27,15 @@
 #include <string>
 #include <set>
 
+
+#if RCCPP_ALLOCATOR_INTERFACE
+struct DefaultObjectAllocator : public IObjectAllocator
+{
+	virtual void* Allocate( size_t size, size_t alignment );
+	virtual void Free( void* p );
+};
+#endif
+
 // class  ObjectFactorySystem
 // implements interface IObjectFactorySystem
 // also implements RuntimeProtector so that when new constructors are added and used,
@@ -37,11 +46,26 @@ public:
 	ObjectFactorySystem()
 		: m_pLogger( 0 )
 		, m_pRuntimeObjectSystem( 0 )
-        , m_bTestSerialization(true)
+#if RCCPP_ALLOCATOR_INTERFACE
+		, m_DefaultAllocator( )
+		, m_pAllocator( &m_DefaultAllocator )
+#endif
+        , m_bTestSerialization( true )
 		, m_HistoryMaxSize( 0 )
 		, m_HistoryCurrentLocation( 0 )
  	{
 	}
+
+#if RCCPP_ALLOCATOR_INTERFACE
+	virtual IObjectAllocator* GetAllocator() const
+	{
+		return m_pAllocator;
+	}
+	virtual void SetAllocator( IObjectAllocator* pAllocator )
+	{
+		m_pAllocator = pAllocator;
+	}
+#endif
 
 	virtual IObjectConstructor* GetConstructor( const char* type ) const;
 	virtual ConstructorId GetConstructorId( const char* type ) const;
@@ -86,6 +110,10 @@ private:
 	TObjectFactoryListeners 			m_Listeners;
 	ICompilerLogger* 					m_pLogger;
     IRuntimeObjectSystem* 				m_pRuntimeObjectSystem;
+#if RCCPP_ALLOCATOR_INTERFACE
+	DefaultObjectAllocator				m_DefaultAllocator;
+	IObjectAllocator*					m_pAllocator;
+#endif
 	bool                                m_bTestSerialization;
 
 	// History

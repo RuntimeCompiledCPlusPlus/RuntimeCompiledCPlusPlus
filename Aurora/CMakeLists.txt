@@ -6,7 +6,21 @@ project( RuntimeCompiledCPlusPlus )
 #
 option(BUILD_EXAMPLES "Build example applications" ON)
 option(GLFW_SYSTEM    "Use the operating system glfw library" OFF)
+option(RCCPP_ALLOCATOR_INTERFACE "Builds RCCPP with object allocation done using an allocator interface." OFF)
 
+#
+# Project features
+#
+if(RCCPP_ALLOCATOR_INTERFACE)
+	message(STATUS "Building with allocator interface")
+	add_compile_definitions(RCCPP_ALLOCATOR_INTERFACE=1)
+else()
+	message(STATUS "Building with standard new/delete")
+endif()
+
+#
+# General build setup
+#
 if(UNIX AND NOT APPLE)
 	set(BUILD_TYPE SHARED)
 else()

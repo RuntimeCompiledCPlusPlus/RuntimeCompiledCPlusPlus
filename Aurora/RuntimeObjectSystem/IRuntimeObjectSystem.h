@@ -69,9 +69,15 @@ namespace FileSystemUtils
 
 struct IRuntimeObjectSystem : public ITestBuildNotifier
 {
-	// Initialise RuntimeObjectSystem. pLogger and pSystemTable should be deleted by creator. 
+#if RCCPP_ALLOCATOR_INTERFACE
+    // Initialise RuntimeObjectSystem. pLogger, pSystemTable and pCustomAllocator should be deleted by creator.
+    // Both pLogger and pSystemTable can be 0
+	virtual bool Initialise( ICompilerLogger * pLogger, SystemTable* pSystemTable, IObjectAllocator* pCustomAllocator = nullptr ) = 0;
+#else
+	// Initialise RuntimeObjectSystem. pLogger and pSystemTable should be deleted by creator.
 	// Both pLogger and pSystemTable can be 0
-	virtual bool Initialise( ICompilerLogger * pLogger, SystemTable* pSystemTable  ) = 0;
+	virtual bool Initialise( ICompilerLogger * pLogger, SystemTable* pSystemTable ) = 0;
+#endif
 
 	virtual bool GetIsCompiling() = 0;
 	virtual bool GetIsCompiledComplete() = 0;

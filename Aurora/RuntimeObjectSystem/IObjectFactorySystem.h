@@ -36,6 +36,11 @@ struct IObjectFactoryListener
 
 struct IObjectFactorySystem
 {
+#if RCCPP_ALLOCATOR_INTERFACE
+	virtual IObjectAllocator*	GetAllocator() const = 0;
+	virtual void				SetAllocator( IObjectAllocator* pAllocator ) = 0;
+#endif
+
 	virtual IObjectConstructor* GetConstructor( const char* type ) const = 0;
 	virtual ConstructorId		GetConstructorId( const char* type ) const = 0;
 	virtual IObjectConstructor* GetConstructor( ConstructorId id ) const = 0;

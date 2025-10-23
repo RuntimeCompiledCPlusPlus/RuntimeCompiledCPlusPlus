@@ -84,7 +84,11 @@ RuntimeObjectSystem::~RuntimeObjectSystem()
 }
 
 
-bool RuntimeObjectSystem::Initialise( ICompilerLogger * pLogger, SystemTable* pSystemTable  )
+#if RCCPP_ALLOCATOR_INTERFACE
+bool RuntimeObjectSystem::Initialise( ICompilerLogger * pLogger, SystemTable* pSystemTable, IObjectAllocator* pCustomAllocator )
+#else
+bool RuntimeObjectSystem::Initialise( ICompilerLogger * pLogger, SystemTable* pSystemTable )
+#endif
 {
 	m_pCompilerLogger = pLogger;
 	m_pSystemTable = pSystemTable;
@@ -95,6 +99,12 @@ bool RuntimeObjectSystem::Initialise( ICompilerLogger * pLogger, SystemTable* pS
 	IPerModuleInterface* pPerModuleInterface = PerModuleInterface::GetInstance();
     pPerModuleInterface->SetModuleFileName( "Main Exe" );
 
+#if RCCPP_ALLOCATOR_INTERFACE
+    if ( pCustomAllocator != nullptr )
+    {
+        m_pObjectFactorySystem->SetAllocator( pCustomAllocator );
+    }
+#endif
 	m_pObjectFactorySystem->SetLogger( m_pCompilerLogger );
     m_pObjectFactorySystem->SetRuntimeObjectSystem( this );
 
@@ -453,6 +463,9 @@ void RuntimeObjectSystem::SetupObjectConstructors(IPerModuleInterface* pPerModul
 	for (size_t i = 0, iMax = objectConstructors.size(); i < iMax; ++i)
 	{
 		constructors[i] = objectConstructors[i];
+#if RCCPP_ALLOCATOR_INTERFACE
+		constructors[i]->SetAllocator( m_pObjectFactorySystem->GetAllocator() );
+#endif
 	}
 
 	if (m_bAutoCompile)
@@ -1075,7 +1088,7 @@ int RuntimeObjectSystem::TestBuildAllRuntimeHeaders(      ITestBuildNotifier* ca
         }
     }
 
-    
+
     if( 0 == numErrors )
     {
         if( m_pCompilerLogger ) { m_pCompilerLogger->LogInfo("All Tests Passed\n"); }
