@@ -227,6 +227,10 @@ public:
         return m_bIsSingleton && m_bIsAutoConstructSingleton;
     }
 
+	virtual void Destroy( IObject* object )
+	{
+		delete object;
+	}
 
 	virtual IObject* GetConstructedObject( PerTypeObjectId id ) const
 	{

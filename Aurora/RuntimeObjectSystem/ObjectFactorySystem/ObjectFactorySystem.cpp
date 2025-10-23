@@ -210,7 +210,7 @@ void ObjectFactorySystem::ProtectedObjectSwapper::ProtectedFunc()
 				if( pOldObject )
 				{
 					pOldObject->_isRuntimeDelete = true;
-					delete pOldObject;
+					pOldConstructor->Destroy( pOldObject );
 				}
 			}
 			pOldConstructor->ClearIfAllDeleted();

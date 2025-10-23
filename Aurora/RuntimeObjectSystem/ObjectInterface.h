@@ -71,6 +71,7 @@ struct IObjectConstructor
 {
 	virtual IObject* Construct() = 0;
 	virtual void ConstructNull() = 0;	//for use in object replacement, ensures a deleted object can be replaced
+	virtual void Destroy( IObject* object ) = 0;
 	virtual const char* GetName() = 0;
 	virtual const char* GetFileName() = 0;
 	virtual const char* GetCompiledPath() = 0;
