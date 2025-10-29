@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include <memory> // std::unique_ptr
 #include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
 #include "../../RuntimeObjectSystem/ObjectInterface.h"
 
@@ -31,28 +32,20 @@ struct IRuntimeObjectSystem;
 class ConsoleGame : public IObjectFactoryListener
 {
 public:
-	ConsoleGame();
-	virtual ~ConsoleGame();
+    ConsoleGame();
+    virtual ~ConsoleGame();
 
-	bool Init();
-	bool MainLoop();
+    bool Init();
+    bool MainLoop();
 
-
-	// IObjectFactoryListener
-
-	virtual void OnConstructorsAdded();
-
-	// ~IObjectFactoryListener
-
+    virtual void OnConstructorsAdded() override;
 
 private:
+    // Runtime Systems
+    std::unique_ptr<ICompilerLogger>      m_pCompilerLogger;
+    std::unique_ptr<IRuntimeObjectSystem> m_pRuntimeObjectSystem;
 
-	// Runtime Systems
-	ICompilerLogger*		m_pCompilerLogger;
-	IRuntimeObjectSystem*	m_pRuntimeObjectSystem;
-
-	// Runtime object
-	IUpdateable* 			m_pUpdateable;
-	ObjectId	   			m_ObjectId;
-
+    // Runtime object
+    IUpdateable*                          m_pUpdateable = nullptr;
+    ObjectId                              m_ObjectId;
 };
