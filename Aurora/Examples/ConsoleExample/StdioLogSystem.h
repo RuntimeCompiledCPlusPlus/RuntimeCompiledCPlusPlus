@@ -17,17 +17,13 @@
 
 #pragma once
 
-#ifndef STDIOLOGSYSTEM_INCLUDED
-#define STDIOLOGSYSTEM_INCLUDED
-
 #include "../../RuntimeCompiler/ICompilerLogger.h"
 
-#include <string>
-#include <stdio.h>
+#include <cstdio>
 
 // StdioLogSystem for compiler
 
-const size_t LOGSYSTEM_MAX_BUFFER = 4096;
+const std::size_t LOGSYSTEM_MAX_BUFFER = 4096;
 
 class StdioLogSystem : public ICompilerLogger
 {
@@ -40,6 +36,3 @@ protected:
 	void LogInternal(const char * format, va_list args);
 	char m_buff[LOGSYSTEM_MAX_BUFFER];
 };
-
-
-#endif //STDIOLOGSYSTEM_INCLUDED

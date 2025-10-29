@@ -17,9 +17,6 @@
 
 #pragma once
 
-#ifndef CONSOLEGAME_INCLUDED
-#define CONSOLEGAME_INCLUDED
-
 #include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
 #include "../../RuntimeObjectSystem/ObjectInterface.h"
 
@@ -59,5 +56,3 @@ private:
 	ObjectId	   			m_ObjectId;
 
 };
-
-#endif // CONSOLEGAME_INCLUDED
