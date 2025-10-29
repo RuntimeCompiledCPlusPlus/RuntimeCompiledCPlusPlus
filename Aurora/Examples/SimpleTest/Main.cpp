@@ -26,16 +26,16 @@
 
 int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow )
 #else
-int main( void )
+int main( )
 #endif
 {
-	Game game;
-	
-	if (game.Init())
-	{
-		game.Run();
-		game.Shutdown();
-	}
+    Game game;
 
-	return 0;
+    if (game.Init())
+    {
+        game.Run();
+        game.Shutdown();
+    }
+
+    return 0;
 }

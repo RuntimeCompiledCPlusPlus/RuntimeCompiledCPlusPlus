@@ -35,7 +35,6 @@ public:
     ConsoleGame();
     virtual ~ConsoleGame();
 
-    bool Init();
     bool MainLoop();
 
     virtual void OnConstructorsAdded() override;
