@@ -19,7 +19,6 @@
 
 #include <memory> // std::unique_ptr
 #include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
-#include "../../RuntimeObjectSystem/ObjectInterface.h"
 
 #ifndef _WIN32
 int _getche();
