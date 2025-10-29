@@ -18,19 +18,14 @@
 #include "ConsoleGame.h"
 
 
-#include "../../RuntimeCompiler/AUArray.h"
-#include "../../RuntimeCompiler/BuildTool.h"
 #include "../../RuntimeCompiler/ICompilerLogger.h"
-#include "../../RuntimeCompiler/FileChangeNotifier.h"
 #include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
-#include "../../RuntimeObjectSystem/ObjectFactorySystem/ObjectFactorySystem.h"
 #include "../../RuntimeObjectSystem/RuntimeObjectSystem.h"
 
 #include "StdioLogSystem.h"
 
 #include "../../RuntimeObjectSystem/IObject.h"
 #include "IUpdateable.h"
-#include "InterfaceIds.h"
 
 #include <iostream>
 #ifdef WIN32
@@ -54,11 +49,6 @@ int Sleep( int msecs )
     return usleep( msecs * 1000);
 }
 #endif
-#include <sstream>
-#include <vector>
-#include <algorithm>
-#include <string>
-#include <stdarg.h>
 
 // Remove windows.h define of GetObject which conflicts with EntitySystem GetObject
 #if defined _WINDOWS_ && defined GetObject

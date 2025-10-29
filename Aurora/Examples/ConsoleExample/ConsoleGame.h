@@ -22,7 +22,6 @@
 
 #include "../../RuntimeObjectSystem/IObjectFactorySystem.h"
 #include "../../RuntimeObjectSystem/ObjectInterface.h"
-#include "../../RuntimeCompiler/AUArray.h"
 
 #ifndef _WIN32
 int _getche();
