@@ -30,18 +30,14 @@ RCC++ is primarily designed to shorten iteration times in development - develope
 ## Supported OS / Compilers:
 
 - Linux, Windows, Mac OS X suported through cmake files (many thanks to user join_the_fun from reddit)
-- Visual Studio projects for Windows are also provided.
 - MinGW is not supported in this repository, but a port exists here: https://github.com/BobSmun/RuntimeCompiledCPlusPlus/tree/MinGWw64_Support
 
-For Visual Studio the main project file is found in the Aurora directory. All dependencies should be normally present.
+Building the project is now via CMake only, but it should be relatively simple to add the RuntimeCompiled and RuntimeObjectSytem to your favourite build system after reading the `Aurora/CMakeLists.txt` file.
 
-Linux requires the following dependencies installed for the SimpleTest project (use "sudo apt-get install NAME"):
+Linux requires the following dependencies installed for the SimpleTest project:
 - libfreetype6-dev
-- libx11-dev
-- libgl1-mesa-dev
-- libglu1-mesa-dev
+- [Dependencies for GLFW](https://www.glfw.org/docs/latest/compile_guide.html#compile_deps_wayland)
 - g++, if you're already doing C++ development you should have this
-- libglfw-dev, if using system glfw, otherwise this comes prebuilt for 64bit Linux. To use the system glfw set the option GLFW_SYSTEM to ON - cmake .. -DGLFW_SYSTEM=ON
 
 For cmake, create a folder called build in the Aurora directory and run cmake from there followed by make: on Linux run "mkdir build && cd build && cmake .. && make" from Aurora dir.
 
