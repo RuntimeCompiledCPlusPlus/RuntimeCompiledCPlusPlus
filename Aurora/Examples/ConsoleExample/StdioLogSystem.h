@@ -22,7 +22,7 @@
 
 #include "../../RuntimeCompiler/ICompilerLogger.h"
 
-#include <cstdio>
+#include <stdio.h>
 
 // StdioLogSystem for compiler
 

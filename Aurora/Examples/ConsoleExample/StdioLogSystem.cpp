@@ -19,8 +19,8 @@
 
 // Currently we create the file on first real output, and only close it on shutdown
 
-#include <cstdarg>
-#include <cassert>
+#include <stdarg.h>
+#include <assert.h>
 #include <iostream>
 
 #ifdef _WIN32
