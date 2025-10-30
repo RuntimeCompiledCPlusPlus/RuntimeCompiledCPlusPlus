@@ -571,7 +571,7 @@ bool Context::ProcessTextInput(const String& string)
 {
 	bool consumed = true;
 
-	for (size_t i = 0; i < string.Length(); ++i)
+	for (String::size_type i = 0; i < string.Length(); ++i)
 	{
 		// Generate the parameters for the key event.
 		Dictionary parameters;

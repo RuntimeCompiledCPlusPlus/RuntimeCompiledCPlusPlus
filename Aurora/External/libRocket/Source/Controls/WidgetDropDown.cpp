@@ -293,7 +293,7 @@ void WidgetDropDown::ProcessEvent(Core::Event& event)
 				{
 					if (options[i].IsSelectable())
 					{
-						SetSelection(i);
+						SetSelection((int)i);
 						event.StopPropagation();
 
 						ShowSelectBox(false);
@@ -333,7 +333,7 @@ void WidgetDropDown::ProcessEvent(Core::Event& event)
 		switch (key_identifier)
 		{
 			case Core::Input::KI_UP:
-				SetSelection( (selected_option - 1 + options.size()) % options.size() );
+				SetSelection( (int)( (selected_option - 1 + options.size()) % options.size() ) );
 				break;
 			case Core::Input::KI_DOWN:		
 				SetSelection( (selected_option + 1) % options.size() );

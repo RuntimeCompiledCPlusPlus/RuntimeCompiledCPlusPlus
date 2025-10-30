@@ -484,14 +484,14 @@ void ElementInfo::RemoveTrailingZeroes(Core::String& string)
 	}
 
 	// First, check for a decimal point. No point, no chance of trailing zeroes!
-	size_t decimal_point_position = string.Find(".");
+	Core::String::size_type decimal_point_position = string.Find(".");
 	if (decimal_point_position != Core::String::npos)
 	{
 		// Ok, so now we start at the back of the string and find the first
 		// numeral. If the character we find is a zero, then we start counting
 		// back till we find something that isn't a zero or a decimal point -
 		// and then remove all that we've counted.
-		size_t last_zero = string.Length() - 1;
+		Core::String::size_type last_zero = string.Length() - 1;
 		while ((string[last_zero] < '0' || string[last_zero] > '9') && string[last_zero] != '.')
 		{
 			if (last_zero == 0)
@@ -512,7 +512,7 @@ void ElementInfo::RemoveTrailingZeroes(Core::String& string)
 
 		// Now find the first character that isn't a zero (unless we're just
 		// chopping off the dangling decimal point)
-		size_t first_zero = last_zero;
+		Core::String::size_type first_zero = last_zero;
 		if (string[last_zero] == '0')
 		{
 			while (first_zero > 0 && string[first_zero - 1] == '0')

@@ -1610,7 +1610,7 @@ void Element::GetRML(String& content)
 	String value;
 	while (IterateAttributes(index, name, value))	
 	{
-		size_t length = name.Length() + value.Length() + 8;
+		String::size_type length = name.Length() + value.Length() + 8;
 		String attribute(length, " %s=\"%s\"", name.CString(), value.CString());
 		content.Append(attribute);
 	}

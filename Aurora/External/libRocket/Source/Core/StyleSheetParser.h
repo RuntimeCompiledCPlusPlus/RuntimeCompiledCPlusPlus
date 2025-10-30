@@ -65,7 +65,7 @@ private:
 	// Parser memory buffer.
 	String parse_buffer;
 	// How far we've read through the buffer.
-	size_t parse_buffer_pos;
+	String::size_type parse_buffer_pos;
 
 	// The name of the file we'r parsing.
 	String stream_file_name;

@@ -69,13 +69,13 @@ ROCKETCORE_API float Cos(float angle)
 // Calculates the arc-cosine of an value.
 ROCKETCORE_API float ACos(float value)
 {
-	return acos(value);
+	return acosf(value);
 }
 
 // Calculates the sine of an angle.
 ROCKETCORE_API float Sin(float angle)
 {
-	return sin(angle);
+	return sinf(angle);
 }
 
 // Calculates the arc-sine of an value.

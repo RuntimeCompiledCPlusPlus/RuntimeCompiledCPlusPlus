@@ -254,7 +254,7 @@ bool Factory::InstanceElementText(Element* parent, const String& text)
 	{
 		// Check if this text node contains only white-space; if so, we don't want to construct it.
 		bool only_white_space = true;
-		for (size_t i = 0; i < translated_data.Length(); ++i)
+		for (String::size_type i = 0; i < translated_data.Length(); ++i)
 		{
 			if (!StringUtilities::IsWhitespace(translated_data[i]))
 			{

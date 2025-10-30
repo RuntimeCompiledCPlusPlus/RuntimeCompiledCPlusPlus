@@ -95,7 +95,7 @@ bool StyleSheetParser::ParseProperties(PropertyDictionary& parsed_properties, co
 
 bool StyleSheetParser::ReadProperties(PropertyDictionary& properties)
 {
-	int rule_line_number = line_number;
+	int rule_line_number = (int)line_number;
 	String name;
 	String value;
 
@@ -193,7 +193,7 @@ bool StyleSheetParser::ImportProperties(StyleSheetNode* node, const String& name
 	StringUtilities::ExpandString(nodes, names, ' ');
 
 	// Create each node going down the tree
-	for (size_t i = 0; i < nodes.size(); i++)
+	for (String::size_type i = 0; i < nodes.size(); i++)
 	{
 		String name = nodes[i];
 
@@ -203,11 +203,11 @@ bool StyleSheetParser::ImportProperties(StyleSheetNode* node, const String& name
 		StringList pseudo_classes;
 		StringList structural_pseudo_classes;
 
-		size_t index = 0;
+		String::size_type index = 0;
 		while (index < name.Length())
 		{
-			size_t start_index = index;
-			size_t end_index = index + 1;
+			String::size_type start_index = index;
+			String::size_type end_index = index + 1;
 
 			// Read until we hit the next identifier.
 			while (end_index < name.Length() &&
