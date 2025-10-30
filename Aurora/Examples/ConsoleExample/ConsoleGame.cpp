@@ -52,8 +52,12 @@ int _kbhit()
 #endif
 using FileSystemUtils::Path;
 
-
-ConsoleGame::ConsoleGame() = default;
+ConsoleGame::ConsoleGame()
+    : m_pCompilerLogger(0)
+    , m_pRuntimeObjectSystem(0)
+    , m_pUpdateable(0)
+{
+}
 
 ConsoleGame::~ConsoleGame()
 {
@@ -71,15 +75,18 @@ ConsoleGame::~ConsoleGame()
         IObject* pObj = m_pRuntimeObjectSystem->GetObjectFactorySystem()->GetObject( m_ObjectId );
         delete pObj;
     }
+
+    delete m_pRuntimeObjectSystem;
+    delete m_pCompilerLogger;
 }
 
 
 bool ConsoleGame::Init()
 {
     //Initialise the RuntimeObjectSystem
-    m_pRuntimeObjectSystem = std::make_unique<RuntimeObjectSystem>();
-    m_pCompilerLogger = std::make_unique<StdioLogSystem>();
-    if( !m_pRuntimeObjectSystem->Initialise(m_pCompilerLogger.get(), 0) )
+    m_pRuntimeObjectSystem = new RuntimeObjectSystem;
+    m_pCompilerLogger = new StdioLogSystem();
+    if( !m_pRuntimeObjectSystem->Initialise(m_pCompilerLogger, 0) )
     {
         m_pRuntimeObjectSystem = 0;
         return false;
@@ -93,13 +100,14 @@ bool ConsoleGame::Init()
     {
         IObject* pObj = pCtor->Construct();
         pObj->GetInterface( &m_pUpdateable );
-        if( ! m_pUpdateable )
+        if( 0 == m_pUpdateable )
         {
             delete pObj;
             m_pCompilerLogger->LogError("Error - no updateable interface found\n");
             return false;
         }
         m_ObjectId = pObj->GetObjectId();
+
     }
 
     return true;
@@ -112,7 +120,7 @@ void ConsoleGame::OnConstructorsAdded()
     {
         IObject* pObj = m_pRuntimeObjectSystem->GetObjectFactorySystem()->GetObject( m_ObjectId );
         pObj->GetInterface( &m_pUpdateable );
-        if( ! m_pUpdateable )
+        if( 0 == m_pUpdateable )
         {
             delete pObj;
             m_pCompilerLogger->LogError( "Error - no updateable interface found\n");

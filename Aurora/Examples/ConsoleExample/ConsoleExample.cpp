@@ -40,5 +40,6 @@ int main(int argc, char* argv[])
 		_getche();
 	}
 
-    std::cout << "Exiting..." << std::endl;
+    std::cout << "Exiting...\n";
+	return 0;
 }
