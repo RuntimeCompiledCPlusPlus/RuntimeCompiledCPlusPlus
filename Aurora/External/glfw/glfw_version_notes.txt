@@ -1,4 +1,0 @@
-Notes about version used.
-
-Using GLFW 2.7.6 for Windows & MacOSX
-Using GLFW 2.7.7 for X11/Linux

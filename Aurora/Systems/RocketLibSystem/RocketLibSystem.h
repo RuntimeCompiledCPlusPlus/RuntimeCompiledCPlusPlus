@@ -37,6 +37,20 @@
 #define PATH_SEPARATOR	":"
 #endif
 
+#ifdef WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+inline void platformSleep( double secs )
+{
+    Sleep( (int)( secs * 1000.0 ) );
+}
+#else
+#include <unistd.h>
+inline void platformSleep( double secs )
+{
+    usleep( (int)( secs * 1000000.0 ) );
+}
+#endif
 /**
 	RocketLibSystem functions for creating windows, attaching OpenGL and handling input in a platform independent way.
 	@author Lloyd Weehuizen
@@ -59,6 +73,10 @@ public:
 	static bool OpenWindow(const char* title, bool attach_opengl);
 	/// Close the active window.
 	static void CloseWindow();
+
+    static void* GetWindowHandle();
+
+    static bool ShouldWindowClose();
 
 	/// Flips the OpenGL buffers.
 	static void FlipBuffers();

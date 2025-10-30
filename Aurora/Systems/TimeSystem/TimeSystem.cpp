@@ -25,7 +25,7 @@
 #include <unistd.h>
 #endif
 #include "assert.h"
-#include <GL/glfw.h>
+#include <GLFW/glfw3.h>
 
 /*
 	I'm not certain if I'm using the best datatype here for storing the time, and I suspect the divisions could be put off.

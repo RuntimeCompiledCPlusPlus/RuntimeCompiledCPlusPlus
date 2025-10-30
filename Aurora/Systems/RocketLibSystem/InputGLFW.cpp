@@ -24,42 +24,45 @@
  * THE SOFTWARE.
  *
  */
-#include <GL/glfw.h>
+#include <GLFW/glfw3.h>
 
 #include "InputGLFW.h"
 #include <Rocket/Core/Context.h>
 #include <Rocket/Core/Input.h>
 
 
-
 static int GetKeyModifierState();
 static void InitialiseKeymap();
 
-void GLFWCALL KeyCallback( int key, int action );
-void GLFWCALL CharCallback( int character, int action );
-void GLFWCALL MouseButtonCallback( int button, int action );
-void GLFWCALL MousePosCallback( int x, int y );
-void GLFWCALL MouseWheelCallback( int pos );
+void KeyCallback( GLFWwindow* window, int key, int scancode, int action, int mods);
+void CharCallback( GLFWwindow* window, unsigned int codepoint);
+void MouseButtonCallback( GLFWwindow* window, int button, int action, int mods );
+void MousePosCallback( GLFWwindow* window, double x, double y);
+void MouseWheelCallback( GLFWwindow* window, double x, double y );
 
 static const int KEYMAP_SIZE = 512;
 static Rocket::Core::Input::KeyIdentifier key_identifier_map[KEYMAP_SIZE];
 
-bool InputGLFW::Initialise()
+static GLFWwindow* g_glfwWindow = NULL;
+
+
+bool InputGLFW::Initialise( void* glfwWindow )
 {
+    g_glfwWindow = (GLFWwindow*)glfwWindow;
 	InitialiseKeymap();
 
 	//init callbacks for glfw
-	glfwSetCharCallback( CharCallback );
-	glfwSetKeyCallback( KeyCallback );
-	glfwSetMouseButtonCallback( MouseButtonCallback );
-	glfwSetMousePosCallback( MousePosCallback );
-	glfwSetMouseWheelCallback( MouseWheelCallback );
+	glfwSetCharCallback(  g_glfwWindow, CharCallback );
+	glfwSetKeyCallback( g_glfwWindow, KeyCallback );
+	glfwSetMouseButtonCallback(  g_glfwWindow, MouseButtonCallback );
+	glfwSetCursorPosCallback( g_glfwWindow, MousePosCallback );
+	glfwSetScrollCallback( g_glfwWindow, MouseWheelCallback );
 
 	return true;
 }
 
 
-void GLFWCALL KeyCallback( int key, int action )
+void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if( 0 == Input::GetContext() ) { return; }
 
@@ -82,17 +85,14 @@ void GLFWCALL KeyCallback( int key, int action )
 	
 }
 
-void GLFWCALL CharCallback( int character, int action )
+void CharCallback(GLFWwindow* window, unsigned int codepoint)
 {
 	if( 0 == Input::GetContext() ) { return; }
 
-	if( GLFW_PRESS == action )
-	{
-		Input::GetContext()->ProcessTextInput( character );
-	}
+	Input::GetContext()->ProcessTextInput( codepoint );
 }
 
-void GLFWCALL MouseButtonCallback( int button, int action )
+void MouseButtonCallback( GLFWwindow* window, int button, int action, int mods )
 {
 	if( 0 == Input::GetContext() ) { return; }
 
@@ -109,20 +109,20 @@ void GLFWCALL MouseButtonCallback( int button, int action )
 }
 
 
-void GLFWCALL MousePosCallback( int x, int y )
+void MousePosCallback( GLFWwindow* window, double x, double y)
 {
 	if( 0 == Input::GetContext() ) { return; }
 
-	Input::GetContext()->ProcessMouseMove(x, y, GetKeyModifierState());
+	Input::GetContext()->ProcessMouseMove((int)x, (int)y, GetKeyModifierState());
 }
 
 
-void GLFWCALL MouseWheelCallback( int pos )
+void MouseWheelCallback( GLFWwindow* window, double x, double y )
 {
 	if( 0 == Input::GetContext() ) { return; }
 	static int pos0 = 0;
-	Input::GetContext()->ProcessMouseWheel(pos0-pos, GetKeyModifierState());
-	pos0 = pos;
+	Input::GetContext()->ProcessMouseWheel(pos0-(int)y, GetKeyModifierState());
+    pos0 = (int)y;
 }
 
 
@@ -131,27 +131,27 @@ static int GetKeyModifierState()
 	int key_modifier_state = 0;
 
 	// Query the state of all modifier keys
-	if( glfwGetKey( GLFW_KEY_CAPS_LOCK ))
+	if( glfwGetKey( g_glfwWindow, GLFW_KEY_CAPS_LOCK ))
 	{
 		key_modifier_state |= Rocket::Core::Input::KM_CAPSLOCK;
 	}
 
-	if( glfwGetKey( GLFW_KEY_LSHIFT ) || glfwGetKey( GLFW_KEY_RSHIFT ) )
+	if( glfwGetKey( g_glfwWindow, GLFW_KEY_LEFT_SHIFT ) || glfwGetKey( g_glfwWindow, GLFW_KEY_RIGHT_SHIFT ) )
 	{
 		key_modifier_state |= Rocket::Core::Input::KM_SHIFT;
 	}
 
-	if( glfwGetKey( GLFW_KEY_KP_NUM_LOCK ))
+	if( glfwGetKey( g_glfwWindow, GLFW_KEY_NUM_LOCK ))
 	{
 		key_modifier_state |= Rocket::Core::Input::KM_NUMLOCK;
 	}
 
-	if( glfwGetKey( GLFW_KEY_LCTRL ) || glfwGetKey( GLFW_KEY_RCTRL ) )
+	if( glfwGetKey( g_glfwWindow, GLFW_KEY_LEFT_CONTROL ) || glfwGetKey( g_glfwWindow, GLFW_KEY_RIGHT_CONTROL ) )
 	{
 		key_modifier_state |= Rocket::Core::Input::KM_CTRL;
 	}
 
-	if( glfwGetKey( GLFW_KEY_LALT ) || glfwGetKey( GLFW_KEY_RALT ) )
+	if( glfwGetKey( g_glfwWindow, GLFW_KEY_LEFT_ALT ) || glfwGetKey( g_glfwWindow, GLFW_KEY_RIGHT_ALT ) )
 	{
 		key_modifier_state |= Rocket::Core::Input::KM_ALT;
 	}
@@ -211,11 +211,11 @@ static void InitialiseKeymap()
 	key_identifier_map[GLFW_KEY_PAUSE] = Rocket::Core::Input::KI_PAUSE;
 	key_identifier_map[GLFW_KEY_CAPS_LOCK] = Rocket::Core::Input::KI_CAPITAL;
 
-	key_identifier_map[GLFW_KEY_ESC] = Rocket::Core::Input::KI_ESCAPE;
+	key_identifier_map[GLFW_KEY_ESCAPE] = Rocket::Core::Input::KI_ESCAPE;
 
 	key_identifier_map[GLFW_KEY_SPACE] = Rocket::Core::Input::KI_SPACE;
-	key_identifier_map[GLFW_KEY_PAGEUP] = Rocket::Core::Input::KI_PRIOR;
-	key_identifier_map[GLFW_KEY_PAGEDOWN] = Rocket::Core::Input::KI_NEXT;
+	key_identifier_map[GLFW_KEY_PAGE_UP] = Rocket::Core::Input::KI_PRIOR;
+	key_identifier_map[GLFW_KEY_PAGE_DOWN] = Rocket::Core::Input::KI_NEXT;
 	key_identifier_map[GLFW_KEY_END] = Rocket::Core::Input::KI_END;
 	key_identifier_map[GLFW_KEY_HOME] = Rocket::Core::Input::KI_HOME;
 	key_identifier_map[GLFW_KEY_LEFT] = Rocket::Core::Input::KI_LEFT;
@@ -223,10 +223,10 @@ static void InitialiseKeymap()
 	key_identifier_map[GLFW_KEY_RIGHT] = Rocket::Core::Input::KI_RIGHT;
 	key_identifier_map[GLFW_KEY_DOWN] = Rocket::Core::Input::KI_DOWN;
 	key_identifier_map[GLFW_KEY_INSERT] = Rocket::Core::Input::KI_INSERT;
-	key_identifier_map[GLFW_KEY_DEL] = Rocket::Core::Input::KI_DELETE;
+	key_identifier_map[GLFW_KEY_DELETE] = Rocket::Core::Input::KI_DELETE;
 
-	key_identifier_map[GLFW_KEY_LSUPER] = Rocket::Core::Input::KI_LWIN;
-	key_identifier_map[GLFW_KEY_RSUPER] = Rocket::Core::Input::KI_RWIN;
+	key_identifier_map[GLFW_KEY_LEFT_SUPER] = Rocket::Core::Input::KI_LWIN;
+	key_identifier_map[GLFW_KEY_RIGHT_SUPER] = Rocket::Core::Input::KI_RWIN;
 
 	key_identifier_map[GLFW_KEY_KP_0] = Rocket::Core::Input::KI_NUMPAD0;
 	key_identifier_map[GLFW_KEY_KP_1] = Rocket::Core::Input::KI_NUMPAD1;
@@ -269,14 +269,14 @@ static void InitialiseKeymap()
 	key_identifier_map[GLFW_KEY_F23] = Rocket::Core::Input::KI_F23;
 	key_identifier_map[GLFW_KEY_F24] = Rocket::Core::Input::KI_F24;
 
-	key_identifier_map[GLFW_KEY_KP_NUM_LOCK] = Rocket::Core::Input::KI_NUMLOCK;
+	key_identifier_map[GLFW_KEY_NUM_LOCK] = Rocket::Core::Input::KI_NUMLOCK;
 	key_identifier_map[GLFW_KEY_SCROLL_LOCK] = Rocket::Core::Input::KI_SCROLL;
 
-	key_identifier_map[GLFW_KEY_LSHIFT] = Rocket::Core::Input::KI_LSHIFT;
-	key_identifier_map[GLFW_KEY_RSHIFT] = Rocket::Core::Input::KI_RSHIFT;
-	key_identifier_map[GLFW_KEY_LCTRL] = Rocket::Core::Input::KI_LCONTROL;
-	key_identifier_map[GLFW_KEY_RCTRL] = Rocket::Core::Input::KI_RCONTROL;
-	key_identifier_map[GLFW_KEY_LALT] = Rocket::Core::Input::KI_LMENU;
-	key_identifier_map[GLFW_KEY_RALT] = Rocket::Core::Input::KI_RMENU;
+	key_identifier_map[GLFW_KEY_LEFT_SHIFT] = Rocket::Core::Input::KI_LSHIFT;
+	key_identifier_map[GLFW_KEY_RIGHT_SHIFT] = Rocket::Core::Input::KI_RSHIFT;
+	key_identifier_map[GLFW_KEY_LEFT_CONTROL] = Rocket::Core::Input::KI_LCONTROL;
+	key_identifier_map[GLFW_KEY_RIGHT_CONTROL] = Rocket::Core::Input::KI_RCONTROL;
+	key_identifier_map[GLFW_KEY_LEFT_ALT] = Rocket::Core::Input::KI_LMENU;
+	key_identifier_map[GLFW_KEY_RIGHT_ALT] = Rocket::Core::Input::KI_RMENU;
 
 }

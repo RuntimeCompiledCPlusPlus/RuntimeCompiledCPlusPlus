@@ -22,6 +22,7 @@
 #undef GetObject
 #endif
 
+
 #include "CompilerLogger.h"
 #include  "InterfaceIds.h"
 #include "IObjectUtils.h"
@@ -66,7 +67,7 @@
 #include "../../Systems/RocketLibSystem/RocketLibSystem.h"
 #include "../../Systems/RocketLibSystem/Input.h"
 
-#include <GL/glfw.h>
+#include <GLFW/glfw3.h>
 
 using FileSystemUtils::Path;
 
@@ -298,7 +299,7 @@ void Game::MainLoop()
 	const double dIdealTime = 1.0 / 70.0; //ideal time is actually 1/60, but we want some leeway 
 	if ( dTimeTaken < dIdealTime)
 	{
-        glfwSleep( dIdealTime - dTimeTaken );
+        platformSleep( dIdealTime - dTimeTaken );
 	}
 
 	pTimeSystem->EndFrame();
@@ -555,10 +556,10 @@ bool Game::TestBuildWaitAndUpdate()
     double dTimeLeft = dGoodWaitTime - (dTimeEnd - dTimeStart);
 	if( dTimeLeft > 0.0 )
 	{
-        glfwSleep( dTimeLeft );
+        platformSleep( dTimeLeft );
 	}
 
-    if( !glfwGetWindowParam( GLFW_OPENED ) )
+    if( !RocketLibSystem::ShouldWindowClose() )
     {
         // closed window so stop
         return false;

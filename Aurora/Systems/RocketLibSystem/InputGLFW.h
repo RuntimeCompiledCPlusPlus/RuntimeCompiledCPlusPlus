@@ -43,7 +43,7 @@
 class InputGLFW : public Input
 {
 public:
-	static bool Initialise();
+	static bool Initialise( void* glfwWindow );
 
 private:
 };

@@ -30,7 +30,7 @@
 #include "InputGLFW.h"
 #include "RocketLibSystemFileInterface.h"
 #include <stdio.h>
-#include <GL/glfw.h>
+#include <GLFW/glfw3.h>
 
 #include "../Systems.h"
 #include "../IAssetSystem.h"
@@ -39,12 +39,12 @@
 //#include <libproc.h>
 //#endif
 
-void GLFWCALL WindowResize( int width, int height );
-
+void window_size_callback(GLFWwindow* window, int width, int height);
 
 static bool running = true;
 static int g_WindowSize[4];
 
+static GLFWwindow* g_glfwWindow = NULL;
 
 static RocketLibSystemFileInterface* file_interface = NULL;
 
@@ -79,34 +79,45 @@ void RocketLibSystem::GetViewport( int WindowSize[4] )
 
 bool RocketLibSystem::OpenWindow(const char* name, bool attach_opengl)
 {
-
-	glfwOpenWindow( 640, 768, 8, 8, 8, 8, 24, 8, GLFW_WINDOW );
-	glfwSetWindowTitle( name );
-	glfwSetWindowSizeCallback( WindowResize );
+	g_glfwWindow = glfwCreateWindow( 640, 768, name, NULL, NULL );
+	glfwSetWindowSizeCallback( g_glfwWindow, window_size_callback );
+    glfwMakeContextCurrent( g_glfwWindow );
+    glViewport(0, 0, 640, 768);
 	glGetIntegerv( GL_VIEWPORT, g_WindowSize);
-
-	InputGLFW::Initialise();
-
+	InputGLFW::Initialise( g_glfwWindow );
 
     return true;
 }
 
 void RocketLibSystem::CloseWindow()
 {
-	glfwCloseWindow();
+	glfwDestroyWindow( g_glfwWindow );
+    g_glfwWindow = NULL;
 }
+
+bool RocketLibSystem::ShouldWindowClose()
+{
+    return glfwWindowShouldClose( g_glfwWindow );
+}
+
+void* RocketLibSystem::GetWindowHandle()
+{
+    return g_glfwWindow;
+}
+
 
 // Flips the OpenGL buffers.
 void RocketLibSystem::FlipBuffers()
 {
-	glfwSwapBuffers();
+	glfwSwapBuffers( g_glfwWindow );
+    glfwPollEvents();
 }
 
 void RocketLibSystem::EventLoop(RocketLibSystemIdleFunction idle_function)
 {
 	while (running)
 	{
-		if( !glfwGetWindowParam( GLFW_OPENED ) )
+		if( glfwWindowShouldClose( g_glfwWindow ) )
 		{
 			running = false;
 		}
@@ -115,9 +126,9 @@ void RocketLibSystem::EventLoop(RocketLibSystemIdleFunction idle_function)
 
 			idle_function();
 
-			if( !glfwGetWindowParam( GLFW_ACTIVE ) )
+			if( glfwGetWindowAttrib( g_glfwWindow, GLFW_ICONIFIED) )
 			{
-				glfwSleep( 0.1 );
+				platformSleep( 0.1 );
 			}
 		}
 	}
@@ -138,7 +149,7 @@ float RocketLibSystem::GetElapsedTime()
 	return (float)glfwGetTime();
 }
 
-void GLFWCALL WindowResize( int width, int height )
+void window_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
 	glGetIntegerv( GL_VIEWPORT, g_WindowSize);
