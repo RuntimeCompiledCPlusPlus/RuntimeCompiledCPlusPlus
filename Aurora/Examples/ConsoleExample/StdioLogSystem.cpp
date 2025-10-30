@@ -26,44 +26,44 @@
 #ifdef _WIN32
     #include "../../RuntimeCompiler/FileSystemUtils.h"
     #include "Windows.h"
-        #pragma warning( disable : 4996 4800 )
+	#pragma warning( disable : 4996 4800 )
 #endif
 
 
 void StdioLogSystem::LogError(const char * format, ...)
 {
-    va_list args;
-    va_start(args, format);
-    LogInternal(format, args);
-    va_end(args);
+	va_list args;
+	va_start(args, format);
+	LogInternal(format, args);
+	va_end(args);
 }
 
 void StdioLogSystem::LogWarning(const char * format, ...)
 {
-    va_list args;
-    va_start(args, format);
-    LogInternal(format, args);
-    va_end(args);
+	va_list args;
+	va_start(args, format);
+	LogInternal(format, args);
+	va_end(args);
 }
 
 void StdioLogSystem::LogInfo(const char * format, ...)
 {
-    va_list args;
-    va_start(args, format);
-    LogInternal(format, args);
-    va_end(args);
+	va_list args;
+	va_start(args, format);
+	LogInternal(format, args);
+	va_end(args);
 }
 void StdioLogSystem::LogInternal(const char * format, va_list args)
 {
-    vsnprintf(m_buff, LOGSYSTEM_MAX_BUFFER-1, format, args);
-    // Make sure there's a limit to the amount of rubbish we can output
-    m_buff[LOGSYSTEM_MAX_BUFFER-1] = '\0';
+	int result = vsnprintf(m_buff, LOGSYSTEM_MAX_BUFFER-1, format, args);
+	// Make sure there's a limit to the amount of rubbish we can output
+	m_buff[LOGSYSTEM_MAX_BUFFER-1] = '\0';
 
-    std::cout << m_buff;
+	std::cout << m_buff;
 #ifdef _WIN32
     std::string temp = m_buff;
     // convert from utf-8 to Wide char
     std::wstring tempW = FileSystemUtils::_Win32Utf8ToUtf16( temp );
-    OutputDebugStringW( tempW.c_str() );
+	OutputDebugStringW( tempW.c_str() );
 #endif
 }
