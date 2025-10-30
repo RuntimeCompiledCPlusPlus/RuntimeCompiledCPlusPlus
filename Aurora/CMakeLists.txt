@@ -61,16 +61,20 @@ install(TARGETS RuntimeObjectSystem RuntimeCompiler
 	DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/)
 
 if(BUILD_EXAMPLES)
+	option(BUILD_EXAMPLE_CONSOLE "Build ConsoleExample" ON)
+	option(BUILD_EXAMPLE_SIMPLETEST "Build SimpleTest" ON)
 
-
+	if(BUILD_EXAMPLE_CONSOLE)
 	#
 	# ConsoleExample
 	#
 
 	add_executable(ConsoleExample ${ConsoleExample_SRCS})
 	target_link_libraries(ConsoleExample RuntimeCompiler RuntimeObjectSystem)
+	endif() # if(BUILD_EXAMPLE_CONSOLE)
 
-	
+	if(BUILD_EXAMPLE_SIMPLETEST)
+
 	find_package(OpenGL)
 	if(OpenGL_FOUND)
 		#
@@ -172,4 +176,5 @@ if(BUILD_EXAMPLES)
 	else()  # OpenGL_FOUND
 		message(WARNING "OpenGL not found, not creating graphical example")
 	endif() # OpenGL_FOUND
-endif()
+	endif() # BUILD_EXAMPLE_SIMPLETEST
+endif() # BUILD_EXAMPLES
