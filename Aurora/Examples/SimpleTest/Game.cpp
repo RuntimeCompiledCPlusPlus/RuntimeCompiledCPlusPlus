@@ -57,7 +57,6 @@
     #include <tchar.h>
     #include <conio.h>
 #endif
-#include <strstream>
 #include <vector>
 #include <algorithm>
 
