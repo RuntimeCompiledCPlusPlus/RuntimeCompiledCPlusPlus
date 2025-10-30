@@ -28,7 +28,6 @@
 #include "IUpdateable.h"
 
 #include <iostream>
-#include <thread> // std::this_thread::sleep_for
 #ifdef WIN32
 #include <conio.h>
 #include <tchar.h>
@@ -44,6 +43,11 @@ int _kbhit()
     std::cout << "This port needs a fix, CTRL-C to quit\n";
     return 0;
 }
+
+int Sleep( int msecs )
+{
+    return usleep( msecs * 1000);
+}
 #endif
 
 // Remove windows.h define of GetObject which conflicts with EntitySystem GetObject
@@ -53,9 +57,9 @@ int _kbhit()
 using FileSystemUtils::Path;
 
 ConsoleGame::ConsoleGame()
-    : m_pCompilerLogger(0)
-    , m_pRuntimeObjectSystem(0)
-    , m_pUpdateable(0)
+	: m_pCompilerLogger(0)
+	, m_pRuntimeObjectSystem(0)
+	, m_pUpdateable(0)
 {
 }
 
@@ -76,86 +80,86 @@ ConsoleGame::~ConsoleGame()
         delete pObj;
     }
 
-    delete m_pRuntimeObjectSystem;
-    delete m_pCompilerLogger;
+	delete m_pRuntimeObjectSystem;
+	delete m_pCompilerLogger;
 }
 
 
 bool ConsoleGame::Init()
 {
-    //Initialise the RuntimeObjectSystem
-    m_pRuntimeObjectSystem = new RuntimeObjectSystem;
-    m_pCompilerLogger = new StdioLogSystem();
-    if( !m_pRuntimeObjectSystem->Initialise(m_pCompilerLogger, 0) )
+	//Initialise the RuntimeObjectSystem
+	m_pRuntimeObjectSystem = new RuntimeObjectSystem;
+	m_pCompilerLogger = new StdioLogSystem();
+	if( !m_pRuntimeObjectSystem->Initialise(m_pCompilerLogger, 0) )
     {
         m_pRuntimeObjectSystem = 0;
         return false;
     }
-    m_pRuntimeObjectSystem->GetObjectFactorySystem()->AddListener(this);
+	m_pRuntimeObjectSystem->GetObjectFactorySystem()->AddListener(this);
 
 
-    // construct first object
-    IObjectConstructor* pCtor = m_pRuntimeObjectSystem->GetObjectFactorySystem()->GetConstructor( "RuntimeObject01" );
-    if( pCtor )
-    {
-        IObject* pObj = pCtor->Construct();
-        pObj->GetInterface( &m_pUpdateable );
-        if( 0 == m_pUpdateable )
-        {
-            delete pObj;
-            m_pCompilerLogger->LogError("Error - no updateable interface found\n");
-            return false;
-        }
-        m_ObjectId = pObj->GetObjectId();
+	// construct first object
+	IObjectConstructor* pCtor = m_pRuntimeObjectSystem->GetObjectFactorySystem()->GetConstructor( "RuntimeObject01" );
+	if( pCtor )
+	{
+		IObject* pObj = pCtor->Construct();
+		pObj->GetInterface( &m_pUpdateable );
+		if( 0 == m_pUpdateable )
+		{
+			delete pObj;
+			m_pCompilerLogger->LogError("Error - no updateable interface found\n");
+			return false;
+		}
+		m_ObjectId = pObj->GetObjectId();
 
-    }
+	}
 
-    return true;
+	return true;
 }
 
 void ConsoleGame::OnConstructorsAdded()
 {
-    // This could have resulted in a change of object pointer, so release old and get new one.
-    if( m_pUpdateable )
-    {
-        IObject* pObj = m_pRuntimeObjectSystem->GetObjectFactorySystem()->GetObject( m_ObjectId );
-        pObj->GetInterface( &m_pUpdateable );
-        if( 0 == m_pUpdateable )
-        {
-            delete pObj;
-            m_pCompilerLogger->LogError( "Error - no updateable interface found\n");
-        }
-    }
+	// This could have resulted in a change of object pointer, so release old and get new one.
+	if( m_pUpdateable )
+	{
+		IObject* pObj = m_pRuntimeObjectSystem->GetObjectFactorySystem()->GetObject( m_ObjectId );
+		pObj->GetInterface( &m_pUpdateable );
+		if( 0 == m_pUpdateable )
+		{
+			delete pObj;
+			m_pCompilerLogger->LogError( "Error - no updateable interface found\n");
+		}
+	}
 }
+
 
 
 bool ConsoleGame::MainLoop()
 {
-    using namespace std::chrono_literals;
+	//check status of any compile
+	if( m_pRuntimeObjectSystem->GetIsCompiledComplete() )
+	{
+		// load module when compile complete
+		m_pRuntimeObjectSystem->LoadCompiledModule();
+	}
 
-    //check status of any compile
-    if( m_pRuntimeObjectSystem->GetIsCompiledComplete() )
-    {
-        // load module when compile complete
-        m_pRuntimeObjectSystem->LoadCompiledModule();
-    }
-
-    if( !m_pRuntimeObjectSystem->GetIsCompiling() )
-    {
+	if( !m_pRuntimeObjectSystem->GetIsCompiling() )
+	{
         static int numUpdates = 0;
-        std::cout << "\nMain Loop - press q to quit. Updates every second. Update: " << numUpdates++ << "\n";
-        if( _kbhit() )
-        {
-            if( 'q' == _getche() )
-            {
-                return false;
-            }
-        }
-        const float deltaTime = 1.0f;
-        m_pRuntimeObjectSystem->GetFileChangeNotifier()->Update( deltaTime );
-        m_pUpdateable->Update( deltaTime );
-        std::this_thread::sleep_for(1000ms);
-    }
+		std::cout << "\nMain Loop - press q to quit. Updates every second. Update: " << numUpdates++ << "\n";
+		if( _kbhit() )
+		{
+			int ret = _getche();
+			if( 'q' == ret )
+			{
+				return false;
+			}
+		}
+		const float deltaTime = 1.0f;
+		m_pRuntimeObjectSystem->GetFileChangeNotifier()->Update( deltaTime );
+		m_pUpdateable->Update( deltaTime );
+		Sleep(1000);
+	}
 
-    return true;
+	return true;
 }
