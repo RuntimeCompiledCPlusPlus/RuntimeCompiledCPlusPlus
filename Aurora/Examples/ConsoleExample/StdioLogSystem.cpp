@@ -35,6 +35,7 @@ void StdioLogSystem::LogError(const char * format, ...)
 	va_list args;
 	va_start(args, format);
 	LogInternal(format, args);
+	va_end(args);
 }
 
 void StdioLogSystem::LogWarning(const char * format, ...)
@@ -42,6 +43,7 @@ void StdioLogSystem::LogWarning(const char * format, ...)
 	va_list args;
 	va_start(args, format);
 	LogInternal(format, args);
+	va_end(args);
 }
 
 void StdioLogSystem::LogInfo(const char * format, ...)
@@ -49,6 +51,7 @@ void StdioLogSystem::LogInfo(const char * format, ...)
 	va_list args;
 	va_start(args, format);
 	LogInternal(format, args);
+	va_end(args);
 }
 void StdioLogSystem::LogInternal(const char * format, va_list args)
 {
