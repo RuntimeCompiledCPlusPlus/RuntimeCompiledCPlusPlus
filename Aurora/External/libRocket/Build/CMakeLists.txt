@@ -2,12 +2,7 @@
 # Build script for libRocket =======
 #===================================
 
-if(APPLE)
-# We use the new OSX_ARCHITECTURES property
-cmake_minimum_required(VERSION 2.8.1)
-else()
-cmake_minimum_required(VERSION 2.6)
-endif()
+cmake_minimum_required(VERSION 3.5)
 
 if(COMMAND cmake_policy)
   cmake_policy(SET CMP0015 NEW)

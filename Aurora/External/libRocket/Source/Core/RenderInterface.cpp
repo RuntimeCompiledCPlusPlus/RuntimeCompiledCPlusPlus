@@ -44,7 +44,7 @@ RenderInterface::~RenderInterface()
 // Called by Rocket when it wants to compile geometry it believes will be static for the forseeable future.
 CompiledGeometryHandle RenderInterface::CompileGeometry(Vertex* ROCKET_UNUSED(vertices), int ROCKET_UNUSED(num_vertices), int* ROCKET_UNUSED(indices), int ROCKET_UNUSED(num_indices), TextureHandle ROCKET_UNUSED(texture))
 {
-	return NULL;
+	return 0;
 }
 
 // Called by Rocket when it wants to render application-compiled geometry.
@@ -77,7 +77,7 @@ void RenderInterface::ReleaseTexture(TextureHandle ROCKET_UNUSED(texture))
 // Returns the native horizontal texel offset for the renderer.
 float RenderInterface::GetHorizontalTexelOffset()
 {
-	return 0;
+	return 0.0;
 }
 
 // Returns the native vertical texel offset for the renderer.

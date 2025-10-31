@@ -43,7 +43,7 @@ void RocketLibSystemRenderInterfaceOpenGL::RenderGeometry(Rocket::Core::Vertex* 
 	glVertexPointer(2, GL_FLOAT, sizeof(Rocket::Core::Vertex), &vertices[0].position);
 	glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Rocket::Core::Vertex), &vertices[0].colour);
 
-	if (texture == NULL)
+	if (texture == 0)
 	{
 		glDisable(GL_TEXTURE_2D);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -119,7 +119,7 @@ bool RocketLibSystemRenderInterfaceOpenGL::LoadTexture(Rocket::Core::TextureHand
 {
 	Rocket::Core::FileInterface* file_interface = Rocket::Core::GetFileInterface();
 	Rocket::Core::FileHandle file_handle = file_interface->Open(source);
-	if (file_handle == NULL)
+	if (file_handle == 0)
 		return false;
 
 	file_interface->Seek(file_handle, 0, SEEK_END);
