@@ -116,7 +116,7 @@ if(BUILD_EXAMPLES)
 		
 		set( GLFW_BUILD_DOCS OFF CACHE BOOL  "GLFW lib only" )
 		set( GLFW_INSTALL OFF CACHE BOOL  "GLFW lib only" )
-		add_subdirectory( External/glfw )
+		add_subdirectory( External/glfw3 )
 		include_directories("${GLFW_SOURCE_DIR}/include")
 		#
 		# assimp
