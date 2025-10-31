@@ -19,6 +19,29 @@ Runtime-Compiled C++ (RCC++) is a way to reliably make major changes to your C++
 
 RCC++ is primarily designed to shorten iteration times in development - developers can build their project, run it, make changes during runtime and see the results almost immediately. If needed, shipping code can [disable runtime compilation](https://github.com/RuntimeCompiledCPlusPlus/RuntimeCompiledCPlusPlus/wiki/Disabling-runtime-compilation) in a number of ways. RCC++ is not intended as a method to allow end users of a shipped binary to compile modifications, though with some work it can be used this way.
 
+## Getting & running the sample code
+
+This repository now uses a submodule for GLFW.
+
+Clone with:
+
+```
+git clone --recursive https://github.com/RuntimeCompiledCPlusPlus/RuntimeCompiledCPlusPlus
+```
+
+or update with:
+
+```
+git submodule update --init --recursive
+```
+
+Create project files and build using CMake:
+
+1. Create a folder called build in the Aurora directory.
+2. Change to the `Aurora/build` directory
+3. Run `cmake ..`
+4. Either build your project with make/Visual Studio/XCode or run `cmake --build .` (the `.` means build in the current directory).
+
 ## Features
 
 - Cross platform, supporting MSVC on Windows, Clang and GCC or any compiler which understands GCC options on Linux and Mac OSX, and relatively easy to port to new compilers and platforms.
