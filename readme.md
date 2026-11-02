@@ -19,6 +19,13 @@ Runtime-Compiled C++ (RCC++) is a way to reliably make major changes to your C++
 
 RCC++ is primarily designed to shorten iteration times in development - developers can build their project, run it, make changes during runtime and see the results almost immediately. If needed, shipping code can [disable runtime compilation](https://github.com/RuntimeCompiledCPlusPlus/RuntimeCompiledCPlusPlus/wiki/Disabling-runtime-compilation) in a number of ways. RCC++ is not intended as a method to allow end users of a shipped binary to compile modifications, though with some work it can be used this way.
 
+## No generative AI / LLMs
+
+Do not use generative AI / large language models (LLMs) to contribute to this project.
+
+- You must confirm that you are the author of the contribution, and that you did not use generative AI / LLMs.
+- You must contribute under the terms of the project licence.
+
 ## Getting & running the sample code
 
 This repository now uses a submodule for GLFW.
